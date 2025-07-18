@@ -9,7 +9,8 @@
       "default",
       "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
       "!{projectRoot}/tsconfig.spec.json",
-      "!{projectRoot}/src/test-setup.[jt]s"
+      "!{projectRoot}/src/test-setup.[jt]s",
+      "!{projectRoot}/biome.json"
     ],
     "sharedGlobals": []
   },
@@ -48,6 +49,13 @@
       "dependsOn": [
         "^build"
       ]
+    },
+    "lint-biome": {
+      "inputs": [
+        "default",
+        "{workspaceRoot}/biome.json"
+      ],
+      "cache": true
     }
   }
 }

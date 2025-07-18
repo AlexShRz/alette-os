@@ -16,6 +16,27 @@
     }
   },
   "dependencies": {
-    "effect": "^3.16.16"
+    "effect": "^3.16.16",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.1.2"
+  },
+  "nx": {
+    "targets": {
+      "biome-lint": {
+        "executor": "@gitopslovers/nx-biome:biome-lint",
+        "outputs": [
+          "{options.outputFile}"
+        ],
+        "options": {
+          "lintFilePatterns": [
+            "packages/event-sourcing/**/*.ts"
+          ],
+          "write": false,
+          "unsafe": false
+        }
+      }
+    }
   }
 }
