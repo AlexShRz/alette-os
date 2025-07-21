@@ -1,42 +1,44 @@
 {
-  "name": "@alette-os/event-sourcing",
-  "version": "0.0.1",
-  "private": true,
-  "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    "./package.json": "./package.json",
-    ".": {
-      "development": "./src/index.ts",
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
-    }
-  },
-  "dependencies": {
-    "effect": "^3.16.16",
-    "uuid": "^11.1.0"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.1.2"
-  },
-  "nx": {
-    "targets": {
-      "biome-lint": {
-        "executor": "@gitopslovers/nx-biome:biome-lint",
-        "outputs": [
-          "{options.outputFile}"
-        ],
-        "options": {
-          "lintFilePatterns": [
-            "packages/event-sourcing/**/*.ts"
-          ],
-          "write": false,
-          "unsafe": false
-        }
-      }
-    }
-  }
+	"name": "@alette-os/event-sourcing",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"development": "./src/index.ts",
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
+		}
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.1.2",
+		"@effect/vitest": "^0.24.1",
+		"vitest": "^3.0.0"
+	},
+	"nx": {
+		"targets": {
+			"biome-lint": {
+				"executor": "@gitopslovers/nx-biome:biome-lint",
+				"outputs": [
+					"{options.outputFile}"
+				],
+				"options": {
+					"lintFilePatterns": [
+						"packages/event-sourcing/**/*.ts"
+					],
+					"write": false,
+					"unsafe": false
+				}
+			}
+		}
+	},
+	"peerDependencies": {
+		"effect": "^3.16.16",
+		"uuid": "^11.1.0"
+	}
 }
