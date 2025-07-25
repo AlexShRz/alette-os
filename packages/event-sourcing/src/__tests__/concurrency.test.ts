@@ -1,6 +1,6 @@
 import { expect, it } from "@effect/vitest";
 import { TestClock } from "effect";
-import { fork, gen, provide, sleep, succeed, zipRight } from "effect/Effect";
+import { fork, gen, sleep, succeed, zipRight } from "effect/Effect";
 import * as Fiber from "effect/Fiber";
 import { EventBus } from "../EventBus.js";
 import { BusEvent } from "../events/BusEvent.js";
@@ -8,9 +8,9 @@ import { BusEventListenerContext } from "../listeners/BusEventListener.js";
 import { DummyEvent } from "./utils/DummyEvent.js";
 import { DummyEventListener } from "./utils/DummyEventListener.js";
 
-it.scoped("suspends event processing if listener mutation is in progress", () =>
+it.effect("suspends event processing if listener mutation is in progress", () =>
 	gen(function* () {
-		const eventBus = yield* EventBus;
+		const eventBus = new EventBus();
 		const executionOrder: number[] = [];
 
 		const Listener1 = class extends DummyEventListener {
@@ -35,7 +35,7 @@ it.scoped("suspends event processing if listener mutation is in progress", () =>
 			)
 			.pipe(fork);
 
-		const event = DummyEvent.make();
+		const event = new DummyEvent();
 		const fiber2 = yield* eventBus.send(event).pipe(fork);
 
 		// Events should be suspended
@@ -45,5 +45,5 @@ it.scoped("suspends event processing if listener mutation is in progress", () =>
 		const result = yield* Fiber.zipRight(fiber1, fiber2);
 		expect(result).toEqual(event);
 		expect(executionOrder).toEqual([1, 2]);
-	}).pipe(provide(EventBus.Live)),
+	}),
 );

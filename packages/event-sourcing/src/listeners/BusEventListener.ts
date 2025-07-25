@@ -86,7 +86,7 @@ export abstract class BusEventListener {
 	/**
 	 * Event listeners should be cloneable
 	 * */
-	abstract clone(): this;
+	abstract clone(): Effect<this, never, never>;
 
 	protected reset() {
 		this.onAttachListeners = [];

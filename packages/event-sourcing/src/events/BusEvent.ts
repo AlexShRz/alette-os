@@ -1,28 +1,21 @@
 import * as DateTime from "effect/DateTime";
-import * as S from "effect/Schema";
+import { Effect } from "effect/Effect";
 import { v4 as uuid } from "uuid";
 import { BusEventListener } from "../listeners/BusEventListener.js";
 
-export abstract class BusEvent extends S.TaggedClass<BusEvent>()("BusEvent", {
-	id: S.optionalWith(S.String, {
-		default: () => uuid(),
-	}),
-	dispatchedBy: S.optionalWith(S.Union(S.UUID, S.Null), {
-		default: () => null,
-	}),
-	createdAt: S.optionalWith(S.DateTimeUtc, {
-		default: () => DateTime.unsafeNow(),
-	}),
-}) {
+export abstract class BusEvent {
 	protected wasCancelled = false;
-	protected overriddenDispatchedBy = this.dispatchedBy;
+	protected dispatchedBy: string | null = null;
+	protected createdAt = DateTime.unsafeNow();
+
+	constructor(protected id = uuid()) {}
 
 	isCancelled() {
 		return this.wasCancelled;
 	}
 
 	isDispatchedBy(listener: BusEventListener) {
-		return listener.getId() === this.overriddenDispatchedBy;
+		return listener.getId() === this.dispatchedBy;
 	}
 
 	isOlderThan(event: BusEvent) {
@@ -41,12 +34,12 @@ export abstract class BusEvent extends S.TaggedClass<BusEvent>()("BusEvent", {
 	}
 
 	setDispatchedBy(listenerId: string) {
-		this.overriddenDispatchedBy = listenerId;
+		this.dispatchedBy = listenerId;
 		return this;
 	}
 
 	/**
 	 * Events should be cloneable, if not, an error should be thrown
 	 * */
-	abstract clone(): this;
+	abstract clone(): Effect<this, never, never>;
 }

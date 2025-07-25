@@ -1,21 +1,21 @@
-import { Effect, gen, succeed, zipRight } from "effect/Effect";
+import { Effect, andThen, gen, succeed, zipRight } from "effect/Effect";
 import { EventAggregator } from "../aggregator/EventAggregator.js";
 import { BusEventListener } from "../listeners/BusEventListener.js";
 import { BusEvent } from "./BusEvent.js";
 
-export abstract class PersistentEvent extends BusEvent.extend<PersistentEvent>(
-	"PersistentEvent",
-)({}) {
+export abstract class PersistentEvent extends BusEvent {
 	persist(aggregator: EventAggregator): Effect<boolean, unknown, never> {
 		return zipRight(
-			aggregator.update((events) => succeed([...events, this.clone()])),
+			aggregator.update((events) =>
+				this.clone().pipe(andThen((event) => succeed([...events, event]))),
+			),
 			succeed(true),
 		);
 	}
 
 	project(listener: BusEventListener): Effect<void, unknown, never> {
 		return gen(this, function* () {
-			yield* listener.send(this.clone());
+			yield* listener.send(yield* this.clone());
 		});
 	}
 }

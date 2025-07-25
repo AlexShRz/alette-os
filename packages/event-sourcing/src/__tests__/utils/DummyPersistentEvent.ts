@@ -1,10 +1,9 @@
+import { Effect, gen } from "effect/Effect";
 import { ICancellableEvent } from "../../contract/ICancellableEvent.js";
 import { PersistentEvent } from "../../events/PersistentEvent.js";
 
 export class DummyPersistentEvent
-	extends PersistentEvent.extend<DummyPersistentEvent>("DummyPersistentEvent")(
-		{},
-	)
+	extends PersistentEvent
 	implements ICancellableEvent
 {
 	cancel() {
@@ -13,11 +12,11 @@ export class DummyPersistentEvent
 	}
 
 	clone() {
-		return DummyPersistentEvent.make({
+		return gen(this, function* () {
 			/**
 			 * Make sure we keep event id the same for tests
 			 * */
-			id: this.id,
-		}) as this;
+			return new DummyPersistentEvent(this.id);
+		}) as Effect<this, never, never>;
 	}
 }

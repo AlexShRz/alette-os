@@ -11,8 +11,8 @@ it.effect("aggregates events and replays them", () =>
 	gen(function* () {
 		const aggregator = EventAggregator.make();
 
-		const event1 = DummyPersistentEvent.make();
-		const event2 = DummyPersistentEvent.make();
+		const event1 = new DummyPersistentEvent();
+		const event2 = new DummyPersistentEvent();
 
 		yield* aggregator.save(event1);
 		yield* aggregator.save(event2);

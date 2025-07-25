@@ -1,16 +1,16 @@
+import { Effect, gen } from "effect/Effect";
 import { ICancellableEvent } from "../../contract/ICancellableEvent.js";
 import { BusEvent } from "../../events/BusEvent.js";
 
-export class DummyEvent
-	extends BusEvent.extend<DummyEvent>("DummyEvent")({})
-	implements ICancellableEvent
-{
+export class DummyEvent extends BusEvent implements ICancellableEvent {
 	cancel() {
 		this.wasCancelled = true;
 		return this;
 	}
 
 	clone() {
-		return DummyEvent.make() as this;
+		return gen(function* () {
+			return new DummyEvent();
+		}) as Effect<this, never, never>;
 	}
 }

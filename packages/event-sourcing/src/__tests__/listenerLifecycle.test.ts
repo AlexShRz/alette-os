@@ -1,16 +1,14 @@
 import { expect, it } from "@effect/vitest";
-import { gen, provide } from "effect/Effect";
-import * as Exit from "effect/Exit";
-import * as Scope from "effect/Scope";
+import { gen } from "effect/Effect";
 import { EventBus } from "../EventBus.js";
 import { BusEvent } from "../events/BusEvent.js";
 import { BusEventListenerContext } from "../listeners/BusEventListener.js";
 import { DummyEvent } from "./utils/DummyEvent.js";
 import { DummyEventListener } from "./utils/DummyEventListener.js";
 
-it.scoped("runs listener hooks on attachment", () =>
+it.effect("runs listener hooks on attachment", () =>
 	gen(function* () {
-		const eventBus = yield* EventBus;
+		const eventBus = new EventBus();
 		const executionOrder: number[] = [];
 
 		const Listener1 = class extends DummyEventListener {
@@ -45,20 +43,21 @@ it.scoped("runs listener hooks on attachment", () =>
 				return [l1, l2];
 			}),
 		);
-		const event = DummyEvent.make();
+		const event = new DummyEvent();
 		const result = yield* eventBus.send(event);
 
 		expect(result).toEqual(event);
 		expect(executionOrder).toEqual([1, 2, 3, 4]);
-	}).pipe(provide(EventBus.Live)),
+	}),
 );
 
-it.effect("runs listener shutdown hooks on scope close", () =>
-	gen(function* () {
-		const shutdownHookOrder: number[] = [];
+it.effect(
+	"runs listener shutdown hooks on shutdown in reverse and in sequence",
+	() =>
+		gen(function* () {
+			const shutdownHookOrder: number[] = [];
 
-		const test = gen(function* () {
-			const eventBus = yield* EventBus;
+			const eventBus = new EventBus();
 
 			const Listener1 = class extends DummyEventListener {
 				override apply(event: BusEvent, { next }: BusEventListenerContext) {
@@ -90,27 +89,22 @@ it.effect("runs listener shutdown hooks on scope close", () =>
 					return [l1, l2];
 				}),
 			);
-			const event = DummyEvent.make();
+
+			const event = new DummyEvent();
 			const result = yield* eventBus.send(event);
 
-			return { result, event };
-		}).pipe(provide(EventBus.Live));
+			yield* eventBus.shutdown();
 
-		const scope = yield* Scope.make();
-
-		const { result, event } = yield* test.pipe(Scope.extend(scope));
-
-		yield* Scope.close(scope, Exit.void);
-		expect(result).toEqual(event);
-		expect(shutdownHookOrder).toEqual([1, 2]);
-	}),
+			expect(result).toEqual(event);
+			expect(shutdownHookOrder).toEqual([2, 1]);
+		}),
 );
 
-it.scoped("runs listener shutdown hooks on manual listener removal", () =>
+it.effect("runs listener shutdown hooks on manual listener removal", () =>
 	gen(function* () {
 		const shutdownHookOrder: number[] = [];
 
-		const eventBus = yield* EventBus;
+		const eventBus = new EventBus();
 
 		const Listener1 = class extends DummyEventListener {
 			override apply(event: BusEvent, { next }: BusEventListenerContext) {
@@ -150,7 +144,7 @@ it.scoped("runs listener shutdown hooks on manual listener removal", () =>
 				return [l2];
 			}),
 		);
-		const event = DummyEvent.make();
+		const event = new DummyEvent();
 		const result = yield* eventBus.send(event);
 
 		expect(result).toEqual(event);
@@ -158,5 +152,5 @@ it.scoped("runs listener shutdown hooks on manual listener removal", () =>
 		 * First listener should run its shutdown hooks
 		 * */
 		expect(shutdownHookOrder).toEqual([1]);
-	}).pipe(provide(EventBus.Live)),
+	}),
 );

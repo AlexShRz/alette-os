@@ -1,3 +1,4 @@
+import { Effect, gen } from "effect/Effect";
 import { BusEvent } from "../../events/BusEvent.js";
 import {
 	BusEventListener,
@@ -10,6 +11,8 @@ export class DummyEventListener extends BusEventListener {
 	}
 
 	clone() {
-		return new DummyEventListener(this.sendToEventBus) as this;
+		return gen(function* () {
+			return new DummyEventListener();
+		}) as Effect<this, never, never>;
 	}
 }

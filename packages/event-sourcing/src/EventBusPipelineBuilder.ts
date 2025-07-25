@@ -1,4 +1,4 @@
-import { Effect, Service, gen, succeed } from "effect/Effect";
+import { Effect, gen, succeed } from "effect/Effect";
 import { EventBus } from "./EventBus.js";
 import { BusEvent } from "./events/BusEvent.js";
 import { BusEventListener } from "./listeners/BusEventListener.js";
@@ -16,80 +16,70 @@ interface EventBusSupplier {
 	(): EventBus;
 }
 
-export class EventBusPipelineBuilder extends Service<EventBusPipelineBuilder>()(
-	"EventBusPipelineBuilder",
-	{
-		accessors: true,
-		effect: gen(function* () {
-			let lastEventExtractor: ConstructedPipeline = (event) => succeed(event);
+export class EventBusPipelineBuilder {
+	protected lastEventExtractor: ConstructedPipeline = (event) => succeed(event);
 
-			/**
-			 * Make sure that if we change the last event extractor, we
-			 * always get our changed fn back
-			 * */
-			const getLastInChain: ConstructedPipeline = (event) =>
-				gen(function* () {
-					/**
-					 * Make sure last event extractor does not interfere
-					 * with the chain and our event is returned EVEN IF
-					 * the last event extractor returns null or something else.
-					 * */
-					yield* lastEventExtractor(event);
-					return event;
-				});
+	/**
+	 * Make sure that if we change the last event extractor, we
+	 * always get our changed fn back
+	 * */
+	protected getLastInChain() {
+		return (event: BusEvent) =>
+			gen(this, function* () {
+				/**
+				 * Make sure last event extractor does not interfere
+				 * with the chain and our event is returned EVEN IF
+				 * the last event extractor returns null or something else.
+				 * */
+				yield* this.lastEventExtractor(event);
+				return event;
+			});
+	}
 
-			const createFlow = (
-				eventBus: EventBus,
-				listeners: BusEventListener[],
-				currentListenerIndex = 0,
-			): ConstructedPipeline => {
-				const currentListener = listeners[currentListenerIndex];
+	create(listeners: BusEventListener[], getEventBus: EventBusSupplier) {
+		return this.createFlow(getEventBus(), listeners);
+	}
 
-				if (!currentListener) {
-					return getLastInChain;
-				}
+	setLastEventExtractor(extractor: LastPipelineEventExtractor) {
+		this.lastEventExtractor = extractor as ConstructedPipeline;
+		return this;
+	}
 
-				const nextListener = listeners[currentListenerIndex + 1];
+	protected createFlow(
+		eventBus: EventBus,
+		listeners: BusEventListener[],
+		currentListenerIndex = 0,
+	): ConstructedPipeline {
+		const currentListener = listeners[currentListenerIndex];
 
-				return (event) => {
-					const nextInChain = !nextListener
-						? getLastInChain
-						: createFlow(eventBus, listeners, currentListenerIndex + 1);
+		if (!currentListener) {
+			return this.getLastInChain();
+		}
 
-					const isNonReceivableCancelledEvent =
-						wasEventCancelled(event) && !currentListener.canReceiveCancelled();
-					const isNonReceivableEventSentByItself =
-						event.isDispatchedBy(currentListener) &&
-						!currentListener.canReceiveEventsSentBySelf();
+		const nextListener = listeners[currentListenerIndex + 1];
 
-					if (
-						isNonReceivableCancelledEvent ||
-						isNonReceivableEventSentByItself
-					) {
-						return nextInChain(event);
-					}
+		return (event) => {
+			const nextInChain = !nextListener
+				? this.getLastInChain()
+				: this.createFlow(eventBus, listeners, currentListenerIndex + 1);
 
-					return currentListener
-						.bindContext({
-							sendToEventBus: (event) =>
-								eventBus.send(event.setDispatchedBy(currentListener.getId())),
-							next: nextInChain,
-						})
-						.send(event);
-				};
-			};
+			const isNonReceivableCancelledEvent =
+				wasEventCancelled(event) && !currentListener.canReceiveCancelled();
+			const isNonReceivableEventSentByItself =
+				event.isDispatchedBy(currentListener) &&
+				!currentListener.canReceiveEventsSentBySelf();
 
-			return {
-				create(listeners: BusEventListener[], getEventBus: EventBusSupplier) {
-					return createFlow(getEventBus(), listeners);
-				},
-				setLastEventExtractor(extractor: LastPipelineEventExtractor) {
-					lastEventExtractor = extractor as ConstructedPipeline;
-					return this;
-				},
-			};
-		}),
-	},
-) {
-	static Live = EventBusPipelineBuilder.Default;
+			if (isNonReceivableCancelledEvent || isNonReceivableEventSentByItself) {
+				return nextInChain(event);
+			}
+
+			return currentListener
+				.bindContext({
+					sendToEventBus: (event) =>
+						eventBus.send(event.setDispatchedBy(currentListener.getId())),
+					next: nextInChain,
+				})
+				.send(event);
+		};
+	}
 }

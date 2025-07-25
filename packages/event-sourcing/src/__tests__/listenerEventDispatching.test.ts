@@ -1,14 +1,14 @@
 import { expect, it } from "@effect/vitest";
-import { gen, provide, succeed } from "effect/Effect";
+import { gen, succeed } from "effect/Effect";
 import { EventBus } from "../EventBus.js";
 import { BusEvent } from "../events/BusEvent.js";
 import { BusEventListenerContext } from "../listeners/BusEventListener.js";
 import { DummyEvent } from "./utils/DummyEvent.js";
 import { DummyEventListener } from "./utils/DummyEventListener.js";
 
-it.scoped("allows listeners to dispatch events back to event buses", () =>
+it.effect("allows listeners to dispatch events back to event buses", () =>
 	gen(function* () {
-		const eventBus = yield* EventBus;
+		const eventBus = new EventBus();
 		const executionOrder: number[] = [];
 
 		const Listener1 = class extends DummyEventListener {
@@ -19,7 +19,7 @@ it.scoped("allows listeners to dispatch events back to event buses", () =>
 		};
 		const Listener2 = class extends DummyEventListener {
 			protected alreadyDispatched: string[] = [];
-			protected savedEvent = DummyEvent.make({ id: "myDummyEvent" });
+			protected savedEvent = new DummyEvent("myDummyEvent");
 
 			override apply(
 				event: BusEvent,
@@ -40,17 +40,17 @@ it.scoped("allows listeners to dispatch events back to event buses", () =>
 		};
 
 		yield* eventBus.with(() => succeed([new Listener1(), new Listener2()]));
-		const event = DummyEvent.make();
+		const event = new DummyEvent();
 		const result = yield* eventBus.send(event);
 
 		expect(result.getId()).not.toEqual(event.getId());
 		expect(executionOrder).toEqual([1, 2, 1]);
-	}).pipe(provide(EventBus.Live)),
+	}),
 );
 
-it.scoped("can opt in to seeing events dispatched by itself", () =>
+it.effect("can opt in to seeing events dispatched by itself", () =>
 	gen(function* () {
-		const eventBus = yield* EventBus;
+		const eventBus = new EventBus();
 		const executionOrder: number[] = [];
 
 		const Listener1 = class extends DummyEventListener {
@@ -61,7 +61,7 @@ it.scoped("can opt in to seeing events dispatched by itself", () =>
 		};
 		const Listener2 = class extends DummyEventListener {
 			protected alreadyDispatched: string[] = [];
-			protected savedEvent = DummyEvent.make({ id: "myDummyEvent" });
+			protected savedEvent = new DummyEvent("myDummyEvent");
 
 			override canReceiveEventsSentBySelf() {
 				return true;
@@ -86,10 +86,10 @@ it.scoped("can opt in to seeing events dispatched by itself", () =>
 		};
 
 		yield* eventBus.with(() => succeed([new Listener1(), new Listener2()]));
-		const event = DummyEvent.make();
+		const event = new DummyEvent();
 		const result = yield* eventBus.send(event);
 
 		expect(result.getId()).not.toEqual(event.getId());
 		expect(executionOrder).toEqual([1, 2, 1, 2]);
-	}).pipe(provide(EventBus.Live)),
+	}),
 );

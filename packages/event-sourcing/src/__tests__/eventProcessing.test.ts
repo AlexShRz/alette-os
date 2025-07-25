@@ -1,5 +1,5 @@
 import { expect, it } from "@effect/vitest";
-import { gen, provide, succeed } from "effect/Effect";
+import { gen, succeed } from "effect/Effect";
 import { EventBus } from "../EventBus.js";
 import { BusEvent } from "../events/BusEvent.js";
 import { BusEventListenerContext } from "../listeners/BusEventListener.js";
@@ -7,11 +7,11 @@ import { canEventBeCancelled } from "../utils/eventCancellationUtils.js";
 import { DummyEvent } from "./utils/DummyEvent.js";
 import { DummyEventListener } from "./utils/DummyEventListener.js";
 
-it.scoped(
+it.effect(
 	"passes events through every listener in order using their priority",
 	() =>
 		gen(function* () {
-			const eventBus = yield* EventBus;
+			const eventBus = new EventBus();
 			const executionOrder: number[] = [];
 
 			const Listener1 = class extends DummyEventListener {
@@ -28,19 +28,19 @@ it.scoped(
 			};
 
 			yield* eventBus.with(() => succeed([new Listener1(), new Listener2()]));
-			const event = DummyEvent.make();
+			const event = new DummyEvent();
 			const result = yield* eventBus.send(event);
 
 			expect(result).toEqual(event);
 			expect(executionOrder).toEqual([1, 2]);
-		}).pipe(provide(EventBus.Live)),
+		}),
 );
 
-it.scoped(
+it.effect(
 	"skips listeners that cannot process cancelled events if the event is cancelled",
 	() =>
 		gen(function* () {
-			const eventBus = yield* EventBus;
+			const eventBus = new EventBus();
 			const executionOrder: number[] = [];
 
 			const Listener1 = class extends DummyEventListener {
@@ -69,17 +69,17 @@ it.scoped(
 			yield* eventBus.with(() =>
 				succeed([new Listener1(), new Listener2(), new Listener3()]),
 			);
-			const event = DummyEvent.make();
+			const event = new DummyEvent();
 			const result = yield* eventBus.send(event);
 
 			expect(result).toEqual(event);
 			expect(executionOrder).toEqual([1, 2]);
-		}).pipe(provide(EventBus.Live)),
+		}),
 );
 
-it.scoped("receives event after all chained listeners", () =>
+it.effect("receives event after all chained listeners", () =>
 	gen(function* () {
-		const eventBus = yield* EventBus;
+		const eventBus = new EventBus();
 
 		const Listener1 = class extends DummyEventListener {
 			override apply(event: BusEvent, { next }: BusEventListenerContext) {
@@ -93,7 +93,7 @@ it.scoped("receives event after all chained listeners", () =>
 		};
 
 		yield* eventBus.with(() => succeed([new Listener1(), new Listener2()]));
-		const event = DummyEvent.make();
+		const event = new DummyEvent();
 		let tappedEventId: string | null = null;
 		const result = yield* eventBus
 			.takeAfter((e) =>
@@ -105,5 +105,5 @@ it.scoped("receives event after all chained listeners", () =>
 
 		expect(tappedEventId).toEqual(event.getId());
 		expect(result).toEqual(event);
-	}).pipe(provide(EventBus.Live)),
+	}),
 );
