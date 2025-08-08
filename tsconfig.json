@@ -5,6 +5,9 @@
   "references": [
     {
       "path": "./packages/event-sourcing"
+    },
+    {
+      "path": "./packages/pulse"
     }
   ]
 }
