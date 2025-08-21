@@ -1,74 +1,57 @@
 import { expect, it } from "@effect/vitest";
-import { gen, succeed } from "effect/Effect";
+import { Effect as E } from "effect";
 import { EventBus } from "../EventBus.js";
-import { BusEvent } from "../events/BusEvent.js";
-import { BusEventListenerContext } from "../listeners/BusEventListener.js";
-import { canEventBeCancelled } from "../utils/eventCancellationUtils.js";
+import { EventBusListener } from "../listeners/EventBusListener.js";
+import { EventBusListenerFactory } from "../listeners/EventBusListenerFactory.js";
 import { DummyEvent } from "./utils/DummyEvent.js";
-import { DummyEventListener } from "./utils/DummyEventListener.js";
 
-it.effect(
+it.scoped(
 	"passes events through every listener in order using their priority",
 	() =>
-		gen(function* () {
-			const eventBus = new EventBus();
+		E.gen(function* () {
 			const executionOrder: number[] = [];
 
-			const Listener1 = class extends DummyEventListener {
-				override apply(event: BusEvent, { next }: BusEventListenerContext) {
-					executionOrder.push(1);
-					return next(event);
-				}
-			};
-			const Listener2 = class extends DummyEventListener {
-				override apply(event: BusEvent, { next }: BusEventListenerContext) {
-					executionOrder.push(2);
-					return next(event);
-				}
-			};
+			const eventBus = yield* EventBus.makeAsValue(
+				EventBus.Default([
+					new EventBusListenerFactory(
+						() =>
+							EventBusListener.make(({ parent }) =>
+								E.succeed({
+									...parent,
+									send(e) {
+										return E.gen(this, function* () {
+											executionOrder.push(2);
 
-			yield* eventBus.with(() => succeed([new Listener1(), new Listener2()]));
-			const event = new DummyEvent();
-			const result = yield* eventBus.send(event);
+											return yield* this.getContext().next(e);
+										});
+									},
+								}),
+							),
+						{
+							priority: 2,
+						},
+					),
+					new EventBusListenerFactory(
+						() =>
+							EventBusListener.make(({ parent }) =>
+								E.succeed({
+									...parent,
+									send(e) {
+										return E.gen(this, function* () {
+											executionOrder.push(1);
 
-			expect(result).toEqual(event);
-			expect(executionOrder).toEqual([1, 2]);
-		}),
-);
-
-it.effect(
-	"skips listeners that cannot process cancelled events if the event is cancelled",
-	() =>
-		gen(function* () {
-			const eventBus = new EventBus();
-			const executionOrder: number[] = [];
-
-			const Listener1 = class extends DummyEventListener {
-				override apply(event: BusEvent, { next }: BusEventListenerContext) {
-					executionOrder.push(1);
-					return next(canEventBeCancelled(event) ? event.cancel() : event);
-				}
-			};
-			const Listener2 = class extends DummyEventListener {
-				override canReceiveCancelled(): boolean {
-					return true;
-				}
-
-				override apply(event: BusEvent, { next }: BusEventListenerContext) {
-					executionOrder.push(2);
-					return next(event);
-				}
-			};
-			const Listener3 = class extends DummyEventListener {
-				override apply(event: BusEvent, { next }: BusEventListenerContext) {
-					executionOrder.push(3);
-					return next(event);
-				}
-			};
-
-			yield* eventBus.with(() =>
-				succeed([new Listener1(), new Listener2(), new Listener3()]),
+											return yield* this.getContext().next(e);
+										});
+									},
+								}),
+							),
+						{
+							priority: 1,
+						},
+					),
+				]),
 			);
+
 			const event = new DummyEvent();
 			const result = yield* eventBus.send(event);
 
@@ -77,32 +60,185 @@ it.effect(
 		}),
 );
 
-it.effect("receives event after all chained listeners", () =>
-	gen(function* () {
-		const eventBus = new EventBus();
+it.scoped(
+	"skips listeners that cannot process cancelled events if the event was cancelled",
+	() =>
+		E.gen(function* () {
+			const executionOrder: number[] = [];
 
-		const Listener1 = class extends DummyEventListener {
-			override apply(event: BusEvent, { next }: BusEventListenerContext) {
-				return next(event);
-			}
-		};
-		const Listener2 = class extends DummyEventListener {
-			override apply(event: BusEvent, { next }: BusEventListenerContext) {
-				return next(event);
-			}
-		};
+			const eventBus = yield* EventBus.makeAsValue(
+				EventBus.Default([
+					new EventBusListenerFactory(() =>
+						EventBusListener.make(({ parent }) =>
+							E.succeed({
+								...parent,
+								send(e) {
+									return E.gen(this, function* () {
+										executionOrder.push(1);
+										yield* e.cancel();
 
-		yield* eventBus.with(() => succeed([new Listener1(), new Listener2()]));
+										return yield* this.getContext().next(e);
+									});
+								},
+							}),
+						),
+					),
+					new EventBusListenerFactory(
+						() =>
+							EventBusListener.make(({ parent }) =>
+								E.succeed({
+									...parent,
+									send(e) {
+										return E.gen(this, function* () {
+											executionOrder.push(2);
+
+											return yield* this.getContext().next(e);
+										});
+									},
+								}),
+							),
+						{
+							canReceiveCancelled: true,
+						},
+					),
+					new EventBusListenerFactory(() =>
+						EventBusListener.make(({ parent }) =>
+							E.succeed({
+								...parent,
+								send(e) {
+									return E.gen(this, function* () {
+										executionOrder.push(3);
+
+										return yield* this.getContext().next(e);
+									});
+								},
+							}),
+						),
+					),
+				]),
+			);
+
+			const event = new DummyEvent();
+			const result = yield* eventBus.send(event);
+
+			expect(result).toEqual(event);
+			expect(executionOrder).toEqual([1, 2]);
+		}),
+);
+
+it.scoped(
+	"skips listeners that cannot process completed events if the event was completed",
+	() =>
+		E.gen(function* () {
+			const executionOrder: number[] = [];
+
+			const eventBus = yield* EventBus.makeAsValue(
+				EventBus.Default([
+					new EventBusListenerFactory(() =>
+						EventBusListener.make(({ parent }) =>
+							E.succeed({
+								...parent,
+								send(e) {
+									return E.gen(this, function* () {
+										executionOrder.push(1);
+										yield* e.complete();
+
+										return yield* this.getContext().next(e);
+									});
+								},
+							}),
+						),
+					),
+					new EventBusListenerFactory(
+						() =>
+							EventBusListener.make(({ parent }) =>
+								E.succeed({
+									...parent,
+									send(e) {
+										return E.gen(this, function* () {
+											executionOrder.push(2);
+
+											return yield* this.getContext().next(e);
+										});
+									},
+								}),
+							),
+						{
+							canReceiveCompleted: true,
+						},
+					),
+					new EventBusListenerFactory(() =>
+						EventBusListener.make(({ parent }) =>
+							E.succeed({
+								...parent,
+								send(e) {
+									return E.gen(this, function* () {
+										executionOrder.push(3);
+
+										return yield* this.getContext().next(e);
+									});
+								},
+							}),
+						),
+					),
+				]),
+			);
+
+			const event = new DummyEvent();
+			const result = yield* eventBus.send(event);
+
+			expect(result).toEqual(event);
+			expect(executionOrder).toEqual([1, 2]);
+		}),
+);
+
+it.scoped("allows to extend the chain with custom 'broadcast' function", () =>
+	E.gen(function* () {
+		const eventBus = yield* EventBus.makeAsValue(
+			EventBus.Default([
+				new EventBusListenerFactory(() =>
+					EventBusListener.make(({ parent }) =>
+						E.succeed({
+							...parent,
+							send(e) {
+								return E.gen(this, function* () {
+									/**
+									 * Cancel the event to make sure it's
+									 * still piped through the broadcaster fn
+									 * */
+									yield* e.cancel();
+
+									return yield* this.getContext().next(e);
+								});
+							},
+						}),
+					),
+				),
+				new EventBusListenerFactory(() =>
+					EventBusListener.make(({ parent }) =>
+						E.succeed({
+							...parent,
+							send(e) {
+								return E.gen(this, function* () {
+									return yield* this.getContext().next(e);
+								});
+							},
+						}),
+					),
+				),
+			]),
+		);
+
 		const event = new DummyEvent();
 		let tappedEventId: string | null = null;
-		const result = yield* eventBus
-			.takeAfter((e) =>
-				gen(function* () {
-					tappedEventId = e.getId();
-				}),
-			)
-			.send(event);
 
+		eventBus.broadcast((e) =>
+			E.gen(function* () {
+				tappedEventId = e.getId();
+			}),
+		);
+
+		const result = yield* eventBus.send(event);
 		expect(tappedEventId).toEqual(event.getId());
 		expect(result).toEqual(event);
 	}),

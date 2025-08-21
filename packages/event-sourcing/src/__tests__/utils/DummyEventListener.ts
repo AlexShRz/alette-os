@@ -1,18 +1,11 @@
-import { Effect, gen } from "effect/Effect";
-import { BusEvent } from "../../events/BusEvent.js";
-import {
-	BusEventListener,
-	BusEventListenerContext,
-} from "../../listeners/BusEventListener.js";
+import { Effect as E } from "effect";
+import { EventBusListener } from "../../listeners/EventBusListener.js";
 
-export class DummyEventListener extends BusEventListener {
-	protected apply(event: BusEvent, { next }: BusEventListenerContext) {
-		return next(event);
-	}
-
-	clone() {
-		return gen(function* () {
-			return new DummyEventListener();
-		}) as Effect<this, never, never>;
-	}
-}
+export const makeDummyEventListener = () =>
+	EventBusListener.make(({ parent }) =>
+		E.gen(function* () {
+			return {
+				...parent,
+			};
+		}),
+	);

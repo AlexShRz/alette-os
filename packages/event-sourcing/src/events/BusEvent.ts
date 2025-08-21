@@ -1,28 +1,30 @@
 import * as DateTime from "effect/DateTime";
-import { Effect } from "effect/Effect";
+import * as E from "effect/Effect";
 import { v4 as uuid } from "uuid";
-import { BusEventListener } from "../listeners/BusEventListener.js";
 
 export abstract class BusEvent {
-	protected wasCancelled = false;
+	/**
+	 * All these props should be reset during event cloning.
+	 * */
+	protected eventStatus: "completed" | "cancelled" | "undetermined" =
+		"undetermined";
 	protected dispatchedBy: string | null = null;
 	protected createdAt = DateTime.unsafeNow();
+	protected cancellationHooks: ((self: this) => E.Effect<void, unknown>)[] = [];
+	protected completionHooks: ((self: this) => E.Effect<void, unknown>)[] = [];
 
 	constructor(protected id = uuid()) {}
 
 	isCancelled() {
-		return this.wasCancelled;
+		return this.eventStatus === "cancelled";
 	}
 
-	isDispatchedBy(listener: BusEventListener) {
-		return listener.getId() === this.dispatchedBy;
+	isCompleted() {
+		return this.eventStatus === "completed";
 	}
 
-	isOlderThan(event: BusEvent) {
-		return DateTime.greaterThan(
-			this.getCreationTime(),
-			event.getCreationTime(),
-		);
+	isInUndeterminedState() {
+		return !this.isCompleted() && !this.isCancelled();
 	}
 
 	getId() {
@@ -33,13 +35,44 @@ export abstract class BusEvent {
 		return this.createdAt;
 	}
 
+	getDispatchedBy() {
+		return this.dispatchedBy;
+	}
+
 	setDispatchedBy(listenerId: string) {
 		this.dispatchedBy = listenerId;
 		return this;
 	}
 
-	/**
-	 * Events should be cloneable, if not, an error should be thrown
-	 * */
-	abstract clone(): Effect<this, never, never>;
+	cancel() {
+		if (!this.isInUndeterminedState()) {
+			return E.void;
+		}
+
+		return E.all(this.cancellationHooks.map((hook) => hook(this))).pipe(
+			E.andThen(
+				E.sync(() => {
+					this.eventStatus = "cancelled";
+				}),
+			),
+			E.orDie,
+		);
+	}
+
+	complete() {
+		if (!this.isInUndeterminedState()) {
+			return E.void;
+		}
+
+		return E.all(this.completionHooks.map((hook) => hook(this))).pipe(
+			E.andThen(
+				E.sync(() => {
+					this.eventStatus = "completed";
+				}),
+			),
+			E.orDie,
+		);
+	}
+
+	abstract clone(): this;
 }

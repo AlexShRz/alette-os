@@ -10,7 +10,7 @@ export class MiddlewareConstraint<
 	protected selfLabels: MiddlewareLabel[] = [];
 	protected _incompatibleWith: RequestLabel[] = [];
 
-	static toFactory() {
+	static from() {
 		return new MiddlewareConstraint();
 	}
 

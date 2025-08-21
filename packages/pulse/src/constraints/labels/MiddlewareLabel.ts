@@ -3,7 +3,7 @@ import { Label } from "./Label";
 export class MiddlewareLabel<
 	const Label extends string = string,
 > extends Label<Label> {
-	static toFactory<const Label extends string>(label: Label) {
+	static from<const Label extends string>(label: Label) {
 		return new MiddlewareLabel(label);
 	}
 

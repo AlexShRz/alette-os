@@ -12,7 +12,7 @@ export class RequestConstraint<
 	protected _incompatibleWith: MiddlewareLabel[] = [];
 	protected _compatibleWith: MiddlewareLabel[] = [];
 
-	static toFactory() {
+	static from() {
 		return new RequestConstraint();
 	}
 

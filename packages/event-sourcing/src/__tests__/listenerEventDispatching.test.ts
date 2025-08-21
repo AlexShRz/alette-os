@@ -1,45 +1,55 @@
 import { expect, it } from "@effect/vitest";
-import { gen, succeed } from "effect/Effect";
+import { Effect as E } from "effect";
 import { EventBus } from "../EventBus.js";
-import { BusEvent } from "../events/BusEvent.js";
-import { BusEventListenerContext } from "../listeners/BusEventListener.js";
+import { EventBusListener } from "../listeners/EventBusListener.js";
+import { EventBusListenerFactory } from "../listeners/EventBusListenerFactory.js";
 import { DummyEvent } from "./utils/DummyEvent.js";
-import { DummyEventListener } from "./utils/DummyEventListener.js";
 
-it.effect("allows listeners to dispatch events back to event buses", () =>
-	gen(function* () {
-		const eventBus = new EventBus();
+it.scoped("allows listeners to dispatch events back to event buses", () =>
+	E.gen(function* () {
 		const executionOrder: number[] = [];
 
-		const Listener1 = class extends DummyEventListener {
-			override apply(event: BusEvent, { next }: BusEventListenerContext) {
-				executionOrder.push(1);
-				return next(event);
-			}
-		};
-		const Listener2 = class extends DummyEventListener {
-			protected alreadyDispatched: string[] = [];
-			protected savedEvent = new DummyEvent("myDummyEvent");
+		const eventBus = yield* EventBus.makeAsValue(
+			EventBus.Default([
+				new EventBusListenerFactory(() =>
+					EventBusListener.make(({ parent }) =>
+						E.succeed({
+							...parent,
+							send(e) {
+								return E.gen(this, function* () {
+									executionOrder.push(1);
+									return yield* this.getContext().next(e);
+								});
+							},
+						}),
+					),
+				),
+				new EventBusListenerFactory(() =>
+					EventBusListener.make(({ parent }) => {
+						const alreadyDispatched: string[] = [];
+						const savedEvent = new DummyEvent("myDummyEvent");
 
-			override apply(
-				event: BusEvent,
-				{ next, sendToEventBus }: BusEventListenerContext,
-			) {
-				return gen(this, function* () {
-					executionOrder.push(2);
-					const eventId = this.savedEvent.getId();
+						return E.succeed({
+							...parent,
+							send(e) {
+								return E.gen(this, function* () {
+									executionOrder.push(2);
+									const eventId = savedEvent.getId();
 
-					if (!this.alreadyDispatched.includes(eventId)) {
-						this.alreadyDispatched.push(eventId);
-						return yield* sendToEventBus(this.savedEvent);
-					}
+									if (!alreadyDispatched.includes(eventId)) {
+										alreadyDispatched.push(eventId);
+										return yield* this.getContext().sendToBus(savedEvent);
+									}
 
-					return yield* next(event);
-				});
-			}
-		};
+									return yield* this.getContext().next(e);
+								});
+							},
+						});
+					}),
+				),
+			]),
+		);
 
-		yield* eventBus.with(() => succeed([new Listener1(), new Listener2()]));
 		const event = new DummyEvent();
 		const result = yield* eventBus.send(event);
 
@@ -48,8 +58,8 @@ it.effect("allows listeners to dispatch events back to event buses", () =>
 	}),
 );
 
-it.effect("can opt in to seeing events dispatched by itself", () =>
-	gen(function* () {
+it.scoped("can opt in to seeing events dispatched by itself", () =>
+	E.gen(function* () {
 		const eventBus = new EventBus();
 		const executionOrder: number[] = [];
 
@@ -69,15 +79,15 @@ it.effect("can opt in to seeing events dispatched by itself", () =>
 
 			override apply(
 				event: BusEvent,
-				{ next, sendToEventBus }: BusEventListenerContext,
+				{ next, sendToBus }: BusEventListenerContext,
 			) {
-				return gen(this, function* () {
+				return E.gen(this, function* () {
 					executionOrder.push(2);
 					const eventId = this.savedEvent.getId();
 
 					if (!this.alreadyDispatched.includes(eventId)) {
 						this.alreadyDispatched.push(eventId);
-						return yield* sendToEventBus(this.savedEvent);
+						return yield* sendToBus(this.savedEvent);
 					}
 
 					return yield* next(event);
