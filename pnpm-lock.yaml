@@ -69,8 +69,8 @@ importers:
   packages/event-sourcing:
     dependencies:
       effect:
-        specifier: ^3.16.16
-        version: 3.16.16
+        specifier: ^3.17.8
+        version: 3.17.8
       uuid:
         specifier: ^11.1.0
         version: 11.1.0
@@ -80,9 +80,9 @@ importers:
         version: 2.1.2
       '@effect/vitest':
         specifier: ^0.24.1
-        version: 0.24.1(effect@3.16.16)(vitest@3.2.4(@types/node@18.16.9)(@vitest/ui@3.2.4)(jiti@2.4.2)(jsdom@22.1.0)(yaml@2.8.0))
+        version: 0.24.1(effect@3.17.8)(vitest@3.2.4(@types/node@18.16.9)(@vitest/ui@3.2.4)(jiti@2.4.2)(jsdom@22.1.0)(yaml@2.8.0))
       vitest:
-        specifier: ^3.0.0
+        specifier: ^3.2.4
         version: 3.2.4(@types/node@18.16.9)(@vitest/ui@3.2.4)(jiti@2.4.2)(jsdom@22.1.0)(yaml@2.8.0)
 
   packages/pulse:
@@ -1737,6 +1737,9 @@ packages:
 
   effect@3.16.16:
     resolution: {integrity: sha512-q8jsuAJykQJJ9jDkR9VaAR1JeHnEDn49g6+LkveIcfW3nIPUJw6BrC9ZPaVCJWmU23vKoVj9XqJmC/EW8kiI8g==}
+
+  effect@3.17.8:
+    resolution: {integrity: sha512-3X2DahqmaTwDdvdYuX/MFhYA4srjO21NodMWhCXPMRK/3IQlByJyNFpZrXCWfnMrlr6DsLI+EgI3rqqAQtWrIA==}
 
   ejs@3.1.10:
     resolution: {integrity: sha512-UeJmFfOrAQS8OJWPZ4qtgHyWExa088/MtK5UEyoJGFH67cDEXkZSviOiKRCZ4Xij0zxI3JECgYs3oKx+AizQBA==}
@@ -3702,9 +3705,9 @@ snapshots:
   '@biomejs/cli-win32-x64@2.1.2':
     optional: true
 
-  '@effect/vitest@0.24.1(effect@3.16.16)(vitest@3.2.4(@types/node@18.16.9)(@vitest/ui@3.2.4)(jiti@2.4.2)(jsdom@22.1.0)(yaml@2.8.0))':
+  '@effect/vitest@0.24.1(effect@3.17.8)(vitest@3.2.4(@types/node@18.16.9)(@vitest/ui@3.2.4)(jiti@2.4.2)(jsdom@22.1.0)(yaml@2.8.0))':
     dependencies:
-      effect: 3.16.16
+      effect: 3.17.8
       vitest: 3.2.4(@types/node@18.16.9)(@vitest/ui@3.2.4)(jiti@2.4.2)(jsdom@22.1.0)(yaml@2.8.0)
 
   '@emnapi/core@1.4.5':
@@ -4687,6 +4690,11 @@ snapshots:
   eastasianwidth@0.2.0: {}
 
   effect@3.16.16:
+    dependencies:
+      '@standard-schema/spec': 1.0.0
+      fast-check: 3.23.2
+
+  effect@3.17.8:
     dependencies:
       '@standard-schema/spec': 1.0.0
       fast-check: 3.23.2

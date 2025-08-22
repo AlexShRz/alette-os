@@ -60,42 +60,53 @@ it.scoped("allows listeners to dispatch events back to event buses", () =>
 
 it.scoped("can opt in to seeing events dispatched by itself", () =>
 	E.gen(function* () {
-		const eventBus = new EventBus();
 		const executionOrder: number[] = [];
 
-		const Listener1 = class extends DummyEventListener {
-			override apply(event: BusEvent, { next }: BusEventListenerContext) {
-				executionOrder.push(1);
-				return next(event);
-			}
-		};
-		const Listener2 = class extends DummyEventListener {
-			protected alreadyDispatched: string[] = [];
-			protected savedEvent = new DummyEvent("myDummyEvent");
+		const eventBus = yield* EventBus.makeAsValue(
+			EventBus.Default([
+				new EventBusListenerFactory(() =>
+					EventBusListener.make(({ parent }) =>
+						E.succeed({
+							...parent,
+							send(e) {
+								return E.gen(this, function* () {
+									executionOrder.push(1);
+									return yield* this.getContext().next(e);
+								});
+							},
+						}),
+					),
+				),
+				new EventBusListenerFactory(
+					() =>
+						EventBusListener.make(({ parent }) => {
+							const alreadyDispatched: string[] = [];
+							const savedEvent = new DummyEvent("myDummyEvent");
 
-			override canReceiveEventsSentBySelf() {
-				return true;
-			}
+							return E.succeed({
+								...parent,
+								send(e) {
+									return E.gen(this, function* () {
+										executionOrder.push(2);
+										const eventId = savedEvent.getId();
 
-			override apply(
-				event: BusEvent,
-				{ next, sendToBus }: BusEventListenerContext,
-			) {
-				return E.gen(this, function* () {
-					executionOrder.push(2);
-					const eventId = this.savedEvent.getId();
+										if (!alreadyDispatched.includes(eventId)) {
+											alreadyDispatched.push(eventId);
+											return yield* this.getContext().sendToBus(savedEvent);
+										}
 
-					if (!this.alreadyDispatched.includes(eventId)) {
-						this.alreadyDispatched.push(eventId);
-						return yield* sendToBus(this.savedEvent);
-					}
+										return yield* this.getContext().next(e);
+									});
+								},
+							});
+						}),
+					{
+						canReceiveEventsSentBySelf: true,
+					},
+				),
+			]),
+		);
 
-					return yield* next(event);
-				});
-			}
-		};
-
-		yield* eventBus.with(() => succeed([new Listener1(), new Listener2()]));
 		const event = new DummyEvent();
 		const result = yield* eventBus.send(event);
 

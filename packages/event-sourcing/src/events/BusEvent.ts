@@ -74,5 +74,15 @@ export abstract class BusEvent {
 		);
 	}
 
+	onCancel(hook: (typeof this.cancellationHooks)[number]) {
+		this.cancellationHooks = [...this.cancellationHooks, hook];
+		return this;
+	}
+
+	onComplete(hook: (typeof this.completionHooks)[number]) {
+		this.completionHooks = [...this.completionHooks, hook];
+		return this;
+	}
+
 	abstract clone(): this;
 }

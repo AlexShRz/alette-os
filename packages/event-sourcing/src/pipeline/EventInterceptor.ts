@@ -7,9 +7,7 @@ export class EventInterceptor extends Context.Tag("EventInterceptor")<
 	EventInterceptor,
 	IEventBusListenerContext["next"]
 >() {
-	static make<A extends IEventBusListenerContext["next"], I, R>(
-		interceptor: E.Effect<A, I, R>,
-	) {
-		return Layer.effect(this, interceptor);
+	static make(interceptor: IEventBusListenerContext["next"]) {
+		return Layer.effect(this, E.succeed(interceptor));
 	}
 }

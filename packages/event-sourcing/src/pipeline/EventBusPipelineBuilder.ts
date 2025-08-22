@@ -6,10 +6,7 @@ import * as Scope from "effect/Scope";
 import { EventBus } from "../EventBus.js";
 import { BusEvent } from "../events/BusEvent.js";
 import { EventBusListener } from "../listeners/EventBusListener.js";
-import {
-	EventBusListenerContext,
-	IEventBusListenerContext,
-} from "../listeners/EventBusListenerContext.js";
+import { IEventBusListenerContext } from "../listeners/EventBusListenerContext.js";
 import { EventBusListenerFactory } from "../listeners/EventBusListenerFactory.js";
 import { EventInterceptor } from "./EventInterceptor.js";
 
@@ -28,6 +25,7 @@ export class EventBusPipelineBuilder extends E.Service<EventBusPipelineBuilder>(
 	{
 		scoped: E.gen(function* () {
 			const scope = yield* E.scope;
+			const pipelineContext = yield* E.context<never>();
 			let lastEventBusEventExtractor: ILastEventExtractor = () => E.void;
 
 			const lastListenerInChain = E.fn(function* (event: BusEvent) {
@@ -40,15 +38,19 @@ export class EventBusPipelineBuilder extends E.Service<EventBusPipelineBuilder>(
 				return event;
 			});
 
+			/**
+			 * Make sure to bind service context using E.provide(pipelineContext)
+			 * */
 			const createListener = (factory: EventBusListenerFactory) =>
 				E.gen(function* () {
-					const listener = yield* EventBusListener;
+					const listenerContext = yield* Layer.build(factory.toLayer());
+					const listener = Context.unsafeGet(listenerContext, EventBusListener);
 
 					return {
 						listenerContext: listener.getContext(),
 						listener,
 					};
-				}).pipe(Scope.extend(scope), E.provide(factory.toLayer()));
+				}).pipe(E.provide(pipelineContext));
 
 			const createFlow = (
 				eventBus: EventBus,
@@ -64,8 +66,10 @@ export class EventBusPipelineBuilder extends E.Service<EventBusPipelineBuilder>(
 					}
 
 					/**
-					 * Create current listener using
+					 * 1. Create current listener using
 					 * a provided listener factory
+					 * 2. Make sure to provide service context when running
+					 * this effect.
 					 * */
 					const {
 						listenerContext: currentListenerContext,
@@ -111,11 +115,16 @@ export class EventBusPipelineBuilder extends E.Service<EventBusPipelineBuilder>(
 						 * */
 						currentListenerContext
 							.setEventBusDispatcher((event) =>
-								eventBus.send(event.setDispatchedBy(currentListener.getId())),
+								eventBus
+									.send(event.setDispatchedBy(currentListener.getId()))
+									.pipe(Scope.extend(scope)),
 							)
 							.setNext((e) =>
 								E.gen(function* () {
-									const interceptor = yield* E.serviceOption(EventInterceptor);
+									const interceptor = Context.getOption(
+										pipelineContext,
+										EventInterceptor,
+									);
 
 									/**
 									 * Apply event interceptor if available
@@ -145,7 +154,7 @@ export class EventBusPipelineBuilder extends E.Service<EventBusPipelineBuilder>(
 
 						return yield* currentListener.send(event);
 					});
-				});
+				}).pipe(Scope.extend(scope));
 
 			const sortListenerFactories = (listeners: EventBusListenerFactory[]) => {
 				return listeners.sort((a, b) => a.getPriority() - b.getPriority());
