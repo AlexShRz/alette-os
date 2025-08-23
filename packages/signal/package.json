@@ -1,7 +1,6 @@
 {
-	"name": "@alette-os/pulse",
+	"name": "@alette-os/signal",
 	"version": "0.0.1",
-	"private": true,
 	"type": "module",
 	"main": "./dist/index.js",
 	"module": "./dist/index.js",
@@ -15,13 +14,15 @@
 			"default": "./dist/index.js"
 		}
 	},
+	"files": [
+		"dist",
+		"!**/*.tsbuildinfo"
+	],
 	"peerDependencies": {
 		"effect": "^3.17.8",
-		"uuid": "^11.1.0",
-		"query-string": "^9.2.2",
-		"@standard-schema/spec": "^1.0.0"
+		"uuid": "^11.1.0"
 	},
 	"devDependencies": {
-		"nock": "^14.0.6"
+		"@effect/vitest": "^0.24.1"
 	}
 }

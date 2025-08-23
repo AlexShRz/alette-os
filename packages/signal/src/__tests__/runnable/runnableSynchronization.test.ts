@@ -1,0 +1,122 @@
+import { expect, it } from "@effect/vitest";
+import {
+	Data,
+	Effect as E,
+	Exit,
+	Fiber,
+	Layer,
+	ManagedRuntime,
+	Queue,
+} from "effect";
+import { Runnable } from "../../runnable/Runnable.js";
+import { getStreamEffect } from "./utils.js";
+
+it.scoped("synchronizes multiple waiting callers during success", () =>
+	E.gen(function* () {
+		const runtime = ManagedRuntime.make(Layer.empty);
+		const queue = yield* Queue.unbounded<number>();
+		const getValue = new Runnable(runtime, getStreamEffect(queue));
+
+		getValue.spawn();
+
+		const fibers = E.runFork(
+			E.all(
+				[
+					getValue.result(),
+					getValue.result(),
+					getValue.result(),
+					getValue.result(),
+				],
+				{ concurrency: "unbounded" },
+			),
+		);
+
+		yield* queue.offer(1);
+		const results = yield* Fiber.join(fibers);
+
+		expect(results).toEqual([1, 1, 1, 1]);
+
+		const afterCompletionResult = yield* getValue.result();
+		expect(afterCompletionResult).toEqual(1);
+		expect(getValue.isSucceeded()).toBeTruthy();
+		expect(getValue.isCompleted()).toBeTruthy();
+	}),
+);
+
+it.scoped("synchronizes multiple waiting callers during error", () =>
+	E.gen(function* () {
+		const runtime = ManagedRuntime.make(Layer.empty);
+
+		class MyError extends Data.TaggedError("MyError") {}
+
+		const getValue = new Runnable(
+			runtime,
+			E.gen(function* () {
+				return yield* new MyError();
+			}),
+		);
+
+		getValue.spawn();
+
+		const fibers = E.runFork(
+			E.all(
+				[
+					getValue.resultSafe(),
+					getValue.resultSafe(),
+					getValue.resultSafe(),
+					getValue.resultSafe(),
+				],
+				{ concurrency: "unbounded" },
+			),
+		);
+
+		const [res1, res2, res3, res4] = yield* Fiber.join(fibers);
+
+		expect(Exit.isFailure(res1)).toBeTruthy();
+		expect(Exit.isFailure(res2)).toBeTruthy();
+		expect(Exit.isFailure(res3)).toBeTruthy();
+		expect(Exit.isFailure(res4)).toBeTruthy();
+
+		const afterCompletionResult = yield* getValue.resultSafe();
+		expect(Exit.isFailure(afterCompletionResult)).toBeTruthy();
+		expect(getValue.isFailed()).toBeTruthy();
+		expect(getValue.isCompleted()).toBeTruthy();
+	}),
+);
+
+it.scoped("synchronizes multiple waiting callers during interruption", () =>
+	E.gen(function* () {
+		const runtime = ManagedRuntime.make(Layer.empty);
+		const queue = yield* Queue.unbounded<number>();
+
+		const getValue = new Runnable(runtime, getStreamEffect(queue));
+
+		getValue.spawn();
+
+		const fibers = E.runFork(
+			E.all(
+				[
+					getValue.resultSafe(),
+					getValue.resultSafe(),
+					getValue.resultSafe(),
+					getValue.resultSafe(),
+				],
+				{ concurrency: "unbounded" },
+			),
+		);
+
+		getValue.interrupt();
+
+		const [res1, res2, res3, res4] = yield* Fiber.join(fibers);
+
+		expect(Exit.isInterrupted(res1)).toBeTruthy();
+		expect(Exit.isInterrupted(res2)).toBeTruthy();
+		expect(Exit.isInterrupted(res3)).toBeTruthy();
+		expect(Exit.isInterrupted(res4)).toBeTruthy();
+
+		const afterCompletionResult = yield* getValue.resultSafe();
+		expect(Exit.isInterrupted(afterCompletionResult)).toBeTruthy();
+		expect(getValue.isInterrupted()).toBeTruthy();
+		expect(getValue.isCompleted()).toBeTruthy();
+	}),
+);

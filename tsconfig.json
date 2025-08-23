@@ -8,6 +8,12 @@
     },
     {
       "path": "./packages/pulse"
+    },
+    {
+      "path": "./packages/signal"
+    },
+    {
+      "path": "./packages/signal"
     }
   ]
 }
