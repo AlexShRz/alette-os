@@ -4,6 +4,7 @@
     "baseUrl": ".",
     "rootDir": "src",
     "outDir": "dist",
+    "moduleResolution": "Bundler",
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "emitDeclarationOnly": true,
     "forceConsistentCasingInFileNames": true,

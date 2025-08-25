@@ -45,11 +45,11 @@ it.scoped("can access services from passed runtime", () =>
 
 		const getValue = new Runnable(
 			runtime,
+			/**
+			 * Makes sure effects are nested to verify
+			 * that runtime context is not lost.
+			 * */
 			E.gen(function* () {
-				/**
-				 * Makes sure effects are nested to verify
-				 * that runtime context is not lost.
-				 * */
 				return yield* E.gen(function* () {
 					return yield* E.gen(function* () {
 						const service = yield* E.serviceOptional(Service1);

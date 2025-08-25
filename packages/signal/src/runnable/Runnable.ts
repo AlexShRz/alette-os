@@ -6,18 +6,37 @@ import * as Fiber from "effect/Fiber";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Stream from "effect/Stream";
 import * as SubscriptionRef from "effect/SubscriptionRef";
+import { v4 as uuid } from "uuid";
 import { IRunnableState } from "./IRunnableState.js";
 
-export class Runnable<Value, Errors> {
+export type IRunnableMode = "concurrent" | "sequential";
+
+export class Runnable<
+	Value = void,
+	Errors = never,
+	RuntimeContext = never,
+	RuntimeErrors = never,
+> {
+	protected id = uuid();
+
 	protected state: SubscriptionRef.SubscriptionRef<
 		IRunnableState<Value, Errors>
 	>;
-	protected runForkJoin: <A, E>(effect: E.Effect<A, E>) => E.Effect<A, E>;
-	protected executingFiber: SubscriptionRef.SubscriptionRef<Fiber.RuntimeFiber<void> | null>;
+	protected runForkJoin: <A, E>(
+		effect: E.Effect<A, E>,
+	) => E.Effect<A, E | RuntimeErrors>;
+	protected executingFiber: SubscriptionRef.SubscriptionRef<Fiber.RuntimeFiber<
+		void,
+		RuntimeErrors
+	> | null>;
 
 	constructor(
-		protected runtime: ManagedRuntime.ManagedRuntime<never, never>,
+		protected runtime: ManagedRuntime.ManagedRuntime<
+			RuntimeContext,
+			RuntimeErrors
+		>,
 		protected runner: E.Effect<Value, Errors, never>,
+		protected prefersMode: IRunnableMode = "sequential",
 	) {
 		this.state = E.runSync(
 			SubscriptionRef.make<IRunnableState<Value, Errors>>({
@@ -25,9 +44,19 @@ export class Runnable<Value, Errors> {
 			}),
 		);
 		this.executingFiber = this.runtime.runSync(
-			SubscriptionRef.make<Fiber.RuntimeFiber<void> | null>(null),
+			SubscriptionRef.make<Fiber.RuntimeFiber<void, RuntimeErrors> | null>(
+				null,
+			),
 		);
 		this.runForkJoin = (effect) => Fiber.join(this.runtime.runFork(effect));
+	}
+
+	isConcurrent() {
+		return this.prefersMode === "concurrent";
+	}
+
+	isSequential() {
+		return this.prefersMode === "sequential";
 	}
 
 	isCompleted() {
@@ -53,6 +82,26 @@ export class Runnable<Value, Errors> {
 		return status === "failed";
 	}
 
+	getId() {
+		return this.id;
+	}
+
+	getFiberOrThrow() {
+		return this.executingFiber.get.pipe(
+			E.andThen((fiber) =>
+				E.gen(function* () {
+					if (!fiber) {
+						return yield* E.dieMessage(
+							"[Runnable] - Cannot obtain fiber. Either it was not set or the runnable is not running.",
+						);
+					}
+
+					return fiber;
+				}),
+			),
+		);
+	}
+
 	protected getStateSync() {
 		return E.runSync(SubscriptionRef.get(this.state));
 	}
@@ -75,6 +124,16 @@ export class Runnable<Value, Errors> {
 				Stream.filter((fiber) => !!fiber),
 				Stream.take(1),
 				Stream.tap((fiber) => Fiber.interrupt(fiber)),
+				Stream.runDrain,
+			),
+		);
+	}
+
+	waitForTrigger() {
+		return this.runtime.runFork(
+			this.executingFiber.changes.pipe(
+				Stream.filter((fiber) => !!fiber),
+				Stream.take(1),
 				Stream.runDrain,
 			),
 		);

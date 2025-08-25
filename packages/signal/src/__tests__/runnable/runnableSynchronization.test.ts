@@ -120,3 +120,61 @@ it.scoped("synchronizes multiple waiting callers during interruption", () =>
 		expect(getValue.isCompleted()).toBeTruthy();
 	}),
 );
+
+it.scoped("waits for task start", () =>
+	E.gen(function* () {
+		const runtime = ManagedRuntime.make(Layer.empty);
+		let ran = false;
+
+		const getValue = new Runnable(
+			runtime,
+			E.gen(function* () {
+				return 1;
+			}),
+		);
+
+		const fiber = E.runFork(
+			E.all([
+				getValue.waitForTrigger(),
+				E.gen(function* () {
+					ran = true;
+				}),
+			]),
+		);
+
+		getValue.spawn();
+		yield* Fiber.join(fiber);
+
+		expect(ran).toBeTruthy();
+	}),
+);
+
+it.scoped("waits for task start when an error is thrown", () =>
+	E.gen(function* () {
+		const runtime = ManagedRuntime.make(Layer.empty);
+		let ran = false;
+
+		class MyError extends Data.TaggedError("MyError") {}
+
+		const getValue = new Runnable(
+			runtime,
+			E.gen(function* () {
+				yield* new MyError();
+			}),
+		);
+
+		const fiber = E.runFork(
+			E.all([
+				getValue.waitForTrigger(),
+				E.gen(function* () {
+					ran = true;
+				}),
+			]),
+		);
+
+		getValue.spawn();
+		yield* Fiber.join(fiber);
+
+		expect(ran).toBeTruthy();
+	}),
+);

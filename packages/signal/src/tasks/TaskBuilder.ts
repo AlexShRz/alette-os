@@ -1,58 +1,61 @@
 import * as E from "effect/Effect";
-import * as Runtime from "effect/Runtime";
-import { Task } from "./Task.js";
+import * as ManagedRuntime from "effect/ManagedRuntime";
+import { IRunnableMode, Runnable } from "../runnable/Runnable.js";
 
-export interface ITaskFailureHook<Errors> {
-	(error: Errors): void;
-}
+export interface IAcceptedTaskRuntime<A, I>
+	extends ManagedRuntime.ManagedRuntime<A, I> {}
 
-export interface ITaskCancellationHook {
-	(): void;
-}
+export class TaskBuilder<
+	Result = void,
+	Errors = never,
+	RuntimeDeps = never,
+	RuntimeErrors = never,
+> {
+	protected taskRuntime: IAcceptedTaskRuntime<
+		RuntimeDeps,
+		RuntimeErrors
+	> | null = null;
+	protected runnableMode: IRunnableMode = "sequential";
 
-export abstract class TaskBuilder<Result = void, Errors = never> {
-	protected failureHooks: ITaskFailureHook<Errors>[] = [];
-	protected cancellationHooks: ITaskCancellationHook[] = [];
-	protected taskRuntime: Runtime.Runtime<never> | null = null;
-
-	protected constructor(
+	constructor(
 		protected readonly taskFactory: () => E.Effect<Result, Errors, never>,
 	) {}
 
-	whenCancelled(hook: (typeof this.cancellationHooks)[number]) {
-		this.cancellationHooks = [...this.cancellationHooks, hook];
-		return this;
-	}
-
-	whenFailed(hook: (typeof this.failureHooks)[number]) {
-		this.failureHooks = [...this.failureHooks, hook];
-		return this;
-	}
-
-	runIn(providedRuntime: Runtime.Runtime<never>) {
+	executor(providedRuntime: typeof this.taskRuntime) {
 		this.taskRuntime = providedRuntime;
 		return this;
 	}
 
 	protected assertRuntimeProvided(): asserts this is {
-		taskRuntime: Runtime.Runtime<never>;
+		taskRuntime: IAcceptedTaskRuntime<RuntimeDeps, RuntimeErrors>;
 	} {
 		if (!this.taskRuntime) {
 			throw new Error("[TaskBuilder] - task runtime was not provided.");
 		}
 	}
 
-	abstract clone(): this;
-
-	protected cloneWithCommonSettings<T extends TaskBuilder<Result, Errors>>(
-		cloner: (factory: () => E.Effect<Result, Errors, never>) => T,
-	): T {
-		const self = cloner(this.taskFactory);
-		self.failureHooks = [...this.failureHooks] as any;
-		self.cancellationHooks = [...this.cancellationHooks];
-		self.taskRuntime = this.taskRuntime;
-		return self;
+	concurrent() {
+		this.runnableMode = "concurrent";
+		return this;
 	}
 
-	abstract build(): E.Effect<Task<Result, Errors>>;
+	sequential() {
+		this.runnableMode = "sequential";
+		return this;
+	}
+
+	clone() {
+		const taskBuilder = new TaskBuilder(this.taskFactory);
+		taskBuilder.runnableMode = this.runnableMode;
+		return taskBuilder;
+	}
+
+	build() {
+		this.assertRuntimeProvided();
+		return new Runnable(
+			this.taskRuntime,
+			this.taskFactory(),
+			this.runnableMode,
+		);
+	}
 }

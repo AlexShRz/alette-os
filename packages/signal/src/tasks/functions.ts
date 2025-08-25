@@ -1,10 +1,21 @@
 import * as E from "effect/Effect";
 import { CommandTaskBuilder } from "./CommandTaskBuilder.js";
-import { AnyQueryTaskValue, QueryTaskBuilder } from "./QueryTaskBuilder.js";
+import { QueryTaskBuilder } from "./QueryTaskBuilder.js";
 
-export const task = <Errors>(future: () => E.Effect<void, Errors, never>) =>
-	new CommandTaskBuilder(future);
+export const task = <Errors>(
+	taskDefinition: () => E.Effect<void, Errors, never>,
+) => new CommandTaskBuilder(taskDefinition);
 
-export const queryTask = <Result extends AnyQueryTaskValue, Errors>(
-	future: () => E.Effect<Result, Errors, never>,
-) => new QueryTaskBuilder(future);
+export const queryTask = <Result, Errors>(
+	taskDefinition: () => E.Effect<Result, Errors, never>,
+) => new QueryTaskBuilder(taskDefinition);
+
+export const getQueryResult = <Result, Errors>(
+	query: QueryTaskBuilder<Result, Errors>,
+) =>
+	E.async<Result, Errors>((resume) => {
+		query
+			.whenSucceeded((result) => resume(E.succeed(result)))
+			.whenFailed((error) => resume(E.fail(error)))
+			.whenInterrupted((error) => resume(E.fail(error as Errors)));
+	});
