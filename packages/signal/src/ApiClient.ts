@@ -12,7 +12,12 @@ export const client = (...commands: CommandTaskBuilder[]) =>
 export class ApiClient {
 	protected runtime = this.createRuntime();
 
-	constructor(protected getMemoizedConfig: () => CommandTaskBuilder[]) {}
+	constructor(protected getMemoizedConfig: () => CommandTaskBuilder[]) {
+		/**
+		 * Run memoized config immediately after startup
+		 * */
+		this.tell(...getMemoizedConfig());
+	}
 
 	protected createRuntime() {
 		const requirements = Layer.provideMerge(

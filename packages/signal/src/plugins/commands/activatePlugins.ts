@@ -23,5 +23,5 @@ export const activatePlugins = (...plugins: ApiPlugin[]) =>
 			}
 
 			return true;
-		}),
+		}).pipe(E.orDie),
 	);
