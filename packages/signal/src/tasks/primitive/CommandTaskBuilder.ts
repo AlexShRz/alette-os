@@ -1,5 +1,5 @@
 import * as E from "effect/Effect";
-import { TaskBuilder } from "./TaskBuilder.js";
+import { TaskBuilder } from "./TaskBuilder";
 
 export class CommandTaskBuilder<Errors = never> extends TaskBuilder<
 	void,

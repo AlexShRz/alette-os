@@ -1,5 +1,5 @@
 import * as E from "effect/Effect";
-import { task } from "../../tasks/functions.js";
+import { task } from "../../tasks/primitive/functions";
 import { ApiPlugin } from "../ApiPlugin.js";
 import { PluginRegistry } from "../registry/PluginRegistry.js";
 
@@ -9,7 +9,7 @@ export const deactivatePlugins = (...plugins: ApiPlugin[]) =>
 			const registry = yield* E.serviceOptional(PluginRegistry);
 
 			for (const plugin of plugins) {
-				const pluginName = yield* plugin.getName();
+				const pluginName = plugin.getName();
 				yield* registry.deactivate(pluginName);
 			}
 		}),

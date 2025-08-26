@@ -1,6 +1,8 @@
 import * as E from "effect/Effect";
+import * as Runtime from "effect/Runtime";
 import * as Scope from "effect/Scope";
 import * as SynchronizedRef from "effect/SynchronizedRef";
+import { TaskScheduler } from "../../tasks/TaskScheduler";
 import { ApiPlugin } from "../ApiPlugin.js";
 import { ActivatedApiPlugin } from "./ActivatedApiPlugin.js";
 
@@ -9,6 +11,8 @@ export class PluginRegistry extends E.Service<PluginRegistry>()(
 	{
 		scoped: E.gen(function* () {
 			const scope = yield* E.scope;
+			const taskScheduler = yield* TaskScheduler;
+			const runtime = yield* E.runtime<TaskScheduler | Scope.Scope>();
 			/**
 			 * We need synchronization here, otherwise
 			 * there will be dirty reads.
@@ -21,7 +25,8 @@ export class PluginRegistry extends E.Service<PluginRegistry>()(
 
 			return {
 				has(pluginName: string) {
-					return E.runSync(
+					return Runtime.runSync(
+						runtime,
 						E.gen(function* () {
 							const registry = yield* getRegistry();
 							return registry.has(pluginName);
@@ -30,7 +35,8 @@ export class PluginRegistry extends E.Service<PluginRegistry>()(
 				},
 
 				getActivatedPluginNames() {
-					return E.runSync(
+					return Runtime.runSync(
+						runtime,
 						E.gen(function* () {
 							const registry = yield* getRegistry();
 							return [...registry.keys()];
@@ -63,12 +69,15 @@ export class PluginRegistry extends E.Service<PluginRegistry>()(
 				activate(plugin: ApiPlugin) {
 					return SynchronizedRef.getAndUpdateEffect(plugins, (registry) =>
 						E.gen(function* () {
-							const name = yield* plugin.getName();
+							const name = plugin.getName();
 							const activatedPlugin =
 								yield* ActivatedApiPlugin.makeAsValue(plugin);
 							registry.set(name, activatedPlugin);
 							return registry;
-						}).pipe(Scope.extend(scope)),
+						}),
+					).pipe(
+						Scope.extend(scope),
+						E.provideService(TaskScheduler, taskScheduler),
 					);
 				},
 

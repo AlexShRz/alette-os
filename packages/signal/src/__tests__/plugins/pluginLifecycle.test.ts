@@ -7,7 +7,7 @@ import {
 	defineApiPlugin,
 	forActivePlugins,
 } from "../../plugins/index.js";
-import { task } from "../../tasks/functions.js";
+import { task } from "../../tasks/primitive/functions.js";
 
 test("it activates plugins", async () => {
 	const api = client();

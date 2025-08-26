@@ -4,21 +4,19 @@ import { Runnable } from "../../runnable/Runnable.js";
 
 it.scoped("can be executed only once", () =>
 	E.gen(function* () {
-		const runtime = ManagedRuntime.make(Layer.empty);
 		let count = 0;
 
 		const getValue = new Runnable(
-			runtime,
 			E.gen(function* () {
 				count++;
 			}),
 		);
 
-		getValue.spawn();
-		getValue.spawn();
-		getValue.spawn();
-		getValue.spawn();
-		getValue.spawn();
+		yield* getValue.spawn();
+		yield* getValue.spawn();
+		yield* getValue.spawn();
+		yield* getValue.spawn();
+		yield* getValue.spawn();
 
 		yield* getValue.waitForCompletion();
 		yield* getValue.waitForCompletion();
@@ -44,7 +42,6 @@ it.scoped("can access services from passed runtime", () =>
 		const runtime = ManagedRuntime.make(Layer.mergeAll(Service1.Default));
 
 		const getValue = new Runnable(
-			runtime,
 			/**
 			 * Makes sure effects are nested to verify
 			 * that runtime context is not lost.
@@ -59,11 +56,12 @@ it.scoped("can access services from passed runtime", () =>
 			}),
 		);
 
-		getValue.spawn();
-		getValue.spawn();
-		getValue.spawn();
-		getValue.spawn();
-		getValue.spawn();
+		runtime.runFork(getValue.spawn());
+		runtime.runFork(getValue.spawn());
+		runtime.runFork(getValue.spawn());
+		runtime.runFork(getValue.spawn());
+		runtime.runFork(getValue.spawn());
+		runtime.runFork(getValue.spawn());
 
 		const result = yield* getValue.result();
 

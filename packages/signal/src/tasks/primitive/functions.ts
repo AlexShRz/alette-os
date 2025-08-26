@@ -1,6 +1,6 @@
 import * as E from "effect/Effect";
-import { CommandTaskBuilder } from "./CommandTaskBuilder.js";
-import { QueryTaskBuilder } from "./QueryTaskBuilder.js";
+import { CommandTaskBuilder } from "./CommandTaskBuilder";
+import { QueryTaskBuilder } from "./QueryTaskBuilder";
 
 export const task = <Errors>(
 	taskDefinition: () => E.Effect<void, Errors, never>,

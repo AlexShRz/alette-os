@@ -21,6 +21,7 @@ export const defineApiPlugin = (name: string) => {
 	const runtime = createRuntime(name);
 
 	return {
+		pluginName: name,
 		plugin: new ApiPluginBuilder({
 			runtime,
 		}),

@@ -1,23 +1,14 @@
 import { expect, it } from "@effect/vitest";
-import {
-	Data,
-	Effect as E,
-	Exit,
-	Fiber,
-	Layer,
-	ManagedRuntime,
-	Queue,
-} from "effect";
+import { Data, Effect as E, Exit, Fiber, Queue } from "effect";
 import { Runnable } from "../../runnable/Runnable.js";
 import { getStreamEffect } from "./utils.js";
 
 it.scoped("synchronizes multiple waiting callers during success", () =>
 	E.gen(function* () {
-		const runtime = ManagedRuntime.make(Layer.empty);
 		const queue = yield* Queue.unbounded<number>();
-		const getValue = new Runnable(runtime, getStreamEffect(queue));
+		const getValue = new Runnable(getStreamEffect(queue));
 
-		getValue.spawn();
+		yield* getValue.spawn();
 
 		const fibers = E.runFork(
 			E.all(
@@ -45,18 +36,15 @@ it.scoped("synchronizes multiple waiting callers during success", () =>
 
 it.scoped("synchronizes multiple waiting callers during error", () =>
 	E.gen(function* () {
-		const runtime = ManagedRuntime.make(Layer.empty);
-
 		class MyError extends Data.TaggedError("MyError") {}
 
 		const getValue = new Runnable(
-			runtime,
 			E.gen(function* () {
 				return yield* new MyError();
 			}),
 		);
 
-		getValue.spawn();
+		yield* getValue.spawn();
 
 		const fibers = E.runFork(
 			E.all(
@@ -86,12 +74,11 @@ it.scoped("synchronizes multiple waiting callers during error", () =>
 
 it.scoped("synchronizes multiple waiting callers during interruption", () =>
 	E.gen(function* () {
-		const runtime = ManagedRuntime.make(Layer.empty);
 		const queue = yield* Queue.unbounded<number>();
 
-		const getValue = new Runnable(runtime, getStreamEffect(queue));
+		const getValue = new Runnable(getStreamEffect(queue));
 
-		getValue.spawn();
+		yield* getValue.spawn();
 
 		const fibers = E.runFork(
 			E.all(
@@ -105,7 +92,7 @@ it.scoped("synchronizes multiple waiting callers during interruption", () =>
 			),
 		);
 
-		getValue.interrupt();
+		yield* getValue.interrupt();
 
 		const [res1, res2, res3, res4] = yield* Fiber.join(fibers);
 
@@ -123,11 +110,9 @@ it.scoped("synchronizes multiple waiting callers during interruption", () =>
 
 it.scoped("waits for task start", () =>
 	E.gen(function* () {
-		const runtime = ManagedRuntime.make(Layer.empty);
 		let ran = false;
 
 		const getValue = new Runnable(
-			runtime,
 			E.gen(function* () {
 				return 1;
 			}),
@@ -142,7 +127,7 @@ it.scoped("waits for task start", () =>
 			]),
 		);
 
-		getValue.spawn();
+		yield* getValue.spawn();
 		yield* Fiber.join(fiber);
 
 		expect(ran).toBeTruthy();
@@ -151,13 +136,11 @@ it.scoped("waits for task start", () =>
 
 it.scoped("waits for task start when an error is thrown", () =>
 	E.gen(function* () {
-		const runtime = ManagedRuntime.make(Layer.empty);
 		let ran = false;
 
 		class MyError extends Data.TaggedError("MyError") {}
 
 		const getValue = new Runnable(
-			runtime,
 			E.gen(function* () {
 				yield* new MyError();
 			}),
@@ -172,7 +155,7 @@ it.scoped("waits for task start when an error is thrown", () =>
 			]),
 		);
 
-		getValue.spawn();
+		yield* getValue.spawn();
 		yield* Fiber.join(fiber);
 
 		expect(ran).toBeTruthy();

@@ -7,20 +7,18 @@ import {
 	defineApiPlugin,
 	forActivePlugins,
 } from "../../plugins/index.js";
-import { task } from "../../tasks/functions.js";
+import { task } from "../../tasks/primitive/functions.js";
 
 test("it runs activation hooks on mount", async () => {
 	const api = client();
-	const { plugin } = defineApiPlugin("hello");
+	const { plugin, pluginName: corePluginName } = defineApiPlugin("hello");
 	const { plugin: plugin2 } = defineApiPlugin("otherPlugin");
 	const logged: number[] = [];
 
 	const anotherPlugin = plugin2.build();
 
 	const core = plugin
-		.onActivation(async ({ ask, tell, self }) => {
-			const ownPluginName = await self.getNameAsync();
-
+		.onActivation(async ({ ask, tell }) => {
 			tell(
 				task(() =>
 					E.gen(function* () {
@@ -34,7 +32,7 @@ test("it runs activation hooks on mount", async () => {
 			/**
 			 * Our plugin shouldn't be in the "activePlugins" yet.
 			 * */
-			if (!activePlugins.some((pluginName) => pluginName === ownPluginName)) {
+			if (!activePlugins.some((pluginName) => pluginName === corePluginName)) {
 				logged.push(2);
 			}
 		})

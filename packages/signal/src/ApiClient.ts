@@ -2,9 +2,9 @@ import * as E from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import { Kernel } from "./Kernel.js";
-import { KernelTaskRunnerAvailability } from "./KernelTaskRunnerAvailability";
-import { CommandTaskBuilder } from "./tasks/CommandTaskBuilder.js";
-import { QueryTaskBuilder } from "./tasks/QueryTaskBuilder.js";
+import { TaskScheduler } from "./tasks/TaskScheduler";
+import { CommandTaskBuilder } from "./tasks/primitive/CommandTaskBuilder";
+import { QueryTaskBuilder } from "./tasks/primitive/QueryTaskBuilder";
 
 export const client = (...commands: CommandTaskBuilder[]) =>
 	new ApiClient(() => commands.map((command) => command.clone()));
@@ -15,28 +15,30 @@ export class ApiClient {
 	constructor(protected getMemoizedConfig: () => CommandTaskBuilder[]) {}
 
 	protected createRuntime() {
-		return ManagedRuntime.make(
-			Layer.mergeAll(Kernel.Default, KernelTaskRunnerAvailability.Default),
+		const requirements = Layer.provideMerge(
+			Kernel.Default,
+			TaskScheduler.Default,
 		);
+		return ManagedRuntime.make(requirements);
 	}
 
-	ask<A, I>(query: QueryTaskBuilder<A, I>) {
+	ask<A, E>(query: QueryTaskBuilder<A, E>) {
 		return this.runtime.runPromise(
 			E.gen(function* () {
-				const kernel = yield* Kernel;
-				const runnable = yield* kernel.run(query);
+				const scheduler = yield* E.serviceOptional(TaskScheduler);
+				const runnable = yield* scheduler.scheduleHighPriority(query.build());
 				return yield* runnable.result();
 			}),
 		);
 	}
 
 	tell<I>(...commands: CommandTaskBuilder<I>[]) {
-		this.runtime.runSyncExit(
+		this.runtime.runSync(
 			E.gen(function* () {
-				const kernel = yield* Kernel;
+				const scheduler = yield* E.serviceOptional(TaskScheduler);
 
 				for (const command of commands) {
-					yield* kernel.run(command);
+					yield* scheduler.scheduleHighPriority(command.concurrent().build());
 				}
 			}),
 		);

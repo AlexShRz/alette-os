@@ -1,9 +1,8 @@
 import { expect, vi } from "@effect/vitest";
 import { Cause, Data, Effect as E, Layer, ManagedRuntime } from "effect";
-import { queryTask } from "../../tasks/functions.js";
+import { queryTask } from "../../tasks/primitive/functions.js";
 
 test("it runs hooks on success", async () => {
-	const runtime = ManagedRuntime.make(Layer.empty);
 	const logged: number[] = [];
 
 	const getValue = queryTask(() =>
@@ -20,7 +19,6 @@ test("it runs hooks on success", async () => {
 		.whenSucceeded((value) => {
 			logged.push(value + 2);
 		})
-		.executor(runtime)
 		.build();
 
 	getValue.spawn();
@@ -35,8 +33,6 @@ test("it runs hooks on success", async () => {
 });
 
 test("it runs hooks on failure", async () => {
-	const runtime = ManagedRuntime.make(Layer.empty);
-
 	class MyError extends Data.TaggedError("MyError") {}
 
 	const logged: unknown[] = [];
@@ -55,7 +51,6 @@ test("it runs hooks on failure", async () => {
 		.whenFailed((error) => {
 			logged.push(error);
 		})
-		.executor(runtime)
 		.build();
 
 	getValue.spawn();
@@ -89,7 +84,6 @@ test("it runs hooks on interruption", async () => {
 		.whenInterrupted((error) => {
 			logged.push(error);
 		})
-		.executor(runtime)
 		.build();
 
 	getValue.spawn();

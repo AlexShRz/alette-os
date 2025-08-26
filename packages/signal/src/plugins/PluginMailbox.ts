@@ -1,14 +1,11 @@
 import * as E from "effect/Effect";
 import * as Queue from "effect/Queue";
 import * as Runtime from "effect/Runtime";
-import { CommandTaskBuilder } from "../tasks/CommandTaskBuilder.js";
-import { QueryTaskBuilder } from "../tasks/QueryTaskBuilder.js";
-import { TaskBuilder } from "../tasks/TaskBuilder.js";
+import { CommandTaskBuilder } from "../tasks/primitive/CommandTaskBuilder";
+import { QueryTaskBuilder } from "../tasks/primitive/QueryTaskBuilder";
+import { TaskBuilder } from "../tasks/primitive/TaskBuilder";
 
 export interface IApiPluginMailboxMessage extends TaskBuilder<any, any> {}
-
-export interface IApiPluginMailbox
-	extends Queue.Queue<IApiPluginMailboxMessage> {}
 
 export class PluginMailbox extends E.Service<PluginMailbox>()("PluginMailbox", {
 	scoped: E.gen(function* () {
@@ -37,8 +34,12 @@ export class PluginMailbox extends E.Service<PluginMailbox>()("PluginMailbox", {
 				return Runtime.runPromise(runtime, this.sendQuery(query));
 			},
 
-			sendCommand<I>(command: CommandTaskBuilder<I>) {
+			sendCommandAsync<I>(command: CommandTaskBuilder<I>) {
 				mailbox.unsafeOffer(command);
+			},
+
+			sendCommand<I>(command: CommandTaskBuilder<I>) {
+				return mailbox.offer(command);
 			},
 		};
 	}),

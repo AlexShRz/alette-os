@@ -1,5 +1,5 @@
 import * as E from "effect/Effect";
-import { queryTask } from "../../tasks/functions.js";
+import { queryTask } from "../../tasks/primitive/functions";
 import { PluginRegistry } from "../registry/PluginRegistry.js";
 
 export const forActivePlugins = () =>

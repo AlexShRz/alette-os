@@ -1,5 +1,5 @@
-import { CommandTaskBuilder } from "../tasks/CommandTaskBuilder.js";
-import { QueryTaskBuilder } from "../tasks/QueryTaskBuilder.js";
+import { CommandTaskBuilder } from "../tasks/primitive/CommandTaskBuilder";
+import { QueryTaskBuilder } from "../tasks/primitive/QueryTaskBuilder";
 import { ApiPlugin } from "./ApiPlugin.js";
 import { IPluginRuntime } from "./defineApiPlugin.js";
 

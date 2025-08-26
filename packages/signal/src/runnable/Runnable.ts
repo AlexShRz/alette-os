@@ -3,7 +3,7 @@ import * as Chunk from "effect/Chunk";
 import * as E from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
-import * as ManagedRuntime from "effect/ManagedRuntime";
+import * as Runtime from "effect/Runtime";
 import * as Stream from "effect/Stream";
 import * as SubscriptionRef from "effect/SubscriptionRef";
 import { v4 as uuid } from "uuid";
@@ -11,30 +11,14 @@ import { IRunnableState } from "./IRunnableState.js";
 
 export type IRunnableMode = "concurrent" | "sequential";
 
-export class Runnable<
-	Value = void,
-	Errors = never,
-	RuntimeContext = never,
-	RuntimeErrors = never,
-> {
+export class Runnable<Value = void, Errors = never> {
 	protected id = uuid();
-
 	protected state: SubscriptionRef.SubscriptionRef<
 		IRunnableState<Value, Errors>
 	>;
-	protected runForkJoin: <A, E>(
-		effect: E.Effect<A, E>,
-	) => E.Effect<A, E | RuntimeErrors>;
-	protected executingFiber: SubscriptionRef.SubscriptionRef<Fiber.RuntimeFiber<
-		void,
-		RuntimeErrors
-	> | null>;
+	protected executingFiber: SubscriptionRef.SubscriptionRef<Fiber.RuntimeFiber<void> | null>;
 
 	constructor(
-		protected runtime: ManagedRuntime.ManagedRuntime<
-			RuntimeContext,
-			RuntimeErrors
-		>,
 		protected runner: E.Effect<Value, Errors, never>,
 		protected prefersMode: IRunnableMode = "sequential",
 	) {
@@ -43,12 +27,9 @@ export class Runnable<
 				status: "uninitialized",
 			}),
 		);
-		this.executingFiber = this.runtime.runSync(
-			SubscriptionRef.make<Fiber.RuntimeFiber<void, RuntimeErrors> | null>(
-				null,
-			),
+		this.executingFiber = E.runSync(
+			SubscriptionRef.make<Fiber.RuntimeFiber<void> | null>(null),
 		);
-		this.runForkJoin = (effect) => Fiber.join(this.runtime.runFork(effect));
 	}
 
 	isConcurrent() {
@@ -107,19 +88,17 @@ export class Runnable<
 	}
 
 	protected getState() {
-		const getSubscriptionState = this.state.changes
+		return this.state.changes
 			.pipe(
 				Stream.filter((state) => state.status !== "uninitialized"),
 				Stream.take(1),
 				Stream.runCollect,
 			)
 			.pipe(E.andThen((chunk) => Chunk.unsafeGet(chunk, 0)));
-
-		return this.runForkJoin(getSubscriptionState);
 	}
 
 	interrupt() {
-		this.runtime.runFork(
+		return E.forkDaemon(
 			this.executingFiber.changes.pipe(
 				Stream.filter((fiber) => !!fiber),
 				Stream.take(1),
@@ -130,12 +109,10 @@ export class Runnable<
 	}
 
 	waitForTrigger() {
-		return this.runtime.runFork(
-			this.executingFiber.changes.pipe(
-				Stream.filter((fiber) => !!fiber),
-				Stream.take(1),
-				Stream.runDrain,
-			),
+		return this.executingFiber.changes.pipe(
+			Stream.filter((fiber) => !!fiber),
+			Stream.take(1),
+			Stream.runDrain,
 		);
 	}
 
@@ -144,11 +121,11 @@ export class Runnable<
 	}
 
 	resultAsync() {
-		return this.runtime.runPromise(this.result());
+		return E.runPromise(this.result());
 	}
 
 	result() {
-		const operation = E.gen(this, function* () {
+		return E.gen(this, function* () {
 			const state = yield* this.getState();
 			const { status } = state;
 
@@ -158,12 +135,10 @@ export class Runnable<
 
 			return yield* E.succeed(state.value);
 		});
-
-		return this.runForkJoin(operation);
 	}
 
 	resultSafe() {
-		const operation = E.gen(this, function* () {
+		return E.gen(this, function* () {
 			const state = yield* this.getState();
 			const { status } = state;
 
@@ -178,62 +153,72 @@ export class Runnable<
 
 			return Exit.succeed(state.value);
 		});
-
-		return this.runForkJoin(operation);
 	}
 
 	spawn() {
-		const runnable = SubscriptionRef.getAndUpdateEffect(this.state, (state) =>
-			E.gen(this, function* () {
-				if (state.status !== "uninitialized") {
-					return state;
-				}
+		return E.gen(this, function* () {
+			const runtime = yield* E.runtime<never>();
 
-				return yield* this.runTaskAndUpdateState();
-			}),
-		);
+			return Runtime.runFork(
+				runtime,
+				SubscriptionRef.getAndUpdateEffect(this.state, (state) =>
+					E.gen(this, function* () {
+						if (state.status !== "uninitialized") {
+							return state;
+						}
 
-		this.runtime.runFork(runnable);
+						return yield* this.runTaskAndUpdateState();
+					}),
+				),
+			);
+		});
 	}
 
 	protected runTaskAndUpdateState() {
-		return E.async<IRunnableState<Value, Errors>>((resume) => {
-			const task = this.runner.pipe(
-				E.andThen((value) => {
-					resume(
-						E.succeed({
-							status: "succeeded",
-							value,
-						}),
-					);
-				}),
-				E.catchAll((error) => {
-					resume(
-						E.succeed({
-							status: "failed",
-							error,
-						}),
-					);
+		return E.gen(this, function* () {
+			const runtime = yield* E.runtime<never>();
 
-					return E.void;
-				}),
-				E.onInterrupt(() => {
-					resume(
-						E.succeed({
-							status: "interrupted",
-							error: new Cause.InterruptedException(
-								"Runnable was interrupted.",
-							),
-						}),
-					);
+			return yield* E.async<IRunnableState<Value, Errors>>((resume) => {
+				const task = this.runner.pipe(
+					E.andThen((value) => {
+						resume(
+							E.succeed({
+								status: "succeeded",
+								value,
+							}),
+						);
+					}),
+					E.catchAll((error) => {
+						resume(
+							E.succeed({
+								status: "failed",
+								error,
+							}),
+						);
 
-					return E.void;
-				}),
-			);
+						return E.void;
+					}),
+					E.onInterrupt(() => {
+						resume(
+							E.succeed({
+								status: "interrupted",
+								error: new Cause.InterruptedException(
+									"Runnable was interrupted.",
+								),
+							}),
+						);
 
-			const fiber = this.runtime.runFork(task);
-			this.runtime.runFork(SubscriptionRef.set(this.executingFiber, fiber));
-			return Fiber.interruptFork(fiber);
+						return E.void;
+					}),
+				);
+
+				const fiber = Runtime.runFork(runtime, task);
+				Runtime.runFork(
+					runtime,
+					SubscriptionRef.set(this.executingFiber, fiber),
+				);
+				return Fiber.interruptFork(fiber);
+			});
 		});
 	}
 }

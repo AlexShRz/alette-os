@@ -1,6 +1,6 @@
 import * as Cause from "effect/Cause";
 import * as E from "effect/Effect";
-import { TaskBuilder } from "./TaskBuilder.js";
+import { TaskBuilder } from "./TaskBuilder";
 
 export class QueryTaskBuilder<Result = any, Errors = never> extends TaskBuilder<
 	Result,

@@ -1,7 +1,10 @@
 import * as E from "effect/Effect";
 import * as Fiber from "effect/Fiber";
 import * as Predicate from "effect/Predicate";
-import { queryTask, task } from "../tasks/functions";
+import * as Runtime from "effect/Runtime";
+import { Runnable } from "../runnable/Runnable";
+import { TaskScheduler } from "../tasks/TaskScheduler";
+import { task } from "../tasks/primitive/functions";
 import {
 	IApiPluginExposedUtils,
 	IPluginActivationHook,
@@ -9,7 +12,7 @@ import {
 	IPluginDeactivationHook,
 	IPluginUtilProvider,
 } from "./ApiPluginBuilder.js";
-import { IApiPluginMailboxMessage, PluginMailbox } from "./PluginMailbox.js";
+import { PluginMailbox } from "./PluginMailbox.js";
 import { PluginName } from "./PluginName.js";
 import { IPluginRuntime } from "./defineApiPlugin.js";
 
@@ -40,13 +43,15 @@ export class ApiPlugin<
 		);
 	}
 
+	/**
+	 * Must be sync. Otherwise, will
+	 * fail if triggered in another runtime.
+	 * */
 	getName() {
-		return Fiber.join(
-			this.runtime.runFork(
-				E.gen(function* () {
-					return yield* PluginName.get();
-				}),
-			),
+		return this.runtime.runSync(
+			E.gen(function* () {
+				return yield* PluginName.get();
+			}),
 		);
 	}
 
@@ -83,20 +88,33 @@ export class ApiPlugin<
 		return this.config.getExposed();
 	}
 
-	runActivationHooks() {
-		return Fiber.join(
-			this.runtime.runFork(
+	scheduleActivationHooks() {
+		return E.gen(this, function* () {
+			const scheduler = yield* TaskScheduler;
+			const runtime = yield* E.runtime<never>();
+			const hook = task(() =>
 				E.gen(this, function* () {
-					const { mailbox } = yield* this.getHookOptions();
-
 					/**
-					 * NOTE: every command/query is executed in the "sequential"
-					 * mode automatically.
+					 * NOTE: every command/query should be
+					 * executed in the "sequential" mode.
 					 * */
-					const hookOptions: IPluginActivationHookData<ApiPlugin<Exposed>> = {
-						ask: mailbox.sendQueryAsync.bind(mailbox),
-						tell: mailbox.sendCommand.bind(mailbox),
-						self: this,
+					const hookOptions: IPluginActivationHookData = {
+						ask: (task) =>
+							Runtime.runPromise(
+								runtime,
+								E.gen(function* () {
+									const runnable = task.build();
+									yield* scheduler.scheduleHighPriority(runnable);
+									return yield* runnable.result();
+								}),
+							),
+						tell: (task) =>
+							Runtime.runSync(
+								runtime,
+								E.gen(function* () {
+									yield* scheduler.scheduleHighPriority(task.build());
+								}),
+							),
 					};
 
 					const boundHooks = this.config.activationHooks.map((hook) => {
@@ -117,45 +135,18 @@ export class ApiPlugin<
 					 * our hooks contain ask().
 					 * No idea why this happens, research later?
 					 * */
-					return this.runtime.runFork(E.all(boundHooks));
+					Runtime.runFork(runtime, E.all(boundHooks));
+					return true;
 				}),
-			),
-		);
+			);
+
+			yield* scheduler.scheduleHighPriority(
+				hook.build() as unknown as Runnable<any, any>,
+			);
+		});
 	}
 
 	runDeactivationHooks() {
-		return Fiber.join(
-			this.runtime.runFork(
-				E.gen(this, function* () {
-					const { mailbox } = yield* this.getHookOptions();
-
-					const hookOptions: IPluginActivationHookData = {
-						ask: mailbox.sendQueryAsync.bind(mailbox),
-						tell: mailbox.sendCommand.bind(mailbox),
-					};
-
-					const boundHooks = this.config.deactivationHooks.map((hook) => {
-						return E.async<void, never>((resume) => {
-							const maybePromise = hook(hookOptions);
-
-							if (Predicate.isPromise(maybePromise)) {
-								maybePromise.finally(() => resume(E.succeed(E.void)));
-							} else {
-								resume(E.succeed(maybePromise));
-							}
-						});
-					});
-
-					/**
-					 * 1. IMPORTANT - make sure we use the plugin runtime here.
-					 * See above.
-					 * 2. We NEED to use Fiber.join() here, because otherwise effect will
-					 * not wait for our hooks to run. This is important to make sure
-					 * plugin shutdown is executed correctly.
-					 * */
-					yield* Fiber.join(this.runtime.runFork(E.all(boundHooks)));
-				}),
-			),
-		);
+		return Fiber.join(this.runtime.runFork(E.gen(this, function* () {})));
 	}
 }
