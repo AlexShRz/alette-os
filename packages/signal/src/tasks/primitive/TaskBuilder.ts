@@ -11,11 +11,13 @@ export class TaskBuilder<Result = void, Errors = never> {
 		protected readonly taskFactory: () => E.Effect<Result, Errors, never>,
 	) {}
 
+	/** @internal */
 	concurrent() {
 		this.runnableMode = "concurrent";
 		return this;
 	}
 
+	/** @internal */
 	sequential() {
 		this.runnableMode = "sequential";
 		return this;

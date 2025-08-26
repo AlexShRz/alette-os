@@ -52,11 +52,13 @@ test("it executes plugin tasks when the plugin is activated", async () => {
 	const core = plugin.build();
 	const mailbox = await E.runPromise(core.getMailboxHolder());
 
-	mailbox.sendCommand(
-		task(() =>
-			E.gen(function* () {
-				logged.push(1);
-			}),
+	await E.runPromise(
+		mailbox.sendCommand(
+			task(() =>
+				E.gen(function* () {
+					logged.push(1);
+				}),
+			),
 		),
 	);
 
@@ -75,26 +77,26 @@ test("interrupts all running tasks when a plugin is deactivated", async () => {
 	const core = plugin.build();
 	const mailbox = await E.runPromise(core.getMailboxHolder());
 
-	mailbox.sendCommand(
-		task(() =>
-			E.gen(function* () {
-				yield* E.forever(E.void);
-			}).pipe(
-				E.onInterrupt(() =>
-					E.sync(() => {
-						logged.push(1);
-					}),
+	await E.runPromise(
+		mailbox.sendCommand(
+			task(() =>
+				E.gen(function* () {
+					yield* E.forever(E.void);
+				}).pipe(
+					E.onInterrupt(() =>
+						E.sync(() => {
+							logged.push(1);
+						}),
+					),
 				),
-			),
+			).concurrent(),
 		),
 	);
 
 	api.tell(activatePlugins(core));
 
 	await E.runPromise(
-		E.sleep("100 millis").pipe(
-			E.andThen(() => api.tell(deactivatePlugins(core))),
-		),
+		E.sleep(200).pipe(E.andThen(() => api.tell(deactivatePlugins(core)))),
 	);
 
 	await vi.waitFor(() => {
@@ -110,17 +112,19 @@ test("it deactivates and activate plugins again if passed plugins are already in
 	const core = plugin.build();
 	const mailbox = await E.runPromise(core.getMailboxHolder());
 
-	mailbox.sendCommand(
-		task(() =>
-			E.gen(function* () {
-				yield* E.forever(E.void);
-			}).pipe(
-				E.onInterrupt(() =>
-					E.sync(() => {
-						logged.push(1);
-					}),
+	await E.runPromise(
+		mailbox.sendCommand(
+			task(() =>
+				E.gen(function* () {
+					yield* E.forever(E.void);
+				}).pipe(
+					E.onInterrupt(() =>
+						E.sync(() => {
+							logged.push(1);
+						}),
+					),
 				),
-			),
+			).concurrent(),
 		),
 	);
 

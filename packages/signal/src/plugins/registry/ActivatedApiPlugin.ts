@@ -22,6 +22,12 @@ export class ActivatedApiPlugin extends E.Service<ActivatedApiPlugin>()(
 			const taskScheduler = yield* TaskScheduler;
 
 			yield* plugin.scheduleActivationHooks();
+			yield* Scope.addFinalizer(
+				scope,
+				plugin
+					.scheduleDeactivationHooks()
+					.pipe(E.provideService(TaskScheduler, taskScheduler)),
+			);
 
 			const superviseFiber = (fiber: Fiber.RuntimeFiber<any>) => {
 				return FiberSet.add(supervisedTasks, fiber);

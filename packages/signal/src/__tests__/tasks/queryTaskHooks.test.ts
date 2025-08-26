@@ -1,5 +1,5 @@
 import { expect, vi } from "@effect/vitest";
-import { Cause, Data, Effect as E, Layer, ManagedRuntime } from "effect";
+import { Cause, Data, Effect as E } from "effect";
 import { queryTask } from "../../tasks/primitive/functions.js";
 
 test("it runs hooks on success", async () => {
@@ -21,11 +21,11 @@ test("it runs hooks on success", async () => {
 		})
 		.build();
 
-	getValue.spawn();
-	getValue.spawn();
-	getValue.spawn();
-	getValue.spawn();
-	getValue.spawn();
+	await E.runPromise(getValue.spawn());
+	await E.runPromise(getValue.spawn());
+	await E.runPromise(getValue.spawn());
+	await E.runPromise(getValue.spawn());
+	await E.runPromise(getValue.spawn());
 
 	await vi.waitFor(() => {
 		expect(logged).toStrictEqual([1, 2, 3]);
@@ -53,11 +53,11 @@ test("it runs hooks on failure", async () => {
 		})
 		.build();
 
-	getValue.spawn();
-	getValue.spawn();
-	getValue.spawn();
-	getValue.spawn();
-	getValue.spawn();
+	await E.runPromise(getValue.spawn());
+	await E.runPromise(getValue.spawn());
+	await E.runPromise(getValue.spawn());
+	await E.runPromise(getValue.spawn());
+	await E.runPromise(getValue.spawn());
 
 	await vi.waitFor(() => {
 		const collectedErrorCheck = logged.every((e) => e instanceof MyError);
@@ -66,8 +66,6 @@ test("it runs hooks on failure", async () => {
 });
 
 test("it runs hooks on interruption", async () => {
-	const runtime = ManagedRuntime.make(Layer.empty);
-
 	const logged: unknown[] = [];
 
 	const getValue = queryTask(() =>
@@ -86,11 +84,11 @@ test("it runs hooks on interruption", async () => {
 		})
 		.build();
 
-	getValue.spawn();
-	getValue.spawn();
-	getValue.spawn();
-	getValue.spawn();
-	getValue.spawn();
+	await E.runPromise(getValue.spawn());
+	await E.runPromise(getValue.spawn());
+	await E.runPromise(getValue.spawn());
+	await E.runPromise(getValue.spawn());
+	await E.runPromise(getValue.spawn());
 	getValue.interrupt();
 
 	await vi.waitFor(() => {

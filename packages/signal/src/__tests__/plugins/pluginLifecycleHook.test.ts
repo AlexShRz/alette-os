@@ -30,9 +30,9 @@ test("it runs activation hooks on mount", async () => {
 			const activePlugins = await ask(forActivePlugins());
 
 			/**
-			 * Our plugin shouldn't be in the "activePlugins" yet.
+			 * Our should already be in the "activePlugins" yet.
 			 * */
-			if (!activePlugins.some((pluginName) => pluginName === corePluginName)) {
+			if (activePlugins.some((pluginName) => pluginName === corePluginName)) {
 				logged.push(2);
 			}
 		})
@@ -55,9 +55,7 @@ test("it runs deactivation hooks on mount", async () => {
 	const logged: number[] = [];
 
 	const core = plugin
-		.onDeactivation(async ({ ask, tell, self }) => {
-			const ownPluginName = await self.getNameAsync();
-
+		.onDeactivation(async ({ ask, tell }) => {
 			tell(
 				task(() =>
 					E.gen(function* () {
@@ -68,7 +66,7 @@ test("it runs deactivation hooks on mount", async () => {
 
 			const activePlugins = await ask(forActivePlugins());
 
-			if (activePlugins.some((pluginName) => pluginName === ownPluginName)) {
+			if (!activePlugins.length) {
 				logged.push(2);
 			}
 		})

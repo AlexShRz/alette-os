@@ -89,6 +89,16 @@ export class ApiPlugin<
 	}
 
 	scheduleActivationHooks() {
+		return this.scheduleHookExecution(this.config.activationHooks);
+	}
+
+	scheduleDeactivationHooks() {
+		return this.scheduleHookExecution(this.config.deactivationHooks);
+	}
+
+	protected scheduleHookExecution(
+		hooks: IPluginDeactivationHook[] | IPluginActivationHook[],
+	) {
 		return E.gen(this, function* () {
 			const scheduler = yield* TaskScheduler;
 			const runtime = yield* E.runtime<never>();
@@ -117,7 +127,7 @@ export class ApiPlugin<
 							),
 					};
 
-					const boundHooks = this.config.activationHooks.map((hook) => {
+					const boundHooks = hooks.map((hook) => {
 						return E.async<void, never>((resume) => {
 							const maybePromise = hook(hookOptions);
 
@@ -136,17 +146,16 @@ export class ApiPlugin<
 					 * No idea why this happens, research later?
 					 * */
 					Runtime.runFork(runtime, E.all(boundHooks));
-					return true;
 				}),
 			);
 
+			/**
+			 * 1. Make sure to put hooks into "high priority" queue
+			 * 2. We should treat them as top level query/commands (api.ask()/tell())
+			 * */
 			yield* scheduler.scheduleHighPriority(
 				hook.build() as unknown as Runnable<any, any>,
 			);
 		});
-	}
-
-	runDeactivationHooks() {
-		return Fiber.join(this.runtime.runFork(E.gen(this, function* () {})));
 	}
 }
