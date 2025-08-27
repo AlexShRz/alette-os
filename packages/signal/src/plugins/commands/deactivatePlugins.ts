@@ -12,5 +12,5 @@ export const deactivatePlugins = (...plugins: ApiPlugin[]) =>
 				const pluginName = plugin.getName();
 				yield* registry.deactivate(pluginName);
 			}
-		}),
+		}).pipe(E.orDie),
 	);

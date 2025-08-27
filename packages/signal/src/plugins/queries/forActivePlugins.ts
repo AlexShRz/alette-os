@@ -7,5 +7,5 @@ export const forActivePlugins = () =>
 		E.gen(function* () {
 			const registry = yield* E.serviceOptional(PluginRegistry);
 			return registry.getActivatedPluginNames();
-		}),
+		}).pipe(E.orDie),
 	);
