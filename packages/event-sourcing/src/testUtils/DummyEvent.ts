@@ -1,4 +1,4 @@
-import { BusEvent } from "../../events/BusEvent.js";
+import { BusEvent } from "../events/BusEvent";
 
 export class DummyEvent extends BusEvent {
 	clone() {

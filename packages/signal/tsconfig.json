@@ -4,6 +4,9 @@
   "include": [],
   "references": [
     {
+      "path": "../event-sourcing"
+    },
+    {
       "path": "./tsconfig.lib.json"
     },
     {

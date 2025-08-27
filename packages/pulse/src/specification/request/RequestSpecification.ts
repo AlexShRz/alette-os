@@ -1,4 +1,7 @@
-import { MiddlewareCategory, RequestCategory } from "./specTypes";
+import { MiddlewareCategory, RequestCategory } from "../specTypes";
+
+export interface IAnyRequestSpecification
+	extends RequestSpecification<any, any, any> {}
 
 export class RequestSpecification<
 	Categories extends RequestCategory[] = [],

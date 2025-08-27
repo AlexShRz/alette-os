@@ -1,5 +1,11 @@
-import { MiddlewareSpecification } from "./MiddlewareSpecification";
-import { RequestSpecification } from "./RequestSpecification";
+import {
+	IAnyMiddlewareSpecification,
+	MiddlewareSpecification,
+} from "./middleware/MiddlewareSpecification";
+import {
+	IAnyRequestSpecification,
+	RequestSpecification,
+} from "./request/RequestSpecification";
 
 type Brand<T, B> = T & { __brand: B };
 
@@ -13,71 +19,59 @@ export type RequestCategory<T extends string = string> = Brand<
 	"RequestCategory"
 >;
 
-/**
- * Ai slop below
- * */
-type FastIntersection<
-	A extends readonly any[],
-	B extends readonly any[],
-> = A[number] extends never
-	? false
-	: B[number] extends never
-		? false
-		: A[number] & B[number] extends never
-			? false
-			: true;
+type NotCompatibleMiddlewareError =
+	"This middleware is not compatible with the current request.";
 
-type CompatibilityError = {
-	readonly error: "This middleware is not compatible with the current request.";
-};
-
-type CoreCompatibilityCheck<
-	RequestTags extends readonly any[],
-	AllowedMiddlewareTags extends readonly any[],
-	ProhibitedMiddlewareTags extends readonly any[],
-	MiddlewareTags extends readonly any[],
-	MiddlewareApplicableRequestTags extends readonly any[],
-	MiddlewareNotApplicableRequestTags extends readonly any[],
-	ReturnedValue,
-> = FastIntersection<MiddlewareTags, ProhibitedMiddlewareTags> extends true // Fast path: Check prohibitions first (most restrictive)
-	? CompatibilityError
-	: FastIntersection<
-				MiddlewareNotApplicableRequestTags,
-				RequestTags
-			> extends true
-		? CompatibilityError
-		: // Fast path: No restrictions case (most common success case)
-			AllowedMiddlewareTags extends []
-			? MiddlewareApplicableRequestTags extends []
-				? ReturnedValue
-				: FastIntersection<
-							MiddlewareApplicableRequestTags,
-							RequestTags
-						> extends true
-					? ReturnedValue
-					: CompatibilityError
-			: // Request has allowlist
-				MiddlewareApplicableRequestTags extends []
-				? FastIntersection<MiddlewareTags, AllowedMiddlewareTags> extends true
-					? ReturnedValue
-					: CompatibilityError
-				: // Both have restrictions
-					FastIntersection<
-							MiddlewareApplicableRequestTags,
-							RequestTags
-						> extends true
-					? FastIntersection<MiddlewareTags, AllowedMiddlewareTags> extends true
-						? ReturnedValue
-						: CompatibilityError
-					: CompatibilityError;
+type HasIntersection<
+	A extends readonly string[],
+	B extends readonly string[],
+> = A extends readonly [infer First, ...infer Rest]
+	? First extends string
+		? First extends B[number]
+			? true
+			: Rest extends readonly string[]
+				? HasIntersection<Rest, B>
+				: false
+		: false
+	: false;
 
 export type VerifyMiddlewareCompatibility<
-	RequestConstraints extends RequestSpecification<any, any, any>,
-	MiddlewareRequestConstraints extends MiddlewareSpecification<any, any, any>,
+	RequestConstraints extends IAnyRequestSpecification,
+	MiddlewareRequestConstraints extends IAnyMiddlewareSpecification,
 	ReturnedValue,
-> = [RequestConstraints, MiddlewareRequestConstraints] extends [ // Single pattern match with immediate destructuring - avoids nested conditionals
-	RequestSpecification<infer RT, infer AMT, infer PMT>,
-	MiddlewareSpecification<infer MT, infer MART, infer MNART>,
-]
-	? CoreCompatibilityCheck<RT, AMT, PMT, MT, MART, MNART, ReturnedValue>
-	: CompatibilityError;
+> = RequestConstraints extends RequestSpecification<
+	infer RequestTags,
+	infer AllowedMiddlewareTags,
+	infer ProhibitedMiddlewareTags
+>
+	? MiddlewareRequestConstraints extends MiddlewareSpecification<
+			infer MiddlewareTags,
+			infer MiddlewareProhibitedRequestTags
+		>
+		? HasIntersection<MiddlewareTags, ProhibitedMiddlewareTags> extends true
+			? {
+					error: NotCompatibleMiddlewareError;
+					reason: "The request prohibits this middleware from being applied.";
+				}
+			: HasIntersection<
+						MiddlewareProhibitedRequestTags,
+						RequestTags
+					> extends true
+				? {
+						error: NotCompatibleMiddlewareError;
+						reason: "The middleware marks this request type as non-compatible with itself.";
+					}
+				: HasIntersection<MiddlewareTags, AllowedMiddlewareTags> extends true
+					? ReturnedValue
+					: {
+							error: NotCompatibleMiddlewareError;
+							reason: "The request hasn't marked this middleware as applicable to itself.";
+						}
+		: {
+				error: NotCompatibleMiddlewareError;
+				reason: "Invalid middleware constraints";
+			}
+	: {
+			error: NotCompatibleMiddlewareError;
+			reason: "Invalid request constraints";
+		};

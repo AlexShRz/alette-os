@@ -1,5 +1,5 @@
 {
-	"name": "@alette-os/event-sourcing",
+	"name": "@alette/event-sourcing",
 	"version": "0.0.1",
 	"private": true,
 	"type": "module",
@@ -15,26 +15,13 @@
 			"default": "./dist/index.js"
 		}
 	},
+	"peerDependencies": {
+		"effect": "^3.17.8",
+		"uuid": "^11.1.0"
+	},
 	"devDependencies": {
 		"@biomejs/biome": "2.1.2",
 		"@effect/vitest": "^0.24.1",
 		"vitest": "^3.2.4"
-	},
-	"nx": {
-		"targets": {
-			"biome-lint": {
-				"executor": "@gitopslovers/nx-biome:biome-lint",
-				"outputs": ["{options.outputFile}"],
-				"options": {
-					"lintFilePatterns": ["packages/event-sourcing/**/*.ts"],
-					"write": false,
-					"unsafe": false
-				}
-			}
-		}
-	},
-	"peerDependencies": {
-		"effect": "^3.17.8",
-		"uuid": "^11.1.0"
 	}
 }

@@ -1,4 +1,4 @@
-import { MiddlewareCategory } from "./specTypes";
+import { MiddlewareCategory } from "../specTypes";
 
 export const middlewareCategory = <T extends string>(
 	name: T & (string extends T ? never : T),

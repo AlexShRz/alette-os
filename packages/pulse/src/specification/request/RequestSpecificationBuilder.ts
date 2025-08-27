@@ -1,5 +1,5 @@
+import { MiddlewareCategory, RequestCategory } from "../specTypes";
 import { RequestSpecification } from "./RequestSpecification";
-import { MiddlewareCategory, RequestCategory } from "./specTypes";
 
 export const requestSpecification = () => new RequestSpecificationBuilder();
 

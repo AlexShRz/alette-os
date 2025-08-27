@@ -1,5 +1,5 @@
 {
-	"name": "@alette-os/pulse",
+	"name": "@alette/pulse",
 	"version": "0.0.1",
 	"private": true,
 	"type": "module",

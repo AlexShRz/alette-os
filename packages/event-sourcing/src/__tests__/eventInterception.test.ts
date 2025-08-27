@@ -1,10 +1,10 @@
 import { expect, it } from "@effect/vitest";
 import { Effect as E, Layer } from "effect";
 import { EventBus } from "../EventBus.js";
-import { EventBusListener } from "../listeners/EventBusListener.js";
 import { EventBusListenerFactory } from "../listeners/EventBusListenerFactory.js";
+import { EventBusListener } from "../listeners/index.js";
 import { EventInterceptor } from "../pipeline/EventInterceptor.js";
-import { DummyEvent } from "./utils/DummyEvent.js";
+import { DummyEvent } from "../testUtils/DummyEvent.js";
 
 it.scoped("can intercept events", () =>
 	E.gen(function* () {

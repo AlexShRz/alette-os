@@ -30,7 +30,7 @@ test("it runs activation hooks on mount", async () => {
 			const activePlugins = await ask(forActivePlugins());
 
 			/**
-			 * Our should already be in the "activePlugins" yet.
+			 * Our plugin should already be in the "activePlugins" array.
 			 * */
 			if (activePlugins.some((pluginName) => pluginName === corePluginName)) {
 				logged.push(2);

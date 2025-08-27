@@ -109,6 +109,12 @@ importers:
 
   packages/signal:
     dependencies:
+      '@alette/event-sourcing':
+        specifier: workspace:*
+        version: link:../event-sourcing
+      '@alette/pulse':
+        specifier: workspace:*
+        version: link:../pulse
       effect:
         specifier: ^3.17.8
         version: 3.17.8

@@ -1,9 +1,9 @@
 import { expect, it } from "@effect/vitest";
 import { Effect as E } from "effect";
 import { EventBus } from "../EventBus.js";
-import { EventBusListener } from "../listeners/EventBusListener.js";
 import { EventBusListenerFactory } from "../listeners/EventBusListenerFactory.js";
-import { DummyEvent } from "./utils/DummyEvent.js";
+import { EventBusListener } from "../listeners/index.js";
+import { DummyEvent } from "../testUtils/DummyEvent.js";
 
 it.scoped("runs hooks on event cancellation", () =>
 	E.gen(function* () {

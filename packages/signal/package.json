@@ -1,5 +1,5 @@
 {
-	"name": "@alette-os/signal",
+	"name": "@alette/signal",
 	"version": "0.0.1",
 	"type": "module",
 	"main": "./dist/index.js",
@@ -14,10 +14,11 @@
 			"default": "./dist/index.js"
 		}
 	},
-	"files": [
-		"dist",
-		"!**/*.tsbuildinfo"
-	],
+	"dependencies": {
+		"@alette/event-sourcing": "workspace:*",
+		"@alette/pulse": "workspace:*"
+	},
+	"files": ["dist", "!**/*.tsbuildinfo"],
 	"peerDependencies": {
 		"effect": "^3.17.8",
 		"uuid": "^11.1.0"

@@ -13,34 +13,50 @@ export interface IEventBusListener {
 	send(event: BusEvent): E.Effect<BusEvent, never, never>;
 }
 
-export class EventBusListener extends Context.Tag("EventBusListener")<
+export const EventBusListenerTag = "EventBusListener" as const;
+
+export class EventBusListener extends Context.Tag(EventBusListenerTag)<
 	EventBusListener,
 	IEventBusListener
 >() {
+	static parent() {
+		return E.gen(function* () {
+			const id = uuid();
+			const context = yield* EventBusListenerContext;
+
+			return {
+				id,
+				context,
+				base: {
+					getId() {
+						return id;
+					},
+
+					getContext() {
+						return context;
+					},
+
+					send(event: BusEvent) {
+						return E.succeed(event);
+					},
+				} satisfies IEventBusListener,
+			};
+		});
+	}
+
 	static make<A extends IEventBusListener, R>(
 		factory: (options: {
 			parent: IEventBusListener;
 		}) => E.Effect<A, never, R>,
 	) {
 		return Layer.effect(
-			this,
+			EventBusListener,
 			E.gen(function* () {
-				const id = uuid();
-				const context = yield* EventBusListenerContext;
+				const { base } = yield* EventBusListener.parent();
 
 				return yield* factory({
 					parent: {
-						getId() {
-							return id;
-						},
-
-						getContext() {
-							return context;
-						},
-
-						send(event: BusEvent) {
-							return E.succeed(event);
-						},
+						...base,
 					},
 				});
 			}),
