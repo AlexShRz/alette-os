@@ -2,9 +2,9 @@ import {
 	IAnyMiddlewareSpecification,
 	IAnyRequestSpecification,
 } from "@alette/pulse";
-import { ApiRequest } from "../blueprint/ApiRequest";
-import { IRequestContext } from "../context/IRequestContext";
-import { ApiMiddleware } from "./ApiMiddleware";
+import { ApiRequest } from "../../blueprint/ApiRequest";
+import { IRequestContext } from "../../context/IRequestContext";
+import { RequestMiddleware } from "./RequestMiddleware";
 
 /**
  * 1. An abstraction over more concrete middleware factories.
@@ -19,6 +19,6 @@ export interface IMiddlewareSupplierFn<
 	(
 		request: ApiRequest<any, Context, RequestSpec>,
 	): (
-		middleware: ApiMiddleware<NextContext, MiddlewareSpec>,
+		middleware: RequestMiddleware<NextContext, MiddlewareSpec>,
 	) => typeof middleware;
 }

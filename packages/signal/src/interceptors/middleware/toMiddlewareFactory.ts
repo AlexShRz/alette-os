@@ -3,9 +3,9 @@ import {
 	IAnyRequestSpecification,
 } from "@alette/pulse";
 import { VerifyMiddlewareCompatibility } from "@alette/pulse";
-import { ApiRequest } from "../blueprint/ApiRequest";
-import { IRequestContext } from "../context/IRequestContext";
-import { ApiMiddleware } from "./ApiMiddleware";
+import { ApiRequest } from "../../blueprint/ApiRequest";
+import { IRequestContext } from "../../context/IRequestContext";
+import { RequestMiddleware } from "./RequestMiddleware";
 
 export const toMiddlewareFactory =
 	<
@@ -13,7 +13,7 @@ export const toMiddlewareFactory =
 		NextContext extends IRequestContext,
 		MiddlewareSpec extends IAnyMiddlewareSpecification,
 	>(
-		middlewareSupplier: () => ApiMiddleware<any, any>,
+		middlewareSupplier: () => RequestMiddleware<any, any>,
 	) =>
 	/**
 	 * Yet another ts degeneracy
@@ -31,7 +31,7 @@ export const toMiddlewareFactory =
 		middleware: VerifyMiddlewareCompatibility<
 			RequestConstraints,
 			MiddlewareSpec,
-			ApiMiddleware<NextContext, MiddlewareSpec>
+			RequestMiddleware<NextContext, MiddlewareSpec>
 		> = middlewareSupplier() as any,
 	) =>
 		middleware;

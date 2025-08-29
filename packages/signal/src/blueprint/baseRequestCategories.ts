@@ -1,4 +1,4 @@
 import { requestCategory } from "@alette/pulse";
 
-export const defaultRequest = requestCategory("defaultRequest");
-export const defaultStream = requestCategory("defaultStream");
+export const baseRequest = requestCategory("baseRequest");
+export const baseStream = requestCategory("baseStream");

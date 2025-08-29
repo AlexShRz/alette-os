@@ -49,7 +49,7 @@ export class ExceptionLogMessageBuilder extends AbstractBuilder<ExceptionLogMess
 		return this;
 	}
 
-	static fromException(exception: ApiException) {
+	fromException(exception: ApiException) {
 		return new ExceptionLogMessageBuilder()
 			.setName(exception.getName())
 			.setStack(exception.getStack())

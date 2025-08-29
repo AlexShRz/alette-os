@@ -1,7 +1,7 @@
-import { IRequestContext } from "../../context/IRequestContext";
-import { MergeRecords } from "../../context/MergeRecords";
-import { IArgumentType } from "../../context/sharedTypes/IArgumentType";
-import { ApiMiddleware } from "../ApiMiddleware";
+import { IRequestContext } from "../../../context/IRequestContext";
+import { TMergeRecords } from "../../../context/TMergeRecords";
+import { IArgumentType } from "../../../context/sharedTypes/IArgumentType";
+import { RequestMiddleware } from "../RequestMiddleware";
 import { toMiddlewareFactory } from "../toMiddlewareFactory";
 import {
 	IInputMiddlewareArgSchema,
@@ -19,7 +19,7 @@ type Spec = typeof inputMiddlewareSpecification;
 export class InputMiddlewareFacade<
 	ArgType,
 	Context extends IInputMiddlewareContext,
-> extends ApiMiddleware<Context, Spec> {
+> extends RequestMiddleware<Context, Spec> {
 	constructor(
 		argSchema: IInputMiddlewareArgSchema<ArgType>,
 		argSupplier: InputMiddlewareArgProvider<ArgType>,
@@ -35,16 +35,18 @@ export class InputMiddlewareFacade<
 		return <Context extends IInputMiddlewareContext, ArgType>(
 			argSchema: IInputMiddlewareArgSchema<ArgType>,
 			argSupplier?: InputMiddlewareArgProvider<ArgType>,
-		) =>
-			toMiddlewareFactory<
+		) => {
+			return toMiddlewareFactory<
 				Context,
 				IRequestContext<
 					Context["types"],
 					Context["value"],
-					MergeRecords<Context["settings"], IArgumentType<ArgType>>,
-					Context["meta"]
+					Context["meta"],
+					TMergeRecords<Context["settings"], IArgumentType<ArgType>>,
+					TMergeRecords<Context["accepts"], IArgumentType<ArgType>>
 				>,
 				Spec
 			>(() => new InputMiddlewareFacade(argSchema, argSupplier));
+		};
 	}
 }

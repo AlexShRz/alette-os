@@ -20,7 +20,7 @@ export type RequestCategory<T extends string = string> = Brand<
 >;
 
 type NotCompatibleMiddlewareError =
-	"This middleware is not compatible with the current request.";
+	"The middleware is not compatible with this request.";
 
 type HasIntersection<
 	A extends readonly string[],
