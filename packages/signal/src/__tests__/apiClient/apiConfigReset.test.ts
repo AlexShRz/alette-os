@@ -1,5 +1,5 @@
 import { expect } from "@effect/vitest";
-import { client } from "../../ApiClient.js";
+import { client } from "../../infrastructure/ApiClient.js";
 import {
 	activatePlugins,
 	defineApiPlugin,

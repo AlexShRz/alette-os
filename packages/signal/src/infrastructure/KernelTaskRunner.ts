@@ -1,0 +1,48 @@
+import * as E from "effect/Effect";
+import * as Stream from "effect/Stream";
+import { PluginRegistry } from "../application/plugins/registry/PluginRegistry";
+import { TaskScheduler } from "../application/tasks/TaskScheduler";
+import { GlobalContext } from "../domain/context/services/GlobalContext";
+import { RequestThreadRegistry } from "../domain/execution/RequestThreadRegistry";
+import { GlobalUrlConfig } from "../domain/url/services/GlobalUrlConfig";
+
+export class KernelTaskRunner extends E.Service<KernelTaskRunner>()(
+	"KernelTaskRunner",
+	{
+		/**
+		 * Here we need to include all services
+		 * our tasks MIGHT need.
+		 * */
+		dependencies: [
+			PluginRegistry.Default,
+			TaskScheduler.Default,
+			RequestThreadRegistry.Default,
+			GlobalContext.Default,
+			GlobalUrlConfig.Default,
+		],
+		scoped: E.gen(function* () {
+			const taskScheduler = yield* TaskScheduler;
+
+			/**
+			 * Run each task in sequence, one by one:
+			 * 1. Until a task is finished/failed, we cannot move on to the
+			 * next one.
+			 * */
+			yield* taskScheduler.take().pipe(
+				Stream.runForEach((task) =>
+					E.gen(function* () {
+						yield* task.spawn();
+
+						if (task.isSequential()) {
+							yield* task.waitForCompletion();
+						}
+					}),
+				),
+				E.forkScoped,
+				Stream.runDrain,
+			);
+
+			return {};
+		}),
+	},
+) {}

@@ -125,6 +125,9 @@ importers:
       '@effect/vitest':
         specifier: ^0.24.1
         version: 0.24.1(effect@3.17.8)(vitest@3.2.4(@types/node@18.16.9)(@vitest/ui@3.2.4)(jiti@2.4.2)(jsdom@22.1.0)(yaml@2.8.0))
+      ts-toolbelt:
+        specifier: 6.13.11
+        version: 6.13.11
 
 packages:
 
@@ -3333,6 +3336,9 @@ packages:
   tree-kill@1.2.2:
     resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}
     hasBin: true
+
+  ts-toolbelt@6.13.11:
+    resolution: {integrity: sha512-QmvHwAofS1MAn1ndXCn2AVhxJLipaj4tK26SrhBTiydfgKtbLlU2efpIP/8Jocrc9ynNslZqrhqAesruJMlxCQ==}
 
   tsconfig-paths@4.2.0:
     resolution: {integrity: sha512-NoZ4roiN7LnbKn9QqE1amc9DJfzvZXxF4xDavcOWt1BPkdx+m+0gJuPM+S0vCe7zTJMYUP0R8pO2XMr+Y8oLIg==}
@@ -7178,6 +7184,8 @@ snapshots:
       punycode: 2.3.1
 
   tree-kill@1.2.2: {}
+
+  ts-toolbelt@6.13.11: {}
 
   tsconfig-paths@4.2.0:
     dependencies:

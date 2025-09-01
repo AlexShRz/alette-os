@@ -30,7 +30,7 @@ export class EventBus extends E.Service<EventBus>()("EventBus", {
 					return pipelineBuilder.setLastEventExtractor(extractor);
 				},
 
-				send(event: BusEvent) {
+				send<T extends BusEvent>(event: T) {
 					return E.gen(this, function* () {
 						if (pipeline) {
 							return yield* pipeline(event);

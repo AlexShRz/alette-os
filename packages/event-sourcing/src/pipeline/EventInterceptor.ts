@@ -3,11 +3,15 @@ import * as E from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { IEventBusListenerContext } from "../listeners/EventBusListenerContext.js";
 
-export class EventInterceptor extends Context.Tag("EventInterceptor")<
+export type TEventInterceptor = IEventBusListenerContext["next"];
+
+export const EventInterceptorTag = "EventInterceptor" as const;
+
+export class EventInterceptor extends Context.Tag(EventInterceptorTag)<
 	EventInterceptor,
-	IEventBusListenerContext["next"]
+	TEventInterceptor
 >() {
-	static make(interceptor: IEventBusListenerContext["next"]) {
+	static make(interceptor: TEventInterceptor) {
 		return Layer.effect(this, E.succeed(interceptor));
 	}
 }

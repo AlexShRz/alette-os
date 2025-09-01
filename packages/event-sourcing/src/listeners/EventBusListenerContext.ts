@@ -4,8 +4,8 @@ import * as Layer from "effect/Layer";
 import { BusEvent } from "../events/BusEvent.js";
 
 export interface IEventBusListenerContext {
-	sendToBus(event: BusEvent): E.Effect<BusEvent, never, never>;
-	next(event: BusEvent): E.Effect<BusEvent, never, never>;
+	sendToBus<T extends BusEvent>(event: T): E.Effect<BusEvent, never, never>;
+	next<T extends BusEvent>(event: T): E.Effect<BusEvent, never, never>;
 }
 
 export class EventBusListenerContext extends E.Service<EventBusListenerContext>()(

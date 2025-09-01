@@ -22,7 +22,7 @@ export class EventBusListener extends Context.Tag(EventBusListenerTag)<
 	static parent() {
 		return E.gen(function* () {
 			const id = uuid();
-			const context = yield* EventBusListenerContext;
+			const context = yield* E.serviceOptional(EventBusListenerContext);
 
 			return {
 				id,
@@ -41,7 +41,7 @@ export class EventBusListener extends Context.Tag(EventBusListenerTag)<
 					},
 				} satisfies IEventBusListener,
 			};
-		});
+		}).pipe(E.orDie);
 	}
 
 	static make<A extends IEventBusListener, R>(
