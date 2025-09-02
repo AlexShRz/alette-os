@@ -1,6 +1,6 @@
 import * as E from "effect/Effect";
 import { GlobalUrlConfig } from "../../domain/url/services/GlobalUrlConfig";
-import { queryTask } from "../../tasks/primitive/functions";
+import { queryTask } from "../plugins/tasks/primitive/functions";
 
 export const forOrigin = () =>
 	queryTask(() =>

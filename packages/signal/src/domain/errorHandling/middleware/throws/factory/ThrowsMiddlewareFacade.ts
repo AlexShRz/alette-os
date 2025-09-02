@@ -1,11 +1,10 @@
 import { IRequestContext } from "../../../../context/IRequestContext";
-import { TMergeRecords } from "../../../../context/typeUtils/TMergeRecords";
 import { GlobalMiddlewarePriority } from "../../../../middleware/GlobalMiddlewarePriority";
 import { RequestMiddleware } from "../../../../middleware/RequestMiddleware";
 import { toMiddlewareFactory } from "../../../../middleware/toMiddlewareFactory";
 import {
 	IRecoverableApiError,
-	TAddDefaultErrors,
+	TAddDefaultRequestErrors,
 } from "../RequestRecoverableErrors";
 import { ThrowsMiddleware } from "../ThrowsMiddleware";
 import { throwsMiddlewareSpecification } from "../throwsMiddlewareSpecification";
@@ -38,7 +37,7 @@ export class ThrowsMiddlewareFacade<
 			return toMiddlewareFactory<
 				Context,
 				IRequestContext<
-					TAddDefaultErrors<Context, RecoverableErrors>,
+					TAddDefaultRequestErrors<Context, RecoverableErrors>,
 					Context["value"],
 					Context["meta"],
 					Context["settings"],

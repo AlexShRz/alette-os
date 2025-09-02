@@ -4,7 +4,7 @@ import * as E from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as SyncRef from "effect/SynchronizedRef";
 import { IRequestContext } from "../../../context/IRequestContext";
-import { TExposedRequestContext } from "../../../context/typeUtils/RequestIOTypes";
+import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { GlobalUrlConfig } from "../../services/GlobalUrlConfig";
 import { getOrCreateUrlContext } from "../getOrCreateUrlContext";
@@ -16,7 +16,7 @@ export type TOriginMiddlewareArgs<
 > =
 	| ((
 			prevPath: TGetRequestOrigin<C>,
-			context: TExposedRequestContext<C>,
+			context: TGetAllRequestContext<C>,
 	  ) => NewOrigin)
 	| NewOrigin;
 

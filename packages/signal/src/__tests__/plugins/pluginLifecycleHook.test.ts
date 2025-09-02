@@ -1,13 +1,13 @@
 import { expect } from "@effect/vitest";
 import * as E from "effect/Effect";
-import { client } from "../../infrastructure/ApiClient.js";
 import {
 	activatePlugins,
 	deactivatePlugins,
 	defineApiPlugin,
 	forActivePlugins,
-} from "../../plugins/index.js";
-import { task } from "../../tasks/primitive/functions.js";
+} from "../../application";
+import { task } from "../../application/plugins/tasks/primitive/functions";
+import { client } from "../../infrastructure/ApiClient.js";
 
 test("it runs activation hooks on mount", async () => {
 	const api = client();

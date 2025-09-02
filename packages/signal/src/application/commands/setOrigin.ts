@@ -1,6 +1,6 @@
 import * as E from "effect/Effect";
 import { GlobalUrlConfig } from "../../domain/url/services/GlobalUrlConfig";
-import { task } from "../../tasks/primitive/functions";
+import { task } from "../plugins/tasks/primitive/functions";
 
 export const setOrigin = (origin: string) =>
 	task(() =>

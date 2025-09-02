@@ -11,21 +11,44 @@ interface IAllContext
 		SynchronizedRef.SynchronizedRef<RequestContextPart<any, any>>
 	> {}
 
+export interface IRequestSessionSettingSupplier {
+	(): Record<string, unknown>;
+}
+
 export class RequestSessionContext extends E.Service<RequestSessionContext>()(
 	"RequestSessionContext",
 	{
 		scoped: E.gen(function* () {
 			const session = yield* RequestSession;
 			const context = yield* SynchronizedRef.make({} as IAllContext);
+			/**
+			 * 1. Provided by the client
+			 * 2. Returns unknown record that our middleware
+			 * might use for inferring their default context
+			 * */
+			const settingSupplier =
+				yield* SynchronizedRef.make<IRequestSessionSettingSupplier>(() => ({}));
 
 			yield* session.getRequestIdChanges().pipe(
 				Stream.tap(() =>
-					SynchronizedRef.set(
-						context,
-						/**
-						 * Reset context on request id change
-						 * */
-						{} as IAllContext,
+					E.all(
+						[
+							SynchronizedRef.set(
+								context,
+								/**
+								 * Reset context on request id change
+								 * */
+								{} as IAllContext,
+							),
+							SynchronizedRef.set(
+								settingSupplier,
+								/**
+								 * Reset setting supplier
+								 * */
+								() => ({}),
+							),
+						],
+						{ concurrency: "unbounded" },
 					),
 				),
 				Stream.runDrain,
@@ -63,6 +86,10 @@ export class RequestSessionContext extends E.Service<RequestSessionContext>()(
 					);
 				},
 
+				getSettingSupplierData() {
+					return settingSupplier.get.pipe(E.andThen((supplier) => supplier()));
+				},
+
 				getOrThrow<T extends RequestContextPart>(key: TKnownRequestContextKey) {
 					return E.gen(function* () {
 						const allContext = yield* context.get;
@@ -94,6 +121,10 @@ export class RequestSessionContext extends E.Service<RequestSessionContext>()(
 							return allContext;
 						}),
 					).pipe(E.andThen(() => this.getOrThrow<T>(key)));
+				},
+
+				setSettingSupplier(supplier: IRequestSessionSettingSupplier) {
+					return SynchronizedRef.set(settingSupplier, supplier);
 				},
 			};
 		}),

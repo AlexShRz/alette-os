@@ -13,7 +13,7 @@ export type TGetRequestErrors<C extends IRequestContext> =
 type TExtractErrorInstances<ErrorsConstructors extends IRecoverableApiError[]> =
 	ErrorsConstructors extends IRecoverableApiError<infer E>[] ? E : never;
 
-export type TAddDefaultErrors<
+export type TAddDefaultRequestErrors<
 	C extends IRequestContext,
 	ErrorsConstructors extends IRecoverableApiError[],
 	Errors = TExtractErrorInstances<ErrorsConstructors>,

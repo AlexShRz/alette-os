@@ -1,5 +1,5 @@
 import { expect } from "@effect/vitest";
-import { forContext, setContext } from "../../../core/index.js";
+import { forContext, setContext } from "../../../application";
 import { client } from "../../../infrastructure/ApiClient.js";
 
 test("it sets global context", async () => {

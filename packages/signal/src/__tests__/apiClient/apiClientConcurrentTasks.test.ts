@@ -1,10 +1,10 @@
 import { expect } from "@effect/vitest";
-import { client } from "../../infrastructure/ApiClient.js";
 import {
 	activatePlugins,
 	defineApiPlugin,
 	forActivePlugins,
-} from "../../plugins/index.js";
+} from "../../application";
+import { client } from "../../infrastructure/ApiClient.js";
 
 test("it respects task order", async () => {
 	const api = client();

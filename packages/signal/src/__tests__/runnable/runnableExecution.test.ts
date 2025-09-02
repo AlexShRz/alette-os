@@ -1,6 +1,6 @@
 import { expect, it } from "@effect/vitest";
 import { Effect as E, Layer, ManagedRuntime } from "effect";
-import { Runnable } from "../../runnable/Runnable.js";
+import { Runnable } from "../../application/plugins/runnable/Runnable";
 
 it.scoped("can be executed only once", () =>
 	E.gen(function* () {

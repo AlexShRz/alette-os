@@ -26,6 +26,16 @@ export class RequestSession extends E.Service<RequestSession>()(
 				getMode() {
 					return requestMode;
 				},
+
+				setRequestId(newId: string) {
+					return SubscriptionRef.getAndUpdate(requestId, (id) => {
+						if (id === newId) {
+							return id;
+						}
+
+						return newId;
+					});
+				},
 			};
 		}),
 	},

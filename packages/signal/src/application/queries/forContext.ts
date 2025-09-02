@@ -1,6 +1,6 @@
 import * as E from "effect/Effect";
 import { GlobalContext } from "../../domain/context/services/GlobalContext";
-import { queryTask } from "../../tasks/primitive/functions";
+import { queryTask } from "../plugins/tasks/primitive/functions";
 
 export const forContext = () =>
 	queryTask(() =>

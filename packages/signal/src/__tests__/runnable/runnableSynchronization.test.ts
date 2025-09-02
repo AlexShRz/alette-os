@@ -1,6 +1,6 @@
 import { expect, it } from "@effect/vitest";
 import { Data, Effect as E, Exit, Fiber, Queue } from "effect";
-import { Runnable } from "../../runnable/Runnable.js";
+import { Runnable } from "../../application/plugins/runnable/Runnable";
 import { getStreamEffect } from "./utils.js";
 
 it.scoped("synchronizes multiple waiting callers during success", () =>

@@ -1,6 +1,6 @@
 import { expect, vi } from "@effect/vitest";
 import { Cause, Data, Effect as E } from "effect";
-import { queryTask } from "../../tasks/primitive/functions.js";
+import { queryTask } from "../../application/plugins/tasks/primitive/functions";
 
 test("it runs hooks on success", async () => {
 	const logged: number[] = [];

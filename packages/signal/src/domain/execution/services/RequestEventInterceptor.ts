@@ -18,7 +18,7 @@ export class RequestEventInterceptor extends E.Service<RequestEventInterceptor>(
 					const currentRequestId = yield* session.getRequestId();
 
 					/**
-					 * Cancel "stray" events that might have been
+					 * Cancel all "stray" events that might have been
 					 * dispatched by request middleware, etc.
 					 * */
 					if (event.getRequestId() !== currentRequestId) {

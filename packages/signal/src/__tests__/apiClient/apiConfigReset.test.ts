@@ -1,10 +1,10 @@
 import { expect } from "@effect/vitest";
-import { client } from "../../infrastructure/ApiClient.js";
 import {
 	activatePlugins,
 	defineApiPlugin,
 	forActivePlugins,
-} from "../../plugins/index.js";
+} from "../../application";
+import { client } from "../../infrastructure/ApiClient.js";
 
 test("it executes memoized config during reset", async () => {
 	const { plugin: plugin1, pluginName: pluginName1 } =
