@@ -1,7 +1,7 @@
 import * as E from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { PluginRegistry } from "../application/plugins/registry/PluginRegistry";
-import { TaskScheduler } from "../application/tasks/TaskScheduler";
+import { TaskScheduler } from "../application/plugins/tasks/TaskScheduler";
 import { GlobalContext } from "../domain/context/services/GlobalContext";
 import { RequestThreadRegistry } from "../domain/execution/RequestThreadRegistry";
 import { GlobalUrlConfig } from "../domain/url/services/GlobalUrlConfig";

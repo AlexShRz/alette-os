@@ -1,1 +1,1 @@
-export * from "./IGlobalContext";
+export type * from "./IGlobalContext";

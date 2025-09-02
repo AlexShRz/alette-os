@@ -16,8 +16,8 @@ import { ChooseRequestWorker } from "../../domain/execution/events/ChooseRequest
 import { WatcherPipeline } from "../../domain/execution/services/WatcherPipeline";
 import { RequestWatcher } from "../../domain/watchers/RequestWatcher";
 import { RequestController } from "../blueprint/controller/RequestController";
-import { QueryTaskBuilder } from "../tasks/primitive/QueryTaskBuilder";
-import { queryTask } from "../tasks/primitive/functions";
+import { QueryTaskBuilder } from "../plugins/tasks/primitive/QueryTaskBuilder";
+import { queryTask } from "../plugins/tasks/primitive/functions";
 
 interface IPrepareRequestWorkerArgs<Context extends IRequestContext> {
 	threadId: string;

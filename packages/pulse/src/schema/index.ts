@@ -1,3 +1,3 @@
-export * from "./validateStandardSchema.js";
+export * from "./validateSchema.js";
 export * from "./typePlaceholder.js";
-export * from "@standard-schema/spec";
+export type * from "./StandardSchemaTypes";

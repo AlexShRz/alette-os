@@ -1,7 +1,7 @@
 import * as E from "effect/Effect";
 import { ApiPlugin } from "../plugins/ApiPlugin";
 import { PluginRegistry } from "../plugins/registry/PluginRegistry";
-import { task } from "../tasks/primitive/functions";
+import { task } from "../plugins/tasks/primitive/functions";
 
 export const activatePlugins = (...plugins: ApiPlugin[]) =>
 	task(() =>

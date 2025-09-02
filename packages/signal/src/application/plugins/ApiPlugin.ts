@@ -2,9 +2,6 @@ import * as E from "effect/Effect";
 import * as Fiber from "effect/Fiber";
 import * as Predicate from "effect/Predicate";
 import * as Runtime from "effect/Runtime";
-import { Runnable } from "../runnable/Runnable";
-import { TaskScheduler } from "../tasks/TaskScheduler";
-import { task } from "../tasks/primitive/functions";
 import {
 	IApiPluginExposedUtils,
 	IPluginActivationHook,
@@ -15,6 +12,9 @@ import {
 import { PluginMailbox } from "./PluginMailbox.js";
 import { PluginName } from "./PluginName.js";
 import { IPluginRuntime } from "./defineApiPlugin.js";
+import { Runnable } from "./runnable/Runnable";
+import { TaskScheduler } from "./tasks/TaskScheduler";
+import { task } from "./tasks/primitive/functions";
 
 export class ApiPlugin<
 	Exposed extends IApiPluginExposedUtils = IApiPluginExposedUtils,

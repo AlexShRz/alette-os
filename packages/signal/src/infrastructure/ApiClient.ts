@@ -1,9 +1,9 @@
 import * as E from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
-import { TaskScheduler } from "../application/tasks/TaskScheduler";
-import { CommandTaskBuilder } from "../application/tasks/primitive/CommandTaskBuilder";
-import { QueryTaskBuilder } from "../application/tasks/primitive/QueryTaskBuilder";
+import { TaskScheduler } from "../application/plugins/tasks/TaskScheduler";
+import { CommandTaskBuilder } from "../application/plugins/tasks/primitive/CommandTaskBuilder";
+import { QueryTaskBuilder } from "../application/plugins/tasks/primitive/QueryTaskBuilder";
 import { Kernel } from "./Kernel";
 
 export const client = (...commands: CommandTaskBuilder[]) =>

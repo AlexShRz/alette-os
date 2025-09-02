@@ -1,3 +1,3 @@
-import { InputMiddlewareFacade } from "./InputMiddlewareFacade";
+import { InputMiddlewareFacade } from "./factory/InputMiddlewareFacade";
 
 export const input = InputMiddlewareFacade.toFactory();

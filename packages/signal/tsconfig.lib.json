@@ -5,7 +5,6 @@
 		"rootDir": "src",
 		"outDir": "dist",
 		"module": "ES2022",
-		"moduleResolution": "Bundler",
 		"tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
 		"emitDeclarationOnly": true,
 		"forceConsistentCasingInFileNames": true,

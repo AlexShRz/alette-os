@@ -10,7 +10,9 @@ export interface IRequestContext<
 		contextAdapter: {};
 	},
 	V = {},
-	M = {},
+	M = {
+		recoverableErrors: unknown;
+	},
 	S = {},
 	A = {},
 > {

@@ -1,13 +1,9 @@
 import { EventBusListener } from "@alette/event-sourcing";
-import {
-	EventBusListenerContext,
-	EventBusListenerTag,
-	IEventBusListener,
-} from "@alette/event-sourcing";
+import { EventBusListenerTag, IEventBusListener } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
-import { InputMiddleware } from "./InputMiddleware";
+import { InputMiddleware } from "../InputMiddleware";
 
-export class InputMiddlewareInjector extends E.Service<EventBusListener>()(
+export class InputMiddlewareFactory extends E.Service<EventBusListener>()(
 	EventBusListenerTag,
 	{
 		effect: E.fn(function* (getMiddleware: typeof InputMiddleware.Default) {

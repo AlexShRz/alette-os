@@ -1,6 +1,6 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 
-export function validateStandardSchema<T extends StandardSchemaV1>(
+export function validateSchema<T extends StandardSchemaV1>(
 	schema: T,
 	input: StandardSchemaV1.InferInput<T>,
 ): StandardSchemaV1.InferOutput<T> {

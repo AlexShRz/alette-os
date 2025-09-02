@@ -2,8 +2,8 @@ import * as E from "effect/Effect";
 import * as Runtime from "effect/Runtime";
 import * as Scope from "effect/Scope";
 import * as SynchronizedRef from "effect/SynchronizedRef";
-import { TaskScheduler } from "../../tasks/TaskScheduler";
 import { ApiPlugin } from "../ApiPlugin.js";
+import { TaskScheduler } from "../tasks/TaskScheduler";
 import { ActivatedApiPlugin } from "./ActivatedApiPlugin.js";
 
 export class PluginRegistry extends E.Service<PluginRegistry>()(

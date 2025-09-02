@@ -10,7 +10,7 @@
 		"lib": ["es2022"],
 		"module": "nodenext",
 		"noUncheckedIndexedAccess": true,
-		"moduleResolution": "nodenext",
+		"moduleResolution": "Bundler",
 		"noEmitOnError": true,
 		"noFallthroughCasesInSwitch": true,
 		"noImplicitOverride": true,

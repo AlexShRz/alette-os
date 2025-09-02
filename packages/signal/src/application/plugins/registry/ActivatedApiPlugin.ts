@@ -6,8 +6,8 @@ import * as FiberSet from "effect/FiberSet";
 import * as Layer from "effect/Layer";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
-import { TaskScheduler } from "../../tasks/TaskScheduler";
 import { ApiPlugin } from "../ApiPlugin.js";
+import { TaskScheduler } from "../tasks/TaskScheduler";
 
 export class ActivatedApiPlugin extends E.Service<ActivatedApiPlugin>()(
 	"ActivatedApiPlugin",

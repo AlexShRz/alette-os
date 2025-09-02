@@ -1,7 +1,7 @@
-import { CommandTaskBuilder } from "../tasks/primitive/CommandTaskBuilder";
-import { QueryTaskBuilder } from "../tasks/primitive/QueryTaskBuilder";
 import { ApiPlugin } from "./ApiPlugin.js";
 import { IPluginRuntime } from "./defineApiPlugin.js";
+import { CommandTaskBuilder } from "./tasks/primitive/CommandTaskBuilder";
+import { QueryTaskBuilder } from "./tasks/primitive/QueryTaskBuilder";
 
 export interface IApiPluginExposedUtils extends Record<string, unknown> {}
 

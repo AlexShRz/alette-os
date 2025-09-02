@@ -3,7 +3,6 @@
 	"compilerOptions": {
 		"baseUrl": ".",
 		"rootDir": "src",
-		"moduleResolution": "Bundler",
 		"noUncheckedIndexedAccess": true,
 		"outDir": "dist",
 		"tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",

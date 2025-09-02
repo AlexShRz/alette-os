@@ -1,10 +1,10 @@
 import { EventBusListener } from "@alette/event-sourcing";
 import { EventBusListenerTag, IEventBusListener } from "@alette/event-sourcing";
-import { StandardSchemaV1, type } from "@alette/pulse";
+import { ISchema, type } from "@alette/pulse";
 import * as E from "effect/Effect";
 
 export interface IInputMiddlewareArgSchema<Output = unknown>
-	extends StandardSchemaV1<unknown, Output> {}
+	extends ISchema<unknown, Output> {}
 
 export type InputMiddlewareArgProvider<Value = unknown> =
 	| (() => Value)

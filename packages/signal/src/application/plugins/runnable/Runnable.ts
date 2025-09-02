@@ -7,7 +7,7 @@ import * as Runtime from "effect/Runtime";
 import * as Stream from "effect/Stream";
 import * as SubscriptionRef from "effect/SubscriptionRef";
 import { v4 as uuid } from "uuid";
-import { IRunnableState } from "./IRunnableState.js";
+import { IRunnableState } from "./IRunnableState";
 
 export type IRunnableMode = "concurrent" | "sequential";
 

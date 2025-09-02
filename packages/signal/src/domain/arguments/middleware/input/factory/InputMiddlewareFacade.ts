@@ -1,15 +1,15 @@
-import { IRequestContext } from "../../../context/IRequestContext";
-import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
-import { RequestMiddleware } from "../../../middleware/RequestMiddleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
-import { IRequestArguments } from "../../RequestArguments";
+import { IRequestContext } from "../../../../context/IRequestContext";
+import { TMergeRecords } from "../../../../context/typeUtils/TMergeRecords";
+import { RequestMiddleware } from "../../../../middleware/RequestMiddleware";
+import { toMiddlewareFactory } from "../../../../middleware/toMiddlewareFactory";
+import { IRequestArguments } from "../../../RequestArguments";
 import {
 	IInputMiddlewareArgSchema,
 	InputMiddleware,
 	InputMiddlewareArgProvider,
-} from "./InputMiddleware";
-import { InputMiddlewareInjector } from "./InputMiddlewareInjector";
-import { inputMiddlewareSpecification } from "./inputMiddlewareSpecification";
+} from "../InputMiddleware";
+import { inputMiddlewareSpecification } from "../inputMiddlewareSpecification";
+import { InputMiddlewareFactory } from "./InputMiddlewareFactory";
 
 type Spec = typeof inputMiddlewareSpecification;
 
@@ -22,7 +22,7 @@ export class InputMiddlewareFacade<
 		argSupplier: InputMiddlewareArgProvider<ArgType>,
 	) {
 		super(() =>
-			InputMiddlewareInjector.Default(() =>
+			InputMiddlewareFactory.Default(() =>
 				InputMiddleware.Default(argSchema, argSupplier),
 			),
 		);
