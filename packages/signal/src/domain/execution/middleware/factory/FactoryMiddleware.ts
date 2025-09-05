@@ -1,9 +1,9 @@
-import { Listener } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
-import { RunRequest } from "../../events/RunRequest";
+import { Middleware } from "../../../middleware/Middleware";
+import { RunRequest } from "../../events/request/RunRequest";
 import { IRequestRunner } from "./FactoryMiddlewareFactory";
 
-export class FactoryMiddleware extends Listener("FactoryMiddleware")(
+export class FactoryMiddleware extends Middleware("FactoryMiddleware")(
 	(runner: IRequestRunner) =>
 		({ parent, context }) =>
 			E.gen(function* () {

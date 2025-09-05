@@ -3,8 +3,9 @@ import { IRequestContext } from "../../../context/IRequestContext";
 import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
 import { TMergeContextAdapters } from "../../../context/typeUtils/TMergeContextAdapters";
 import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
-import { AggregateRequestMiddleware } from "../../../execution/events/AggregateRequestMiddleware";
-import { RequestMiddleware } from "../../../middleware/RequestMiddleware";
+import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
+import { Middleware } from "../../../middleware/Middleware";
+
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
 import { UrlContext } from "../../UrlContext";
 import { OriginMiddleware } from "./OriginMiddleware";
@@ -21,7 +22,7 @@ export type TOriginMiddlewareArgs<
 	  ) => NewOrigin)
 	| NewOrigin;
 
-export class OriginMiddlewareFactory extends RequestMiddleware.as(
+export class OriginMiddlewareFactory extends Middleware(
 	"OriginMiddlewareFactory",
 )(
 	(getMiddleware: () => OriginMiddleware) =>

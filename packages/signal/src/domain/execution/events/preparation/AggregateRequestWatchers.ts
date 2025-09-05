@@ -1,5 +1,5 @@
 import { BusEvent } from "@alette/event-sourcing";
-import { RequestWatcher } from "../../watchers/RequestWatcher";
+import { RequestWatcher } from "../../../watchers/RequestWatcher";
 
 export class AggregateRequestWatchers extends BusEvent {
 	constructor(protected aggregatedWatchers: RequestWatcher[] = []) {

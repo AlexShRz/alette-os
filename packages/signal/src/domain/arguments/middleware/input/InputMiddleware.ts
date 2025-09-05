@@ -1,12 +1,12 @@
-import { Listener } from "@alette/event-sourcing";
 import { type } from "@alette/pulse";
 import * as E from "effect/Effect";
+import { Middleware } from "../../../middleware/Middleware";
 import {
 	IInputMiddlewareArgSchema,
 	InputMiddlewareArgProvider,
 } from "./InputMiddlewareFactory";
 
-export class InputMiddleware extends Listener("InputMiddleware")(
+export class InputMiddleware extends Middleware("InputMiddleware")(
 	(
 		argSchema: IInputMiddlewareArgSchema = type(),
 		defaultArgProvider: InputMiddlewareArgProvider,

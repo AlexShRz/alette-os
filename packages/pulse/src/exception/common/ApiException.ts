@@ -4,8 +4,6 @@ import { makeExceptionMessage } from "../messages/makeExceptionMessage";
 import { MethodNotImplementedException } from "./MethodNotImplementedException.js";
 
 export abstract class ApiException extends RuntimeException {
-	// readonly _tag: string = "ApiException";
-
 	protected exceptionContext: Record<string, unknown> = {};
 	protected emptyStackMessage = "Not available";
 

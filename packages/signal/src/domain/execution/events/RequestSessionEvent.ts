@@ -3,7 +3,7 @@ import { BusEvent } from "@alette/event-sourcing";
 export abstract class RequestSessionEvent extends BusEvent {
 	protected requestId: string | null = null;
 
-	protected constructor() {
+	constructor() {
 		super();
 	}
 

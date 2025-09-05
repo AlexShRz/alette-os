@@ -1,5 +1,10 @@
 import * as Layer from "effect/Layer";
-import { EventBusListener } from "./EventBusListener.js";
+import * as P from "effect/Predicate";
+import {
+	EventBusListener,
+	IEventBusListener,
+	IEventBusListenerFactory,
+} from "./EventBusListener.js";
 
 export interface IEventBusListenerFactoryConfig {
 	priority: number;
@@ -13,6 +18,34 @@ export class EventBusListenerFactory<
 	A extends EventBusListener = EventBusListener,
 	R = never,
 > {
+	static as<
+		T extends string,
+		A extends EventBusListener,
+		I extends IEventBusListener,
+	>(tag: T, passedConfig: Partial<IEventBusListenerFactoryConfig> = {}) {
+		return <Args extends any[], R>(
+			factory: (...args: Args) => IEventBusListenerFactory<I, R>,
+		) =>
+			class extends EventBusListenerFactory<T, A, R> {
+				constructor(...factoryArgs: Args extends [] ? [] : Args) {
+					super(
+						tag,
+						() =>
+							EventBusListener.make<I, R>(factory(...(factoryArgs as Args))),
+						passedConfig,
+					);
+				}
+
+				static override [Symbol.hasInstance](obj: unknown) {
+					return (
+						P.hasProperty(obj, "getTag") &&
+						typeof obj.getTag === "function" &&
+						obj.getTag() === tag
+					);
+				}
+			};
+	}
+
 	public config: IEventBusListenerFactoryConfig = {
 		priority: 0,
 		canReceiveCompleted: false,

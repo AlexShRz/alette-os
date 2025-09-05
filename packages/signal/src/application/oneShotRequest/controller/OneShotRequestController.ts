@@ -1,24 +1,25 @@
 import * as E from "effect/Effect";
-import * as Fiber from "effect/Fiber";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Stream from "effect/Stream";
 import { IRequestContext } from "../../../domain/context/IRequestContext";
-import {
-	TRequestArguments,
-	TRequestError,
-	TRequestResponse,
-} from "../../../domain/context/typeUtils/RequestIOTypes";
-import { RequestInterruptedException } from "../../../shared/exception/RequestInterruptedException";
+import { TRequestArguments } from "../../../domain/context/typeUtils/RequestIOTypes";
+import { CancelRequest } from "../../../domain/execution/events/CancelRequest";
+import { RequestSessionEvent } from "../../../domain/execution/events/RequestSessionEvent";
+import { RunRequest } from "../../../domain/execution/events/request/RunRequest";
+import { IRequestSessionSettingSupplier } from "../../../domain/execution/services/RequestSessionContext";
 import { RequestController } from "../../blueprint/controller/RequestController";
+import { PrepareRequestWorker } from "../../workflows/PrepareRequestWorker";
+import { OneShotRequestLifecycle } from "./OneShotRequestLifecycle";
 import {
 	IOneShotRequestState,
-	OneShotRequestControllerLifecycle,
-} from "./OneShotRequestControllerLifecycle";
+	OneShotRequestState,
+} from "./OneShotRequestState";
+import { OneShotRequestWorker } from "./OneShotRequestWorker";
 
 export interface IOneShotRequestStateWithHandlers<
 	Context extends IRequestContext,
 > extends IOneShotRequestState<Context> {
-	execute: (...args: TRequestArguments<Context>) => void;
+	execute: (...args: TRequestArguments<Context> | []) => void;
 	cancel: () => void;
 }
 
@@ -27,93 +28,87 @@ export class OneShotRequestController<
 	R,
 	ER,
 > extends RequestController<IOneShotRequestStateWithHandlers<Context>, R, ER> {
-	protected lifecycle = new OneShotRequestControllerLifecycle<Context, R, ER>(
+	protected lifecycle = new OneShotRequestLifecycle<R, ER>(this.runtime);
+	protected state = new OneShotRequestState<Context, R, ER>(
 		this.runtime,
+		this.lifecycle,
 	);
+	protected worker: OneShotRequestWorker<R, ER>;
 
-	constructor(runtime: ManagedRuntime.ManagedRuntime<R, ER>) {
+	constructor(
+		runtime: ManagedRuntime.ManagedRuntime<R, ER>,
+		workerConfig: Omit<
+			Parameters<typeof PrepareRequestWorker.make>[number],
+			"controller"
+		>,
+	) {
 		super(runtime);
-		this.lifecycle.spawnAndSupervise(
-			this.lifecycle.takeStateChanges().pipe(
-				Stream.tap((state) =>
-					E.sync(() => {
-						this.stateSubscribers.forEach((subscriber) => {
-							subscriber({
-								...state,
-								cancel: this.cancelRequest.bind(this),
-								execute: this.executeRequest.bind(this),
-							});
+		this.worker = new OneShotRequestWorker(this.runtime, this.lifecycle, {
+			...workerConfig,
+			// TODO: Fix any
+			controller: this as any,
+		});
+
+		const task = this.state.changes().pipe(
+			Stream.tap((state) =>
+				E.sync(() => {
+					this.stateSubscribers.forEach((subscriber) => {
+						subscriber({
+							...state,
+							cancel: this.cancelRequest.bind(this),
+							execute: this.executeRequest.bind(this),
 						});
-					}),
-				),
-				Stream.runDrain,
-				E.forkScoped,
+					});
+				}),
 			),
+			Stream.runDrain,
+			E.forkScoped,
 		);
+
+		this.lifecycle.spawnAndSupervise(task);
 	}
 
 	getInitialState(): IOneShotRequestStateWithHandlers<Context> {
 		return {
-			...this.lifecycle.getInitialStateSnapshot(),
+			...this.state.getInitialStateSnapshot(),
 			cancel: this.cancelRequest.bind(this),
 			execute: this.executeRequest.bind(this),
 		};
 	}
 
+	/** @internal */
 	getScope() {
 		return this.lifecycle.getScope();
 	}
 
+	/** @internal */
 	getEventReceiver() {
-		return this.lifecycle.getEventReceiver();
+		return this.state.getStateEventReceiver();
 	}
 
-	protected cancelRequest() {}
+	protected dispatch<T extends RequestSessionEvent>(event: T) {
+		this.lifecycle.spawnAndSupervise(this.worker.dispatch(event));
+	}
 
-	protected executeRequest(...args: TRequestArguments<Context>) {}
+	protected cancelRequest() {
+		this.dispatch(new CancelRequest());
+	}
 
-	run() {}
+	protected executeRequest(...args: TRequestArguments<Context>) {
+		const supplier = !args.length ? this.getSettingSupplier() : () => args;
+		this.dispatch(new RunRequest(supplier as IRequestSessionSettingSupplier));
+	}
 
-	dispose() {}
+	run() {
+		this.dispatch(new RunRequest(this.getSettingSupplier()));
+	}
 
+	dispose() {
+		this.lifecycle.shutdown();
+	}
+
+	/** @internal */
 	awaitResult() {
-		const fiber = this.lifecycle.spawnAndSupervise(this.waitForResult());
-		return this.runtime.runPromise(Fiber.join(fiber));
-	}
-
-	protected waitForResult() {
-		return E.async<TRequestResponse<Context>, TRequestError<Context>>(
-			(resume) => {
-				this.lifecycle.spawnAndSupervise(
-					E.gen(this, function* () {
-						yield* E.addFinalizer(() =>
-							E.sync(() => {
-								resume(new RequestInterruptedException());
-							}),
-						);
-
-						yield* this.lifecycle.takeStateChanges().pipe(
-							Stream.tap(({ data, error, isError, isSuccess }) =>
-								E.sync(() => {
-									if (isError && error) {
-										return resume(error as any);
-									}
-
-									if (isSuccess && data) {
-										return resume(data as any);
-									}
-								}),
-							),
-							Stream.runDrain,
-							E.forkScoped,
-						);
-					}),
-				);
-
-				return E.sync(() => {
-					resume(new RequestInterruptedException());
-				});
-			},
-		);
+		return this.state.awaitResult();
 	}
 }

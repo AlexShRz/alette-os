@@ -1,5 +1,5 @@
 import { BusEvent } from "@alette/event-sourcing";
-import { RequestMiddleware } from "../../middleware/RequestMiddleware";
+import { RequestMiddleware } from "../../../middleware/RequestMiddleware";
 
 export class AggregateRequestMiddleware extends BusEvent {
 	constructor(protected aggregatedMiddleware: RequestMiddleware[] = []) {

@@ -10,9 +10,9 @@ import {
 	RequestWorker,
 	TRequestMode,
 } from "../../domain/execution/RequestWorker";
-import { AggregateRequestMiddleware } from "../../domain/execution/events/AggregateRequestMiddleware";
-import { AggregateRequestWatchers } from "../../domain/execution/events/AggregateRequestWatchers";
-import { ChooseRequestWorker } from "../../domain/execution/events/ChooseRequestWorker";
+import { AggregateRequestMiddleware } from "../../domain/execution/events/preparation/AggregateRequestMiddleware";
+import { AggregateRequestWatchers } from "../../domain/execution/events/preparation/AggregateRequestWatchers";
+import { ChooseRequestWorker } from "../../domain/execution/events/preparation/ChooseRequestWorker";
 import { WatcherPipeline } from "../../domain/execution/services/WatcherPipeline";
 import { RequestWatcher } from "../../domain/watchers/RequestWatcher";
 import { RequestController } from "../blueprint/controller/RequestController";

@@ -1,13 +1,13 @@
-import { Listener } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as SyncRef from "effect/SynchronizedRef";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
+import { Middleware } from "../../../middleware/Middleware";
 import { GlobalUrlConfig } from "../../services/GlobalUrlConfig";
 import { getOrCreateUrlContext } from "../getOrCreateUrlContext";
 import { TOriginMiddlewareArgs } from "./OriginMiddlewareFactory";
 
-export class OriginMiddleware extends Listener("OriginMiddleware")(
+export class OriginMiddleware extends Middleware("OriginMiddleware")(
 	(args?: TOriginMiddlewareArgs) =>
 		({ parent }) =>
 			E.gen(function* () {

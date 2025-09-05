@@ -1,7 +1,7 @@
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
-import { AggregateRequestMiddleware } from "../../../execution/events/AggregateRequestMiddleware";
-import { RequestMiddleware } from "../../../middleware/RequestMiddleware";
+import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
+import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
 import {
 	IRecoverableApiError,
@@ -12,7 +12,7 @@ import { throwsMiddlewareSpecification } from "./throwsMiddlewareSpecification";
 
 type Spec = typeof throwsMiddlewareSpecification;
 
-export class ThrowsMiddlewareFactory extends RequestMiddleware.as(
+export class ThrowsMiddlewareFactory extends Middleware(
 	"ThrowsMiddlewareFactory",
 )(
 	(getMiddleware: () => ThrowsMiddleware) =>

@@ -1,4 +1,4 @@
-import { BusEvent, EventBus } from "@alette/event-sourcing";
+import { EventBus } from "@alette/event-sourcing";
 import * as Context from "effect/Context";
 import * as E from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -7,6 +7,7 @@ import * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Scope from "effect/Scope";
 import { RequestMiddleware } from "../middleware/RequestMiddleware";
+import { RequestSessionEvent } from "./events/RequestSessionEvent";
 import { RequestEventInterceptor } from "./services/RequestEventInterceptor";
 import { RequestSession } from "./services/RequestSession";
 import { RequestStateTimeline } from "./services/RequestStateTimeline";
@@ -81,14 +82,14 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 				return id;
 			},
 
-			dispatch(event: BusEvent) {
+			dispatch(event: RequestSessionEvent) {
 				return requestRuntime.runFork(sendSessionEvent(event));
 			},
 
 			addWatchers(watcherPipeline: Layer.Layer<WatcherPipeline>) {
 				return requestRuntime.runFork(
 					E.gen(function* () {
-						const registry = yield* WatcherOrchestrator;
+						// const registry = yield* WatcherOrchestrator;
 						// yield* eventBus.send(event);
 					}),
 				);

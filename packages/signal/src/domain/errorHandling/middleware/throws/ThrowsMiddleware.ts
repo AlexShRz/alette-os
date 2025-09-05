@@ -1,9 +1,9 @@
-import { Listener } from "@alette/event-sourcing";
 import { IEventBusListener } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
+import { Middleware } from "../../../middleware/Middleware";
 import { IRecoverableApiError } from "./RequestRecoverableErrors";
 
-export class ThrowsMiddleware extends Listener("ThrowsMiddleware")(
+export class ThrowsMiddleware extends Middleware("ThrowsMiddleware")(
 	(recoverableErrors: IRecoverableApiError[]) =>
 		({ parent, context }) =>
 			E.gen(function* () {

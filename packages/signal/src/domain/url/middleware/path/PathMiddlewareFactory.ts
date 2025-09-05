@@ -3,8 +3,8 @@ import { IRequestContext } from "../../../context/IRequestContext";
 import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
 import { TMergeContextAdapters } from "../../../context/typeUtils/TMergeContextAdapters";
 import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
-import { AggregateRequestMiddleware } from "../../../execution/events/AggregateRequestMiddleware";
-import { RequestMiddleware } from "../../../middleware/RequestMiddleware";
+import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
+import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
 import { UrlContext } from "../../UrlContext";
 import { PathMiddleware } from "./PathMiddleware";
@@ -21,9 +21,7 @@ export type TPathMiddlewareArgs<
 	  ) => NextPath)
 	| NextPath;
 
-export class PathMiddlewareFactory extends RequestMiddleware.as(
-	"PathMiddlewareFactory",
-)(
+export class PathMiddlewareFactory extends Middleware("PathMiddlewareFactory")(
 	(getMiddleware: () => PathMiddleware) =>
 		({ parent, context }) =>
 			E.gen(function* () {

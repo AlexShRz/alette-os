@@ -36,7 +36,11 @@ export class OneShotRequest<
 	async execute(
 		...args: TRequestArguments<Context>
 	): Promise<TRequestResponse<Context>> {
-		const controller = this.control();
+		const controller = new OneShotRequestController(this.config.runtime, {
+			threadId: this.executionThreadId,
+			requestMode: "oneShot",
+		});
+
 		const { execute } = controller.getInitialState();
 		execute(...args);
 		return controller.awaitResult().finally(() => {
@@ -45,7 +49,10 @@ export class OneShotRequest<
 	}
 
 	control() {
-		return new OneShotRequestController(this.config.runtime);
+		return new OneShotRequestController(this.config.runtime, {
+			threadId: this.executionThreadId,
+			requestMode: "subscription",
+		});
 	}
 
 	with<NC1 extends IRequestContext, MC1 extends IAnyMiddlewareSpecification>(

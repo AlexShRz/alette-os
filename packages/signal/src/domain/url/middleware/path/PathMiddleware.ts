@@ -1,12 +1,12 @@
-import { Listener } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as SyncRef from "effect/SynchronizedRef";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
+import { Middleware } from "../../../middleware/Middleware";
 import { getOrCreateUrlContext } from "../getOrCreateUrlContext";
 import { TPathMiddlewareArgs } from "./PathMiddlewareFactory";
 
-export class PathMiddleware extends Listener("PathMiddleware")(
+export class PathMiddleware extends Middleware("PathMiddleware")(
 	(args: TPathMiddlewareArgs) =>
 		({ parent }) =>
 			E.gen(function* () {

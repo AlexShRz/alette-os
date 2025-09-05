@@ -2,8 +2,8 @@ import { ISchema } from "@alette/pulse";
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
 import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
-import { AggregateRequestMiddleware } from "../../../execution/events/AggregateRequestMiddleware";
-import { RequestMiddleware } from "../../../middleware/RequestMiddleware";
+import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
+import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
 import { IRequestArguments } from "../../RequestArguments";
 import { InputMiddleware } from "./InputMiddleware";
@@ -18,7 +18,7 @@ export type InputMiddlewareArgProvider<Value = unknown> =
 	| (() => Value)
 	| undefined;
 
-export class InputMiddlewareFactory extends RequestMiddleware.as(
+export class InputMiddlewareFactory extends Middleware(
 	"InputMiddlewareFactory",
 )(
 	(getMiddleware: () => InputMiddleware) =>
