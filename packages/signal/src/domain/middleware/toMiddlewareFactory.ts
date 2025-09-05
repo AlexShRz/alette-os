@@ -3,7 +3,7 @@ import {
 	IAnyRequestSpecification,
 } from "@alette/pulse";
 import { VerifyMiddlewareCompatibility } from "@alette/pulse";
-import { ApiRequest } from "../../application/blueprint/ApiRequest";
+import { ApiRequest } from "../../application/blueprint";
 import { IRequestContext } from "../context/IRequestContext";
 import { RequestMiddleware } from "./RequestMiddleware";
 

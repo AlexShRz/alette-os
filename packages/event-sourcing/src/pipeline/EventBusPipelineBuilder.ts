@@ -7,7 +7,7 @@ import { EventBus } from "../EventBus.js";
 import { BusEvent } from "../events/BusEvent.js";
 import { EventBusListener } from "../listeners/EventBusListener.js";
 import { IEventBusListenerContext } from "../listeners/EventBusListenerContext.js";
-import { EventBusListenerFactory } from "../listeners/EventBusListenerFactory.js";
+import { Listener } from "../listeners/Listener";
 import { EventInterceptor } from "./EventInterceptor.js";
 
 type ConstructedPipeline = IEventBusListenerContext["next"];
@@ -41,7 +41,7 @@ export class EventBusPipelineBuilder extends E.Service<EventBusPipelineBuilder>(
 			/**
 			 * Make sure to bind service context using E.provide(pipelineContext)
 			 * */
-			const createListener = (factory: EventBusListenerFactory) =>
+			const createListener = (factory: Listener) =>
 				E.gen(function* () {
 					const listenerContext = yield* Layer.build(factory.toLayer());
 					const listener = Context.unsafeGet(listenerContext, EventBusListener);
@@ -54,7 +54,7 @@ export class EventBusPipelineBuilder extends E.Service<EventBusPipelineBuilder>(
 
 			const createFlow = (
 				eventBus: EventBus,
-				listenerFactories: EventBusListenerFactory[],
+				listenerFactories: Listener[],
 				currentListenerIndex = 0,
 			): E.Effect<ConstructedPipeline> =>
 				E.gen(function* () {
@@ -156,15 +156,12 @@ export class EventBusPipelineBuilder extends E.Service<EventBusPipelineBuilder>(
 					});
 				}).pipe(Scope.extend(scope));
 
-			const sortListenerFactories = (listeners: EventBusListenerFactory[]) => {
+			const sortListenerFactories = (listeners: Listener[]) => {
 				return listeners.sort((a, b) => a.getPriority() - b.getPriority());
 			};
 
 			return {
-				create(
-					listenerFactories: EventBusListenerFactory[],
-					getEventBus: IEventBusSupplier,
-				) {
+				create(listenerFactories: Listener[], getEventBus: IEventBusSupplier) {
 					return createFlow(
 						getEventBus(),
 						sortListenerFactories(listenerFactories),

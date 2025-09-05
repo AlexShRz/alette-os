@@ -1,3 +1,3 @@
-import { FactoryMiddlewareFacade } from "./factory/FactoryMiddlewareFacade";
+import { FactoryMiddlewareFactory } from "./FactoryMiddlewareFactory";
 
-export const factory = FactoryMiddlewareFacade.toFactory();
+export const factory = FactoryMiddlewareFactory.toFactory();

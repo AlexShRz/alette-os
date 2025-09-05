@@ -5,7 +5,7 @@ import { v4 as uuid } from "uuid";
 import { BusEvent } from "./events/BusEvent.js";
 import { EventBusListener } from "./listeners/EventBusListener.js";
 import { IEventBusListenerContext } from "./listeners/EventBusListenerContext.js";
-import { EventBusListenerFactory } from "./listeners/EventBusListenerFactory.js";
+import { Listener } from "./listeners/Listener";
 import {
 	EventBusPipelineBuilder,
 	ILastEventExtractor,
@@ -14,7 +14,7 @@ import {
 export class EventBus extends E.Service<EventBus>()("EventBus", {
 	dependencies: [EventBusPipelineBuilder.Default],
 	scoped: <A extends EventBusListener = EventBusListener, R = never>(
-		providedListeners: EventBusListenerFactory<A, R>[],
+		providedListeners: Listener<string, A, R>[],
 	) =>
 		E.gen(function* () {
 			const id = uuid();
@@ -37,7 +37,7 @@ export class EventBus extends E.Service<EventBus>()("EventBus", {
 						}
 
 						pipeline = yield* pipelineBuilder.create(
-							providedListeners as EventBusListenerFactory[],
+							providedListeners as Listener[],
 							() => this as EventBus,
 						);
 						return yield* pipeline(event);

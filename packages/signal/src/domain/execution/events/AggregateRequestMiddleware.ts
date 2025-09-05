@@ -10,12 +10,12 @@ export class AggregateRequestMiddleware extends BusEvent {
 		return this.aggregatedMiddleware;
 	}
 
-	setMiddleware(middleware: typeof this.aggregatedMiddleware) {
+	setMiddleware<T extends RequestMiddleware>(middleware: T[]) {
 		this.aggregatedMiddleware = [...middleware];
 		return this;
 	}
 
-	addMiddleware(middleware: (typeof this.aggregatedMiddleware)[number]) {
+	addMiddleware<T extends RequestMiddleware>(middleware: T) {
 		this.aggregatedMiddleware = [...this.aggregatedMiddleware, middleware];
 		return this;
 	}

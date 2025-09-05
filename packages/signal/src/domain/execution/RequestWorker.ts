@@ -13,6 +13,7 @@ import { RequestStateTimeline } from "./services/RequestStateTimeline";
 import { WatcherOrchestrator } from "./services/WatcherOrchestrator";
 import { WatcherPipeline } from "./services/WatcherPipeline";
 
+// TODO: Add stream mode
 export type TRequestMode = "oneShot" | "subscription";
 
 export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {

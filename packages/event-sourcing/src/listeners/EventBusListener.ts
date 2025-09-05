@@ -13,53 +13,55 @@ export interface IEventBusListener {
 	send(event: BusEvent): E.Effect<BusEvent, never, never>;
 }
 
-export const EventBusListenerTag = "EventBusListener" as const;
+export interface IEventBusListenerFactory<A extends IEventBusListener, R> {
+	(options: {
+		id: string;
+		context: EventBusListenerContext;
+		parent: IEventBusListener;
+	}): E.Effect<A, never, R>;
+}
 
-export class EventBusListener extends Context.Tag(EventBusListenerTag)<
+export class EventBusListener extends Context.Tag("EventBusListener")<
 	EventBusListener,
 	IEventBusListener
 >() {
-	static parent() {
-		return E.gen(function* () {
-			const id = uuid();
-			const context = yield* E.serviceOptional(EventBusListenerContext);
-
-			return {
-				id,
-				context,
-				base: {
-					getId() {
-						return id;
-					},
-
-					getContext() {
-						return context;
-					},
-
-					send(event: BusEvent) {
-						return E.succeed(event);
-					},
-				} satisfies IEventBusListener,
-			};
-		}).pipe(E.orDie);
-	}
-
 	static make<A extends IEventBusListener, R>(
-		factory: (options: {
-			parent: IEventBusListener;
-		}) => E.Effect<A, never, R>,
+		factory: IEventBusListenerFactory<A, R>,
 	) {
-		return Layer.effect(
-			EventBusListener,
+		return Layer.scoped(
+			this,
 			E.gen(function* () {
-				const { base } = yield* EventBusListener.parent();
+				const { base, id, context } = yield* E.gen(function* () {
+					const id = uuid();
+					const context = yield* E.serviceOptional(EventBusListenerContext);
+
+					return {
+						id,
+						context,
+						base: {
+							getId() {
+								return id;
+							},
+
+							getContext() {
+								return context;
+							},
+
+							send(event: BusEvent) {
+								return context.next(event);
+							},
+						} satisfies IEventBusListener,
+					};
+				});
 
 				return yield* factory({
+					id,
+					context,
 					parent: {
 						...base,
 					},
 				});
-			}),
+			}).pipe(E.orDie),
 		).pipe(Layer.provide(EventBusListenerContext.Default));
 	}
 }

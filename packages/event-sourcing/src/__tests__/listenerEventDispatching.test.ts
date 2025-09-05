@@ -1,35 +1,35 @@
 import { expect, it } from "@effect/vitest";
 import { Effect as E } from "effect";
 import { EventBus } from "../EventBus.js";
-import { EventBusListenerFactory } from "../listeners/EventBusListenerFactory.js";
-import { EventBusListener } from "../listeners/index.js";
+import { Listener } from "../listeners/Listener";
 import { DummyEvent } from "../testUtils/DummyEvent.js";
 
 it.scoped("allows listeners to dispatch events back to event buses", () =>
 	E.gen(function* () {
 		const executionOrder: number[] = [];
 
-		const eventBus = yield* EventBus.makeAsValue(
-			EventBus.Default([
-				new EventBusListenerFactory(() =>
-					EventBusListener.make(({ parent }) =>
-						E.succeed({
-							...parent,
-							send(e) {
-								return E.gen(this, function* () {
-									executionOrder.push(1);
-									return yield* this.getContext().next(e);
-								});
-							},
-						}),
-					),
-				),
-				new EventBusListenerFactory(() =>
-					EventBusListener.make(({ parent }) => {
+		class Listener1 extends Listener.as("Listener1")(
+			() =>
+				({ parent, context }) =>
+					E.succeed({
+						...parent,
+						send(e) {
+							return E.gen(this, function* () {
+								executionOrder.push(1);
+								return yield* context.next(e);
+							});
+						},
+					}),
+		) {}
+
+		class Listener2 extends Listener.as("Listener2")(
+			() =>
+				({ parent, context }) =>
+					E.gen(function* () {
 						const alreadyDispatched: string[] = [];
 						const savedEvent = new DummyEvent("myDummyEvent");
 
-						return E.succeed({
+						return {
 							...parent,
 							send(e) {
 								return E.gen(this, function* () {
@@ -38,16 +38,18 @@ it.scoped("allows listeners to dispatch events back to event buses", () =>
 
 									if (!alreadyDispatched.includes(eventId)) {
 										alreadyDispatched.push(eventId);
-										return yield* this.getContext().sendToBus(savedEvent);
+										return yield* context.sendToBus(savedEvent);
 									}
 
-									return yield* this.getContext().next(e);
+									return yield* context.next(e);
 								});
 							},
-						});
+						};
 					}),
-				),
-			]),
+		) {}
+
+		const eventBus = yield* EventBus.makeAsValue(
+			EventBus.Default([new Listener1(), new Listener2()]),
 		);
 
 		const event = new DummyEvent();
@@ -62,49 +64,50 @@ it.scoped("can opt in to seeing events dispatched by itself", () =>
 	E.gen(function* () {
 		const executionOrder: number[] = [];
 
-		const eventBus = yield* EventBus.makeAsValue(
-			EventBus.Default([
-				new EventBusListenerFactory(() =>
-					EventBusListener.make(({ parent }) =>
-						E.succeed({
+		class Listener1 extends Listener.as("Listener1")(
+			() =>
+				({ parent, context }) =>
+					E.succeed({
+						...parent,
+						send(e) {
+							return E.gen(this, function* () {
+								executionOrder.push(1);
+								return yield* context.next(e);
+							});
+						},
+					}),
+		) {}
+
+		class Listener2 extends Listener.as("Listener2", {
+			canReceiveEventsSentBySelf: true,
+		})(
+			() =>
+				({ parent, context }) =>
+					E.gen(function* () {
+						const alreadyDispatched: string[] = [];
+						const savedEvent = new DummyEvent("myDummyEvent");
+
+						return {
 							...parent,
 							send(e) {
 								return E.gen(this, function* () {
-									executionOrder.push(1);
-									return yield* this.getContext().next(e);
+									executionOrder.push(2);
+									const eventId = savedEvent.getId();
+
+									if (!alreadyDispatched.includes(eventId)) {
+										alreadyDispatched.push(eventId);
+										return yield* context.sendToBus(savedEvent);
+									}
+
+									return yield* context.next(e);
 								});
 							},
-						}),
-					),
-				),
-				new EventBusListenerFactory(
-					() =>
-						EventBusListener.make(({ parent }) => {
-							const alreadyDispatched: string[] = [];
-							const savedEvent = new DummyEvent("myDummyEvent");
+						};
+					}),
+		) {}
 
-							return E.succeed({
-								...parent,
-								send(e) {
-									return E.gen(this, function* () {
-										executionOrder.push(2);
-										const eventId = savedEvent.getId();
-
-										if (!alreadyDispatched.includes(eventId)) {
-											alreadyDispatched.push(eventId);
-											return yield* this.getContext().sendToBus(savedEvent);
-										}
-
-										return yield* this.getContext().next(e);
-									});
-								},
-							});
-						}),
-					{
-						canReceiveEventsSentBySelf: true,
-					},
-				),
-			]),
+		const eventBus = yield* EventBus.makeAsValue(
+			EventBus.Default([new Listener1(), new Listener2()]),
 		);
 
 		const event = new DummyEvent();

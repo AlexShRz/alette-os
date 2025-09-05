@@ -1,8 +1,7 @@
 import { expect, it } from "@effect/vitest";
 import { Effect as E } from "effect";
 import { EventBus } from "../EventBus.js";
-import { EventBusListenerFactory } from "../listeners/EventBusListenerFactory.js";
-import { EventBusListener } from "../listeners/index.js";
+import { Listener } from "../listeners/Listener";
 import { DummyEvent } from "../testUtils/DummyEvent.js";
 
 it.scoped(
@@ -11,45 +10,42 @@ it.scoped(
 		E.gen(function* () {
 			const executionOrder: number[] = [];
 
+			class Listener1 extends Listener.as("Listener1", {
+				priority: 2,
+			})(
+				() =>
+					({ parent, context }) =>
+						E.succeed({
+							...parent,
+							send(e) {
+								return E.gen(this, function* () {
+									executionOrder.push(2);
+
+									return yield* context.next(e);
+								});
+							},
+						}),
+			) {}
+
+			class Listener2 extends Listener.as("Listener2", {
+				priority: 1,
+			})(
+				() =>
+					({ parent, context }) =>
+						E.succeed({
+							...parent,
+							send(e) {
+								return E.gen(this, function* () {
+									executionOrder.push(1);
+
+									return yield* context.next(e);
+								});
+							},
+						}),
+			) {}
+
 			const eventBus = yield* EventBus.makeAsValue(
-				EventBus.Default([
-					new EventBusListenerFactory(
-						() =>
-							EventBusListener.make(({ parent }) =>
-								E.succeed({
-									...parent,
-									send(e) {
-										return E.gen(this, function* () {
-											executionOrder.push(2);
-
-											return yield* this.getContext().next(e);
-										});
-									},
-								}),
-							),
-						{
-							priority: 2,
-						},
-					),
-					new EventBusListenerFactory(
-						() =>
-							EventBusListener.make(({ parent }) =>
-								E.succeed({
-									...parent,
-									send(e) {
-										return E.gen(this, function* () {
-											executionOrder.push(1);
-
-											return yield* this.getContext().next(e);
-										});
-									},
-								}),
-							),
-						{
-							priority: 1,
-						},
-					),
-				]),
+				EventBus.Default([new Listener1(), new Listener2()]),
 			);
 
 			const event = new DummyEvent();
@@ -66,56 +62,53 @@ it.scoped(
 		E.gen(function* () {
 			const executionOrder: number[] = [];
 
+			class Listener1 extends Listener.as("Listener1")(
+				() =>
+					({ parent, context }) =>
+						E.succeed({
+							...parent,
+							send(e) {
+								return E.gen(this, function* () {
+									executionOrder.push(1);
+									yield* e.cancel();
+									return yield* context.next(e);
+								});
+							},
+						}),
+			) {}
+
+			class Listener2 extends Listener.as("Listener2", {
+				canReceiveCancelled: true,
+			})(
+				() =>
+					({ parent, context }) =>
+						E.succeed({
+							...parent,
+							send(e) {
+								return E.gen(this, function* () {
+									executionOrder.push(2);
+									return yield* context.next(e);
+								});
+							},
+						}),
+			) {}
+
+			class Listener3 extends Listener.as("Listener3")(
+				() =>
+					({ parent, context }) =>
+						E.succeed({
+							...parent,
+							send(e) {
+								return E.gen(this, function* () {
+									executionOrder.push(3);
+									return yield* context.next(e);
+								});
+							},
+						}),
+			) {}
+
 			const eventBus = yield* EventBus.makeAsValue(
-				EventBus.Default([
-					new EventBusListenerFactory(() =>
-						EventBusListener.make(({ parent }) =>
-							E.succeed({
-								...parent,
-								send(e) {
-									return E.gen(this, function* () {
-										executionOrder.push(1);
-										yield* e.cancel();
-
-										return yield* this.getContext().next(e);
-									});
-								},
-							}),
-						),
-					),
-					new EventBusListenerFactory(
-						() =>
-							EventBusListener.make(({ parent }) =>
-								E.succeed({
-									...parent,
-									send(e) {
-										return E.gen(this, function* () {
-											executionOrder.push(2);
-
-											return yield* this.getContext().next(e);
-										});
-									},
-								}),
-							),
-						{
-							canReceiveCancelled: true,
-						},
-					),
-					new EventBusListenerFactory(() =>
-						EventBusListener.make(({ parent }) =>
-							E.succeed({
-								...parent,
-								send(e) {
-									return E.gen(this, function* () {
-										executionOrder.push(3);
-
-										return yield* this.getContext().next(e);
-									});
-								},
-							}),
-						),
-					),
-				]),
+				EventBus.Default([new Listener1(), new Listener2(), new Listener3()]),
 			);
 
 			const event = new DummyEvent();
@@ -132,56 +125,53 @@ it.scoped(
 		E.gen(function* () {
 			const executionOrder: number[] = [];
 
+			class Listener1 extends Listener.as("Listener1")(
+				() =>
+					({ parent, context }) =>
+						E.succeed({
+							...parent,
+							send(e) {
+								return E.gen(this, function* () {
+									executionOrder.push(1);
+									yield* e.complete();
+									return yield* context.next(e);
+								});
+							},
+						}),
+			) {}
+
+			class Listener2 extends Listener.as("Listener2", {
+				canReceiveCompleted: true,
+			})(
+				() =>
+					({ parent, context }) =>
+						E.succeed({
+							...parent,
+							send(e) {
+								return E.gen(this, function* () {
+									executionOrder.push(2);
+									return yield* context.next(e);
+								});
+							},
+						}),
+			) {}
+
+			class Listener3 extends Listener.as("Listener3")(
+				() =>
+					({ parent, context }) =>
+						E.succeed({
+							...parent,
+							send(e) {
+								return E.gen(this, function* () {
+									executionOrder.push(3);
+									return yield* context.next(e);
+								});
+							},
+						}),
+			) {}
+
 			const eventBus = yield* EventBus.makeAsValue(
-				EventBus.Default([
-					new EventBusListenerFactory(() =>
-						EventBusListener.make(({ parent }) =>
-							E.succeed({
-								...parent,
-								send(e) {
-									return E.gen(this, function* () {
-										executionOrder.push(1);
-										yield* e.complete();
-
-										return yield* this.getContext().next(e);
-									});
-								},
-							}),
-						),
-					),
-					new EventBusListenerFactory(
-						() =>
-							EventBusListener.make(({ parent }) =>
-								E.succeed({
-									...parent,
-									send(e) {
-										return E.gen(this, function* () {
-											executionOrder.push(2);
-
-											return yield* this.getContext().next(e);
-										});
-									},
-								}),
-							),
-						{
-							canReceiveCompleted: true,
-						},
-					),
-					new EventBusListenerFactory(() =>
-						EventBusListener.make(({ parent }) =>
-							E.succeed({
-								...parent,
-								send(e) {
-									return E.gen(this, function* () {
-										executionOrder.push(3);
-
-										return yield* this.getContext().next(e);
-									});
-								},
-							}),
-						),
-					),
-				]),
+				EventBus.Default([new Listener1(), new Listener2(), new Listener3()]),
 			);
 
 			const event = new DummyEvent();
@@ -194,39 +184,34 @@ it.scoped(
 
 it.scoped("allows to extend the chain with custom 'broadcast' function", () =>
 	E.gen(function* () {
-		const eventBus = yield* EventBus.makeAsValue(
-			EventBus.Default([
-				new EventBusListenerFactory(() =>
-					EventBusListener.make(({ parent }) =>
-						E.succeed({
-							...parent,
-							send(e) {
-								return E.gen(this, function* () {
-									/**
-									 * Cancel the event to make sure it's
-									 * still piped through the broadcaster fn
-									 * */
-									yield* e.cancel();
+		class Listener1 extends Listener.as("Listener1")(
+			() =>
+				({ parent, context }) =>
+					E.succeed({
+						...parent,
+						send(e) {
+							return E.gen(this, function* () {
+								/**
+								 * Cancel the event to make sure it's
+								 * still piped through the broadcaster fn
+								 * */
+								yield* e.cancel();
+								return yield* context.next(e);
+							});
+						},
+					}),
+		) {}
 
-									return yield* this.getContext().next(e);
-								});
-							},
-						}),
-					),
-				),
-				new EventBusListenerFactory(() =>
-					EventBusListener.make(({ parent }) =>
-						E.succeed({
-							...parent,
-							send(e) {
-								return E.gen(this, function* () {
-									return yield* this.getContext().next(e);
-								});
-							},
-						}),
-					),
-				),
-			]),
+		class Listener2 extends Listener.as("Listener2")(
+			() =>
+				({ parent }) =>
+					E.succeed({
+						...parent,
+					}),
+		) {}
+
+		const eventBus = yield* EventBus.makeAsValue(
+			EventBus.Default([new Listener1(), new Listener2()]),
 		);
 
 		const event = new DummyEvent();

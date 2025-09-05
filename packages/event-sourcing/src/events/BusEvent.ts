@@ -23,7 +23,7 @@ export abstract class BusEvent {
 		return this.eventStatus === "completed";
 	}
 
-	isInUndeterminedState() {
+	isUndetermined() {
 		return !this.isCompleted() && !this.isCancelled();
 	}
 
@@ -45,7 +45,7 @@ export abstract class BusEvent {
 	}
 
 	cancel() {
-		if (!this.isInUndeterminedState()) {
+		if (!this.isUndetermined()) {
 			return E.void;
 		}
 
@@ -60,7 +60,7 @@ export abstract class BusEvent {
 	}
 
 	complete() {
-		if (!this.isInUndeterminedState()) {
+		if (!this.isUndetermined()) {
 			return E.void;
 		}
 

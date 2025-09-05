@@ -1,8 +1,7 @@
 import { expect, it } from "@effect/vitest";
 import { Effect as E, Layer } from "effect";
 import { EventBus } from "../EventBus.js";
-import { EventBusListenerFactory } from "../listeners/EventBusListenerFactory.js";
-import { EventBusListener } from "../listeners/index.js";
+import { Listener } from "../listeners/Listener";
 import { EventInterceptor } from "../pipeline/EventInterceptor.js";
 import { DummyEvent } from "../testUtils/DummyEvent.js";
 
@@ -23,42 +22,47 @@ it.scoped("can intercept events", () =>
 			}),
 		);
 
-		const EventBusLayer = EventBus.Default([
-			new EventBusListenerFactory(() =>
-				EventBusListener.make(({ parent }) =>
+		class Listener1 extends Listener.as("Listener1")(
+			() =>
+				({ parent, context }) =>
 					E.succeed({
 						...parent,
 						send(e) {
 							return E.gen(this, function* () {
 								executionOrder.push(1);
-
-								return yield* this.getContext().next(e);
+								return yield* context.next(e);
 							});
 						},
 					}),
-				),
-			),
-			new EventBusListenerFactory(() =>
-				EventBusListener.make(({ parent }) => {
-					let sent = false;
+		) {}
 
-					return E.succeed({
-						...parent,
-						send(e) {
-							return E.gen(this, function* () {
-								executionOrder.push(2);
+		class Listener2 extends Listener.as("Listener2")(
+			() =>
+				({ parent, context }) =>
+					E.gen(function* () {
+						let sent = false;
 
-								if (!sent) {
-									sent = true;
-									yield* this.getContext().sendToBus(event2);
-								}
+						return {
+							...parent,
+							send(e) {
+								return E.gen(this, function* () {
+									executionOrder.push(2);
 
-								return yield* this.getContext().next(e);
-							});
-						},
-					});
-				}),
-			),
+									if (!sent) {
+										sent = true;
+										yield* this.getContext().sendToBus(event2);
+									}
+
+									return yield* context.next(e);
+								});
+							},
+						};
+					}),
+		) {}
+
+		const EventBusLayer = EventBus.Default([
+			new Listener1(),
+			new Listener2(),
 		]).pipe(Layer.provide(Interceptor));
 
 		const eventBus = yield* E.gen(function* () {
@@ -96,28 +100,23 @@ it.scoped("can intercept events across nested event buses", () =>
 			}),
 		);
 
-		const EventBusLayer1 = EventBus.Default([
-			new EventBusListenerFactory(() =>
-				EventBusListener.make(({ parent }) =>
-					E.gen(function* () {
-						return {
-							...parent,
-							send(e) {
-								return E.gen(this, function* () {
-									executionOrder.push(2);
-
-									return yield* this.getContext().next(e);
-								});
-							},
-						};
+		class Listener1 extends Listener.as("Listener1")(
+			() =>
+				({ parent, context }) =>
+					E.succeed({
+						...parent,
+						send(e) {
+							return E.gen(this, function* () {
+								executionOrder.push(2);
+								return yield* context.next(e);
+							});
+						},
 					}),
-				),
-			),
-		]);
+		) {}
 
-		const EventBusLayer2 = EventBus.Default([
-			new EventBusListenerFactory(() =>
-				EventBusListener.make(({ parent }) =>
+		class Listener2 extends Listener.as("Listener2")(
+			() =>
+				({ parent, context }) =>
 					E.gen(function* () {
 						const anotherEventBus = yield* EventBus.makeAsValue(EventBusLayer1);
 
@@ -127,15 +126,16 @@ it.scoped("can intercept events across nested event buses", () =>
 								return E.gen(this, function* () {
 									executionOrder.push(1);
 									yield* anotherEventBus.send(event2);
-
-									return yield* this.getContext().next(e);
+									return yield* context.next(e);
 								});
 							},
 						};
 					}),
-				),
-			),
-		]);
+		) {}
+
+		const EventBusLayer1 = EventBus.Default([new Listener1()]);
+
+		const EventBusLayer2 = EventBus.Default([new Listener2()]);
 
 		const eventBus = yield* EventBus.makeAsValue(
 			EventBusLayer2.pipe(Layer.provide(Interceptor)),

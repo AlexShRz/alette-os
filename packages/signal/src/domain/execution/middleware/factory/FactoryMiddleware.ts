@@ -1,20 +1,14 @@
-import { EventBusListener } from "@alette/event-sourcing";
-import { EventBusListenerTag, IEventBusListener } from "@alette/event-sourcing";
+import { Listener } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
 import { RunRequest } from "../../events/RunRequest";
-import { RequestSessionContext } from "../../services/RequestSessionContext";
-import { IRequestRunner } from "./factory/FactoryMiddlewareFacade";
+import { IRequestRunner } from "./FactoryMiddlewareFactory";
 
-export class FactoryMiddleware extends E.Service<EventBusListener>()(
-	EventBusListenerTag,
-	{
-		scoped: (runner: IRequestRunner) =>
+export class FactoryMiddleware extends Listener.as("FactoryMiddleware")(
+	(runner: IRequestRunner) =>
+		({ parent, context }) =>
 			E.gen(function* () {
-				const requestContext = yield* E.serviceOptional(RequestSessionContext);
-				const { base, context } = yield* EventBusListener.parent();
-
 				return {
-					...base,
+					...parent,
 					send(event) {
 						return E.gen(this, function* () {
 							if (event instanceof RunRequest) {
@@ -24,7 +18,6 @@ export class FactoryMiddleware extends E.Service<EventBusListener>()(
 							return yield* context.next(event);
 						});
 					},
-				} satisfies IEventBusListener;
-			}).pipe(E.orDie),
-	},
+				};
+			}),
 ) {}
