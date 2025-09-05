@@ -3,7 +3,7 @@ import * as E from "effect/Effect";
 import { RunRequest } from "../../events/RunRequest";
 import { IRequestRunner } from "./FactoryMiddlewareFactory";
 
-export class FactoryMiddleware extends Listener.as("FactoryMiddleware")(
+export class FactoryMiddleware extends Listener("FactoryMiddleware")(
 	(runner: IRequestRunner) =>
 		({ parent, context }) =>
 			E.gen(function* () {

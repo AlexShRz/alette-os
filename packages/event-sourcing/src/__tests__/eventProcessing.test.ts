@@ -1,7 +1,7 @@
 import { expect, it } from "@effect/vitest";
 import { Effect as E } from "effect";
 import { EventBus } from "../EventBus.js";
-import { Listener } from "../listeners/Listener";
+import { Listener } from "../listeners";
 import { DummyEvent } from "../testUtils/DummyEvent.js";
 
 it.scoped(
@@ -10,7 +10,7 @@ it.scoped(
 		E.gen(function* () {
 			const executionOrder: number[] = [];
 
-			class Listener1 extends Listener.as("Listener1", {
+			class Listener1 extends Listener("Listener1", {
 				priority: 2,
 			})(
 				() =>
@@ -27,7 +27,7 @@ it.scoped(
 						}),
 			) {}
 
-			class Listener2 extends Listener.as("Listener2", {
+			class Listener2 extends Listener("Listener2", {
 				priority: 1,
 			})(
 				() =>
@@ -62,7 +62,7 @@ it.scoped(
 		E.gen(function* () {
 			const executionOrder: number[] = [];
 
-			class Listener1 extends Listener.as("Listener1")(
+			class Listener1 extends Listener("Listener1")(
 				() =>
 					({ parent, context }) =>
 						E.succeed({
@@ -77,7 +77,7 @@ it.scoped(
 						}),
 			) {}
 
-			class Listener2 extends Listener.as("Listener2", {
+			class Listener2 extends Listener("Listener2", {
 				canReceiveCancelled: true,
 			})(
 				() =>
@@ -93,7 +93,7 @@ it.scoped(
 						}),
 			) {}
 
-			class Listener3 extends Listener.as("Listener3")(
+			class Listener3 extends Listener("Listener3")(
 				() =>
 					({ parent, context }) =>
 						E.succeed({
@@ -125,7 +125,7 @@ it.scoped(
 		E.gen(function* () {
 			const executionOrder: number[] = [];
 
-			class Listener1 extends Listener.as("Listener1")(
+			class Listener1 extends Listener("Listener1")(
 				() =>
 					({ parent, context }) =>
 						E.succeed({
@@ -140,7 +140,7 @@ it.scoped(
 						}),
 			) {}
 
-			class Listener2 extends Listener.as("Listener2", {
+			class Listener2 extends Listener("Listener2", {
 				canReceiveCompleted: true,
 			})(
 				() =>
@@ -156,7 +156,7 @@ it.scoped(
 						}),
 			) {}
 
-			class Listener3 extends Listener.as("Listener3")(
+			class Listener3 extends Listener("Listener3")(
 				() =>
 					({ parent, context }) =>
 						E.succeed({
@@ -184,7 +184,7 @@ it.scoped(
 
 it.scoped("allows to extend the chain with custom 'broadcast' function", () =>
 	E.gen(function* () {
-		class Listener1 extends Listener.as("Listener1")(
+		class Listener1 extends Listener("Listener1")(
 			() =>
 				({ parent, context }) =>
 					E.succeed({
@@ -202,7 +202,7 @@ it.scoped("allows to extend the chain with custom 'broadcast' function", () =>
 					}),
 		) {}
 
-		class Listener2 extends Listener.as("Listener2")(
+		class Listener2 extends Listener("Listener2")(
 			() =>
 				({ parent }) =>
 					E.succeed({

@@ -3,18 +3,17 @@ import * as E from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { v4 as uuid } from "uuid";
 import { BusEvent } from "./events/BusEvent.js";
-import { EventBusListener } from "./listeners/EventBusListener.js";
-import { IEventBusListenerContext } from "./listeners/EventBusListenerContext.js";
-import { Listener } from "./listeners/Listener";
 import {
-	EventBusPipelineBuilder,
-	ILastEventExtractor,
-} from "./pipeline/EventBusPipelineBuilder.js";
+	EventBusListener,
+	EventBusListenerFactory,
+	IEventBusListenerContext,
+} from "./listeners";
+import { EventBusPipelineBuilder, ILastEventExtractor } from "./pipeline";
 
 export class EventBus extends E.Service<EventBus>()("EventBus", {
 	dependencies: [EventBusPipelineBuilder.Default],
 	scoped: <A extends EventBusListener = EventBusListener, R = never>(
-		providedListeners: Listener<string, A, R>[],
+		providedListeners: EventBusListenerFactory<string, A, R>[],
 	) =>
 		E.gen(function* () {
 			const id = uuid();
@@ -37,7 +36,7 @@ export class EventBus extends E.Service<EventBus>()("EventBus", {
 						}
 
 						pipeline = yield* pipelineBuilder.create(
-							providedListeners as Listener[],
+							providedListeners as EventBusListenerFactory[],
 							() => this as EventBus,
 						);
 						return yield* pipeline(event);

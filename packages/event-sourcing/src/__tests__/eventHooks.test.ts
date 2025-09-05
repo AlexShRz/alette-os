@@ -1,7 +1,7 @@
 import { expect, it } from "@effect/vitest";
 import { Effect as E } from "effect";
 import { EventBus } from "../EventBus.js";
-import { Listener } from "../listeners/Listener";
+import { Listener } from "../listeners";
 import { DummyEvent } from "../testUtils/DummyEvent.js";
 
 it.scoped("runs hooks on event cancellation", () =>
@@ -19,7 +19,7 @@ it.scoped("runs hooks on event cancellation", () =>
 				}),
 			);
 
-		class Listener1 extends Listener.as("Listener1")(
+		class Listener1 extends Listener("Listener1")(
 			() =>
 				({ parent, context }) =>
 					E.succeed({
@@ -33,7 +33,7 @@ it.scoped("runs hooks on event cancellation", () =>
 					}),
 		) {}
 
-		class Listener2 extends Listener.as("Listener2")(
+		class Listener2 extends Listener("Listener2")(
 			() =>
 				({ parent, context }) =>
 					E.succeed({
@@ -77,7 +77,7 @@ it.scoped("runs hooks on event completion", () =>
 				}),
 			);
 
-		class Listener1 extends Listener.as("Listener1")(
+		class Listener1 extends Listener("Listener1")(
 			() =>
 				({ parent, context }) =>
 					E.succeed({
@@ -91,7 +91,7 @@ it.scoped("runs hooks on event completion", () =>
 					}),
 		) {}
 
-		class Listener2 extends Listener.as("Listener2")(
+		class Listener2 extends Listener("Listener2")(
 			() =>
 				({ parent, context }) =>
 					E.succeed({
@@ -127,7 +127,7 @@ it.scoped(
 				}),
 			);
 
-			class Listener1 extends Listener.as("Listener1")(
+			class Listener1 extends Listener("Listener1")(
 				() =>
 					({ parent }) =>
 						E.succeed({

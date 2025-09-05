@@ -12,6 +12,7 @@ import { RequestSession } from "./services/RequestSession";
 import { RequestStateTimeline } from "./services/RequestStateTimeline";
 import { WatcherOrchestrator } from "./services/WatcherOrchestrator";
 import { WatcherPipeline } from "./services/WatcherPipeline";
+import { sendSessionEvent } from "./utils/sendSessionEvent";
 
 // TODO: Add stream mode
 export type TRequestMode = "oneShot" | "subscription";
@@ -81,12 +82,7 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 			},
 
 			dispatch(event: BusEvent) {
-				return requestRuntime.runFork(
-					E.gen(function* () {
-						const eventBus = yield* EventBus;
-						yield* eventBus.send(event);
-					}),
-				);
+				return requestRuntime.runFork(sendSessionEvent(event));
 			},
 
 			addWatchers(watcherPipeline: Layer.Layer<WatcherPipeline>) {

@@ -6,7 +6,7 @@ import {
 	InputMiddlewareArgProvider,
 } from "./InputMiddlewareFactory";
 
-export class InputMiddleware extends Listener.as("InputMiddleware")(
+export class InputMiddleware extends Listener("InputMiddleware")(
 	(
 		argSchema: IInputMiddlewareArgSchema = type(),
 		defaultArgProvider: InputMiddlewareArgProvider,

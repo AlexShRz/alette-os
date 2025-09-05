@@ -5,9 +5,11 @@ import * as Option from "effect/Option";
 import * as Scope from "effect/Scope";
 import { EventBus } from "../EventBus.js";
 import { BusEvent } from "../events/BusEvent.js";
-import { EventBusListener } from "../listeners/EventBusListener.js";
-import { IEventBusListenerContext } from "../listeners/EventBusListenerContext.js";
-import { Listener } from "../listeners/Listener";
+import {
+	EventBusListener,
+	EventBusListenerFactory,
+	IEventBusListenerContext,
+} from "../listeners";
 import { EventInterceptor } from "./EventInterceptor.js";
 
 type ConstructedPipeline = IEventBusListenerContext["next"];
@@ -41,7 +43,7 @@ export class EventBusPipelineBuilder extends E.Service<EventBusPipelineBuilder>(
 			/**
 			 * Make sure to bind service context using E.provide(pipelineContext)
 			 * */
-			const createListener = (factory: Listener) =>
+			const createListener = (factory: EventBusListenerFactory) =>
 				E.gen(function* () {
 					const listenerContext = yield* Layer.build(factory.toLayer());
 					const listener = Context.unsafeGet(listenerContext, EventBusListener);
@@ -54,7 +56,7 @@ export class EventBusPipelineBuilder extends E.Service<EventBusPipelineBuilder>(
 
 			const createFlow = (
 				eventBus: EventBus,
-				listenerFactories: Listener[],
+				listenerFactories: EventBusListenerFactory[],
 				currentListenerIndex = 0,
 			): E.Effect<ConstructedPipeline> =>
 				E.gen(function* () {
@@ -156,12 +158,15 @@ export class EventBusPipelineBuilder extends E.Service<EventBusPipelineBuilder>(
 					});
 				}).pipe(Scope.extend(scope));
 
-			const sortListenerFactories = (listeners: Listener[]) => {
+			const sortListenerFactories = (listeners: EventBusListenerFactory[]) => {
 				return listeners.sort((a, b) => a.getPriority() - b.getPriority());
 			};
 
 			return {
-				create(listenerFactories: Listener[], getEventBus: IEventBusSupplier) {
+				create(
+					listenerFactories: EventBusListenerFactory[],
+					getEventBus: IEventBusSupplier,
+				) {
 					return createFlow(
 						getEventBus(),
 						sortListenerFactories(listenerFactories),

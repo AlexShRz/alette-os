@@ -6,7 +6,7 @@ import { RequestSessionContext } from "../../../execution/services/RequestSessio
 import { getOrCreateUrlContext } from "../getOrCreateUrlContext";
 import { TPathMiddlewareArgs } from "./PathMiddlewareFactory";
 
-export class PathMiddleware extends Listener.as("PathMiddleware")(
+export class PathMiddleware extends Listener("PathMiddleware")(
 	(args: TPathMiddlewareArgs) =>
 		({ parent }) =>
 			E.gen(function* () {

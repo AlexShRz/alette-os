@@ -7,7 +7,7 @@ import { GlobalUrlConfig } from "../../services/GlobalUrlConfig";
 import { getOrCreateUrlContext } from "../getOrCreateUrlContext";
 import { TOriginMiddlewareArgs } from "./OriginMiddlewareFactory";
 
-export class OriginMiddleware extends Listener.as("OriginMiddleware")(
+export class OriginMiddleware extends Listener("OriginMiddleware")(
 	(args?: TOriginMiddlewareArgs) =>
 		({ parent }) =>
 			E.gen(function* () {

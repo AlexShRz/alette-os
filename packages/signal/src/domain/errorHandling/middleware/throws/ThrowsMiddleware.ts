@@ -3,7 +3,7 @@ import { IEventBusListener } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
 import { IRecoverableApiError } from "./RequestRecoverableErrors";
 
-export class ThrowsMiddleware extends Listener.as("ThrowsMiddleware")(
+export class ThrowsMiddleware extends Listener("ThrowsMiddleware")(
 	(recoverableErrors: IRecoverableApiError[]) =>
 		({ parent, context }) =>
 			E.gen(function* () {

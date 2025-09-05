@@ -1,4 +1,7 @@
-import { EventBusListener, Listener } from "@alette/event-sourcing";
+import {
+	EventBusListener,
+	EventBusListenerFactory,
+} from "@alette/event-sourcing";
 import { IAnyMiddlewareSpecification } from "@alette/pulse";
 import { IRequestContext } from "../context/IRequestContext";
 
@@ -9,6 +12,4 @@ export class RequestMiddleware<
 	Tag extends string = string,
 	A extends EventBusListener = EventBusListener,
 	R = never,
-> extends Listener<Tag, A, R> {
-	// static as = Listener.as
-}
+> extends EventBusListenerFactory<Tag, A, R> {}

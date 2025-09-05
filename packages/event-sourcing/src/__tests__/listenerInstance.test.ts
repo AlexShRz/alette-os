@@ -2,7 +2,7 @@ import { Effect as E } from "effect";
 import { Listener } from "../listeners";
 
 test("it differentiates between listeners", () => {
-	class Listener1 extends Listener.as("Listener1")(
+	class Listener1 extends Listener("Listener1")(
 		() =>
 			({ parent }) =>
 				E.succeed({
@@ -10,7 +10,7 @@ test("it differentiates between listeners", () => {
 				}),
 	) {}
 
-	class Listener2 extends Listener.as("Listener2")(
+	class Listener2 extends Listener("Listener2")(
 		() =>
 			({ parent }) =>
 				E.succeed({
