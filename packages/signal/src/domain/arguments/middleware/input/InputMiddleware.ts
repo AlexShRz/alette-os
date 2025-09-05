@@ -1,32 +1,25 @@
-import { EventBusListener } from "@alette/event-sourcing";
-import { EventBusListenerTag, IEventBusListener } from "@alette/event-sourcing";
-import { ISchema, type } from "@alette/pulse";
+import { Listener } from "@alette/event-sourcing";
+import { type } from "@alette/pulse";
 import * as E from "effect/Effect";
+import {
+	IInputMiddlewareArgSchema,
+	InputMiddlewareArgProvider,
+} from "./InputMiddlewareFactory";
 
-export interface IInputMiddlewareArgSchema<Output = unknown>
-	extends ISchema<unknown, Output> {}
-
-export type InputMiddlewareArgProvider<Value = unknown> =
-	| (() => Value)
-	| undefined;
-
-export class InputMiddleware extends E.Service<EventBusListener>()(
-	EventBusListenerTag,
-	{
-		scoped: E.fn(function* (
-			argSchema: IInputMiddlewareArgSchema = type(),
-			defaultArgProvider: InputMiddlewareArgProvider,
-		) {
-			const { base, context } = yield* EventBusListener.parent();
-
-			return {
-				...base,
-				send(e) {
-					return E.gen(this, function* () {
-						return yield* context.next(e);
-					});
-				},
-			} satisfies IEventBusListener;
-		}),
-	},
+export class InputMiddleware extends Listener.as("InputMiddleware")(
+	(
+		argSchema: IInputMiddlewareArgSchema = type(),
+		defaultArgProvider: InputMiddlewareArgProvider,
+	) =>
+		({ parent, context }) =>
+			E.gen(function* () {
+				return {
+					...parent,
+					send(event) {
+						return E.gen(this, function* () {
+							return yield* context.next(event);
+						});
+					},
+				};
+			}),
 ) {}

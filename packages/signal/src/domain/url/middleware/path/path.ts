@@ -1,3 +1,3 @@
-import { PathMiddlewareFacade } from "./factory/PathMiddlewareFacade";
+import { PathMiddlewareFactory } from "./PathMiddlewareFactory";
 
-export const path = PathMiddlewareFacade.toFactory();
+export const path = PathMiddlewareFactory.toFactory();

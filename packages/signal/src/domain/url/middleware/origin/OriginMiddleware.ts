@@ -1,32 +1,17 @@
-import { EventBusListener } from "@alette/event-sourcing";
-import { EventBusListenerTag, IEventBusListener } from "@alette/event-sourcing";
+import { Listener } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as SyncRef from "effect/SynchronizedRef";
-import { IRequestContext } from "../../../context/IRequestContext";
-import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { GlobalUrlConfig } from "../../services/GlobalUrlConfig";
 import { getOrCreateUrlContext } from "../getOrCreateUrlContext";
-import { TGetRequestOrigin } from "./RequestOrigin";
+import { TOriginMiddlewareArgs } from "./OriginMiddlewareFactory";
 
-export type TOriginMiddlewareArgs<
-	NewOrigin extends string = string,
-	C extends IRequestContext = IRequestContext,
-> =
-	| ((
-			prevPath: TGetRequestOrigin<C>,
-			context: TGetAllRequestContext<C>,
-	  ) => NewOrigin)
-	| NewOrigin;
-
-export class OriginMiddleware extends E.Service<EventBusListener>()(
-	EventBusListenerTag,
-	{
-		scoped: (args?: TOriginMiddlewareArgs) =>
+export class OriginMiddleware extends Listener.as("OriginMiddleware")(
+	(args?: TOriginMiddlewareArgs) =>
+		({ parent }) =>
 			E.gen(function* () {
 				const requestContext = yield* E.serviceOptional(RequestSessionContext);
-				const { base, context } = yield* EventBusListener.parent();
 
 				const provideOriginContext = E.gen(function* () {
 					const globalUrlConfig = yield* E.serviceOptional(GlobalUrlConfig);
@@ -54,13 +39,7 @@ export class OriginMiddleware extends E.Service<EventBusListener>()(
 				});
 
 				return {
-					...base,
-					send(event) {
-						return E.gen(this, function* () {
-							return yield* context.next(event);
-						});
-					},
-				} satisfies IEventBusListener;
+					...parent,
+				};
 			}).pipe(E.orDie),
-	},
 ) {}

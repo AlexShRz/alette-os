@@ -1,31 +1,16 @@
-import { EventBusListener } from "@alette/event-sourcing";
-import { EventBusListenerTag, IEventBusListener } from "@alette/event-sourcing";
+import { Listener } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as SyncRef from "effect/SynchronizedRef";
-import { IRequestContext } from "../../../context/IRequestContext";
-import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { getOrCreateUrlContext } from "../getOrCreateUrlContext";
-import { TGetRequestPath } from "./RequestPath";
+import { TPathMiddlewareArgs } from "./PathMiddlewareFactory";
 
-export type TPathMiddlewareArgs<
-	NextPath extends string = string,
-	C extends IRequestContext = IRequestContext,
-> =
-	| ((
-			prevPath: TGetRequestPath<C>,
-			context: TGetAllRequestContext<C>,
-	  ) => NextPath)
-	| NextPath;
-
-export class PathMiddleware extends E.Service<EventBusListener>()(
-	EventBusListenerTag,
-	{
-		scoped: (args: TPathMiddlewareArgs) =>
+export class PathMiddleware extends Listener.as("PathMiddleware")(
+	(args: TPathMiddlewareArgs) =>
+		({ parent }) =>
 			E.gen(function* () {
 				const requestContext = yield* E.serviceOptional(RequestSessionContext);
-				const { base, context } = yield* EventBusListener.parent();
 
 				const updateUrlContext = E.gen(function* () {
 					const urlContext = yield* getOrCreateUrlContext();
@@ -47,13 +32,7 @@ export class PathMiddleware extends E.Service<EventBusListener>()(
 				});
 
 				return {
-					...base,
-					send(event) {
-						return E.gen(this, function* () {
-							return yield* context.next(event);
-						});
-					},
-				} satisfies IEventBusListener;
+					...parent,
+				};
 			}).pipe(E.orDie),
-	},
 ) {}

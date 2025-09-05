@@ -1,3 +1,3 @@
-import { ThrowsMiddlewareFacade } from "./factory/ThrowsMiddlewareFacade";
+import { ThrowsMiddlewareFactory } from "./ThrowsMiddlewareFactory";
 
-export const throws = ThrowsMiddlewareFacade.toFactory();
+export const throws = ThrowsMiddlewareFactory.toFactory();

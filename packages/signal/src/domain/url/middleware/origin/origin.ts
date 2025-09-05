@@ -1,3 +1,3 @@
-import { OriginMiddlewareFacade } from "./factory/OriginMiddlewareFacade";
+import { OriginMiddlewareFactory } from "./OriginMiddlewareFactory";
 
-export const origin = OriginMiddlewareFacade.toFactory();
+export const origin = OriginMiddlewareFactory.toFactory();

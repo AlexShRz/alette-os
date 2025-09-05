@@ -1,21 +1,18 @@
-import { EventBusListener } from "@alette/event-sourcing";
-import { EventBusListenerTag, IEventBusListener } from "@alette/event-sourcing";
+import { Listener } from "@alette/event-sourcing";
+import { IEventBusListener } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
 import { IRecoverableApiError } from "./RequestRecoverableErrors";
 
-export class ThrowsMiddleware extends E.Service<EventBusListener>()(
-	EventBusListenerTag,
-	{
-		scoped: (recoverableErrors: IRecoverableApiError[]) =>
+export class ThrowsMiddleware extends Listener.as("ThrowsMiddleware")(
+	(recoverableErrors: IRecoverableApiError[]) =>
+		({ parent, context }) =>
 			E.gen(function* () {
-				const { base, context } = yield* EventBusListener.parent();
-
 				// TODO: Save error constructors inside
 				// request meta
 				// TODO: Check request failure events and
 				// if their error types is not valid, die.
 				return {
-					...base,
+					...parent,
 					send(event) {
 						return E.gen(this, function* () {
 							return yield* context.next(event);
@@ -23,5 +20,4 @@ export class ThrowsMiddleware extends E.Service<EventBusListener>()(
 					},
 				} satisfies IEventBusListener;
 			}).pipe(E.orDie),
-	},
 ) {}
