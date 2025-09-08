@@ -1,10 +1,10 @@
 import { ManagedRuntime } from "effect";
 import * as E from "effect/Effect";
-import { RequestSessionEvent } from "../../../domain/execution/events/RequestSessionEvent";
+import { TSessionEvent } from "../../../domain/execution/events/SessionEvent";
 import { RequestControllerWorker } from "../../blueprint/controller/RequestControllerWorker";
 import { PluginMailbox } from "../../plugins/PluginMailbox";
-import { PrepareRequestWorker } from "../../workflows/PrepareRequestWorker";
-import { OneShotRequestLifecycle } from "./OneShotRequestLifecycle";
+import { PrepareRequestWorker } from "../workflows/PrepareRequestWorker";
+import { OneShotRequestSupervisor } from "./OneShotRequestSupervisor";
 
 export class OneShotRequestWorker<R, ER> extends RequestControllerWorker<
 	R,
@@ -12,7 +12,7 @@ export class OneShotRequestWorker<R, ER> extends RequestControllerWorker<
 > {
 	constructor(
 		runtime: ManagedRuntime.ManagedRuntime<R, ER>,
-		lifecycle: OneShotRequestLifecycle<R, ER>,
+		lifecycle: OneShotRequestSupervisor<R, ER>,
 		protected config: Parameters<typeof PrepareRequestWorker.make>[number],
 	) {
 		super(runtime, lifecycle);
@@ -29,7 +29,7 @@ export class OneShotRequestWorker<R, ER> extends RequestControllerWorker<
 		return this.lifecycle.spawnAndSupervise(task);
 	}
 
-	dispatch<T extends RequestSessionEvent>(event: T) {
+	dispatch<T extends TSessionEvent>(event: T) {
 		return E.gen(this, function* () {
 			const worker = yield* this.getWorker();
 			yield* worker.dispatch(event);

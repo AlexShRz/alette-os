@@ -146,3 +146,55 @@ it.scoped(
 			expect(logged).toEqual([]);
 		}),
 );
+
+it.scoped("can access self using bound function during hook executions", () =>
+	E.gen(function* () {
+		const logged: number[] = [];
+		let ranTimes = 0;
+
+		const makeEvent = () =>
+			new DummyEvent([1, 23])
+				.onComplete((getSelf) => {
+					const self = getSelf<DummyEvent>();
+
+					return E.sync(() => {
+						logged.push(self.getValues()[0]!);
+					});
+				})
+				.onCancel((getSelf) => {
+					const self = getSelf<DummyEvent>();
+					return E.sync(() => {
+						logged.push(self.getValues()[1]!);
+					});
+				});
+
+		class Listener1 extends Listener("Listener1")(
+			() =>
+				({ parent, context }) =>
+					E.succeed({
+						...parent,
+						send(e) {
+							return E.gen(this, function* () {
+								if (ranTimes === 0) {
+									yield* e.complete();
+								} else {
+									yield* e.cancel();
+								}
+
+								ranTimes++;
+								return yield* context.next(e);
+							});
+						},
+					}),
+		) {}
+
+		const eventBus = yield* EventBus.makeAsValue(
+			EventBus.Default([new Listener1()]),
+		);
+
+		yield* eventBus.send(makeEvent());
+		yield* eventBus.send(makeEvent());
+
+		expect(logged).toStrictEqual([1, 23]);
+	}),
+);

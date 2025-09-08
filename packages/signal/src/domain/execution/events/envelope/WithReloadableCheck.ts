@@ -1,18 +1,7 @@
-import { RequestSessionEvent } from "../RequestSessionEvent";
-import { RunRequest } from "../request/RunRequest";
+import { RunRequestEventEnvelope } from "./RunRequestEventEnvelope";
 
-export class WithReloadableCheck extends RequestSessionEvent {
-	protected constructor(protected wrappedEvent: RunRequest) {
-		super();
-	}
-
-	override setRequestId(id: string) {
-		super.setRequestId(id);
-		this.wrappedEvent.setRequestId(id);
-		return this;
-	}
-
+export class WithReloadableCheck extends RunRequestEventEnvelope {
 	clone() {
-		return new WithReloadableCheck(this.wrappedEvent.clone()) as this;
+		return new WithReloadableCheck(this.config.wrapped.clone()) as this;
 	}
 }

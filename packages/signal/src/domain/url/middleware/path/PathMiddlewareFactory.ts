@@ -18,7 +18,7 @@ export type TPathMiddlewareArgs<
 	| ((
 			prevPath: TGetRequestPath<C>,
 			context: TGetAllRequestContext<C>,
-	  ) => NextPath)
+	  ) => NextPath | Promise<NextPath>)
 	| NextPath;
 
 export class PathMiddlewareFactory extends Middleware("PathMiddlewareFactory")(
@@ -48,7 +48,6 @@ export class PathMiddlewareFactory extends Middleware("PathMiddlewareFactory")(
 				IRequestContext<
 					TMergeContextAdapters<Context, UrlContext>,
 					TMergeRecords<Context["value"], IRequestPath<Path>>,
-					Context["meta"],
 					Context["settings"],
 					Context["accepts"]
 				>,

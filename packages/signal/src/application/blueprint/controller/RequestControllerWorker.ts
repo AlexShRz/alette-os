@@ -4,7 +4,7 @@ import { Latch } from "effect/Effect";
 import * as Stream from "effect/Stream";
 import * as SubscriptionRef from "effect/SubscriptionRef";
 import { RequestWorker } from "../../../domain/execution/RequestWorker";
-import { RequestControllerLifecycle } from "./RequestControllerLifecycle";
+import { RequestControllerSupervisor } from "./RequestControllerSupervisor";
 
 type TWorkerInstance = RequestWorker | null;
 
@@ -14,7 +14,7 @@ export abstract class RequestControllerWorker<R, ER> {
 
 	protected constructor(
 		protected runtime: ManagedRuntime.ManagedRuntime<R, ER>,
-		protected lifecycle: RequestControllerLifecycle<R, ER>,
+		protected lifecycle: RequestControllerSupervisor<R, ER>,
 	) {
 		this.workerLatch = this.runtime.runSync(E.makeLatch(false));
 		this.worker = this.runtime.runSync(

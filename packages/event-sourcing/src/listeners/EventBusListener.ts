@@ -13,20 +13,20 @@ export interface IEventBusListener {
 	send(event: BusEvent): E.Effect<BusEvent, never, never>;
 }
 
-export interface IEventBusListenerFactory<A extends IEventBusListener, R> {
+export interface IEventBusListenerFactory<A extends IEventBusListener, I, R> {
 	(options: {
 		id: string;
 		context: EventBusListenerContext;
 		parent: IEventBusListener;
-	}): E.Effect<A, never, R>;
+	}): E.Effect<A, I, R>;
 }
 
 export class EventBusListener extends Context.Tag("EventBusListener")<
 	EventBusListener,
 	IEventBusListener
 >() {
-	static make<A extends IEventBusListener, R>(
-		factory: IEventBusListenerFactory<A, R>,
+	static make<A extends IEventBusListener, I, R>(
+		factory: IEventBusListenerFactory<A, I, R>,
 	) {
 		return Layer.scoped(
 			this,

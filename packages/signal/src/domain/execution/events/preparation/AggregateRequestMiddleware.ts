@@ -1,4 +1,5 @@
 import { BusEvent } from "@alette/event-sourcing";
+import type { Ctor } from "effect/Types";
 import { RequestMiddleware } from "../../../middleware/RequestMiddleware";
 
 export class AggregateRequestMiddleware extends BusEvent {
@@ -12,6 +13,19 @@ export class AggregateRequestMiddleware extends BusEvent {
 
 	setMiddleware<T extends RequestMiddleware>(middleware: T[]) {
 		this.aggregatedMiddleware = [...middleware];
+		return this;
+	}
+
+	replaceMiddleware(
+		blueprints: Ctor<RequestMiddleware>[],
+		withMiddleware: RequestMiddleware[],
+	) {
+		this.aggregatedMiddleware = [
+			...this.aggregatedMiddleware.filter(
+				(m) => !blueprints.some((b) => m instanceof b),
+			),
+			...withMiddleware,
+		];
 		return this;
 	}
 

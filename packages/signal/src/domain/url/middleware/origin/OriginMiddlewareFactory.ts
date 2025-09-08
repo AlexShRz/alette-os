@@ -5,7 +5,6 @@ import { TMergeContextAdapters } from "../../../context/typeUtils/TMergeContextA
 import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
-
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
 import { UrlContext } from "../../UrlContext";
 import { OriginMiddleware } from "./OriginMiddleware";
@@ -51,7 +50,6 @@ export class OriginMiddlewareFactory extends Middleware(
 				IRequestContext<
 					TMergeContextAdapters<Context, UrlContext>,
 					TMergeRecords<Context["value"], IRequestOrigin<Origin>>,
-					Context["meta"],
 					Context["settings"],
 					Context["accepts"]
 				>,

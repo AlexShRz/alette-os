@@ -7,5 +7,7 @@ export interface IRequestQueryParams<
 	queryParams: Params;
 }
 
-export type TGetRequestQueryParams<Context extends IRequestContext> =
-	Context["value"]["queryParams"];
+export type TGetRequestQueryParams<
+	Context extends IRequestContext,
+	Params = Context["value"]["queryParams"],
+> = Params extends IQueryParams ? Params : {};

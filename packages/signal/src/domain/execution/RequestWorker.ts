@@ -7,12 +7,13 @@ import * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Scope from "effect/Scope";
 import { RequestMiddleware } from "../middleware/RequestMiddleware";
-import { RequestSessionEvent } from "./events/RequestSessionEvent";
+import { RequestMetrics } from "./RequestMetrics";
+import { TSessionEvent } from "./events/SessionEvent";
 import { RequestEventInterceptor } from "./services/RequestEventInterceptor";
 import { RequestSession } from "./services/RequestSession";
 import { RequestStateTimeline } from "./services/RequestStateTimeline";
-import { WatcherOrchestrator } from "./services/WatcherOrchestrator";
-import { WatcherPipeline } from "./services/WatcherPipeline";
+import { WatcherOrchestrator } from "./services/watchers/WatcherOrchestrator";
+import { WatcherPipeline } from "./services/watchers/WatcherPipeline";
 import { sendSessionEvent } from "./utils/sendSessionEvent";
 
 // TODO: Add stream mode
@@ -44,14 +45,19 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 			initialRequestId: id,
 			requestMode: requestMode,
 		});
-		const requestStateTimeline = RequestStateTimeline.Default.pipe(
-			Layer.provide(session),
-		);
+		const requestMetrics = RequestMetrics.Default.pipe(Layer.provide(session));
 		const requestEventInterceptor = RequestEventInterceptor.Default.pipe(
 			Layer.provide(session),
 		);
 		const requestEventBus = EventBus.Default(middleware).pipe(
 			Layer.provide(requestEventInterceptor),
+		);
+		/**
+		 * TODO: Switch timeline based on request
+		 * type (oneShot vs stream).
+		 * */
+		const requestStateTimeline = RequestStateTimeline.make().pipe(
+			Layer.provide(Layer.mergeAll(session, requestEventBus)),
 		);
 
 		const requestRuntime = ManagedRuntime.make(
@@ -59,9 +65,16 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 				Layer.succeedContext(context),
 				session,
 				requestStateTimeline,
+				requestMetrics,
 				requestEventBus,
 				WatcherOrchestrator.Default.pipe(
-					Layer.provide(Layer.mergeAll(session, requestEventInterceptor)),
+					Layer.provide(
+						Layer.mergeAll(
+							session,
+							requestEventInterceptor,
+							requestStateTimeline,
+						),
+					),
 				),
 			),
 		);
@@ -82,16 +95,21 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 				return id;
 			},
 
-			dispatch(event: RequestSessionEvent) {
+			dispatch<T extends TSessionEvent>(event: T) {
 				return requestRuntime.runFork(sendSessionEvent(event));
 			},
 
-			addWatchers(watcherPipeline: Layer.Layer<WatcherPipeline>) {
-				return requestRuntime.runFork(
-					E.gen(function* () {
-						// const registry = yield* WatcherOrchestrator;
-						// yield* eventBus.send(event);
-					}),
+			addWatchers(
+				pipelineId: string,
+				watcherPipeline: Layer.Layer<WatcherPipeline>,
+			) {
+				return Fiber.join(
+					requestRuntime.runFork(
+						E.gen(function* () {
+							const registry = yield* WatcherOrchestrator;
+							yield* registry.set(pipelineId, watcherPipeline);
+						}),
+					),
 				);
 			},
 

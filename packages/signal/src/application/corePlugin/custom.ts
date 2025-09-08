@@ -4,8 +4,10 @@ import {
 	baseRequest,
 	factoryMiddlewareName,
 	origin,
+	reloadable,
+	runOnMount,
 } from "../../domain";
-import { blueprint } from "../oneShotRequest/RequestBlueprintBuilder";
+import { blueprint } from "../oneShotRequest";
 
 export const customRequestSpec = requestSpecification()
 	.categorizedAs(baseRequest)
@@ -14,4 +16,4 @@ export const customRequestSpec = requestSpecification()
 
 export const customRequestFactory = blueprint()
 	.specification(customRequestSpec)
-	.use(origin());
+	.use(origin(), runOnMount(false), reloadable());

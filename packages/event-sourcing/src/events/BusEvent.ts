@@ -10,8 +10,12 @@ export abstract class BusEvent {
 		"undetermined";
 	protected dispatchedBy: string | null = null;
 	protected createdAt = DateTime.unsafeNow();
-	protected cancellationHooks: ((self: this) => E.Effect<void, unknown>)[] = [];
-	protected completionHooks: ((self: this) => E.Effect<void, unknown>)[] = [];
+	protected cancellationHooks: ((
+		getSelf: <T>() => T,
+	) => E.Effect<void, unknown>)[] = [];
+	protected completionHooks: ((
+		getSelf: <T>() => T,
+	) => E.Effect<void, unknown>)[] = [];
 
 	constructor(protected id = uuid()) {}
 
@@ -49,7 +53,9 @@ export abstract class BusEvent {
 			return E.void;
 		}
 
-		return E.all(this.cancellationHooks.map((hook) => hook(this))).pipe(
+		return E.all(
+			this.cancellationHooks.map((hook) => hook(() => this as any)),
+		).pipe(
 			E.andThen(
 				E.sync(() => {
 					this.eventStatus = "cancelled";
@@ -64,7 +70,9 @@ export abstract class BusEvent {
 			return E.void;
 		}
 
-		return E.all(this.completionHooks.map((hook) => hook(this))).pipe(
+		return E.all(
+			this.completionHooks.map((hook) => hook(() => this as any)),
+		).pipe(
 			E.andThen(
 				E.sync(() => {
 					this.eventStatus = "completed";

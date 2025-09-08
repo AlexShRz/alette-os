@@ -4,7 +4,7 @@ import { AggregateRequestMiddleware } from "../../../execution/events/preparatio
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
 import {
-	IRecoverableApiError,
+	IRecognizedRequestError,
 	TAddDefaultRequestErrors,
 } from "./RequestRecoverableErrors";
 import { ThrowsMiddleware } from "./ThrowsMiddleware";
@@ -35,7 +35,7 @@ export class ThrowsMiddlewareFactory extends Middleware(
 	static toFactory() {
 		return <
 			Context extends IRequestContext,
-			RecoverableErrors extends IRecoverableApiError[],
+			RecoverableErrors extends IRecognizedRequestError[],
 		>(
 			...errors: [...RecoverableErrors]
 		) => {
@@ -44,7 +44,6 @@ export class ThrowsMiddlewareFactory extends Middleware(
 				IRequestContext<
 					TAddDefaultRequestErrors<Context, RecoverableErrors>,
 					Context["value"],
-					Context["meta"],
 					Context["settings"],
 					Context["accepts"]
 				>,

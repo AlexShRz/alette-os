@@ -1,5 +1,6 @@
 export interface IRequestContext<
 	T = {
+		originalResultType: unknown;
 		resultType: unknown;
 		errorType: unknown;
 		/**
@@ -8,11 +9,9 @@ export interface IRequestContext<
 		 * handler type merging.
 		 * */
 		contextAdapter: {};
-	},
-	V = {},
-	M = {
 		recoverableErrors: unknown;
 	},
+	V = {},
 	S = {},
 	A = {},
 > {
@@ -27,10 +26,6 @@ export interface IRequestContext<
 	 * For example: origin, isOffline, etc.
 	 * */
 	value: V;
-	/**
-	 * Actual js values that are not visible to users (private request state)
-	 * */
-	meta: M;
 	/**
 	 * Middleware can allow users to tweak their behaviour
 	 * during each request execution. These behavioural settings

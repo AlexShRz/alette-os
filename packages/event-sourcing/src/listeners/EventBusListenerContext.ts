@@ -17,7 +17,7 @@ export class EventBusListenerContext extends E.Service<EventBusListenerContext>(
 			let toNext: IEventBusListenerContext["next"] | null = null;
 
 			return {
-				sendToBus(event: BusEvent) {
+				sendToBus<T extends BusEvent>(event: T) {
 					return E.gen(function* () {
 						if (!toEventBus) {
 							return yield* E.dieMessage(
@@ -28,7 +28,7 @@ export class EventBusListenerContext extends E.Service<EventBusListenerContext>(
 						return yield* toEventBus(event);
 					});
 				},
-				next(event: BusEvent) {
+				next<T extends BusEvent>(event: T) {
 					return E.gen(function* () {
 						if (!toNext) {
 							return yield* E.dieMessage(

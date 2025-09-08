@@ -3,7 +3,7 @@ import { IResponseValueDeserializer } from "./ResponseAdapterBuilder";
 import { ResponseRef } from "./ResponseRef";
 import { CannotParseResponseValueException } from "./errors/CannotParseResponseValueException";
 
-export class ResponseAdapter<Value> {
+export class ResponseAdapter<Value = unknown> {
 	constructor(
 		protected config: {
 			schema: ISchema<unknown, Value>;

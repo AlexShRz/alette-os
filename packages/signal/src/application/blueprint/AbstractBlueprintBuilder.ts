@@ -1,15 +1,20 @@
 import * as ManagedRuntime from "effect/ManagedRuntime";
-import { IMiddlewareSupplierFn } from "../../domain/middleware/IMiddlewareSupplierFn";
+import {
+	IMiddlewareSupplierFn,
+	IRuntimeMiddlewareSupplierFn,
+} from "../../domain/middleware/IMiddlewareSupplierFn";
 
 export abstract class AbstractBlueprintBuilder<R, ER> {
-	protected defaultMiddlewareFactories: IMiddlewareSupplierFn<
-		any,
-		any,
-		any,
-		any
-	>[] = [];
+	protected middlewareFactories: IMiddlewareSupplierFn<any, any, any, any>[] =
+		[];
 	protected blueprintRuntime: ManagedRuntime.ManagedRuntime<R, ER> | null =
 		null;
+
+	protected throwMiddlewareRequiredError(middlewareName: string) {
+		throw new Error(
+			`[RequestBlueprintBuilder] - "${middlewareName}()" required default middleware was not not provided.`,
+		);
+	}
 
 	protected assertRuntimeProvided(): asserts this is {
 		blueprintRuntime: ManagedRuntime.ManagedRuntime<R, ER>;
@@ -22,16 +27,22 @@ export abstract class AbstractBlueprintBuilder<R, ER> {
 	}
 
 	/**
-	 * Non typed version of "use", used for actually storing
+	 * Untyped version of "use", used for actually storing
 	 * middleware.
 	 * */
 	protected _use(
-		...middlewareFactories: typeof this.defaultMiddlewareFactories
+		...middlewareFactories: typeof this.middlewareFactories
 	): this {
-		this.defaultMiddlewareFactories = [
-			...this.defaultMiddlewareFactories,
+		this.middlewareFactories = [
+			...this.middlewareFactories,
 			...middlewareFactories,
 		];
 		return this;
+	}
+
+	protected buildMiddleware() {
+		return (
+			[...this.middlewareFactories] as IRuntimeMiddlewareSupplierFn[]
+		).map((supplier) => supplier()());
 	}
 }

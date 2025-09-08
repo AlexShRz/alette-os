@@ -1,3 +1,6 @@
-import { creationalMiddleware } from "../middleware";
+import { behaviouralMiddleware, creationalMiddleware } from "../middleware";
 
-export const allRequestMiddleware = [creationalMiddleware] as const;
+export const allRequestMiddleware = [
+	creationalMiddleware,
+	behaviouralMiddleware,
+] as const;

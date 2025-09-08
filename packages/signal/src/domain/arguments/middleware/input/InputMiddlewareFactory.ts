@@ -14,10 +14,6 @@ type Spec = typeof inputMiddlewareSpecification;
 export interface IInputMiddlewareArgSchema<Output = unknown>
 	extends ISchema<unknown, Output> {}
 
-export type InputMiddlewareArgProvider<Value = unknown> =
-	| (() => Value)
-	| undefined;
-
 export class InputMiddlewareFactory extends Middleware(
 	"InputMiddlewareFactory",
 )(
@@ -29,7 +25,7 @@ export class InputMiddlewareFactory extends Middleware(
 					send(event) {
 						return E.gen(this, function* () {
 							if (event instanceof AggregateRequestMiddleware) {
-								event.addMiddleware(getMiddleware());
+								event.replaceMiddleware([InputMiddleware], [getMiddleware()]);
 							}
 
 							return yield* context.next(event);
@@ -41,19 +37,17 @@ export class InputMiddlewareFactory extends Middleware(
 	static toFactory() {
 		return <Context extends IRequestContext, ArgType>(
 			argSchema: IInputMiddlewareArgSchema<ArgType>,
-			argSupplier?: InputMiddlewareArgProvider<ArgType>,
 		) => {
 			return toMiddlewareFactory<
 				Context,
 				IRequestContext<
 					Context["types"],
 					Context["value"],
-					Context["meta"],
 					TMergeRecords<Context["settings"], IRequestArguments<ArgType>>,
 					TMergeRecords<Context["accepts"], IRequestArguments<ArgType>>
 				>,
 				Spec
-			>(() => new InputMiddleware(argSchema, argSupplier));
+			>(() => new InputMiddleware(argSchema));
 		};
 	}
 }

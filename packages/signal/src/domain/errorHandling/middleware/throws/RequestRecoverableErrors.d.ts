@@ -3,19 +3,20 @@ import type { Ctor } from "effect/Types";
 import { IRequestContext } from "../../../context/IRequestContext";
 import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 
-export interface IRecoverableApiError<
+export interface IRecognizedRequestError<
 	Exception extends ApiException = ApiException,
 > extends Ctor<Exception> {}
 
-export type TGetRequestErrors<C extends IRequestContext> =
+export type TGetRecognizedRequestErrors<C extends IRequestContext> =
 	C["types"]["errorType"];
 
-type TExtractErrorInstances<ErrorsConstructors extends IRecoverableApiError[]> =
-	ErrorsConstructors extends IRecoverableApiError<infer E>[] ? E : never;
+type TExtractErrorInstances<
+	ErrorsConstructors extends IRecognizedRequestError[],
+> = ErrorsConstructors extends IRecognizedRequestError<infer E>[] ? E : never;
 
 export type TAddDefaultRequestErrors<
 	C extends IRequestContext,
-	ErrorsConstructors extends IRecoverableApiError[],
+	ErrorsConstructors extends IRecognizedRequestError[],
 	Errors = TExtractErrorInstances<ErrorsConstructors>,
 > = C["types"]["errorType"] extends ApiException
 	? TMergeRecords<

@@ -4,21 +4,24 @@ import * as Stream from "effect/Stream";
 import { IRequestContext } from "../../../domain/context/IRequestContext";
 import { TRequestArguments } from "../../../domain/context/typeUtils/RequestIOTypes";
 import { CancelRequest } from "../../../domain/execution/events/CancelRequest";
-import { RequestSessionEvent } from "../../../domain/execution/events/RequestSessionEvent";
+import { TSessionEvent } from "../../../domain/execution/events/SessionEvent";
+import { WithCurrentRequestOverride } from "../../../domain/execution/events/envelope/WithCurrentRequestOverride";
+import { WithReloadableCheck } from "../../../domain/execution/events/envelope/WithReloadableCheck";
+import { WithRunOnMountCheck } from "../../../domain/execution/events/envelope/WithRunOnMountCheck";
 import { RunRequest } from "../../../domain/execution/events/request/RunRequest";
 import { IRequestSessionSettingSupplier } from "../../../domain/execution/services/RequestSessionContext";
 import { RequestController } from "../../blueprint/controller/RequestController";
-import { PrepareRequestWorker } from "../../workflows/PrepareRequestWorker";
-import { OneShotRequestLifecycle } from "./OneShotRequestLifecycle";
+import { PrepareRequestWorker } from "../workflows/PrepareRequestWorker";
 import {
-	IOneShotRequestState,
+	ILocalOneShotRequestState,
 	OneShotRequestState,
 } from "./OneShotRequestState";
+import { OneShotRequestSupervisor } from "./OneShotRequestSupervisor";
 import { OneShotRequestWorker } from "./OneShotRequestWorker";
 
 export interface IOneShotRequestStateWithHandlers<
 	Context extends IRequestContext,
-> extends IOneShotRequestState<Context> {
+> extends ILocalOneShotRequestState<Context> {
 	execute: (...args: TRequestArguments<Context> | []) => void;
 	cancel: () => void;
 }
@@ -28,10 +31,10 @@ export class OneShotRequestController<
 	R,
 	ER,
 > extends RequestController<IOneShotRequestStateWithHandlers<Context>, R, ER> {
-	protected lifecycle = new OneShotRequestLifecycle<R, ER>(this.runtime);
+	protected supervisor = new OneShotRequestSupervisor<R, ER>(this.runtime);
 	protected state = new OneShotRequestState<Context, R, ER>(
 		this.runtime,
-		this.lifecycle,
+		this.supervisor,
 	);
 	protected worker: OneShotRequestWorker<R, ER>;
 
@@ -43,7 +46,7 @@ export class OneShotRequestController<
 		>,
 	) {
 		super(runtime);
-		this.worker = new OneShotRequestWorker(this.runtime, this.lifecycle, {
+		this.worker = new OneShotRequestWorker(this.runtime, this.supervisor, {
 			...workerConfig,
 			// TODO: Fix any
 			controller: this as any,
@@ -65,12 +68,12 @@ export class OneShotRequestController<
 			E.forkScoped,
 		);
 
-		this.lifecycle.spawnAndSupervise(task);
+		this.supervisor.spawnAndSupervise(task);
 	}
 
 	getInitialState(): IOneShotRequestStateWithHandlers<Context> {
 		return {
-			...this.state.getInitialStateSnapshot(),
+			...this.state.getState(),
 			cancel: this.cancelRequest.bind(this),
 			execute: this.executeRequest.bind(this),
 		};
@@ -78,7 +81,7 @@ export class OneShotRequestController<
 
 	/** @internal */
 	getScope() {
-		return this.lifecycle.getScope();
+		return this.supervisor.getScope();
 	}
 
 	/** @internal */
@@ -86,8 +89,8 @@ export class OneShotRequestController<
 		return this.state.getStateEventReceiver();
 	}
 
-	protected dispatch<T extends RequestSessionEvent>(event: T) {
-		this.lifecycle.spawnAndSupervise(this.worker.dispatch(event));
+	protected dispatch<T extends TSessionEvent>(event: T) {
+		this.supervisor.spawnAndSupervise(this.worker.dispatch(event));
 	}
 
 	protected cancelRequest() {
@@ -95,16 +98,26 @@ export class OneShotRequestController<
 	}
 
 	protected executeRequest(...args: TRequestArguments<Context>) {
-		const supplier = !args.length ? this.getSettingSupplier() : () => args;
-		this.dispatch(new RunRequest(supplier as IRequestSessionSettingSupplier));
+		const providedSupplier = this.getSettingSupplier();
+		const supplier =
+			!args.length && providedSupplier ? providedSupplier : () => args;
+		this.dispatch(
+			new WithCurrentRequestOverride(
+				new RunRequest(supplier as IRequestSessionSettingSupplier),
+			),
+		);
 	}
 
 	run() {
-		this.dispatch(new RunRequest(this.getSettingSupplier()));
+		this.dispatch(
+			new WithRunOnMountCheck(
+				new WithReloadableCheck(new RunRequest(this.getSettingSupplier())),
+			),
+		);
 	}
 
 	dispose() {
-		this.lifecycle.shutdown();
+		this.supervisor.shutdown();
 	}
 
 	/** @internal */

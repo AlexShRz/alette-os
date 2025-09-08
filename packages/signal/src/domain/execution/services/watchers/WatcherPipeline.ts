@@ -4,8 +4,9 @@ import * as E from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
 import * as Scope from "effect/Scope";
-import { RequestController } from "../../../application/blueprint/controller/RequestController";
-import { RequestWatcher } from "../../watchers/RequestWatcher";
+import { RequestController } from "../../../../application/blueprint/controller/RequestController";
+import { RequestWatcher } from "../../../watchers/RequestWatcher";
+import { TSessionEvent } from "../../events/SessionEvent";
 import { WatcherOrchestrator } from "./WatcherOrchestrator";
 
 interface IWatcherPipelineArgs {
@@ -33,6 +34,10 @@ export class WatcherPipeline extends E.Service<WatcherPipeline>()(
 				return {
 					getId() {
 						return id;
+					},
+
+					send<T extends TSessionEvent>(event: T) {
+						return pipeline.send(event);
 					},
 
 					shutdown() {

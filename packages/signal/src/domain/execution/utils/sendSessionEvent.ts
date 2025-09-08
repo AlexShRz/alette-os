@@ -1,6 +1,8 @@
-import { BusEvent, EventBus } from "@alette/event-sourcing";
+import { EventBus } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
 import { RequestSessionEvent } from "../events/RequestSessionEvent";
+import { TSessionEvent } from "../events/SessionEvent";
+import { SessionEventEnvelope } from "../events/SessionEventEnvelope";
 import { RequestSession } from "../services/RequestSession";
 
 /**
@@ -8,11 +10,14 @@ import { RequestSession } from "../services/RequestSession";
  * 2. It must provide current request id to them, otherwise the
  * whole program will crash.
  * */
-export const sendSessionEvent = (event: RequestSessionEvent | BusEvent) =>
+export const sendSessionEvent = <T extends TSessionEvent>(event: T) =>
 	E.gen(function* () {
 		const bus = yield* E.serviceOptional(EventBus);
+		const isSessionRelated =
+			event instanceof RequestSessionEvent ||
+			event instanceof SessionEventEnvelope;
 
-		if (!(event instanceof RequestSessionEvent)) {
+		if (!isSessionRelated) {
 			return yield* bus.send(event);
 		}
 

@@ -12,8 +12,8 @@ it.scoped("can intercept events", () =>
 		const executionOrder: number[] = [];
 		const intercepted: string[] = [];
 
-		const event1 = new DummyEvent(id1);
-		const event2 = new DummyEvent(id2);
+		const event1 = new DummyEvent([], id1);
+		const event2 = new DummyEvent([], id2);
 
 		const Interceptor = EventInterceptor.make((e) =>
 			E.gen(function* () {
@@ -85,8 +85,8 @@ it.scoped("can intercept events across nested event buses", () =>
 		const intercepted: string[] = [];
 		let interceptors = 0;
 
-		const event1 = new DummyEvent(id1);
-		const event2 = new DummyEvent(id2);
+		const event1 = new DummyEvent([], id1);
+		const event2 = new DummyEvent([], id2);
 
 		const Interceptor = EventInterceptor.make((e) =>
 			E.gen(function* () {

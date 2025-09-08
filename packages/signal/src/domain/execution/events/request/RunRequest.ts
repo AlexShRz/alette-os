@@ -1,9 +1,6 @@
 import * as E from "effect/Effect";
 import { RequestSession } from "../../services/RequestSession";
-import {
-	IRequestSessionSettingSupplier,
-	RequestSessionContext,
-} from "../../services/RequestSessionContext";
+import { IRequestSessionSettingSupplier } from "../../services/RequestSessionContext";
 import { RequestSessionEvent } from "../RequestSessionEvent";
 
 /**
@@ -23,19 +20,26 @@ export class RunRequest extends RequestSessionEvent {
 		this.onComplete(() => this.provideRequestContext());
 	}
 
+	getSettingSupplier() {
+		return this.settingSupplier;
+	}
+
+	updateContextProvider(
+		provider: (old: typeof this.contextProvider) => typeof this.contextProvider,
+	) {
+		this.contextProvider = provider(this.contextProvider);
+		return this;
+	}
+
 	protected provideRequestContext() {
 		return E.gen(this, function* () {
 			const session = yield* E.serviceOptional(RequestSession);
-			const sessionContext = yield* E.serviceOptional(RequestSessionContext);
 			/**
 			 * 1. Prepare initial request data.
 			 * 2. Request id update should be first
 			 * to prevent accidental data wipe.
 			 * */
 			yield* session.setRequestId(this.getRequestId()).pipe(
-				E.andThen(() =>
-					sessionContext.setSettingSupplier(this.settingSupplier),
-				),
 				/**
 				 * 1. Must be last.
 				 * 2. We need to make sure all context provide effects
@@ -46,7 +50,7 @@ export class RunRequest extends RequestSessionEvent {
 		}).pipe(E.orDie);
 	}
 
-	clone() {
+	protected _clone() {
 		/**
 		 * Context provider should be wiped, there's no reason preserve it:
 		 * 1. Because we transfer our requestId, the context
@@ -54,6 +58,7 @@ export class RunRequest extends RequestSessionEvent {
 		 * 2. Because of that, calling contextProvider multiple times will
 		 * result only in duplicate session data/accidental session data wipe.
 		 * */
-		return new RunRequest(this.settingSupplier) as this;
+		const self = new RunRequest(this.settingSupplier);
+		return self as this;
 	}
 }

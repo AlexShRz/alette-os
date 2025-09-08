@@ -22,3 +22,12 @@ export interface IMiddlewareSupplierFn<
 		middleware: RequestMiddleware<NextContext, MiddlewareSpec>,
 	) => typeof middleware;
 }
+
+/**
+ * 1. Represents actual middleware provider fns
+ * we need to call in our code to get provided
+ * middleware factories
+ * */
+export interface IRuntimeMiddlewareSupplierFn {
+	(): () => RequestMiddleware<any, any>;
+}

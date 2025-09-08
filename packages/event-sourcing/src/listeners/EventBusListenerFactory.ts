@@ -22,16 +22,17 @@ export class EventBusListenerFactory<
 		T extends string,
 		A extends EventBusListener,
 		I extends IEventBusListener,
+		E,
 	>(tag: T, passedConfig: Partial<IEventBusListenerFactoryConfig> = {}) {
 		return <Args extends any[], R>(
-			factory: (...args: Args) => IEventBusListenerFactory<I, R>,
+			factory: (...args: Args) => IEventBusListenerFactory<I, E, R>,
 		) =>
 			class extends EventBusListenerFactory<T, A, R> {
 				constructor(...factoryArgs: Args extends [] ? [] : Args) {
 					super(
 						tag,
 						() =>
-							EventBusListener.make<I, R>(factory(...(factoryArgs as Args))),
+							EventBusListener.make<I, E, R>(factory(...(factoryArgs as Args))),
 						passedConfig,
 					);
 				}

@@ -4,7 +4,7 @@ import * as FiberSet from "effect/FiberSet";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Scope from "effect/Scope";
 
-export abstract class RequestControllerLifecycle<R, ER> {
+export abstract class RequestControllerSupervisor<R, ER> {
 	/**
 	 * Scope and fibers
 	 * */

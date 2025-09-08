@@ -1,29 +1,34 @@
 import * as E from "effect/Effect";
 import * as P from "effect/Predicate";
-import * as SyncRef from "effect/SynchronizedRef";
+import * as SynchronizedRef from "effect/SynchronizedRef";
+import { RunRequest } from "../../../execution/events/request/RunRequest";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { Middleware } from "../../../middleware/Middleware";
+import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
 import { getOrCreateUrlContext } from "../getOrCreateUrlContext";
 import { TPathMiddlewareArgs } from "./PathMiddlewareFactory";
 
-export class PathMiddleware extends Middleware("PathMiddleware")(
+export class PathMiddleware extends Middleware("PathMiddleware", {
+	priority: MiddlewarePriority.Creational,
+})(
 	(args: TPathMiddlewareArgs) =>
-		({ parent }) =>
+		({ parent, context }) =>
 			E.gen(function* () {
 				const requestContext = yield* E.serviceOptional(RequestSessionContext);
 
-				const updateUrlContext = E.gen(function* () {
+				const updatePath = E.fn(function* () {
 					const urlContext = yield* getOrCreateUrlContext();
 					const contextSnapshot = yield* requestContext.getSnapshot();
 
-					yield* SyncRef.getAndUpdateEffect(urlContext, (url) =>
+					yield* SynchronizedRef.getAndUpdateEffect(urlContext, (url) =>
 						E.gen(function* () {
 							const state = url.getState();
 							const adapter = url.getAdapter();
 
-							const updatedPath = P.isFunction(args)
-								? args(state.getPath(), contextSnapshot)
-								: args;
+							const getUpdatedPath = P.isFunction(args)
+								? async () => await args(state.getPath(), contextSnapshot)
+								: async () => args;
+							const updatedPath = yield* E.promise(getUpdatedPath);
 
 							adapter.setPath(updatedPath);
 							return url;
@@ -33,6 +38,19 @@ export class PathMiddleware extends Middleware("PathMiddleware")(
 
 				return {
 					...parent,
+					send(event) {
+						return E.gen(this, function* () {
+							if (!(event instanceof RunRequest)) {
+								return yield* context.next(event);
+							}
+
+							return yield* context.next(
+								event.updateContextProvider((provider) =>
+									provider.pipe(E.andThen(updatePath)),
+								),
+							);
+						});
+					},
 				};
-			}).pipe(E.orDie),
+			}),
 ) {}

@@ -23,4 +23,12 @@ export abstract class RequestSessionEvent extends BusEvent {
 		this.requestId = id;
 		return this;
 	}
+
+	protected abstract _clone(): this;
+
+	clone() {
+		const self = this._clone();
+		self.requestId = this.requestId;
+		return self;
+	}
 }

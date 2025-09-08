@@ -4,24 +4,26 @@ import * as E from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Scope from "effect/Scope";
 import { v4 as uuid } from "uuid";
-import { IRequestContext } from "../../domain/context/IRequestContext";
-import { RequestThreadRegistry } from "../../domain/execution/RequestThreadRegistry";
+import { IRequestContext } from "../../../domain/context/IRequestContext";
+import { RequestThreadRegistry } from "../../../domain/execution/RequestThreadRegistry";
 import {
 	RequestWorker,
 	TRequestMode,
-} from "../../domain/execution/RequestWorker";
-import { AggregateRequestMiddleware } from "../../domain/execution/events/preparation/AggregateRequestMiddleware";
-import { AggregateRequestWatchers } from "../../domain/execution/events/preparation/AggregateRequestWatchers";
-import { ChooseRequestWorker } from "../../domain/execution/events/preparation/ChooseRequestWorker";
-import { WatcherPipeline } from "../../domain/execution/services/WatcherPipeline";
-import { RequestWatcher } from "../../domain/watchers/RequestWatcher";
-import { RequestController } from "../blueprint/controller/RequestController";
-import { QueryTaskBuilder } from "../plugins/tasks/primitive/QueryTaskBuilder";
-import { queryTask } from "../plugins/tasks/primitive/functions";
+} from "../../../domain/execution/RequestWorker";
+import { AggregateRequestMiddleware } from "../../../domain/execution/events/preparation/AggregateRequestMiddleware";
+import { AggregateRequestWatchers } from "../../../domain/execution/events/preparation/AggregateRequestWatchers";
+import { ChooseRequestWorker } from "../../../domain/execution/events/preparation/ChooseRequestWorker";
+import { WatcherPipeline } from "../../../domain/execution/services/watchers/WatcherPipeline";
+import { RequestMiddleware } from "../../../domain/middleware/RequestMiddleware";
+import { RequestWatcher } from "../../../domain/watchers/RequestWatcher";
+import { RequestController } from "../../blueprint/controller/RequestController";
+import { QueryTaskBuilder } from "../../plugins/tasks/primitive/QueryTaskBuilder";
+import { queryTask } from "../../plugins/tasks/primitive/functions";
 
 interface IPrepareRequestWorkerArgs<Context extends IRequestContext> {
 	threadId: string;
 	requestMode: TRequestMode;
+	defaultMiddleware: RequestMiddleware[];
 	controller: RequestController<Context>;
 }
 
@@ -32,6 +34,7 @@ export class PrepareRequestWorker extends Context.Tag("PrepareRequestWorker")<
 	static make<Context extends IRequestContext>({
 		controller,
 		requestMode,
+		defaultMiddleware,
 		threadId: workerSupervisor,
 	}: IPrepareRequestWorkerArgs<Context>) {
 		return Layer.effect(
@@ -67,13 +70,14 @@ export class PrepareRequestWorker extends Context.Tag("PrepareRequestWorker")<
 						}
 
 						yield* worker.addWatchers(
+							requestControllerId,
 							createWatcherPipeline(watchers.getWatchers()),
 						);
 					});
 
 				const createRequestWorkerLayer = E.gen(function* () {
 					const aggregatedMiddleware = yield* controllerEventBus.send(
-						new AggregateRequestMiddleware(),
+						new AggregateRequestMiddleware([...defaultMiddleware]),
 					);
 
 					if (!(aggregatedMiddleware instanceof AggregateRequestMiddleware)) {

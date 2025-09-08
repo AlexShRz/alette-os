@@ -18,16 +18,15 @@
 		"@alette/event-sourcing": "workspace:*",
 		"@alette/pulse": "workspace:*"
 	},
-	"files": [
-		"dist",
-		"!**/*.tsbuildinfo"
-	],
+	"files": ["dist", "!**/*.tsbuildinfo"],
 	"peerDependencies": {
 		"effect": "^3.17.8",
+		"lodash.isequal": "^4.5.0",
 		"uuid": "^11.1.0"
 	},
 	"devDependencies": {
 		"@effect/vitest": "^0.24.1",
-		"ts-toolbelt": "6.13.11"
+		"ts-toolbelt": "6.13.11",
+		"@types/lodash.isequal": "^4.5.8"
 	}
 }
