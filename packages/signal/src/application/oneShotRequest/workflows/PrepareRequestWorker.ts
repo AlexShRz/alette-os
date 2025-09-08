@@ -13,6 +13,7 @@ import {
 import { AggregateRequestMiddleware } from "../../../domain/execution/events/preparation/AggregateRequestMiddleware";
 import { AggregateRequestWatchers } from "../../../domain/execution/events/preparation/AggregateRequestWatchers";
 import { ChooseRequestWorker } from "../../../domain/execution/events/preparation/ChooseRequestWorker";
+import { TransactionManager } from "../../../domain/execution/services/TransactionManager";
 import { WatcherPipeline } from "../../../domain/execution/services/watchers/WatcherPipeline";
 import { RequestMiddleware } from "../../../domain/middleware/RequestMiddleware";
 import { RequestWatcher } from "../../../domain/watchers/RequestWatcher";
@@ -42,6 +43,7 @@ export class PrepareRequestWorker extends Context.Tag("PrepareRequestWorker")<
 			E.gen(function* () {
 				const workflowScope = yield* E.scope;
 				const controllerEventBus = yield* EventBus;
+				const transactionManager = yield* TransactionManager;
 				const requestControllerId = controller.getId();
 				const requestId = uuid();
 
@@ -77,7 +79,7 @@ export class PrepareRequestWorker extends Context.Tag("PrepareRequestWorker")<
 
 				const createRequestWorkerLayer = E.gen(function* () {
 					const aggregatedMiddleware = yield* controllerEventBus.send(
-						new AggregateRequestMiddleware([...defaultMiddleware]),
+						new AggregateRequestMiddleware(),
 					);
 
 					if (!(aggregatedMiddleware instanceof AggregateRequestMiddleware)) {
@@ -97,29 +99,46 @@ export class PrepareRequestWorker extends Context.Tag("PrepareRequestWorker")<
 					const threadRegistry = yield* E.serviceOptional(
 						RequestThreadRegistry,
 					);
-					const thread = yield* threadRegistry.getOrThrow(workerSupervisor);
-					const allWorkers = yield* thread.getIdsOfSupervisedWorkers();
 
-					const result = yield* controllerEventBus.send(
-						new ChooseRequestWorker({
-							preferred: requestId,
-							availableWorkerIds: allWorkers,
+					/**
+					 * IMPORTANT:
+					 * 1. Worker acquisition MUST be wrapped in a transaction.
+					 * 2. For example, 10000 requests might require the same worker.
+					 * It makes no sense to run the same worker acquisition 10000 times -
+					 * we will encounter multiple concurrency issues, etc.
+					 * */
+					return yield* transactionManager.run(
+						`PrepareRequestWorker-acquireWorker-${workerSupervisor}`,
+						E.gen(function* () {
+							const thread = yield* threadRegistry.getOrThrow(workerSupervisor);
+							const allWorkers = yield* thread.getIdsOfSupervisedWorkers();
+
+							const result = yield* controllerEventBus.send(
+								new ChooseRequestWorker({
+									preferred: requestId,
+									availableWorkerIds: allWorkers,
+								}),
+							);
+
+							if (!(result instanceof ChooseRequestWorker)) {
+								return yield* E.dieMessage(
+									'Expected returned event to be of type "ChooseRequestWorker"',
+								);
+							}
+
+							const workerId = result.getPreferredWorker();
+							const workerLayer = yield* createRequestWorkerLayer;
+							return yield* thread.getOrCreateWorkerFrom(workerId, workerLayer);
 						}),
 					);
-
-					if (!(result instanceof ChooseRequestWorker)) {
-						return yield* E.dieMessage(
-							'Expected returned event to be of type "ChooseRequestWorker"',
-						);
-					}
-
-					const workerId = result.getPreferredWorker();
-					const workerLayer = yield* createRequestWorkerLayer;
-					return yield* thread.getOrCreateWorkerFrom(workerId, workerLayer);
 				}).pipe(E.orDie);
 
 				const task = E.gen(function* () {
 					const worker = yield* createOrGetRequestWorker;
+					/**
+					 * Unique for each request,
+					 * no transaction is needed.
+					 * */
 					yield* attachRequestWatcherPipeline({
 						worker,
 						createWatcherPipeline: (watchers) =>

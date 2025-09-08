@@ -4,6 +4,7 @@ import { PluginRegistry } from "../application/plugins/registry/PluginRegistry";
 import { TaskScheduler } from "../application/plugins/tasks/TaskScheduler";
 import { GlobalContext } from "../domain/context/services/GlobalContext";
 import { RequestThreadRegistry } from "../domain/execution/RequestThreadRegistry";
+import { TransactionManager } from "../domain/execution/services/TransactionManager";
 import { GlobalUrlConfig } from "../domain/url/services/GlobalUrlConfig";
 
 export class KernelTaskRunner extends E.Service<KernelTaskRunner>()(
@@ -19,6 +20,7 @@ export class KernelTaskRunner extends E.Service<KernelTaskRunner>()(
 			RequestThreadRegistry.Default,
 			GlobalContext.Default,
 			GlobalUrlConfig.Default,
+			TransactionManager.Default,
 		],
 		scoped: E.gen(function* () {
 			const taskScheduler = yield* TaskScheduler;
@@ -27,6 +29,8 @@ export class KernelTaskRunner extends E.Service<KernelTaskRunner>()(
 			 * Run each task in sequence, one by one:
 			 * 1. Until a task is finished/failed, we cannot move on to the
 			 * next one.
+			 * 2. Next concurrent tasks MUST WAIT if we are running a sync
+			 * task at the moment.
 			 * */
 			yield* taskScheduler.take().pipe(
 				Stream.runForEach((task) =>

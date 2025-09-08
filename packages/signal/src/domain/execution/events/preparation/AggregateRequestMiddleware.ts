@@ -3,7 +3,9 @@ import type { Ctor } from "effect/Types";
 import { RequestMiddleware } from "../../../middleware/RequestMiddleware";
 
 export class AggregateRequestMiddleware extends BusEvent {
-	constructor(protected aggregatedMiddleware: RequestMiddleware[] = []) {
+	protected aggregatedMiddleware: RequestMiddleware[] = [];
+
+	constructor() {
 		super();
 	}
 

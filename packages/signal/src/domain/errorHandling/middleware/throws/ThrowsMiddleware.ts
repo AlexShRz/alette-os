@@ -1,4 +1,3 @@
-import { IEventBusListener } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
 import { ApplyRequestState } from "../../../execution/events/request/ApplyRequestState";
 import { RequestState } from "../../../execution/events/request/RequestState";

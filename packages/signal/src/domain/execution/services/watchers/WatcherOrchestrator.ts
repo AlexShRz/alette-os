@@ -46,7 +46,7 @@ export class WatcherOrchestrator extends E.Service<WatcherOrchestrator>()(
 
 			yield* timeline.broadcast().pipe(
 				/**
-				 * When a new events is received,
+				 * When a new event is received,
 				 * broadcast it to every watcher pipeline
 				 * */
 				Stream.runForEach((event) =>
