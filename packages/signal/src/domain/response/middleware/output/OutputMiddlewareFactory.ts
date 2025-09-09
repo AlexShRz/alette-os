@@ -50,7 +50,13 @@ export class OutputMiddlewareFactory extends Middleware(
 					Context["accepts"]
 				>,
 				typeof outputMiddlewareSpecification
-			>(() => new OutputMiddleware(schemaOrAdapter as TOutputMiddlewareArgs));
+			>(
+				() =>
+					new OutputMiddlewareFactory(
+						() =>
+							new OutputMiddleware(schemaOrAdapter as TOutputMiddlewareArgs),
+					),
+			);
 		};
 	}
 }

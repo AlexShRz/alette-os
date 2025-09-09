@@ -11,5 +11,4 @@ export class RequestWatcher<
 		IAnyMiddlewareSpecification = IAnyMiddlewareSpecification,
 	Tag extends string = string,
 	A extends EventBusListener = EventBusListener,
-	R = never,
-> extends EventBusListenerFactory<Tag, A, R> {}
+> extends EventBusListenerFactory<Tag, A> {}

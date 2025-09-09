@@ -228,3 +228,22 @@ it.scoped("allows to extend the chain with custom 'broadcast' function", () =>
 		expect(result).toEqual(event);
 	}),
 );
+
+it.scoped("passes events through the chain even without listeners", () =>
+	E.gen(function* () {
+		const eventBus = yield* EventBus.makeAsValue(EventBus.Default([]));
+
+		const event = new DummyEvent();
+		let tappedEventId: string | null = null;
+
+		eventBus.broadcast((e) =>
+			E.gen(function* () {
+				tappedEventId = e.getId();
+			}),
+		);
+
+		const result = yield* eventBus.send(event);
+		expect(tappedEventId).toEqual(event.getId());
+		expect(result).toEqual(event);
+	}),
+);

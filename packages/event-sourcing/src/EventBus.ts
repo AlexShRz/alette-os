@@ -12,8 +12,8 @@ import { EventBusPipelineBuilder, ILastEventExtractor } from "./pipeline";
 
 export class EventBus extends E.Service<EventBus>()("EventBus", {
 	dependencies: [EventBusPipelineBuilder.Default],
-	scoped: <A extends EventBusListener = EventBusListener, R = never>(
-		providedListeners: EventBusListenerFactory<string, A, R>[],
+	scoped: <A extends EventBusListener = EventBusListener>(
+		providedListeners: EventBusListenerFactory<string, A>[],
 	) =>
 		E.gen(function* () {
 			const id = uuid();

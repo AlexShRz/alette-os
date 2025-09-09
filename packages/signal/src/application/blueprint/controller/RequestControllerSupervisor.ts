@@ -29,12 +29,13 @@ export abstract class RequestControllerSupervisor<R, ER> {
 			never
 		>;
 
-		return this.runtime.runSync(
-			FiberSet.run(this.supervisedFibers, scopedTask),
-		);
+		const supervisedTask = this.runtime.runFork(scopedTask);
+		this.runtime.runFork(FiberSet.add(this.supervisedFibers, supervisedTask));
+
+		return this.runtime.runFork(supervisedTask);
 	}
 
 	shutdown() {
-		this.runtime.runSync(Scope.close(this.scope, Exit.void));
+		this.runtime.runFork(Scope.close(this.scope, Exit.void));
 	}
 }

@@ -52,7 +52,12 @@ export class PathMiddlewareFactory extends Middleware("PathMiddlewareFactory")(
 					Context["accepts"]
 				>,
 				typeof pathMiddlewareSpecification
-			>(() => new PathMiddleware(args as TPathMiddlewareArgs));
+			>(
+				() =>
+					new PathMiddlewareFactory(
+						() => new PathMiddleware(args as TPathMiddlewareArgs),
+					),
+			);
 		};
 	}
 }

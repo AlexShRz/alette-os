@@ -1,4 +1,4 @@
-import { BusEvent } from "../events";
+import { BusEvent } from "./index";
 
 export type TMaybeWrappedEvent<T extends BusEvent = BusEvent> =
 	| T
@@ -21,28 +21,36 @@ export abstract class EventEnvelope<
 	}
 
 	getWrappedEvent() {
-		return this.unwrapLayers(this.config.wrapped);
+		return this.unwrapAllLayers(this.config.wrapped);
 	}
 
 	peel() {
 		return this.config.wrapped;
 	}
 
-	protected unwrapLayers(event: TMaybeWrappedEvent<T>): T {
+	protected unwrapAllLayers(event: TMaybeWrappedEvent<T>): T {
 		return this.isUnwrappedEvent(event)
 			? event
-			: this.unwrapLayers(event.getWrappedEvent());
+			: this.unwrapAllLayers(event.getWrappedEvent());
 	}
 
-	protected forEachWrapped(
+	protected forEachEventLayer(
 		fn: (prevEvent: TMaybeWrappedEvent<T>) => TMaybeWrappedEvent<T>,
-		prevEvent: TMaybeWrappedEvent<T>,
 	) {
-		const returned = fn(prevEvent);
-		if (this.isUnwrappedEvent(returned)) {
-			return;
-		}
+		const iterate = (prevEvent: TMaybeWrappedEvent<T>) => {
+			const returned = fn(prevEvent);
 
-		this.forEachWrapped(fn, returned.getWrappedEvent());
+			/**
+			 * If we've reached the last wrapped event
+			 * stop the loop.
+			 * */
+			if (this.isUnwrappedEvent(returned)) {
+				return;
+			}
+
+			return iterate(returned.peel());
+		};
+
+		return iterate(this.config.wrapped);
 	}
 }

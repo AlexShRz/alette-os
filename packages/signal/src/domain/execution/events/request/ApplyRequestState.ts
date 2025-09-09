@@ -16,7 +16,7 @@ export class ApplyRequestState<
 	}
 
 	getResult() {
-		return this.state.data;
+		return this.state.data?.unsafeGet() ?? null;
 	}
 
 	getError() {

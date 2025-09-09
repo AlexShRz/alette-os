@@ -9,17 +9,17 @@ export abstract class SessionEventEnvelope<
 	implements IRequestSessionEvent
 {
 	hasRequestId() {
-		return this.getWrappedEvent().getRequestId() !== null;
+		return this.getWrappedEvent().unsafeGetRequestId() !== null;
 	}
 
 	setRequestId(id: string) {
-		this.forEachWrapped((e) => {
+		this.forEachEventLayer((e) => {
 			if (e instanceof RequestSessionEvent) {
 				e.setRequestId(id);
 			}
 
 			return e;
-		}, this.config.wrapped);
+		});
 		return this;
 	}
 }

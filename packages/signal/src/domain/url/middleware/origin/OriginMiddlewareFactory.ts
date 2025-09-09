@@ -54,7 +54,12 @@ export class OriginMiddlewareFactory extends Middleware(
 					Context["accepts"]
 				>,
 				typeof originMiddlewareSpecification
-			>(() => new OriginMiddleware(args as TOriginMiddlewareArgs));
+			>(
+				() =>
+					new OriginMiddlewareFactory(
+						() => new OriginMiddleware(args as TOriginMiddlewareArgs),
+					),
+			);
 		};
 	}
 }

@@ -47,7 +47,7 @@ export class InputMiddlewareFactory extends Middleware(
 					TMergeRecords<Context["accepts"], IRequestArguments<ArgType>>
 				>,
 				Spec
-			>(() => new InputMiddleware(argSchema));
+			>(() => new InputMiddlewareFactory(() => new InputMiddleware(argSchema)));
 		};
 	}
 }

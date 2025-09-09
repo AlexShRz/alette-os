@@ -35,7 +35,12 @@ export class RunOnMountMiddlewareFactory extends Middleware(
 				Context,
 				Context,
 				typeof runOnMountMiddlewareSpecification
-			>(() => new RunOnMountMiddleware(isEnabled));
+			>(
+				() =>
+					new RunOnMountMiddlewareFactory(
+						() => new RunOnMountMiddleware(isEnabled),
+					),
+			);
 		};
 	}
 }

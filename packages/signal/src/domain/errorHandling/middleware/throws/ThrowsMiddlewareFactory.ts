@@ -10,8 +10,6 @@ import {
 import { ThrowsMiddleware } from "./ThrowsMiddleware";
 import { throwsMiddlewareSpecification } from "./throwsMiddlewareSpecification";
 
-type Spec = typeof throwsMiddlewareSpecification;
-
 export class ThrowsMiddlewareFactory extends Middleware(
 	"ThrowsMiddlewareFactory",
 )(
@@ -47,8 +45,8 @@ export class ThrowsMiddlewareFactory extends Middleware(
 					Context["settings"],
 					Context["accepts"]
 				>,
-				Spec
-			>(() => new ThrowsMiddleware(errors));
+				typeof throwsMiddlewareSpecification
+			>(() => new ThrowsMiddlewareFactory(() => new ThrowsMiddleware(errors)));
 		};
 	}
 }

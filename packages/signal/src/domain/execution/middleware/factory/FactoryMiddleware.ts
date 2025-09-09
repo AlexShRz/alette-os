@@ -9,6 +9,7 @@ import { RequestState } from "../../events/request/RequestState";
 import { RunRequest } from "../../events/request/RunRequest";
 import { RequestRunner } from "../../services/RequestRunner";
 import { RequestSessionContext } from "../../services/RequestSessionContext";
+import { attachRequestId } from "../../utils/attachRequestId";
 import { IRequestRunner } from "./FactoryMiddlewareFactory";
 
 export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
@@ -48,13 +49,17 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 							});
 
 						yield* requestRunner.supervise(
-							E.promise(() => runner()).pipe(
-								E.andThen((response) =>
-									context.sendToBus(RequestState.Succeeded(response)),
-								),
-								E.catchAllDefect((e) =>
-									E.gen(function* () {
-										yield* context.sendToBus(RequestState.Failed(e));
+							E.gen(function* () {
+								const response = yield* E.promise(() => runner());
+								yield* context.sendToBus(
+									yield* attachRequestId(RequestState.Succeeded(response)),
+								);
+							}).pipe(
+								E.catchAllDefect(
+									E.fn(function* (e) {
+										yield* context.sendToBus(
+											yield* attachRequestId(RequestState.Failed(e)),
+										);
 									}),
 								),
 							),
@@ -104,5 +109,5 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 						});
 					},
 				} satisfies IEventBusListener;
-			}).pipe(E.provide(RequestRunner.make())),
+			}).pipe(E.orDie, E.provide(RequestRunner.make())),
 ) {}

@@ -2,8 +2,8 @@ import { ManagedRuntime } from "effect";
 import * as E from "effect/Effect";
 import { TSessionEvent } from "../../../domain/execution/events/SessionEvent";
 import { RequestControllerWorker } from "../../blueprint/controller/RequestControllerWorker";
-import { PluginMailbox } from "../../plugins/PluginMailbox";
-import { PrepareRequestWorker } from "../workflows/PrepareRequestWorker";
+import { PrepareRequestWorker } from "../workflows/prepareRequestWorker/PrepareRequestWorker";
+import { PrepareRequestWorkerArguments } from "../workflows/prepareRequestWorker/PrepareRequestWorkerArguments";
 import { OneShotRequestSupervisor } from "./OneShotRequestSupervisor";
 
 export class OneShotRequestWorker<R, ER> extends RequestControllerWorker<
@@ -13,20 +13,18 @@ export class OneShotRequestWorker<R, ER> extends RequestControllerWorker<
 	constructor(
 		runtime: ManagedRuntime.ManagedRuntime<R, ER>,
 		lifecycle: OneShotRequestSupervisor<R, ER>,
-		protected config: Parameters<typeof PrepareRequestWorker.make>[number],
+		protected config: Omit<PrepareRequestWorkerArguments["Type"], "threadId">,
 	) {
 		super(runtime, lifecycle);
 		this.prepare();
 	}
 
 	protected prepare() {
-		const task = E.gen(function* () {
-			const pluginMailbox = yield* PluginMailbox;
-			const workflow = yield* PrepareRequestWorker;
-			return yield* pluginMailbox.sendQuery(workflow);
-		}).pipe(E.provide(PrepareRequestWorker.make(this.config)));
-
-		return this.lifecycle.spawnAndSupervise(task);
+		return this.lifecycle.spawnAndSupervise(
+			PrepareRequestWorker.send(this.config).pipe(
+				E.andThen((worker) => this.setWorker(worker)),
+			),
+		);
 	}
 
 	dispatch<T extends TSessionEvent>(event: T) {

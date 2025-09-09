@@ -1,3 +1,4 @@
+import { IEventBusListener } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
 import * as P from "effect/Predicate";
 import isEqual from "lodash.isequal";
@@ -80,6 +81,6 @@ export class ReloadableMiddleware extends Middleware("ReloadableMiddleware", {
 							return yield* context.next(event.peel());
 						});
 					},
-				};
+				} satisfies IEventBusListener;
 			}),
 ) {}

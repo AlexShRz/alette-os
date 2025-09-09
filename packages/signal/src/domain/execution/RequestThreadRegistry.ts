@@ -10,6 +10,11 @@ export class RequestThreadRegistry extends E.Service<RequestThreadRegistry>()(
 	{
 		scoped: E.gen(function* () {
 			const scope = yield* E.scope;
+			/**
+			 * 1. MUST be put inside SynchronizedRef
+			 * 2. Multiple requests will try to access thread data
+			 * concurrently (can be up to 10k requests or more)
+			 * */
 			const threads = yield* SynchronizedRef.make<Map<string, RequestThread>>(
 				new Map(),
 			);
@@ -37,21 +42,20 @@ export class RequestThreadRegistry extends E.Service<RequestThreadRegistry>()(
 					);
 				},
 
-				upsert(threadId: string, thread: Layer.Layer<RequestThread>) {
+				getOrCreate(threadId: string, thread: Layer.Layer<RequestThread>) {
 					return SynchronizedRef.getAndUpdateEffect(threads, (values) =>
 						E.gen(function* () {
 							const currentThread = values.get(threadId);
 
 							if (currentThread) {
-								yield* currentThread.shutdown();
+								return values;
 							}
 
 							const newThread = yield* RequestThread.makeAsValue(thread);
 							values.set(threadId, newThread);
-
 							return values;
 						}).pipe(Scope.extend(scope)),
-					);
+					).pipe(E.andThen(() => this.getOrThrow(threadId)));
 				},
 
 				remove(threadId: string) {

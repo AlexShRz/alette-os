@@ -11,7 +11,7 @@ import { WithRunOnMountCheck } from "../../../domain/execution/events/envelope/W
 import { RunRequest } from "../../../domain/execution/events/request/RunRequest";
 import { IRequestSessionSettingSupplier } from "../../../domain/execution/services/RequestSessionContext";
 import { RequestController } from "../../blueprint/controller/RequestController";
-import { PrepareRequestWorker } from "../workflows/PrepareRequestWorker";
+import { PrepareRequestWorkerArguments } from "../workflows/prepareRequestWorker/PrepareRequestWorkerArguments";
 import {
 	ILocalOneShotRequestState,
 	OneShotRequestState,
@@ -41,8 +41,8 @@ export class OneShotRequestController<
 	constructor(
 		runtime: ManagedRuntime.ManagedRuntime<R, ER>,
 		workerConfig: Omit<
-			Parameters<typeof PrepareRequestWorker.make>[number],
-			"controller"
+			PrepareRequestWorkerArguments["Type"],
+			"controller" | "threadId"
 		>,
 	) {
 		super(runtime);

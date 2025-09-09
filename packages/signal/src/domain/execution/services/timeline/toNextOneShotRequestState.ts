@@ -1,0 +1,106 @@
+import { RequestInterruptedException } from "../../../../shared/exception/RequestInterruptedException";
+import { IRequestContext } from "../../../context/IRequestContext";
+import { ApplyRequestState } from "../../events/request/ApplyRequestState";
+import { RequestState } from "../../events/request/RequestState";
+import { IOneShotRequestState } from "../../state/IOneShotRequestState";
+
+export const toNextOneShotRequestState = <T extends ApplyRequestState | null>(
+	lastEvent: T,
+	event: ApplyRequestState,
+) => {
+	if (!(event instanceof ApplyRequestState)) {
+		return lastEvent;
+	}
+
+	const defaultState: IOneShotRequestState.Any = {
+		...(lastEvent?.getState() || {}),
+	};
+
+	/**
+	 * 1. Do not change "data" or "error" props here.
+	 * 2. This approach allows for "stale-while-revalidate"
+	 * pattern to be applied.
+	 * */
+	if (RequestState.isLoading(event)) {
+		return new ApplyRequestState<IRequestContext, IOneShotRequestState.Loading>(
+			{
+				...defaultState,
+				isLoading: true,
+				isUninitialized: false,
+			},
+		);
+	}
+
+	if (RequestState.isInterrupted(event)) {
+		return new ApplyRequestState<
+			IRequestContext,
+			IOneShotRequestState.Interrupted
+		>({
+			...defaultState,
+			isLoading: false,
+			isSuccess: false,
+			isUninitialized: false,
+			isError: true,
+			data: null,
+			error: new RequestInterruptedException(),
+		});
+	}
+
+	if (RequestState.isUninitialized(event)) {
+		return new ApplyRequestState<
+			IRequestContext,
+			IOneShotRequestState.Uninitialized
+		>({
+			...defaultState,
+			isLoading: false,
+			isError: false,
+			isSuccess: true,
+			isUninitialized: true,
+			data: null,
+			error: null,
+		});
+	}
+
+	if (RequestState.isSuccess(event)) {
+		const { data } = event.getState();
+
+		return new ApplyRequestState<IRequestContext, IOneShotRequestState.Success>(
+			{
+				...defaultState,
+				isLoading: false,
+				isError: false,
+				isSuccess: true,
+				isUninitialized: false,
+				data: data!,
+				error: null,
+			},
+		);
+	}
+
+	if (RequestState.isFailure(event)) {
+		return new ApplyRequestState<IRequestContext, IOneShotRequestState.Failure>(
+			{
+				...defaultState,
+				isLoading: false,
+				isSuccess: false,
+				isUninitialized: false,
+				isError: true,
+				data: null,
+				error: event.getError(),
+			},
+		);
+	}
+
+	/**
+	 * Cancelled
+	 * 1. Reset the "loading" prop, but that's it.
+	 * 2. Success/Failure state must be preserved.
+	 * */
+	return new ApplyRequestState<IRequestContext, IOneShotRequestState.Cancelled>(
+		{
+			...defaultState,
+			isLoading: false,
+			isUninitialized: false,
+		},
+	);
+};

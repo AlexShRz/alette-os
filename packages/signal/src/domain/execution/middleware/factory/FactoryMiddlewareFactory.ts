@@ -45,7 +45,9 @@ export class FactoryMiddlewareFactory extends Middleware(
 				Context,
 				Context,
 				typeof factoryMiddlewareSpecification
-			>(() => new FactoryMiddleware(runner));
+			>(
+				() => new FactoryMiddlewareFactory(() => new FactoryMiddleware(runner)),
+			);
 		};
 	}
 }

@@ -11,7 +11,7 @@ export class RequestMetrics extends E.Service<RequestMetrics>()(
 	"RequestMetrics",
 	{
 		scoped: E.gen(function* () {
-			const session = yield* RequestSession;
+			const session = yield* E.serviceOptional(RequestSession);
 			const metrics = yield* SynchronizedRef.make<IRequestMetrics>({
 				attempt: 0,
 			});
@@ -45,6 +45,6 @@ export class RequestMetrics extends E.Service<RequestMetrics>()(
 					});
 				},
 			};
-		}),
+		}).pipe(E.orDie),
 	},
 ) {}

@@ -27,7 +27,7 @@ export class WatcherPipeline extends E.Service<WatcherPipeline>()(
 				const pipeline = yield* EventBus.makeAsValue(
 					EventBus.Default(watchers),
 				).pipe(Scope.extend(scope));
-				pipeline.broadcast(controllerEventReceiver.offer);
+				pipeline.broadcast((e) => controllerEventReceiver.offer(e));
 
 				yield* Scope.addFinalizer(scope, orchestrator.remove(id));
 

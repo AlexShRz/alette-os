@@ -16,23 +16,26 @@ export interface IEventBusListenerFactoryConfig {
 export class EventBusListenerFactory<
 	Tag extends string = string,
 	A extends EventBusListener = EventBusListener,
-	R = never,
 > {
 	static as<
-		T extends string,
-		A extends EventBusListener,
-		I extends IEventBusListener,
-		E,
-	>(tag: T, passedConfig: Partial<IEventBusListenerFactoryConfig> = {}) {
-		return <Args extends any[], R>(
-			factory: (...args: Args) => IEventBusListenerFactory<I, E, R>,
+		Tag extends string,
+		LayerType extends EventBusListener,
+		LayerReturn extends IEventBusListener,
+		Exceptions,
+	>(tag: Tag, passedConfig: Partial<IEventBusListenerFactoryConfig> = {}) {
+		return <Args extends any[]>(
+			factory: (
+				...args: Args
+			) => IEventBusListenerFactory<LayerReturn, Exceptions, never>,
 		) =>
-			class extends EventBusListenerFactory<T, A, R> {
+			class extends EventBusListenerFactory<Tag, LayerType> {
 				constructor(...factoryArgs: Args extends [] ? [] : Args) {
 					super(
 						tag,
 						() =>
-							EventBusListener.make<I, E, R>(factory(...(factoryArgs as Args))),
+							EventBusListener.make<LayerReturn, Exceptions, never>(
+								factory(...(factoryArgs as Args)),
+							),
 						passedConfig,
 					);
 				}
@@ -56,7 +59,7 @@ export class EventBusListenerFactory<
 
 	constructor(
 		public readonly _tag: Tag,
-		public layerFactory: () => Layer.Layer<A, never, R>,
+		public layerFactory: () => Layer.Layer<A>,
 		/**
 		 * These settings are taken into account ONLY during
 		 * first listener construction. They cannot be changed later,

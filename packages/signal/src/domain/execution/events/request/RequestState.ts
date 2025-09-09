@@ -43,7 +43,7 @@ export class RequestState {
 		return state.isError && state.error instanceof RequestInterruptedException;
 	}
 
-	static Uninitialized() {
+	static Uninitialized(requestId: string) {
 		return new ApplyRequestState<any, IOneShotRequestState.Uninitialized>({
 			isLoading: true,
 			isSuccess: false,
@@ -54,7 +54,7 @@ export class RequestState {
 		});
 	}
 
-	static Loading() {
+	static Loading(requestId: string) {
 		return new ApplyRequestState<any, IOneShotRequestState.Loading>({
 			isLoading: true,
 			isSuccess: false,
@@ -97,7 +97,7 @@ export class RequestState {
 		});
 	}
 
-	static Interrupted() {
+	static Interrupted(requestId: string) {
 		return new ApplyRequestState<any, IOneShotRequestState.Interrupted>({
 			isLoading: false,
 			isSuccess: false,
@@ -108,7 +108,7 @@ export class RequestState {
 		});
 	}
 
-	static Cancelled() {
+	static Cancelled(requestId: string) {
 		return new ApplyRequestState<any>({
 			isLoading: false,
 			isSuccess: false,

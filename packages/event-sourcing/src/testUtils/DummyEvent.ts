@@ -13,6 +13,11 @@ export class DummyEvent extends BusEvent {
 		return this.values;
 	}
 
+	setValues(newValues: number[]) {
+		this.values = [...newValues];
+		return this;
+	}
+
 	clone() {
 		return new DummyEvent() as this;
 	}

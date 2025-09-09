@@ -79,7 +79,12 @@ export class OneShotRequestState<
 	}
 
 	changes() {
-		return this.state.changes;
+		return this.state.changes.pipe(
+			/**
+			 * Skip default state broadcasting
+			 * */
+			Stream.filter(({ isUninitialized }) => !isUninitialized),
+		);
 	}
 
 	awaitResult() {
@@ -89,21 +94,22 @@ export class OneShotRequestState<
 					E.gen(this, function* () {
 						yield* E.addFinalizer(() =>
 							E.sync(() => {
-								resume(new RequestInterruptedException());
+								resume(E.fail(new RequestInterruptedException()));
 							}),
 						);
 
 						yield* this.changes().pipe(
-							Stream.tap(({ data, error, isError, isSuccess }) =>
-								E.sync(() => {
-									if (isError && error) {
-										return resume(error as any);
-									}
+							Stream.tap(
+								({ data, error, isUninitialized, isError, isSuccess }) =>
+									E.sync(() => {
+										if (isError && error) {
+											return resume(E.fail(error));
+										}
 
-									if (isSuccess && data) {
-										return resume(data as any);
-									}
-								}),
+										if (isSuccess && data) {
+											return resume(E.succeed(data));
+										}
+									}),
 							),
 							Stream.runDrain,
 							E.forkScoped,
@@ -112,7 +118,7 @@ export class OneShotRequestState<
 				);
 
 				return E.sync(() => {
-					resume(new RequestInterruptedException());
+					resume(E.fail(new RequestInterruptedException()));
 				});
 			},
 		);

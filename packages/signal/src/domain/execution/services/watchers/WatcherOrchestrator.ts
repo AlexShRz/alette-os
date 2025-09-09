@@ -4,7 +4,7 @@ import * as Layer from "effect/Layer";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
 import * as SynchronizedRef from "effect/SynchronizedRef";
-import { RequestStateTimeline } from "../RequestStateTimeline";
+import { RequestStateTimeline } from "../timeline/RequestStateTimeline";
 import { WatcherPipeline } from "./WatcherPipeline";
 
 /**
@@ -54,9 +54,13 @@ export class WatcherOrchestrator extends E.Service<WatcherOrchestrator>()(
 						pipelines,
 						E.fn(function* (registry) {
 							const tasks = Object.entries(registry).map(([_, pipeline]) =>
-								(pipeline as UnknownPipeline).send(event),
+								/**
+								 * Important - make sure the broadcast event
+								 * is cloned for every pipeline
+								 * */
+								(pipeline as UnknownPipeline).send(event.clone()),
 							);
-							yield* E.all(tasks, { discard: true, concurrency: "unbounded" });
+							yield* E.all(tasks, { concurrency: "unbounded" });
 							return registry;
 						}),
 					),
@@ -82,11 +86,12 @@ export class WatcherOrchestrator extends E.Service<WatcherOrchestrator>()(
 							const watcher = yield* WatcherPipeline.makeAsValue(pipeline);
 							registry[pipelineId] = watcher;
 							/**
-							 * Start replaying events in the
+							 * 1. Start replaying events in the
 							 * background
+							 * 2. Make sure the replayed event is cloned
 							 * */
 							yield* timeline
-								.replay((e) => watcher.send(e))
+								.replay((e) => watcher.send(e.clone()))
 								.pipe(E.forkIn(scope));
 							return registry;
 						}).pipe(Scope.extend(scope)),

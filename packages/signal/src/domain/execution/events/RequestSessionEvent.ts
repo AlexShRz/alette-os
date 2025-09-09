@@ -19,6 +19,10 @@ export abstract class RequestSessionEvent extends BusEvent {
 		return this.requestId;
 	}
 
+	unsafeGetRequestId() {
+		return this.requestId;
+	}
+
 	setRequestId(id: string) {
 		this.requestId = id;
 		return this;

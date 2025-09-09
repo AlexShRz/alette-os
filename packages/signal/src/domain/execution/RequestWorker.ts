@@ -6,12 +6,15 @@ import * as Fiber from "effect/Fiber";
 import * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Scope from "effect/Scope";
+import { GlobalContext } from "../context/services/GlobalContext";
 import { RequestMiddleware } from "../middleware/RequestMiddleware";
 import { RequestMetrics } from "./RequestMetrics";
 import { TSessionEvent } from "./events/SessionEvent";
 import { RequestEventInterceptor } from "./services/RequestEventInterceptor";
+import { RequestMeta } from "./services/RequestMeta";
 import { RequestSession } from "./services/RequestSession";
-import { RequestStateTimeline } from "./services/RequestStateTimeline";
+import { RequestSessionContext } from "./services/RequestSessionContext";
+import { RequestStateTimeline } from "./services/timeline/RequestStateTimeline";
 import { WatcherOrchestrator } from "./services/watchers/WatcherOrchestrator";
 import { WatcherPipeline } from "./services/watchers/WatcherPipeline";
 import { sendSessionEvent } from "./utils/sendSessionEvent";
@@ -30,7 +33,7 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 		middleware: RequestMiddleware[];
 	}) {
 		const scope = yield* Scope.make();
-		const context = yield* E.context<never>();
+		const context = yield* E.context<GlobalContext>();
 		const session = RequestSession.Default({
 			/**
 			 * 1. Because workers are usually created once
@@ -45,39 +48,35 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 			initialRequestId: id,
 			requestMode: requestMode,
 		});
-		const requestMetrics = RequestMetrics.Default.pipe(Layer.provide(session));
-		const requestEventInterceptor = RequestEventInterceptor.Default.pipe(
-			Layer.provide(session),
-		);
 		const requestEventBus = EventBus.Default(middleware).pipe(
-			Layer.provide(requestEventInterceptor),
-		);
-		/**
-		 * TODO: Switch timeline based on request
-		 * type (oneShot vs stream).
-		 * */
-		const requestStateTimeline = RequestStateTimeline.make().pipe(
-			Layer.provide(Layer.mergeAll(session, requestEventBus)),
+			Layer.provide(RequestEventInterceptor.Default),
 		);
 
-		const requestRuntime = ManagedRuntime.make(
-			Layer.mergeAll(
-				Layer.succeedContext(context),
-				session,
-				requestStateTimeline,
-				requestMetrics,
-				requestEventBus,
-				WatcherOrchestrator.Default.pipe(
-					Layer.provide(
-						Layer.mergeAll(
-							session,
-							requestEventInterceptor,
-							requestStateTimeline,
-						),
+		const container = Layer.provideMerge(
+			Layer.provideMerge(
+				Layer.mergeAll(
+					RequestSessionContext.Default,
+					RequestMetrics.Default,
+					RequestMeta.Default,
+					requestEventBus,
+					WatcherOrchestrator.Default,
+				),
+				Layer.provideMerge(
+					Layer.provideMerge(
+						/**
+						 * TODO: Switch timeline based on request
+						 * type (oneShot vs stream).
+						 * */
+						RequestStateTimeline.make(),
+						requestEventBus,
 					),
+					session,
 				),
 			),
+			Layer.succeedContext(context),
 		);
+
+		const requestRuntime = ManagedRuntime.make(container);
 
 		return {
 			isWatchedBy(controllerId: string) {

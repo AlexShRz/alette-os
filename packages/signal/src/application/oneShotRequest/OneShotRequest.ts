@@ -26,7 +26,7 @@ export class OneShotRequest<
 	with: IOneShotRequestWithMiddleware<Context, RequestSpec>["with"] = (
 		...middlewareFns: IMiddlewareSupplierFn<any, any, any, any>[]
 	) => {
-		this.addMiddlewareSuppliers(middlewareFns);
+		this.addMiddlewareInjectors(middlewareFns);
 		return this as any;
 	};
 
@@ -40,9 +40,9 @@ export class OneShotRequest<
 		...args: TRequestArguments<Context>
 	): Promise<TRequestResponse<Context>> {
 		const controller = new OneShotRequestController(this.runtime, {
-			threadId: this.executionThreadId,
+			workerId: this.requestWorkerId,
 			requestMode: "oneShot",
-			defaultMiddleware: this.defaultMiddleware,
+			middlewareInjectors: this.getAllMiddlewareInjectors(),
 		});
 
 		const { execute } = controller.getInitialState();
@@ -54,9 +54,9 @@ export class OneShotRequest<
 
 	control() {
 		return new OneShotRequestController(this.runtime, {
-			threadId: this.executionThreadId,
+			workerId: this.requestWorkerId,
 			requestMode: "subscription",
-			defaultMiddleware: this.defaultMiddleware,
+			middlewareInjectors: this.getAllMiddlewareInjectors(),
 		});
 	}
 }

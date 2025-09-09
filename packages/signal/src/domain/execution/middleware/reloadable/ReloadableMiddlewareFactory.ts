@@ -56,8 +56,11 @@ export class ReloadableMiddlewareFactory extends Middleware(
 				typeof reloadableMiddlewareSpecification
 			>(
 				() =>
-					new ReloadableMiddleware(
-						predicate as IReloadableMiddlewareCheck | undefined,
+					new ReloadableMiddlewareFactory(
+						() =>
+							new ReloadableMiddleware(
+								predicate as IReloadableMiddlewareCheck | undefined,
+							),
 					),
 			);
 		};
