@@ -136,10 +136,7 @@ test("it deactivates and activate plugins again if passed plugins are already in
 		),
 	);
 
-	await vi.waitFor(
-		() => {
-			expect(logged).toEqual([1]);
-		},
-		{ timeout: 600000 },
-	);
+	await vi.waitFor(() => {
+		expect(logged).toEqual([1]);
+	});
 });

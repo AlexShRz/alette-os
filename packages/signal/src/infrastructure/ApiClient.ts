@@ -23,7 +23,10 @@ export class ApiClient {
 	}
 
 	protected getRuntimeServices() {
-		return Layer.provideMerge(Kernel.Default, TaskScheduler.Default);
+		return Layer.mergeAll(
+			Logger.pretty,
+			Layer.provideMerge(Kernel.Default, TaskScheduler.Default),
+		);
 	}
 
 	protected createRuntime() {

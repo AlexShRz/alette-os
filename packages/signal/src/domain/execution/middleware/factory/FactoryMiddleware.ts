@@ -4,6 +4,7 @@ import * as Runtime from "effect/Runtime";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
 import { UrlContext } from "../../../url/UrlContext";
+import { CancelRequest } from "../../events/CancelRequest";
 import { WithCurrentRequestOverride } from "../../events/envelope/WithCurrentRequestOverride";
 import { RequestState } from "../../events/request/RequestState";
 import { RunRequest } from "../../events/request/RunRequest";
@@ -119,6 +120,16 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 							 * */
 							if (event instanceof RunRequest && !requestRunner.isRunning()) {
 								yield* runRequest(event);
+								return yield* context.next(event);
+							}
+
+							if (event instanceof CancelRequest) {
+								yield* requestRunner.interrupt();
+								runFork(
+									context.sendToBus(
+										yield* attachRequestId(RequestState.Cancelled()),
+									),
+								);
 								return yield* context.next(event);
 							}
 

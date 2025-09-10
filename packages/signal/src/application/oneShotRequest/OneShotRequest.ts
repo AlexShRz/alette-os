@@ -60,6 +60,7 @@ export class OneShotRequest<
 	mount() {
 		const controller = this.createControllerForMountMode();
 		return {
+			getState: controller.getState.bind(controller),
 			when: (subscriber: Parameters<typeof controller.subscribe>[0]) => {
 				const unsubscribe = controller.subscribe.bind(controller)(subscriber);
 				/**

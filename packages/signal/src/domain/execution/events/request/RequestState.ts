@@ -108,7 +108,7 @@ export class RequestState {
 		});
 	}
 
-	static Cancelled(requestId: string) {
+	static Cancelled() {
 		return new ApplyRequestState<any>({
 			isLoading: false,
 			isSuccess: false,
