@@ -1,6 +1,6 @@
 import * as E from "effect/Effect";
 import * as SubscriptionRef from "effect/SubscriptionRef";
-import { TRequestMode } from "../RequestWorker";
+import { TRequestMode } from "../worker/RequestWorkerConfig";
 
 export class RequestSession extends E.Service<RequestSession>()(
 	"RequestSession",

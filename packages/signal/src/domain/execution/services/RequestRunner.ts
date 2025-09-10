@@ -1,10 +1,7 @@
 import * as Context from "effect/Context";
 import * as E from "effect/Effect";
 import * as Fiber from "effect/Fiber";
-import * as FiberHandle from "effect/FiberHandle";
 import * as Layer from "effect/Layer";
-import * as Runtime from "effect/Runtime";
-import * as SynchronizedRef from "effect/SynchronizedRef";
 import { RequestMetrics } from "../RequestMetrics";
 
 export class RequestRunner extends Context.Tag("RequestRunner")<
@@ -53,6 +50,7 @@ export class RequestRunner extends Context.Tag("RequestRunner")<
 							yield* task.pipe(
 								E.ensuring(
 									E.sync(() => {
+										runningRequest = null;
 										isRunning = false;
 									}),
 								),
@@ -64,6 +62,7 @@ export class RequestRunner extends Context.Tag("RequestRunner")<
 							if (runningRequest) {
 								yield* Fiber.interruptFork(runningRequest);
 							}
+							runningRequest = null;
 							isRunning = false;
 						}).pipe(E.forkIn(scope));
 					},

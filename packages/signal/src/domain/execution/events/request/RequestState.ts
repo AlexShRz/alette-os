@@ -54,7 +54,7 @@ export class RequestState {
 		});
 	}
 
-	static Loading(requestId: string) {
+	static Loading() {
 		return new ApplyRequestState<any, IOneShotRequestState.Loading>({
 			isLoading: true,
 			isSuccess: false,

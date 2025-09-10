@@ -3,7 +3,7 @@ import * as Chunk from "effect/Chunk";
 import * as E from "effect/Effect";
 import * as Stream from "effect/Stream";
 import * as SubscriptionRef from "effect/SubscriptionRef";
-import { RequestWorker } from "../../../domain/execution/RequestWorker";
+import { RequestWorker } from "../../../domain/execution/worker/RequestWorker";
 import { RequestControllerSupervisor } from "./RequestControllerSupervisor";
 
 type TWorkerInstance = RequestWorker | null;

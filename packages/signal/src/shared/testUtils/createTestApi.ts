@@ -1,9 +1,10 @@
 import { activatePlugins, coreApiPlugin } from "../../application";
+import { CommandTaskBuilder } from "../../application/plugins/tasks/primitive/CommandTaskBuilder";
 import { client } from "../../infrastructure/ApiClient";
 
-export const createTestApi = () => {
+export const createTestApi = (...commands: CommandTaskBuilder[]) => {
 	const core = coreApiPlugin();
-	const api = client(activatePlugins(core));
+	const api = client(activatePlugins(core), ...commands);
 
 	return { api, ...core.use() };
 };

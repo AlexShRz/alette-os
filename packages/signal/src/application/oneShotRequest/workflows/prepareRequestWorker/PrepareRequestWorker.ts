@@ -3,9 +3,9 @@ import * as Context from "effect/Context";
 import * as E from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Scope from "effect/Scope";
-import { RequestWorker } from "../../../../domain/execution/RequestWorker";
+import { v4 as uuid } from "uuid";
+import { RequestWorker } from "../../../../domain/execution/worker/RequestWorker";
 import { PluginMailbox } from "../../../plugins/PluginMailbox";
-import { PluginName } from "../../../plugins/PluginName";
 import { queryTask } from "../../../plugins/tasks/primitive/functions";
 import { PrepareRequestWorkerArguments } from "./PrepareRequestWorkerArguments";
 import { attachRequestWatcherPipeline } from "./attachWatcherPipeline";
@@ -16,16 +16,16 @@ export class PrepareRequestWorker extends Context.Tag("PrepareRequestWorker")<
 	PrepareRequestWorker,
 	RequestWorker
 >() {
-	static send(args: Omit<PrepareRequestWorkerArguments["Type"], "threadId">) {
+	static send(args: Omit<PrepareRequestWorkerArguments["Type"], "workerId">) {
 		return E.gen(function* () {
 			const pluginMailbox = yield* PluginMailbox;
-			const pluginName = yield* PluginName;
+			const requestId = uuid();
 
 			const workflow = PrepareRequestWorker.make().pipe(
 				Layer.provide(
 					PrepareRequestWorkerArguments.make({
 						...args,
-						threadId: pluginName.get(),
+						workerId: requestId,
 					}),
 				),
 			);
@@ -54,7 +54,6 @@ export class PrepareRequestWorker extends Context.Tag("PrepareRequestWorker")<
 				}).pipe(
 					E.provide(
 						Layer.mergeAll(
-							// Layer.succeedContext(context),
 							/**
 							 * Make sure event bus with middleware and watcher
 							 * injectors is created lazily, only if the service
@@ -63,6 +62,11 @@ export class PrepareRequestWorker extends Context.Tag("PrepareRequestWorker")<
 							EventBus.Default(args.middlewareInjectors),
 						),
 					),
+					/**
+					 * 1. Make sure to apply CONTROLLER scope here -
+					 * the moment our controller is disposed, the scope
+					 * should release ref counted resources (threads, workers, etc.)
+					 * */
 					Scope.extend(args.controller.getScope()),
 					E.orDie,
 				);

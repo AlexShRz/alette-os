@@ -10,20 +10,24 @@ import { ResponseRef } from "../../response/adapter/ResponseRef";
  * 1. "Stale-while-revalidate" type variations are not represented in the type itself.
  * */
 export namespace IOneShotRequestState {
-	type UnionOfAll<C> =
-		| Uninitialized
-		| Loading
-		| Success<C>
-		| Failure<C>
-		| Cancelled
-		| Interrupted;
-
 	type Any<C extends IRequestContext = IRequestContext> = {
 		isLoading: boolean;
 		isUninitialized: boolean;
 		isSuccess: boolean;
 		isError: boolean;
 		data: ResponseRef<TRequestResponse<C>> | null;
+		error: TRequestError<C> | RequestInterruptedException | null;
+	};
+
+	type AnyUnwrapped<C extends IRequestContext = IRequestContext> = {
+		isLoading: boolean;
+		isUninitialized: boolean;
+		isSuccess: boolean;
+		isError: boolean;
+		/**
+		 * Unwrapped must not contain response refs
+		 * */
+		data: TRequestResponse<C> | null;
 		error: TRequestError<C> | RequestInterruptedException | null;
 	};
 

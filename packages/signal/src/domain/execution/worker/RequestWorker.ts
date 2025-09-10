@@ -6,32 +6,22 @@ import * as Fiber from "effect/Fiber";
 import * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Scope from "effect/Scope";
-import { GlobalContext } from "../context/services/GlobalContext";
-import { RequestMiddleware } from "../middleware/RequestMiddleware";
-import { RequestMetrics } from "./RequestMetrics";
-import { TSessionEvent } from "./events/SessionEvent";
-import { RequestEventInterceptor } from "./services/RequestEventInterceptor";
-import { RequestMeta } from "./services/RequestMeta";
-import { RequestSession } from "./services/RequestSession";
-import { RequestSessionContext } from "./services/RequestSessionContext";
-import { RequestStateTimeline } from "./services/timeline/RequestStateTimeline";
-import { WatcherOrchestrator } from "./services/watchers/WatcherOrchestrator";
-import { WatcherPipeline } from "./services/watchers/WatcherPipeline";
-import { sendSessionEvent } from "./utils/sendSessionEvent";
-
-// TODO: Add stream mode
-export type TRequestMode = "oneShot" | "subscription";
+import { GlobalContext } from "../../context/services/GlobalContext";
+import { RequestMetrics } from "../RequestMetrics";
+import { TSessionEvent } from "../events/SessionEvent";
+import { RequestEventInterceptor } from "../services/RequestEventInterceptor";
+import { RequestMeta } from "../services/RequestMeta";
+import { RequestSession } from "../services/RequestSession";
+import { RequestSessionContext } from "../services/RequestSessionContext";
+import { RequestStateTimeline } from "../services/timeline/RequestStateTimeline";
+import { WatcherPipelineConfig } from "../services/watchers/WatcherPipelineConfig";
+import { WatcherPipelineRegistry } from "../services/watchers/WatcherPipelineRegistry";
+import { sendSessionEvent } from "../utils/sendSessionEvent";
+import { RequestWorkerConfig } from "./RequestWorkerConfig";
 
 export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
-	effect: E.fn(function* ({
-		id,
-		requestMode,
-		middleware,
-	}: {
-		id: string;
-		requestMode: TRequestMode;
-		middleware: RequestMiddleware[];
-	}) {
+	dependencies: [GlobalContext.Default],
+	effect: E.fn(function* (config: RequestWorkerConfig) {
 		const scope = yield* Scope.make();
 		const context = yield* E.context<GlobalContext>();
 		const session = RequestSession.Default({
@@ -45,10 +35,10 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 			 * it is changed when we refetch the request using
 			 * the same subscription, etc.
 			 * */
-			initialRequestId: id,
-			requestMode: requestMode,
+			initialRequestId: config.getId(),
+			requestMode: config.getRequestMode(),
 		});
-		const requestEventBus = EventBus.Default(middleware).pipe(
+		const requestEventBus = EventBus.Default(config.getMiddleware()).pipe(
 			Layer.provide(RequestEventInterceptor.Default),
 		);
 
@@ -58,8 +48,7 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 					RequestSessionContext.Default,
 					RequestMetrics.Default,
 					RequestMeta.Default,
-					requestEventBus,
-					WatcherOrchestrator.Default,
+					WatcherPipelineRegistry.Default,
 				),
 				Layer.provideMerge(
 					Layer.provideMerge(
@@ -83,7 +72,7 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 				return Fiber.join(
 					requestRuntime.runFork(
 						E.gen(function* () {
-							const registry = yield* WatcherOrchestrator;
+							const registry = yield* WatcherPipelineRegistry;
 							return yield* registry.has(controllerId);
 						}),
 					),
@@ -91,23 +80,20 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 			},
 
 			getId() {
-				return id;
+				return config.getId();
 			},
 
 			dispatch<T extends TSessionEvent>(event: T) {
 				return requestRuntime.runFork(sendSessionEvent(event));
 			},
 
-			addWatchers(
-				pipelineId: string,
-				watcherPipeline: Layer.Layer<WatcherPipeline>,
-			) {
+			addWatchers(config: WatcherPipelineConfig) {
 				return Fiber.join(
 					requestRuntime.runFork(
 						E.gen(function* () {
-							const registry = yield* WatcherOrchestrator;
-							yield* registry.set(pipelineId, watcherPipeline);
-						}),
+							const registry = yield* WatcherPipelineRegistry;
+							yield* registry.set(config);
+						}).pipe(Scope.extend(scope)),
 					),
 				);
 			},

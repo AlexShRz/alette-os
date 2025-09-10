@@ -22,7 +22,9 @@ export abstract class RequestController<
 		return this.id;
 	}
 
-	abstract getInitialState(): any;
+	abstract getState(): State;
+
+	abstract getHandlers(): Record<string, any>;
 
 	abstract getScope(): Scope.CloseableScope;
 

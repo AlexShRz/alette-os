@@ -1,16 +1,17 @@
-import { RuntimeException, YieldableError } from "effect/Cause";
+import { YieldableError } from "effect/Cause";
 import { ExceptionLogMessageBuilder } from "../messages/ExceptionLogMessageBuilder";
 import { makeExceptionMessage } from "../messages/makeExceptionMessage";
-import { MethodNotImplementedException } from "./MethodNotImplementedException.js";
 
-export abstract class ApiException extends RuntimeException {
+export abstract class ApiException extends YieldableError {
+	public readonly _tag = "ApiException" as const;
+	protected customName: string = "UnknownApiException";
 	protected exceptionContext: Record<string, unknown> = {};
 	protected emptyStackMessage = "Not available";
 
 	protected errorLogMessageBuilder = makeExceptionMessage().fromException(this);
 
 	getName() {
-		return this._tag;
+		return this.customName;
 	}
 
 	getStack() {
@@ -52,7 +53,14 @@ export abstract class ApiException extends RuntimeException {
 		return super.toJSON() as string;
 	}
 
-	clone(): this {
-		throw new MethodNotImplementedException(this.getName(), "clone");
+	protected abstract cloneSelf(): object;
+
+	clone() {
+		const self = this.cloneSelf() as this;
+		self.stack = this.getStack();
+		self.message = this.getMessage();
+		self.exceptionContext = { ...this.getContext() };
+		self.name = this.getName();
+		return self;
 	}
 }

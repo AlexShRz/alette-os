@@ -1,7 +1,7 @@
 import * as Context from "effect/Context";
 import * as E from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { TRequestMode } from "../../../../domain/execution/RequestWorker";
+import { TRequestMode } from "../../../../domain/execution/worker/RequestWorker";
 import { TAnyMiddlewareInjector } from "../../../blueprint";
 import { RequestController } from "../../../blueprint/controller/RequestController";
 
@@ -13,15 +13,15 @@ export class PrepareRequestWorkerArguments extends Context.Tag(
 		/**
 		 * 1. The thread that's going to supervise
 		 * the request worker.
-		 * 2. ThreadName === PluginName. When a new plugin is
-		 * activated, we should create a request thread for
-		 * executing its requests.
+		 * 2. ThreadId is changed when we change our
+		 * request builder configuration - add middleware, etc.
 		 * */
 		threadId: string;
 		/**
 		 * 1. The worker that's going to execute the actual request.
-		 * 2. WorkerId is changed when we change our
-		 * request builder configuration - add middleware, etc.
+		 * 2. WorkerId === requestId. We should create a worker
+		 * for every new request, the only time when we might reuse
+		 * a worker is when the request "state sharing" mode is on.
 		 * */
 		workerId: string;
 		requestMode: TRequestMode;

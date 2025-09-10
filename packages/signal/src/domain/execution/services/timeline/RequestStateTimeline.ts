@@ -37,31 +37,15 @@ export class RequestStateTimeline extends Context.Tag("RequestStateTimeline")<
 	private static parent() {
 		return E.gen(function* () {
 			const session = yield* RequestSession;
+			/**
+			 * 1. Persistent events and replays MUST NOT
+			 * be reset if our request id changes.
+			 * 2. State is determined based on prev + current events,
+			 * so they should always be persisted.
+			 * */
 			const lastStateEvent =
 				yield* SubscriptionRef.make<ApplyRequestState | null>(null);
 			const replays = yield* FiberSet.make();
-
-			yield* session.getRequestIdChanges().pipe(
-				/**
-				 * The moment request id changes, we
-				 * need to reset all persisted events and start anew.
-				 * */
-				Stream.tap(() =>
-					E.zipRight(
-						/**
-						 * 1. Wait for all replays to complete to
-						 * avoid state desynchronization
-						 * */
-						FiberSet.awaitEmpty(replays),
-						/**
-						 * 2. Reset all persisted events and start anew.
-						 * */
-						SubscriptionRef.set(lastStateEvent, null),
-					),
-				),
-				Stream.runDrain,
-				E.forkScoped,
-			);
 
 			return {
 				session,
@@ -119,7 +103,7 @@ export class RequestStateTimeline extends Context.Tag("RequestStateTimeline")<
 							const nextEvent = toNextOneShotRequestState(lastEvent, event);
 
 							if (!nextEvent) {
-								return nextEvent;
+								return lastEvent;
 							}
 
 							/**

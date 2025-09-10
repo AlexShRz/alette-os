@@ -11,6 +11,17 @@ export class ApplyRequestState<
 		super();
 	}
 
+	getUnwrappedState() {
+		return {
+			...this.state,
+			/**
+			 * Make sure we return "null" here if we have no state
+			 * adapter set
+			 * */
+			data: this.state.data?.unsafeGet() ?? null,
+		} satisfies State;
+	}
+
 	getState() {
 		return this.state;
 	}
@@ -31,10 +42,11 @@ export class ApplyRequestState<
 	}
 
 	protected _clone() {
+		const state = this.getState();
 		const self = new ApplyRequestState<C, State>({
-			...this.state,
-			data: this.state.data?.clone() || null,
-			error: (this.state.error as ApiException | null)?.clone() || null,
+			...state,
+			data: state.data?.clone() ?? null,
+			error: (state.error as ApiException | null)?.clone() ?? null,
 		});
 		return self as this;
 	}

@@ -13,7 +13,14 @@ export const toNextOneShotRequestState = <T extends ApplyRequestState | null>(
 	}
 
 	const defaultState: IOneShotRequestState.Any = {
-		...(lastEvent?.getState() || {}),
+		...(lastEvent?.getState() || {
+			isLoading: false,
+			isSuccess: false,
+			isError: false,
+			isUninitialized: true,
+			data: null,
+			error: null,
+		}),
 	};
 
 	/**

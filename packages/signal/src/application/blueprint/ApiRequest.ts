@@ -22,10 +22,10 @@ export abstract class ApiRequest<
 > {
 	/**
 	 * 1. Helps us figure out where to route the request
-	 * 2. Each request is routed to a specified request worker
+	 * 2. Each request is routed to a specified request thread
 	 * using its worker id.
 	 * */
-	protected requestWorkerId = uuid();
+	protected requestThreadId = uuid();
 	/**
 	 * Provides default request settings "filled from using(...)"
 	 * */
@@ -47,7 +47,7 @@ export abstract class ApiRequest<
 		return [...this.defaultMiddleware, ...this.middlewareInjectors];
 	}
 
-	protected addMiddlewareInjectors(
+	protected mergeInjectorsAndCloneSelf(
 		lazyMiddlewareSuppliers: IMiddlewareSupplierFn<any, any, any, any>[],
 	) {
 		this.middlewareInjectors = [
@@ -58,7 +58,7 @@ export abstract class ApiRequest<
 		];
 		/**
 		 * 1. Here we need to CLONE the request WHILE
-		 * changing our request worker id.
+		 * changing our request thread id.
 		 * 2. When we add any new middleware to the request,
 		 * it means that we are creating a COMPLETELY NEW REQUEST.
 		 * */
@@ -69,10 +69,10 @@ export abstract class ApiRequest<
 		this.settingSupplier = supplier;
 		/**
 		 * Here we need to CLONE everything WITHOUT
-		 * changing our request worker id.
+		 * changing our request thread id.
 		 * */
 		const self = this.clone();
-		self.requestWorkerId = this.requestWorkerId;
+		self.requestThreadId = this.requestThreadId;
 		return self;
 	}
 

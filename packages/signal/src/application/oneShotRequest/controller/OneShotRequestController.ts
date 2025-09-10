@@ -19,18 +19,11 @@ import {
 import { OneShotRequestSupervisor } from "./OneShotRequestSupervisor";
 import { OneShotRequestWorker } from "./OneShotRequestWorker";
 
-export interface IOneShotRequestStateWithHandlers<
-	Context extends IRequestContext,
-> extends ILocalOneShotRequestState<Context> {
-	execute: (...args: TRequestArguments<Context> | []) => void;
-	cancel: () => void;
-}
-
 export class OneShotRequestController<
 	Context extends IRequestContext,
 	R,
 	ER,
-> extends RequestController<IOneShotRequestStateWithHandlers<Context>, R, ER> {
+> extends RequestController<ILocalOneShotRequestState<Context>, R, ER> {
 	protected supervisor = new OneShotRequestSupervisor<R, ER>(this.runtime);
 	protected state = new OneShotRequestState<Context, R, ER>(
 		this.runtime,
@@ -42,7 +35,7 @@ export class OneShotRequestController<
 		runtime: ManagedRuntime.ManagedRuntime<R, ER>,
 		workerConfig: Omit<
 			PrepareRequestWorkerArguments["Type"],
-			"controller" | "threadId"
+			"controller" | "workerId"
 		>,
 	) {
 		super(runtime);
@@ -58,8 +51,6 @@ export class OneShotRequestController<
 					this.stateSubscribers.forEach((subscriber) => {
 						subscriber({
 							...state,
-							cancel: this.cancelRequest.bind(this),
-							execute: this.executeRequest.bind(this),
 						});
 					});
 				}),
@@ -71,12 +62,16 @@ export class OneShotRequestController<
 		this.supervisor.spawnAndSupervise(task);
 	}
 
-	getInitialState(): IOneShotRequestStateWithHandlers<Context> {
+	getHandlers() {
 		return {
-			...this.state.getState(),
+			dispose: this.dispose.bind(this),
 			cancel: this.cancelRequest.bind(this),
 			execute: this.executeRequest.bind(this),
 		};
+	}
+
+	getState() {
+		return this.state.getState();
 	}
 
 	/** @internal */

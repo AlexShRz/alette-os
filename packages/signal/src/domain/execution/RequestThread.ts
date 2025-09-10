@@ -1,91 +1,49 @@
-import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as E from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
-import * as RcRef from "effect/RcRef";
+import * as RcMap from "effect/RcMap";
 import * as Scope from "effect/Scope";
-import * as SynchronizedRef from "effect/SynchronizedRef";
-import { RequestWorker } from "./RequestWorker";
-
-const REQUEST_WORKER_TTL = "15 seconds";
+import { RequestWorker } from "./worker/RequestWorker";
+import { RequestWorkerConfig } from "./worker/RequestWorkerConfig";
 
 export class RequestThread extends E.Service<RequestThread>()("RequestThread", {
-	effect: E.fn(function* (id: string) {
+	scoped: E.fn(function* (id: string) {
 		const scope = yield* Scope.make();
-		const workers = yield* SynchronizedRef.make(
-			new Map<string, RcRef.RcRef<RequestWorker>>(),
-		);
+
+		/**
+		 * 1. We shouldn't provide idle TTL here -
+		 * the worker should be removed IMMEDIATELY if
+		 * its ref count reaches zero.
+		 * 2. If we have 2 subscriptions operating using the
+		 * same worker, the worker will be removed the moment
+		 * every subscription has been disposed of.
+		 * */
+		const workers = yield* RcMap.make({
+			lookup: (config: RequestWorkerConfig) =>
+				E.acquireRelease(
+					RequestWorker.makeAsValue(RequestWorker.Default(config)),
+					(worker) => worker.shutdown(),
+				),
+		});
 
 		return {
-			isSupervisingWorker(workerId: string) {
-				return workers.get.pipe(
-					E.andThen((registry) => registry.has(workerId)),
-				);
-			},
-
 			getIdsOfSupervisedWorkers() {
-				return workers.get.pipe(E.andThen((registry) => [...registry.keys()]));
+				return RcMap.keys(workers).pipe(
+					E.andThen((configs) => configs.map((c) => c.getId())),
+				);
 			},
 
 			getId() {
 				return id;
 			},
 
-			getWorkerOrThrow(workerId: string) {
-				return E.gen(function* () {
-					const registry = yield* workers.get;
-					const worker = registry.get(workerId);
-
-					if (!worker) {
-						return yield* E.die(new Cause.IllegalArgumentException(workerId));
-					}
-
-					return yield* worker.get;
-				});
-			},
-
-			getOrCreateWorkerFrom(
-				workerId: string,
-				workerLayer: Layer.Layer<RequestWorker>,
-			) {
-				return SynchronizedRef.getAndUpdateEffect(workers, (registry) =>
-					E.gen(this, function* () {
-						const worker = registry.get(workerId);
-
-						if (worker) {
-							return registry;
-						}
-
-						const ref = yield* RcRef.make({
-							acquire: E.acquireRelease(
-								RequestWorker.makeAsValue(workerLayer),
-								(w) => this.removeWorker(w.getId()),
-							),
-							idleTimeToLive: REQUEST_WORKER_TTL,
-						});
-
-						registry.set(workerId, ref);
-						return registry;
-					}).pipe(Scope.extend(scope)),
-				).pipe(E.andThen(() => this.getWorkerOrThrow(workerId)));
+			getOrCreateWorker(workerConfig: RequestWorkerConfig) {
+				return RcMap.get(workers, workerConfig);
 			},
 
 			removeWorker(workerId: string) {
-				return SynchronizedRef.getAndUpdateEffect(workers, (registry) =>
-					E.gen(function* () {
-						const worker = registry.get(workerId);
-
-						if (!worker) {
-							return registry;
-						}
-
-						const instance = yield* worker.get;
-						yield* instance.shutdown();
-						registry.delete(workerId);
-						return registry;
-					}).pipe(E.scoped),
-				);
+				return RcMap.invalidate(workers, new RequestWorkerConfig(workerId));
 			},
 
 			shutdown() {

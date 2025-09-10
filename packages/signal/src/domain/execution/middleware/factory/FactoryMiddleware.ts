@@ -48,17 +48,34 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 								url: fullUrl,
 							});
 
+						/**
+						 * IMPORTANT:
+						 * 1. Use runFork to dispatch state events to the bus
+						 * WITHOUT waiting for their result.
+						 * 2. This is faster than "yield*".
+						 * */
 						yield* requestRunner.supervise(
 							E.gen(function* () {
+								runFork(
+									context.sendToBus(
+										yield* attachRequestId(RequestState.Loading()),
+									),
+								);
+
 								const response = yield* E.promise(() => runner());
-								yield* context.sendToBus(
-									yield* attachRequestId(RequestState.Succeeded(response)),
+
+								runFork(
+									context.sendToBus(
+										yield* attachRequestId(RequestState.Succeeded(response)),
+									),
 								);
 							}).pipe(
 								E.catchAllDefect(
 									E.fn(function* (e) {
-										yield* context.sendToBus(
-											yield* attachRequestId(RequestState.Failed(e)),
+										runFork(
+											context.sendToBus(
+												yield* attachRequestId(RequestState.Failed(e)),
+											),
 										);
 									}),
 								),
@@ -72,7 +89,7 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 						return E.gen(this, function* () {
 							/**
 							 * 1. When we peel our envelope layer and get the
-							 * RunRequest event back we need to send it back
+							 * RunRequest event back, we need to send it
 							 * to the bus WITHOUT waiting for its result (use fork here)
 							 * ALSO, The system will mark the event as if it was sent by us.
 							 * */

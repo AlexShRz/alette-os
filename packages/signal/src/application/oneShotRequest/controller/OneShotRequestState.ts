@@ -67,14 +67,7 @@ export class OneShotRequestState<
 				return state;
 			}
 
-			const { data, ...updatedState } = (
-				event as ApplyRequestState<Context>
-			).getState();
-
-			return {
-				...updatedState,
-				data: data?.unsafeGet(),
-			};
+			return (event as ApplyRequestState<Context>).getUnwrappedState();
 		});
 	}
 
@@ -99,17 +92,16 @@ export class OneShotRequestState<
 						);
 
 						yield* this.changes().pipe(
-							Stream.tap(
-								({ data, error, isUninitialized, isError, isSuccess }) =>
-									E.sync(() => {
-										if (isError && error) {
-											return resume(E.fail(error));
-										}
+							Stream.tap(({ data, error, isError, isSuccess }) =>
+								E.sync(() => {
+									if (isError && error) {
+										return resume(E.fail(error));
+									}
 
-										if (isSuccess && data) {
-											return resume(E.succeed(data));
-										}
-									}),
+									if (isSuccess && data) {
+										return resume(E.succeed(data));
+									}
+								}),
 							),
 							Stream.runDrain,
 							E.forkScoped,

@@ -1,8 +1,8 @@
 import { EventBus } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
-import { RequestWorker } from "../../../../domain/execution/RequestWorker";
 import { AggregateRequestWatchers } from "../../../../domain/execution/events/preparation/AggregateRequestWatchers";
-import { WatcherPipeline } from "../../../../domain/execution/services/watchers/WatcherPipeline";
+import { WatcherPipelineConfig } from "../../../../domain/execution/services/watchers/WatcherPipelineConfig";
+import { RequestWorker } from "../../../../domain/execution/worker/RequestWorker";
 import { PrepareRequestWorkerArguments } from "./PrepareRequestWorkerArguments";
 
 export const attachRequestWatcherPipeline = (worker: RequestWorker) =>
@@ -26,10 +26,6 @@ export const attachRequestWatcherPipeline = (worker: RequestWorker) =>
 		}
 
 		yield* worker.addWatchers(
-			requestControllerId,
-			WatcherPipeline.Default({
-				controller,
-				watchers: watchers.getWatchers(),
-			}),
+			new WatcherPipelineConfig(controller, watchers.getWatchers()),
 		);
 	});

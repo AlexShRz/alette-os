@@ -13,7 +13,7 @@ export class OneShotRequestWorker<R, ER> extends RequestControllerWorker<
 	constructor(
 		runtime: ManagedRuntime.ManagedRuntime<R, ER>,
 		lifecycle: OneShotRequestSupervisor<R, ER>,
-		protected config: Omit<PrepareRequestWorkerArguments["Type"], "threadId">,
+		protected config: Omit<PrepareRequestWorkerArguments["Type"], "workerId">,
 	) {
 		super(runtime, lifecycle);
 		this.prepare();

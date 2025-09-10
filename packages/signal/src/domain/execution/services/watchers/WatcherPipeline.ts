@@ -4,41 +4,52 @@ import * as E from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
 import * as Scope from "effect/Scope";
-import { RequestController } from "../../../../application/blueprint/controller/RequestController";
-import { RequestWatcher } from "../../../watchers/RequestWatcher";
+import * as Stream from "effect/Stream";
 import { TSessionEvent } from "../../events/SessionEvent";
-import { WatcherOrchestrator } from "./WatcherOrchestrator";
-
-interface IWatcherPipelineArgs {
-	controller: RequestController<any>;
-	watchers: RequestWatcher[];
-}
+import { RequestStateTimeline } from "../timeline/RequestStateTimeline";
+import { WatcherPipelineConfig } from "./WatcherPipelineConfig";
 
 export class WatcherPipeline extends E.Service<WatcherPipeline>()(
 	"WatcherPipeline",
 	{
-		effect: ({ watchers, controller }: IWatcherPipelineArgs) =>
+		effect: (config: WatcherPipelineConfig) =>
 			E.gen(function* () {
-				const id = controller.getId();
+				const id = config.getId();
+				const controllerEventReceiver = config.getEventReceiver();
 				const scope = yield* Scope.make();
-				const controllerEventReceiver = controller.getEventReceiver();
-				const orchestrator = yield* E.serviceOptional(WatcherOrchestrator);
+				const timeline = yield* E.serviceOptional(RequestStateTimeline);
 
 				const pipeline = yield* EventBus.makeAsValue(
-					EventBus.Default(watchers),
+					EventBus.Default(config.getWatchers()),
 				).pipe(Scope.extend(scope));
 				pipeline.broadcast((e) => controllerEventReceiver.offer(e));
 
-				yield* Scope.addFinalizer(scope, orchestrator.remove(id));
+				const send = <T extends TSessionEvent>(event: T) => {
+					return pipeline.send(event);
+				};
+
+				yield* E.zipRight(
+					/**
+					 * 1. Replay all recent events to self and then
+					 * subscribe to next broadcasts.
+					 * 2. Make sure replayed/broadcast events are cloned
+					 * */
+					timeline.replay((e) => send(e.clone())),
+					timeline.broadcast().pipe(
+						/**
+						 * 3. Start listening for new events
+						 * */
+						Stream.runForEach((event) => send(event.clone())),
+						Stream.runDrain,
+					),
+				).pipe(E.forkIn(scope));
 
 				return {
 					getId() {
 						return id;
 					},
 
-					send<T extends TSessionEvent>(event: T) {
-						return pipeline.send(event);
-					},
+					send,
 
 					shutdown() {
 						return E.gen(function* () {

@@ -1,15 +1,15 @@
 import { EventBus } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
 import { RequestThread } from "../../../../domain/execution/RequestThread";
-import { RequestWorker } from "../../../../domain/execution/RequestWorker";
 import { AggregateRequestMiddleware } from "../../../../domain/execution/events/preparation/AggregateRequestMiddleware";
 import { ChooseRequestWorker } from "../../../../domain/execution/events/preparation/ChooseRequestWorker";
 import { TransactionManager } from "../../../../domain/execution/services/TransactionManager";
+import { RequestWorkerConfig } from "../../../../domain/execution/worker/RequestWorkerConfig";
 import { PrepareRequestWorkerArguments } from "./PrepareRequestWorkerArguments";
 
-const createRequestWorkerLayer = E.gen(function* () {
+const createRequestWorkerConfig = E.fn(function* (passedWorkerId: string) {
 	const controllerEventBus = yield* EventBus;
-	const { requestMode, workerId } = yield* PrepareRequestWorkerArguments;
+	const { requestMode } = yield* PrepareRequestWorkerArguments;
 
 	const aggregatedMiddleware = yield* controllerEventBus.send(
 		new AggregateRequestMiddleware(),
@@ -21,11 +21,11 @@ const createRequestWorkerLayer = E.gen(function* () {
 		);
 	}
 
-	return RequestWorker.Default({
-		id: workerId,
+	return new RequestWorkerConfig(
+		passedWorkerId,
 		requestMode,
-		middleware: aggregatedMiddleware.getMiddleware(),
-	});
+		aggregatedMiddleware.getMiddleware(),
+	);
 });
 
 export const createOrGetRequestWorker = E.fn(function* (thread: RequestThread) {
@@ -35,7 +35,8 @@ export const createOrGetRequestWorker = E.fn(function* (thread: RequestThread) {
 	/**
 	 * IMPORTANT:
 	 * 1. Worker acquisition MUST be wrapped in a transaction.
-	 * 2. For example, 10000 requests might require the same worker.
+	 * 2. For example, 10000 requests might require the same worker if
+	 * request state sharing is on.
 	 * It makes no sense to run the same worker acquisition 10000 times -
 	 * we will encounter multiple concurrency issues, etc.
 	 * */
@@ -59,8 +60,8 @@ export const createOrGetRequestWorker = E.fn(function* (thread: RequestThread) {
 			}
 
 			const workerId = result.getPreferredWorker();
-			const workerLayer = yield* createRequestWorkerLayer;
-			return yield* thread.getOrCreateWorkerFrom(workerId, workerLayer);
+			const workerConfig = yield* createRequestWorkerConfig(workerId);
+			return yield* thread.getOrCreateWorker(workerConfig);
 		}),
 	);
 });
