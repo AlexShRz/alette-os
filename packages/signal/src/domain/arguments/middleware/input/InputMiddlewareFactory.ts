@@ -6,13 +6,15 @@ import { AggregateRequestMiddleware } from "../../../execution/events/preparatio
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
 import { IRequestArguments } from "../../RequestArguments";
+import { ArgumentAdapter } from "../../adapter/ArgumentAdapter";
 import { InputMiddleware } from "./InputMiddleware";
 import { inputMiddlewareSpecification } from "./inputMiddlewareSpecification";
 
 type Spec = typeof inputMiddlewareSpecification;
 
-export interface IInputMiddlewareArgSchema<Output = unknown>
-	extends ISchema<unknown, Output> {}
+export type TInputMiddlewareArgValue<Arguments = unknown> =
+	| ISchema<unknown, Arguments>
+	| ArgumentAdapter<Arguments>;
 
 export class InputMiddlewareFactory extends Middleware(
 	"InputMiddlewareFactory",
@@ -36,7 +38,7 @@ export class InputMiddlewareFactory extends Middleware(
 ) {
 	static toFactory() {
 		return <Context extends IRequestContext, ArgType>(
-			argSchema: IInputMiddlewareArgSchema<ArgType>,
+			argSchemaOrAdapter: TInputMiddlewareArgValue<ArgType>,
 		) => {
 			return toMiddlewareFactory<
 				Context,
@@ -47,7 +49,15 @@ export class InputMiddlewareFactory extends Middleware(
 					TMergeRecords<Context["accepts"], IRequestArguments<ArgType>>
 				>,
 				Spec
-			>(() => new InputMiddlewareFactory(() => new InputMiddleware(argSchema)));
+			>(
+				() =>
+					new InputMiddlewareFactory(
+						() =>
+							new InputMiddleware(
+								argSchemaOrAdapter as TInputMiddlewareArgValue,
+							),
+					),
+			);
 		};
 	}
 }

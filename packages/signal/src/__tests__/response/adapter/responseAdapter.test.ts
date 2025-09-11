@@ -1,6 +1,6 @@
 import * as S from "effect/Schema";
 import {
-	CannotParseResponseValueException,
+	ResponseValueValidationException,
 	responseAdapter,
 } from "../../../domain";
 
@@ -48,7 +48,7 @@ test("it throws an error if response value does not match schema ", async () => 
 	const MyResponse = responseAdapter().schema(valueSchema).build();
 
 	expect(() => MyResponse.from("asdasdkjasdjkasnd")).toThrowError(
-		CannotParseResponseValueException,
+		ResponseValueValidationException,
 	);
 });
 

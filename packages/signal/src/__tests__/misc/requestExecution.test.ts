@@ -1,12 +1,15 @@
-import { path, factory, output, type } from "../../domain";
+import { path, factory, input, output, type } from "../../domain";
 import { createTestApi } from "../../shared/testUtils/createTestApi";
 
-test("it executes simple requests", async () => {
+/**
+ * Just a simple sanity check
+ * */
+test("it executes requests", async () => {
 	const { custom } = createTestApi();
 	const value = "asdasjkdh";
 
 	const getData = custom(
-		// input(type<string>()),
+		input(type<string>()),
 		output(type<string>()),
 		path("/hey"),
 		factory(() => {
