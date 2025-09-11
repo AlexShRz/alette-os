@@ -17,7 +17,7 @@ test("it keeps request worker alive until the subscription is disposed of", asyn
 		}),
 	);
 
-	const { execute, dispose } = getData1.mount();
+	const { execute, unmount } = getData1.mount();
 
 	const workers1 = await api.ask(forActiveRequestWorkers());
 	expect(workers1.length).toBe(0);
@@ -29,7 +29,7 @@ test("it keeps request worker alive until the subscription is disposed of", asyn
 		expect(workers2.length).toBe(1);
 	});
 
-	dispose();
+	unmount();
 
 	await vi.waitFor(async () => {
 		const workers3 = await api.ask(forActiveRequestWorkers());
@@ -62,7 +62,8 @@ test("it reuses the same worker for next requests dispatched from the same subsc
 });
 
 /**
- * (uninitialized/loading/error/success)
+ * Tested states:
+ * "uninitialized/loading/error/success"
  * */
 test("it updates state snapshots based on actual request state", async () => {
 	const { custom } = createTestApi();
@@ -236,7 +237,7 @@ test("it returns full state snapshots on every request state update", async () =
 			RequestState.Succeeded(value).getUnwrappedState(),
 		);
 	});
-	request1.dispose();
+	request1.unmount();
 
 	const request2 = getData1.mount();
 	const error = new MyError();

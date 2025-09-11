@@ -1,0 +1,63 @@
+import { ISchema, type } from "@alette/pulse";
+import isEqual from "lodash.isequal";
+import { ArgumentAdapter } from "./ArgumentAdapter";
+import { ArgumentRef } from "./ArgumentRef";
+import { RequestArgCloningException } from "./errors";
+
+export interface IArgumentComparator<V> {
+	(passedArgs: V | null, currentArgs: V): boolean;
+}
+
+export interface IArgumentCloner<V> {
+	(value: V): V;
+}
+
+export const argumentAdapter = () => new ArgumentAdapterBuilder();
+
+export class ArgumentAdapterBuilder<Arguments> {
+	protected argSchema = type() as ISchema<unknown, Arguments>;
+	protected argComparator: IArgumentComparator<Arguments> = (next, current) =>
+		isEqual(next, current);
+	protected argCloner: IArgumentCloner<Arguments> = (args) => {
+		try {
+			return structuredClone(args);
+		} catch {
+			throw new RequestArgCloningException(args);
+		}
+	};
+
+	schema<Value>(
+		passedSchema: ISchema<unknown, Value>,
+	): ArgumentAdapterBuilder<Value> {
+		this.argSchema = passedSchema as any;
+		return this as any;
+	}
+
+	whenCompared(comparator: typeof this.argComparator) {
+		this.argComparator = comparator;
+		return this;
+	}
+
+	whenCloned(cloner: typeof this.argCloner) {
+		this.argCloner = (args) => {
+			try {
+				return cloner(args);
+			} catch {
+				throw new RequestArgCloningException(args);
+			}
+		};
+		return this;
+	}
+
+	build() {
+		return new ArgumentAdapter<Arguments>({
+			schema: this.argSchema,
+			createRef: (value) =>
+				new ArgumentRef(value, {
+					schema: this.argSchema,
+					comparator: this.argComparator,
+					cloner: this.argCloner,
+				}),
+		});
+	}
+}
