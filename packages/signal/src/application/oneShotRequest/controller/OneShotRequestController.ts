@@ -64,7 +64,7 @@ export class OneShotRequestController<
 
 	getHandlers() {
 		return {
-			dispose: this.dispose.bind(this),
+			unmount: this.dispose.bind(this),
 			cancel: this.cancelRequest.bind(this),
 			execute: this.executeRequest.bind(this),
 		};
@@ -92,10 +92,14 @@ export class OneShotRequestController<
 		this.dispatch(new CancelRequest());
 	}
 
-	protected executeRequest(...args: TRequestArguments<Context>) {
+	protected executeRequest(
+		args: TRequestArguments<Context> = {} as TRequestArguments<Context>,
+	) {
 		const providedSupplier = this.getSettingSupplier();
 		const supplier =
-			!args.length && providedSupplier ? providedSupplier : () => args;
+			!Object.keys(args).length && providedSupplier
+				? providedSupplier
+				: () => args;
 		this.dispatch(
 			new WithCurrentRequestOverride(
 				new RunRequest(supplier as IRequestSessionSettingSupplier),

@@ -40,7 +40,7 @@ export class OneShotRequest<
 		]) as this;
 	}
 
-	async execute(...args: TRequestArguments<Context>) {
+	async execute(args: TRequestArguments<Context> = {}) {
 		const controller = new OneShotRequestController<Context, R, ER>(
 			this.runtime,
 			{
@@ -51,7 +51,7 @@ export class OneShotRequest<
 		);
 
 		const { execute } = controller.getHandlers();
-		execute(...args);
+		execute(args);
 		return controller.awaitResult().finally(() => {
 			controller.dispose();
 		});

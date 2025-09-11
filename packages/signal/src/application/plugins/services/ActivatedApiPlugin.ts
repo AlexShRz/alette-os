@@ -6,7 +6,7 @@ import * as FiberSet from "effect/FiberSet";
 import * as Layer from "effect/Layer";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
-import { ApiPlugin } from "../ApiPlugin.js";
+import { ApiPlugin } from "../ApiPlugin";
 import { TaskScheduler } from "../tasks/TaskScheduler";
 
 export class ActivatedApiPlugin extends E.Service<ActivatedApiPlugin>()(
@@ -16,14 +16,16 @@ export class ActivatedApiPlugin extends E.Service<ActivatedApiPlugin>()(
 			let wasShutdown = false;
 			const name = plugin.getName();
 			const queuedPluginTasks = yield* plugin.getMailbox();
-			const scope = yield* Scope.make();
-			const supervisedTasks = yield* FiberSet.make().pipe(Scope.extend(scope));
+			const pluginScope = yield* Scope.make();
+			const supervisedTasks = yield* FiberSet.make().pipe(
+				Scope.extend(pluginScope),
+			);
 
 			const taskScheduler = yield* TaskScheduler;
 
 			yield* plugin.scheduleActivationHooks();
 			yield* Scope.addFinalizer(
-				scope,
+				pluginScope,
 				plugin
 					.scheduleDeactivationHooks()
 					.pipe(E.provideService(TaskScheduler, taskScheduler)),
@@ -50,12 +52,12 @@ export class ActivatedApiPlugin extends E.Service<ActivatedApiPlugin>()(
 						yield* E.zipRight(
 							runnable.waitForTrigger(),
 							runnable.getFiberOrThrow(),
-						).pipe(E.andThen(superviseFiber), E.forkIn(scope));
+						).pipe(E.andThen(superviseFiber), E.forkIn(pluginScope));
 
 						return runnable;
 					}),
 				),
-				E.forkIn(scope),
+				E.forkIn(pluginScope),
 				Stream.runDrain,
 			);
 
@@ -68,7 +70,9 @@ export class ActivatedApiPlugin extends E.Service<ActivatedApiPlugin>()(
 					return name;
 				},
 
-				supervise: superviseFiber,
+				getScope() {
+					return pluginScope;
+				},
 
 				shutdown() {
 					return E.gen(function* () {
@@ -77,7 +81,7 @@ export class ActivatedApiPlugin extends E.Service<ActivatedApiPlugin>()(
 						}
 
 						wasShutdown = true;
-						yield* Scope.close(scope, Exit.void);
+						yield* Scope.close(pluginScope, Exit.void);
 					});
 				},
 			};

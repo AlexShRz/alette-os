@@ -5,7 +5,7 @@ import * as Layer from "effect/Layer";
 import * as Scope from "effect/Scope";
 import { v4 as uuid } from "uuid";
 import { RequestWorker } from "../../../../domain/execution/worker/RequestWorker";
-import { PluginMailbox } from "../../../plugins/PluginMailbox";
+import { PluginMailbox } from "../../../plugins/services/PluginMailbox";
 import { queryTask } from "../../../plugins/tasks/primitive/functions";
 import { PrepareRequestWorkerArguments } from "./PrepareRequestWorkerArguments";
 import { attachRequestWatcherPipeline } from "./attachWatcherPipeline";

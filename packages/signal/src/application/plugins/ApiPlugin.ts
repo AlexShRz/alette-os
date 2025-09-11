@@ -2,6 +2,7 @@ import * as E from "effect/Effect";
 import * as Fiber from "effect/Fiber";
 import * as Predicate from "effect/Predicate";
 import * as Runtime from "effect/Runtime";
+import {} from "uuid";
 import {
 	IApiPluginExposedUtils,
 	IPluginActivationHook,
@@ -9,10 +10,10 @@ import {
 	IPluginDeactivationHook,
 	IPluginUtilProvider,
 } from "./ApiPluginBuilder.js";
-import { PluginMailbox } from "./PluginMailbox.js";
-import { PluginName } from "./PluginName.js";
 import { IPluginRuntime } from "./defineApiPlugin.js";
 import { Runnable } from "./runnable/Runnable";
+import { PluginMailbox } from "./services/PluginMailbox";
+import { PluginName } from "./services/PluginName";
 import { TaskScheduler } from "./tasks/TaskScheduler";
 import { task } from "./tasks/primitive/functions";
 
@@ -23,6 +24,7 @@ export class ApiPlugin<
 
 	constructor(
 		protected config: {
+			name: string;
 			getExposed: IPluginUtilProvider<Exposed>;
 			runtime: IPluginRuntime;
 			activationHooks: IPluginDeactivationHook[];

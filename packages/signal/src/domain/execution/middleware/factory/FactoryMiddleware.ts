@@ -20,7 +20,7 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 	<T extends IRequestRunner>(executor: T) =>
 		({ id, parent, context }) =>
 			E.gen(function* () {
-				const requestRunner = yield* RequestRunner;
+				const requestRunner = yield* E.serviceOptional(RequestRunner);
 				const requestContext = yield* E.serviceOptional(RequestSessionContext);
 				const runFork = Runtime.runFork(yield* E.runtime());
 
@@ -137,5 +137,5 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 						});
 					},
 				} satisfies IEventBusListener;
-			}).pipe(E.orDie, E.provide(RequestRunner.make())),
+			}).pipe(E.orDie),
 ) {}

@@ -24,10 +24,13 @@ export class RunRequest extends RequestSessionEvent {
 		return this.settingSupplier;
 	}
 
-	updateContextProvider(
-		provider: (old: typeof this.contextProvider) => typeof this.contextProvider,
+	executeLazy(
+		provider: (
+			old: typeof this.contextProvider,
+			getSelf: () => this,
+		) => typeof this.contextProvider,
 	) {
-		this.contextProvider = provider(this.contextProvider);
+		this.contextProvider = provider(this.contextProvider, () => this);
 		return this;
 	}
 

@@ -1,9 +1,9 @@
 import * as E from "effect/Effect";
 import * as Queue from "effect/Queue";
 import * as Runtime from "effect/Runtime";
-import { CommandTaskBuilder } from "./tasks/primitive/CommandTaskBuilder";
-import { QueryTaskBuilder } from "./tasks/primitive/QueryTaskBuilder";
-import { TaskBuilder } from "./tasks/primitive/TaskBuilder";
+import { CommandTaskBuilder } from "../tasks/primitive/CommandTaskBuilder";
+import { QueryTaskBuilder } from "../tasks/primitive/QueryTaskBuilder";
+import { TaskBuilder } from "../tasks/primitive/TaskBuilder";
 
 export interface IApiPluginMailboxMessage extends TaskBuilder<any, any> {}
 

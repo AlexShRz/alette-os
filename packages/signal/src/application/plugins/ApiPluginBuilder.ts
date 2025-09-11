@@ -33,6 +33,7 @@ export class ApiPluginBuilder<
 
 	constructor(
 		protected config: {
+			name: string;
 			runtime: IPluginRuntime;
 		},
 	) {}
@@ -56,6 +57,7 @@ export class ApiPluginBuilder<
 
 	build() {
 		return new ApiPlugin<Utils>({
+			name: this.config.name,
 			runtime: this.config.runtime,
 			activationHooks: [...this.activationHooks] as any,
 			deactivationHooks: [...this.deactivationHooks] as any,

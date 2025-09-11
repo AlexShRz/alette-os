@@ -1,7 +1,8 @@
 import * as Context from "effect/Context";
 import * as E from "effect/Effect";
-import * as Fiber from "effect/Fiber";
+import * as FiberHandle from "effect/FiberHandle";
 import * as Layer from "effect/Layer";
+import * as Scope from "effect/Scope";
 import { RequestMetrics } from "../RequestMetrics";
 
 export class RequestRunner extends Context.Tag("RequestRunner")<
@@ -18,7 +19,7 @@ export class RequestRunner extends Context.Tag("RequestRunner")<
 		return Layer.scoped(
 			this,
 			E.gen(function* () {
-				const scope = yield* E.scope;
+				const requestScope = yield* E.scope;
 				/**
 				 * 1. Here we hold the actual request that's being executed
 				 * 2. We need to wrap it inside sync ref because
@@ -26,15 +27,13 @@ export class RequestRunner extends Context.Tag("RequestRunner")<
 				 * simultaneously.
 				 * */
 				let isRunning = false;
-				/**
-				 * TODO: Wrap in sync ref?
-				 * FiberHandle does not work for some reason
-				 * */
-				let runningRequest: Fiber.RuntimeFiber<unknown, unknown> | null = null;
+				const requestHandle = yield* FiberHandle.make().pipe(
+					Scope.extend(requestScope),
+				);
 				const metrics = yield* RequestMetrics;
 
 				yield* E.addFinalizer(() =>
-					E.sync(() => {
+					E.gen(function* () {
 						isRunning = false;
 					}),
 				);
@@ -45,26 +44,25 @@ export class RequestRunner extends Context.Tag("RequestRunner")<
 					},
 					supervise(task) {
 						return E.gen(function* () {
-							yield* metrics.recordAttemptedExecution();
 							isRunning = true;
-							yield* task.pipe(
-								E.ensuring(
-									E.sync(() => {
-										runningRequest = null;
-										isRunning = false;
-									}),
+							yield* metrics.recordAttemptedExecution();
+							yield* FiberHandle.run(
+								requestHandle,
+								task.pipe(
+									E.ensuring(
+										E.sync(() => {
+											isRunning = false;
+										}),
+									),
 								),
 							);
 						});
 					},
 					interrupt() {
 						return E.gen(function* () {
-							if (runningRequest) {
-								yield* Fiber.interruptFork(runningRequest);
-							}
-							runningRequest = null;
+							yield* FiberHandle.clear(requestHandle);
 							isRunning = false;
-						}).pipe(E.forkIn(scope));
+						});
 					},
 				};
 			}),

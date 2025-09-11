@@ -51,8 +51,8 @@ export class OriginMiddleware extends Middleware("OriginMiddleware", {
 							}
 
 							return yield* context.next(
-								event.updateContextProvider((provider) =>
-									provider.pipe(E.andThen(() => provideOriginContext)),
+								event.executeLazy((operation) =>
+									operation.pipe(E.andThen(() => provideOriginContext)),
 								),
 							);
 						});

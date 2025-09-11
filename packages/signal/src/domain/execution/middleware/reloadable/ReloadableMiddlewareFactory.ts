@@ -3,7 +3,7 @@ import { IGlobalContext } from "../../../context";
 import { IRequestContext } from "../../../context/IRequestContext";
 import {
 	TGetRequestContextWithoutGlobalContext,
-	TRequestArgumentsAsRecord,
+	TRequestArguments,
 } from "../../../context/typeUtils/RequestIOTypes";
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
@@ -17,7 +17,7 @@ export interface IReloadableMiddlewareCheck<
 	(
 		options: {
 			prev: TGetRequestContextWithoutGlobalContext<C> | null;
-			current: TRequestArgumentsAsRecord<C>;
+			current: TRequestArguments<C>;
 		},
 		reqContext: { context: IGlobalContext },
 	): boolean;

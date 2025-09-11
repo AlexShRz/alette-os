@@ -45,8 +45,8 @@ export class PathMiddleware extends Middleware("PathMiddleware", {
 							}
 
 							return yield* context.next(
-								event.updateContextProvider((provider) =>
-									provider.pipe(E.andThen(updatePath)),
+								event.executeLazy((operation) =>
+									operation.pipe(E.andThen(updatePath)),
 								),
 							);
 						});

@@ -11,6 +11,7 @@ import { RequestMetrics } from "../RequestMetrics";
 import { TSessionEvent } from "../events/SessionEvent";
 import { RequestEventInterceptor } from "../services/RequestEventInterceptor";
 import { RequestMeta } from "../services/RequestMeta";
+import { RequestRunner } from "../services/RequestRunner";
 import { RequestSession } from "../services/RequestSession";
 import { RequestSessionContext } from "../services/RequestSessionContext";
 import { RequestStateTimeline } from "../services/timeline/RequestStateTimeline";
@@ -48,6 +49,11 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 					RequestSessionContext.Default,
 					RequestMetrics.Default,
 					RequestMeta.Default,
+					/**
+					 * TODO: Switch runner based on request
+					 * type (oneShot vs stream).
+					 * */
+					RequestRunner.make(),
 					WatcherPipelineRegistry.Default,
 				),
 				Layer.provideMerge(

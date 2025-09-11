@@ -1,6 +1,6 @@
 import * as E from "effect/Effect";
 import { ApiPlugin } from "../plugins/ApiPlugin";
-import { PluginRegistry } from "../plugins/registry/PluginRegistry";
+import { PluginRegistry } from "../plugins/services/PluginRegistry";
 import { task } from "../plugins/tasks/primitive/functions";
 
 export const deactivatePlugins = (...plugins: ApiPlugin[]) =>

@@ -1,7 +1,7 @@
 import * as Context from "effect/Context";
 import * as E from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { TRequestMode } from "../../../../domain/execution/worker/RequestWorker";
+import { TRequestMode } from "../../../../domain/execution/worker/RequestWorkerConfig";
 import { TAnyMiddlewareInjector } from "../../../blueprint";
 import { RequestController } from "../../../blueprint/controller/RequestController";
 

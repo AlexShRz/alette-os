@@ -65,7 +65,7 @@ export abstract class ApiRequest<
 		return this.clone();
 	}
 
-	using(supplier: () => TRequestArguments<Context>[number]) {
+	using(supplier: () => TRequestArguments<Context>) {
 		this.settingSupplier = supplier;
 		/**
 		 * Here we need to CLONE everything WITHOUT

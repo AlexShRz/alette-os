@@ -15,32 +15,3 @@ export const coreApiPlugin = () => {
 		}))
 		.build();
 };
-//
-// const plugin = coreApiPlugin();
-//
-// const { query } = plugin.use();
-// //
-// // const out1 = output(type<{ heyyy: string }>());
-// // const out2 = output(
-// // 	responseAdapter().schema(type<{ heyyy: string }>()).build(),
-// // );
-//
-// const getPost = query(
-// 	input(type<string>()),
-// 	output(responseAdapter().schema(type<{ heyyy: string }>()).build()),
-// 	path("/hey"),
-// 	reloadable(({ prev, current }) => {
-// 		return prev?.args !== current.args;
-// 	}),
-// );
-//
-// // const asdas = getPost.execute({  });
-//
-// // const getPost = query(
-// // 	input(type<string>()),
-// // 	out2(),
-// // 	path("/hey"),
-// // 	reloadable(({ prev, current }) => {
-// // 		return prev?.args !== current.args;
-// // 	}),
-// // );
