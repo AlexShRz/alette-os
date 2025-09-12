@@ -11,7 +11,6 @@ export const activatePlugins = (...plugins: ApiPlugin[]) =>
 			E.gen(function* () {
 				const registry = yield* E.serviceOptional(PluginRegistry);
 
-				yield* E.yieldNow();
 				for (const plugin of plugins) {
 					const ref = yield* plugin.getOrCreatePluginRef();
 					yield* registry.activate(ref).pipe(Scope.extend(ref.getScope()));

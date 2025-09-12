@@ -14,6 +14,19 @@ export abstract class RequestControllerSupervisor {
 	constructor(protected plugin: ApiPlugin) {
 		const runtime = this.plugin.getRuntime();
 		this.scope = runtime.runSync(Scope.make());
+
+		// runtime.runFork(Scope.close(this.scope, Exit.void));
+		// Scope.fork(scope, Exit.void);
+
+		runtime.runSync(
+			Scope.addFinalizer(
+				this.scope,
+				E.sync(() => {
+					console.log("hjhjkkjjkbbjkbjkbjkbkj");
+				}),
+			),
+		);
+
 		this.supervisedFibers = runtime.runSync(
 			FiberSet.make().pipe(Scope.extend(this.scope)),
 		);

@@ -1,5 +1,6 @@
 import * as Layer from "effect/Layer";
 import * as P from "effect/Predicate";
+import * as Scope from "effect/Scope";
 import {
 	EventBusListener,
 	IEventBusListener,
@@ -26,14 +27,14 @@ export class EventBusListenerFactory<
 		return <Args extends any[]>(
 			factory: (
 				...args: Args
-			) => IEventBusListenerFactory<LayerReturn, Exceptions, never>,
+			) => IEventBusListenerFactory<LayerReturn, Exceptions, Scope.Scope>,
 		) =>
 			class extends EventBusListenerFactory<Tag, LayerType> {
 				constructor(...factoryArgs: Args extends [] ? [] : Args) {
 					super(
 						tag,
 						() =>
-							EventBusListener.make<LayerReturn, Exceptions, never>(
+							EventBusListener.make<LayerReturn, Exceptions, Scope.Scope>(
 								factory(...(factoryArgs as Args)),
 							),
 						passedConfig,

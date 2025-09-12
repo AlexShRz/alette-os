@@ -1,3 +1,4 @@
+import { ExecutionStrategy } from "effect";
 import * as Context from "effect/Context";
 import * as E from "effect/Effect";
 import * as Fiber from "effect/Fiber";
@@ -76,7 +77,7 @@ export class ActiveApiPlugin extends E.Service<ActiveApiPlugin>()(
 				},
 
 				getScope() {
-					return pluginScope;
+					return Scope.fork(pluginScope, ExecutionStrategy.sequential);
 				},
 
 				shutdown() {

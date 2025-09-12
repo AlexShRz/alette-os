@@ -3,7 +3,7 @@ import * as E from "effect/Effect";
 import * as FiberHandle from "effect/FiberHandle";
 import * as Layer from "effect/Layer";
 import * as Scope from "effect/Scope";
-import { RequestMetrics } from "../RequestMetrics";
+import { RequestMetrics } from "./RequestMetrics";
 
 export class RequestRunner extends Context.Tag("RequestRunner")<
 	RequestRunner,

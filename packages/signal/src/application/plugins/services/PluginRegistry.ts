@@ -66,19 +66,25 @@ export class PluginRegistry extends E.Service<PluginRegistry>()(
 				},
 
 				activate(plugin: ActivePluginRef) {
-					return SynchronizedRef.getAndUpdateEffect(plugins, (registry) =>
-						E.gen(function* () {
-							const name = plugin.getName();
-							const activatedPlugin = yield* ActiveApiPlugin.makeAsValue(
-								plugin,
-							).pipe(
-								E.provide(RequestThreadRegistry.Default),
-								E.provideService(TaskScheduler, taskScheduler),
-							);
-							registry.set(name, activatedPlugin);
-							return registry;
-						}),
-					).pipe(Scope.extend(plugin.getScope()));
+					return E.gen(function* () {
+						const scope = plugin.getScope();
+
+						return yield* SynchronizedRef.getAndUpdateEffect(
+							plugins,
+							(registry) =>
+								E.gen(function* () {
+									const name = plugin.getName();
+									const activatedPlugin = yield* ActiveApiPlugin.makeAsValue(
+										plugin,
+									).pipe(
+										E.provide(RequestThreadRegistry.Default),
+										E.provideService(TaskScheduler, taskScheduler),
+									);
+									registry.set(name, activatedPlugin);
+									return registry;
+								}),
+						).pipe(Scope.extend(scope));
+					});
 				},
 
 				deactivate(name: string) {

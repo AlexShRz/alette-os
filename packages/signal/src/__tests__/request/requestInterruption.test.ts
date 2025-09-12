@@ -39,26 +39,36 @@ test("it overrides previous request when a new request command is received", asy
 	});
 });
 
-// test("it interrupts plugin requests if the plugin is deactivated", async () => {
-// 	const { api, custom, corePlugin } = createTestApi();
-//
-// 	const getData1 = custom(
-// 		factory(async () => {
-// 			return await new Promise<string>(() => {
-// 				// Do not resolve anything
-// 			});
-// 		}),
-// 	);
-//
-// 	const { execute, getState } = getData1.mount();
-// 	execute();
-// 	await vi.waitFor(() => {
-// 		expect(getState().isLoading).toBeTruthy();
-// 	});
-//
-// 	api.tell(deactivatePlugins(corePlugin));
-// 	await vi.waitFor(() => {
-// 		const error = getState().error;
-// 		expect(error instanceof RequestInterruptedException).toBeTruthy();
-// 	});
-// });
+/**
+ * Fix later, have no idea how to fix now
+ * See prepareRequestWorker
+ * */
+test.todo(
+	"it interrupts plugin requests if the plugin is deactivated",
+	async () => {
+		const { api, custom, corePlugin } = createTestApi();
+
+		const getData1 = custom(
+			factory(async () => {
+				return await new Promise<string>(() => {
+					// Do not resolve anything
+				});
+			}),
+		);
+
+		const { execute, getState } = getData1.mount();
+		execute();
+		await vi.waitFor(() => {
+			expect(getState().isLoading).toBeTruthy();
+		});
+
+		api.tell(deactivatePlugins(corePlugin));
+		await vi.waitFor(
+			() => {
+				const error = getState().error;
+				expect(error instanceof RequestInterruptedException).toBeTruthy();
+			},
+			{ timeout: 5000 },
+		);
+	},
+);

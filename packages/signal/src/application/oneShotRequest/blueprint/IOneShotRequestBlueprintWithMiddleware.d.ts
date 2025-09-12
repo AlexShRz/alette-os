@@ -2,8 +2,8 @@ import {
 	IAnyMiddlewareSpecification,
 	RequestSpecification,
 } from "@alette/pulse";
-import { IRequestContext } from "../../domain/context/IRequestContext";
-import { IMiddlewareSupplierFn } from "../../domain/middleware/IMiddlewareSupplierFn";
+import { IRequestContext } from "../../../domain/context/IRequestContext";
+import { IMiddlewareSupplierFn } from "../../../domain/middleware/IMiddlewareSupplierFn";
 import type { OneShotRequestBlueprint } from "./OneShotRequestBlueprint";
 
 export interface IOneShotRequestBlueprintWithMiddleware<

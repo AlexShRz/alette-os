@@ -6,5 +6,5 @@ export const createTestApi = (...commands: CommandTaskBuilder[]) => {
 	const core = coreApiPlugin();
 	const api = client(activatePlugins(core.plugin), ...commands);
 
-	return { api, corePlugin: core, ...core.use() };
+	return { api, corePlugin: core.plugin, ...core.use() };
 };

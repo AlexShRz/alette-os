@@ -1,7 +1,7 @@
 import * as E from "effect/Effect";
 import * as Stream from "effect/Stream";
 import * as SynchronizedRef from "effect/SynchronizedRef";
-import { RequestSession } from "./services/RequestSession";
+import { RequestSession } from "./RequestSession";
 
 interface IRequestMetrics {
 	attempt: number;

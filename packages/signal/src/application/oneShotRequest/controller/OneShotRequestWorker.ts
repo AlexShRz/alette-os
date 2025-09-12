@@ -2,8 +2,8 @@ import * as E from "effect/Effect";
 import { TSessionEvent } from "../../../domain/execution/events/SessionEvent";
 import { RequestControllerWorker } from "../../blueprint/controller/RequestControllerWorker";
 import { ApiPlugin } from "../../plugins/ApiPlugin";
-import { PrepareRequestWorker } from "../workflows/prepareRequestWorker/PrepareRequestWorker";
 import { PrepareRequestWorkerArguments } from "../workflows/prepareRequestWorker/PrepareRequestWorkerArguments";
+import { prepareRequestWorker } from "../workflows/prepareRequestWorker/prepareRequestWorker";
 import { OneShotRequestSupervisor } from "./OneShotRequestSupervisor";
 
 export class OneShotRequestWorker extends RequestControllerWorker {
@@ -21,7 +21,7 @@ export class OneShotRequestWorker extends RequestControllerWorker {
 
 	protected prepare() {
 		return this.lifecycle.spawnAndSupervise(
-			PrepareRequestWorker.send(this.config).pipe(
+			prepareRequestWorker(this.config).pipe(
 				E.andThen((worker) => this.setWorker(worker)),
 			),
 		);
