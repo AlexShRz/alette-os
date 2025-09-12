@@ -1,7 +1,6 @@
 import { BusEvent } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
 import * as Fiber from "effect/Fiber";
-import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Stream from "effect/Stream";
 import * as SubscriptionRef from "effect/SubscriptionRef";
 import { IRequestContext } from "../../../domain/context/IRequestContext";
@@ -13,6 +12,7 @@ import { ApplyRequestState } from "../../../domain/execution/events/request/Appl
 import { IOneShotRequestState } from "../../../domain/execution/state/IOneShotRequestState";
 import { RequestInterruptedException } from "../../../shared/exception/RequestInterruptedException";
 import { RequestControllerState } from "../../blueprint/controller/RequestControllerState";
+import { ApiPlugin } from "../../plugins/ApiPlugin";
 import { OneShotRequestSupervisor } from "./OneShotRequestSupervisor";
 
 export interface ILocalOneShotRequestState<Context extends IRequestContext>
@@ -22,19 +22,17 @@ export interface ILocalOneShotRequestState<Context extends IRequestContext>
 
 export class OneShotRequestState<
 	Context extends IRequestContext,
-	R,
-	ER,
-> extends RequestControllerState<ILocalOneShotRequestState<Context>, R, ER> {
+> extends RequestControllerState<ILocalOneShotRequestState<Context>> {
 	protected state: SubscriptionRef.SubscriptionRef<
 		ILocalOneShotRequestState<Context>
 	>;
 
 	constructor(
-		runtime: ManagedRuntime.ManagedRuntime<R, ER>,
-		protected supervisor: OneShotRequestSupervisor<R, ER>,
+		plugin: ApiPlugin,
+		protected supervisor: OneShotRequestSupervisor,
 	) {
-		super(runtime);
-		this.state = runtime.runSync(
+		super(plugin);
+		this.state = plugin.getRuntime().runSync(
 			SubscriptionRef.make({
 				isLoading: false,
 				isUninitialized: true,
@@ -48,7 +46,7 @@ export class OneShotRequestState<
 	}
 
 	getState() {
-		return this.runtime.runSync(this.state.get);
+		return this.plugin.getRuntime().runSync(this.state.get);
 	}
 
 	protected startStateSync() {
@@ -115,8 +113,8 @@ export class OneShotRequestState<
 			},
 		);
 
-		return this.runtime.runPromise(
-			Fiber.join(this.supervisor.spawnAndSupervise(task)),
-		);
+		return this.plugin
+			.getRuntime()
+			.runPromise(Fiber.join(this.supervisor.spawnAndSupervise(task)));
 	}
 }

@@ -1,14 +1,13 @@
-import * as ManagedRuntime from "effect/ManagedRuntime";
 import {
 	IMiddlewareSupplierFn,
 	IRuntimeMiddlewareSupplierFn,
 } from "../../domain/middleware/IMiddlewareSupplierFn";
+import { ApiPlugin } from "../plugins/ApiPlugin";
 
-export abstract class AbstractBlueprintBuilder<R, ER> {
+export abstract class AbstractBlueprintBuilder {
 	protected middlewareFactories: IMiddlewareSupplierFn<any, any, any, any>[] =
 		[];
-	protected blueprintRuntime: ManagedRuntime.ManagedRuntime<R, ER> | null =
-		null;
+	protected plugin: ApiPlugin | null = null;
 
 	protected throwMiddlewareRequiredError(middlewareName: string) {
 		throw new Error(
@@ -17,12 +16,10 @@ export abstract class AbstractBlueprintBuilder<R, ER> {
 	}
 
 	protected assertRuntimeProvided(): asserts this is {
-		blueprintRuntime: ManagedRuntime.ManagedRuntime<R, ER>;
+		plugin: ApiPlugin;
 	} {
-		if (!this.blueprintRuntime) {
-			throw new Error(
-				"[Blueprint Builder] - runtime for request execution was not provided.",
-			);
+		if (!this.plugin) {
+			throw new Error("[Blueprint Builder] - parent plugin was not provided.");
 		}
 	}
 

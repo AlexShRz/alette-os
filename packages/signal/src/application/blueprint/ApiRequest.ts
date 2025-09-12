@@ -1,5 +1,4 @@
 import { IAnyRequestSpecification } from "@alette/pulse";
-import * as ManagedRuntime from "effect/ManagedRuntime";
 import { v4 as uuid } from "uuid";
 import { IRequestContext } from "../../domain/context/IRequestContext";
 import { TRequestArguments } from "../../domain/context/typeUtils/RequestIOTypes";
@@ -10,6 +9,7 @@ import {
 } from "../../domain/middleware/IMiddlewareSupplierFn";
 import { RequestMiddleware } from "../../domain/middleware/RequestMiddleware";
 import { RequestWatcher } from "../../domain/watchers/RequestWatcher";
+import { ApiPlugin } from "../plugins/ApiPlugin";
 
 export type TAnyMiddlewareInjector = RequestMiddleware | RequestWatcher;
 
@@ -17,8 +17,6 @@ export abstract class ApiRequest<
 	PrevContext extends IRequestContext = IRequestContext,
 	Context extends IRequestContext = IRequestContext,
 	RequestSpec extends IAnyRequestSpecification = IAnyRequestSpecification,
-	R = never,
-	ER = never,
 > {
 	/**
 	 * 1. Helps us figure out where to route the request
@@ -39,7 +37,7 @@ export abstract class ApiRequest<
 	protected middlewareInjectors: TAnyMiddlewareInjector[] = [];
 
 	constructor(
-		protected runtime: ManagedRuntime.ManagedRuntime<R, ER>,
+		protected plugin: ApiPlugin,
 		protected defaultMiddleware: RequestMiddleware[],
 	) {}
 

@@ -1,6 +1,7 @@
 import { RequestSpecification } from "@alette/pulse";
 import { IRequestContext } from "../../domain/context/IRequestContext";
 import { TRequestArguments } from "../../domain/context/typeUtils/RequestIOTypes";
+import { TRequestMode } from "../../domain/execution/worker/RequestWorkerConfig";
 import { IMiddlewareSupplierFn } from "../../domain/middleware/IMiddlewareSupplierFn";
 import { ApiRequest } from "../blueprint/ApiRequest";
 import { IOneShotRequestWithMiddleware } from "./IOneShotRequestWithMiddleware";
@@ -10,16 +11,15 @@ export class OneShotRequest<
 		PrevContext extends IRequestContext = IRequestContext,
 		Context extends IRequestContext = IRequestContext,
 		RequestSpec extends RequestSpecification = RequestSpecification,
-		R = never,
-		ER = never,
 	>
-	extends ApiRequest<PrevContext, Context, RequestSpec, R, ER>
+	extends ApiRequest<PrevContext, Context, RequestSpec>
 	implements IOneShotRequestWithMiddleware<Context, RequestSpec>
 {
-	protected createControllerForMountMode() {
-		return new OneShotRequestController<Context, R, ER>(this.runtime, {
+	protected createController(mode: TRequestMode) {
+		return new OneShotRequestController<Context>(this.plugin, {
 			threadId: this.requestThreadId,
-			requestMode: "subscription",
+			plugin: this.plugin,
+			requestMode: mode,
 			middlewareInjectors: this.getAllMiddlewareInjectors(),
 		});
 	}
@@ -35,20 +35,11 @@ export class OneShotRequest<
 	};
 
 	protected _clone() {
-		return new OneShotRequest(this.runtime, [
-			...this.defaultMiddleware,
-		]) as this;
+		return new OneShotRequest(this.plugin, [...this.defaultMiddleware]) as this;
 	}
 
 	async execute(args: TRequestArguments<Context> = {}) {
-		const controller = new OneShotRequestController<Context, R, ER>(
-			this.runtime,
-			{
-				threadId: this.requestThreadId,
-				requestMode: "oneShot",
-				middlewareInjectors: this.getAllMiddlewareInjectors(),
-			},
-		);
+		const controller = this.createController("oneShot");
 
 		const { execute } = controller.getHandlers();
 		execute(args);
@@ -58,7 +49,7 @@ export class OneShotRequest<
 	}
 
 	mount() {
-		const controller = this.createControllerForMountMode();
+		const controller = this.createController("subscription");
 		return {
 			getState: controller.getState.bind(controller),
 			when: (subscriber: Parameters<typeof controller.subscribe>[0]) => {
@@ -80,6 +71,6 @@ export class OneShotRequest<
 	 * For UI only
 	 * */
 	control() {
-		return this.createControllerForMountMode();
+		return this.createController("subscription");
 	}
 }

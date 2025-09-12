@@ -1,34 +1,39 @@
 import * as Context from "effect/Context";
 import * as E from "effect/Effect";
-import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
 import * as FiberSet from "effect/FiberSet";
 import * as Layer from "effect/Layer";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
-import { ApiPlugin } from "../ApiPlugin";
+import { RequestThreadRegistry } from "../../../domain/execution/RequestThreadRegistry";
 import { TaskScheduler } from "../tasks/TaskScheduler";
+import { ActivePluginRef } from "./ref/ActivePluginRef";
 
-export class ActivatedApiPlugin extends E.Service<ActivatedApiPlugin>()(
-	"ActivatedApiPlugin",
+/**
+ * 1. All plugin blueprint requests pass through here and then
+ * back to Kernel for execution.
+ * 2. The service manages request thread/worker lifecycle. The
+ * moment our plugin is deactivated, all requests tied to it are interrupted and
+ * workers/threads are cleaned.
+ * */
+export class ActiveApiPlugin extends E.Service<ActiveApiPlugin>()(
+	"ActiveApiPlugin",
 	{
-		effect: E.fn(function* (plugin: ApiPlugin) {
-			let wasShutdown = false;
-			const name = plugin.getName();
-			const queuedPluginTasks = yield* plugin.getMailbox();
-			const pluginScope = yield* Scope.make();
+		effect: E.fn(function* (pluginReference: ActivePluginRef) {
+			const taskScheduler = yield* TaskScheduler;
+			const threads = yield* RequestThreadRegistry;
+			const pluginScope = pluginReference.getScope();
+
+			/**
+			 * Set up our reference to activate
+			 * plugin hooks
+			 * */
+			yield* pluginReference.activate();
+
+			const name = pluginReference.getName();
+			const queuedPluginTasks = pluginReference.getMailbox();
 			const supervisedTasks = yield* FiberSet.make().pipe(
 				Scope.extend(pluginScope),
-			);
-
-			const taskScheduler = yield* TaskScheduler;
-
-			yield* plugin.scheduleActivationHooks();
-			yield* Scope.addFinalizer(
-				pluginScope,
-				plugin
-					.scheduleDeactivationHooks()
-					.pipe(E.provideService(TaskScheduler, taskScheduler)),
 			);
 
 			const superviseFiber = (fiber: Fiber.RuntimeFiber<any>) => {
@@ -62,12 +67,12 @@ export class ActivatedApiPlugin extends E.Service<ActivatedApiPlugin>()(
 			);
 
 			return {
-				isShutdown() {
-					return wasShutdown;
-				},
-
 				getName() {
 					return name;
+				},
+
+				getThreads() {
+					return threads;
 				},
 
 				getScope() {
@@ -75,22 +80,15 @@ export class ActivatedApiPlugin extends E.Service<ActivatedApiPlugin>()(
 				},
 
 				shutdown() {
-					return E.gen(function* () {
-						if (wasShutdown) {
-							return;
-						}
-
-						wasShutdown = true;
-						yield* Scope.close(pluginScope, Exit.void);
-					});
+					return pluginReference.invalidate();
 				},
 			};
 		}),
 	},
 ) {
-	static makeAsValue(plugin: ApiPlugin) {
-		return Layer.build(ActivatedApiPlugin.Default(plugin)).pipe(
-			E.andThen((c) => Context.unsafeGet(c, ActivatedApiPlugin)),
+	static makeAsValue(plugin: ActivePluginRef) {
+		return Layer.build(ActiveApiPlugin.Default(plugin)).pipe(
+			E.andThen((c) => Context.unsafeGet(c, ActiveApiPlugin)),
 		);
 	}
 }

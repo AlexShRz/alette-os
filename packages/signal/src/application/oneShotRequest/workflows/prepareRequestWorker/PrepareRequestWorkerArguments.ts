@@ -4,12 +4,20 @@ import * as Layer from "effect/Layer";
 import { TRequestMode } from "../../../../domain/execution/worker/RequestWorkerConfig";
 import { TAnyMiddlewareInjector } from "../../../blueprint";
 import { RequestController } from "../../../blueprint/controller/RequestController";
+import { ApiPlugin } from "../../../plugins/ApiPlugin";
 
 export class PrepareRequestWorkerArguments extends Context.Tag(
 	"PrepareRequestWorkerArguments",
 )<
 	PrepareRequestWorkerArguments,
 	{
+		/**
+		 * 1. Used for tying controller scope
+		 * to plugin scope using addFinalizer. This makes
+		 * sure that the moment our plugin is deactivated, all
+		 * controllers are disposed of.
+		 * */
+		plugin: ApiPlugin;
 		/**
 		 * 1. The thread that's going to supervise
 		 * the request worker.
@@ -27,10 +35,10 @@ export class PrepareRequestWorkerArguments extends Context.Tag(
 		requestMode: TRequestMode;
 		/**
 		 * 1. Middleware/Watcher factories that will be lazily
-		 * initialized to aggregate actual middleware for the actual
+		 * initialized to aggregate actual middleware for
 		 * request worker.
 		 * 2. The aggregation is done via event dispatching. We
-		 * send the aggregation event to the bus that contains
+		 * send an aggregation event to the bus that contains
 		 * middleware injectors (they are also event bus listeners),
 		 * and injectors provide actual middleware.
 		 * */

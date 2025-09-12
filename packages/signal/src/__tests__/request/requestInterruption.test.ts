@@ -38,7 +38,7 @@ test("it overrides previous request when a new request command is received", asy
 		expect(getState().data).toEqual(value2);
 	});
 });
-//
+
 // test("it interrupts plugin requests if the plugin is deactivated", async () => {
 // 	const { api, custom, corePlugin } = createTestApi();
 //

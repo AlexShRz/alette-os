@@ -6,6 +6,6 @@ export const forActivePlugins = () =>
 	queryTask(() =>
 		E.gen(function* () {
 			const registry = yield* E.serviceOptional(PluginRegistry);
-			return registry.getActivatedPluginNames();
+			return yield* registry.getActivatedPluginNames();
 		}).pipe(E.orDie),
 	);

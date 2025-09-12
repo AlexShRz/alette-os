@@ -1,19 +1,20 @@
 import * as E from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FiberSet from "effect/FiberSet";
-import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Scope from "effect/Scope";
+import { ApiPlugin } from "../../plugins/ApiPlugin";
 
-export abstract class RequestControllerSupervisor<R, ER> {
+export abstract class RequestControllerSupervisor {
 	/**
 	 * Scope and fibers
 	 * */
 	protected scope: Scope.CloseableScope;
 	protected supervisedFibers: FiberSet.FiberSet;
 
-	constructor(protected runtime: ManagedRuntime.ManagedRuntime<R, ER>) {
-		this.scope = this.runtime.runSync(Scope.make());
-		this.supervisedFibers = this.runtime.runSync(
+	constructor(protected plugin: ApiPlugin) {
+		const runtime = this.plugin.getRuntime();
+		this.scope = runtime.runSync(Scope.make());
+		this.supervisedFibers = runtime.runSync(
 			FiberSet.make().pipe(Scope.extend(this.scope)),
 		);
 	}
@@ -23,19 +24,21 @@ export abstract class RequestControllerSupervisor<R, ER> {
 	}
 
 	spawnAndSupervise<A, I, R>(task: E.Effect<A, I, R>) {
+		const runtime = this.plugin.getRuntime();
+
 		const scopedTask = task.pipe(Scope.extend(this.scope)) as E.Effect<
 			A,
 			I,
 			never
 		>;
 
-		const supervisedTask = this.runtime.runFork(scopedTask);
-		this.runtime.runFork(FiberSet.add(this.supervisedFibers, supervisedTask));
+		const supervisedTask = runtime.runFork(scopedTask);
+		runtime.runFork(FiberSet.add(this.supervisedFibers, supervisedTask));
 
-		return this.runtime.runFork(supervisedTask);
+		return runtime.runFork(supervisedTask);
 	}
 
 	shutdown() {
-		this.runtime.runFork(Scope.close(this.scope, Exit.void));
+		this.plugin.getRuntime().runFork(Scope.close(this.scope, Exit.void));
 	}
 }

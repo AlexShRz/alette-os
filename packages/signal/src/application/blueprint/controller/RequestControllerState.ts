@@ -1,14 +1,14 @@
 import { BusEvent } from "@alette/event-sourcing";
-import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Queue from "effect/Queue";
+import { ApiPlugin } from "../../plugins/ApiPlugin";
 
-export abstract class RequestControllerState<State, R, ER> {
+export abstract class RequestControllerState<State> {
 	protected eventReceiver: Queue.Queue<BusEvent>;
 
-	protected constructor(
-		protected runtime: ManagedRuntime.ManagedRuntime<R, ER>,
-	) {
-		this.eventReceiver = this.runtime.runSync(Queue.unbounded<BusEvent>());
+	protected constructor(protected plugin: ApiPlugin) {
+		this.eventReceiver = this.plugin
+			.getRuntime()
+			.runSync(Queue.unbounded<BusEvent>());
 	}
 
 	abstract getState(): State;

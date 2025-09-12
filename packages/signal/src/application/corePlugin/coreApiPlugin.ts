@@ -3,15 +3,17 @@ import { customRequestFactory } from "./custom";
 import { queryFactory } from "./query";
 
 export const coreApiPlugin = () => {
-	const { plugin, pluginRuntime } = defineApiPlugin("alette-signal/core");
+	const { plugin } = defineApiPlugin("alette-signal/core");
 
-	const query = queryFactory.executor(pluginRuntime).build();
-	const custom = customRequestFactory.executor(pluginRuntime).build();
+	const core = plugin.build();
 
-	return plugin
-		.exposes(() => ({
-			query: query.asFunction(),
-			custom: custom.asFunction(),
-		}))
-		.build();
+	return {
+		plugin: core,
+		use() {
+			return {
+				query: queryFactory.belongsTo(core).build().asFunction(),
+				custom: customRequestFactory.belongsTo(core).build().asFunction(),
+			};
+		},
+	};
 };

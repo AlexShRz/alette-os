@@ -1,5 +1,4 @@
 import * as E from "effect/Effect";
-import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Stream from "effect/Stream";
 import { IRequestContext } from "../../../domain/context/IRequestContext";
 import { TRequestArguments } from "../../../domain/context/typeUtils/RequestIOTypes";
@@ -11,6 +10,7 @@ import { WithRunOnMountCheck } from "../../../domain/execution/events/envelope/W
 import { RunRequest } from "../../../domain/execution/events/request/RunRequest";
 import { IRequestSessionSettingSupplier } from "../../../domain/execution/services/RequestSessionContext";
 import { RequestController } from "../../blueprint/controller/RequestController";
+import { ApiPlugin } from "../../plugins/ApiPlugin";
 import { PrepareRequestWorkerArguments } from "../workflows/prepareRequestWorker/PrepareRequestWorkerArguments";
 import {
 	ILocalOneShotRequestState,
@@ -21,25 +21,23 @@ import { OneShotRequestWorker } from "./OneShotRequestWorker";
 
 export class OneShotRequestController<
 	Context extends IRequestContext,
-	R,
-	ER,
-> extends RequestController<ILocalOneShotRequestState<Context>, R, ER> {
-	protected supervisor = new OneShotRequestSupervisor<R, ER>(this.runtime);
-	protected state = new OneShotRequestState<Context, R, ER>(
-		this.runtime,
+> extends RequestController<ILocalOneShotRequestState<Context>> {
+	protected supervisor = new OneShotRequestSupervisor(this.plugin);
+	protected state = new OneShotRequestState<Context>(
+		this.plugin,
 		this.supervisor,
 	);
-	protected worker: OneShotRequestWorker<R, ER>;
+	protected worker: OneShotRequestWorker;
 
 	constructor(
-		runtime: ManagedRuntime.ManagedRuntime<R, ER>,
+		plugin: ApiPlugin,
 		workerConfig: Omit<
 			PrepareRequestWorkerArguments["Type"],
-			"controller" | "workerId"
+			"controller" | "workerId" | "pluginName"
 		>,
 	) {
-		super(runtime);
-		this.worker = new OneShotRequestWorker(this.runtime, this.supervisor, {
+		super(plugin);
+		this.worker = new OneShotRequestWorker(this.plugin, this.supervisor, {
 			...workerConfig,
 			// TODO: Fix any
 			controller: this as any,

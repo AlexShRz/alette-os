@@ -3,7 +3,6 @@ import * as Stream from "effect/Stream";
 import { PluginRegistry } from "../application/plugins/services/PluginRegistry";
 import { TaskScheduler } from "../application/plugins/tasks/TaskScheduler";
 import { GlobalContext } from "../domain/context/services/GlobalContext";
-import { RequestThreadRegistry } from "../domain/execution/RequestThreadRegistry";
 import { TransactionManager } from "../domain/execution/services/TransactionManager";
 import { GlobalUrlConfig } from "../domain/url/services/GlobalUrlConfig";
 
@@ -15,7 +14,6 @@ export class Kernel extends E.Service<Kernel>()("Kernel", {
 	dependencies: [
 		PluginRegistry.Default,
 		TaskScheduler.Default,
-		RequestThreadRegistry.Default,
 		GlobalContext.Default,
 		GlobalUrlConfig.Default,
 		TransactionManager.Default,

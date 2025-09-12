@@ -1,11 +1,11 @@
 import { IAnyRequestSpecification } from "@alette/pulse";
-import * as ManagedRuntime from "effect/ManagedRuntime";
 import { IRequestContext } from "../../domain/context/IRequestContext";
 import { ReloadableMiddlewareFactory } from "../../domain/execution/middleware/reloadable/ReloadableMiddlewareFactory";
 import { RunOnMountMiddlewareFactory } from "../../domain/execution/middleware/runOnMount/RunOnMountMiddlewareFactory";
 import { IMiddlewareSupplierFn } from "../../domain/middleware/IMiddlewareSupplierFn";
 import { RequestMiddleware } from "../../domain/middleware/RequestMiddleware";
 import { AbstractBlueprintBuilder } from "../blueprint/AbstractBlueprintBuilder";
+import { ApiPlugin } from "../plugins/ApiPlugin";
 import { IOneShotRequestBlueprintWithMiddleware } from "./IOneShotRequestBlueprintWithMiddleware";
 import { OneShotRequest } from "./OneShotRequest";
 
@@ -13,29 +13,22 @@ export class OneShotRequestBlueprint<
 		PContext extends IRequestContext,
 		Context extends IRequestContext,
 		RequestSpec extends IAnyRequestSpecification,
-		/**
-		 * Runtime types below
-		 * */
-		R,
-		ER,
 	>
-	extends AbstractBlueprintBuilder<R, ER>
-	implements IOneShotRequestBlueprintWithMiddleware<Context, RequestSpec, R, ER>
+	extends AbstractBlueprintBuilder
+	implements IOneShotRequestBlueprintWithMiddleware<Context, RequestSpec>
 {
 	protected savedSpecs: RequestSpec | null = null;
 
 	specification<T extends IAnyRequestSpecification>(
 		specs: T,
-	): OneShotRequestBlueprint<PContext, Context, T, R, ER> {
+	): OneShotRequestBlueprint<PContext, Context, T> {
 		this.savedSpecs = specs as any;
 		return this as any;
 	}
 
-	executor<NR, NER>(
-		passedRuntime: ManagedRuntime.ManagedRuntime<NR, NER>,
-	): OneShotRequestBlueprint<PContext, Context, RequestSpec, NR, NER> {
-		this.blueprintRuntime = passedRuntime as any;
-		return this as any;
+	belongsTo(pluginParent: ApiPlugin) {
+		this.plugin = pluginParent;
+		return this;
 	}
 
 	protected assertSpecProvided(): asserts this is { savedSpecs: RequestSpec } {
@@ -56,12 +49,7 @@ export class OneShotRequestBlueprint<
 		}
 	}
 
-	use: IOneShotRequestBlueprintWithMiddleware<
-		Context,
-		RequestSpec,
-		R,
-		ER
-	>["use"] = (
+	use: IOneShotRequestBlueprintWithMiddleware<Context, RequestSpec>["use"] = (
 		...middlewareFns: IMiddlewareSupplierFn<any, any, any, any>[]
 	) => {
 		this._use(...middlewareFns);
@@ -74,8 +62,8 @@ export class OneShotRequestBlueprint<
 		const initializedMiddleware = this.buildMiddleware();
 		this.assertDefaultMiddlewareProvided(initializedMiddleware);
 
-		return new OneShotRequest<PContext, Context, RequestSpec, R, ER>(
-			this.blueprintRuntime,
+		return new OneShotRequest<PContext, Context, RequestSpec>(
+			this.plugin,
 			initializedMiddleware,
 		);
 	}

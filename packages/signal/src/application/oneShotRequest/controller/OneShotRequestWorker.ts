@@ -1,21 +1,21 @@
-import { ManagedRuntime } from "effect";
 import * as E from "effect/Effect";
 import { TSessionEvent } from "../../../domain/execution/events/SessionEvent";
 import { RequestControllerWorker } from "../../blueprint/controller/RequestControllerWorker";
+import { ApiPlugin } from "../../plugins/ApiPlugin";
 import { PrepareRequestWorker } from "../workflows/prepareRequestWorker/PrepareRequestWorker";
 import { PrepareRequestWorkerArguments } from "../workflows/prepareRequestWorker/PrepareRequestWorkerArguments";
 import { OneShotRequestSupervisor } from "./OneShotRequestSupervisor";
 
-export class OneShotRequestWorker<R, ER> extends RequestControllerWorker<
-	R,
-	ER
-> {
+export class OneShotRequestWorker extends RequestControllerWorker {
 	constructor(
-		runtime: ManagedRuntime.ManagedRuntime<R, ER>,
-		lifecycle: OneShotRequestSupervisor<R, ER>,
-		protected config: Omit<PrepareRequestWorkerArguments["Type"], "workerId">,
+		plugin: ApiPlugin,
+		lifecycle: OneShotRequestSupervisor,
+		protected config: Omit<
+			PrepareRequestWorkerArguments["Type"],
+			"workerId" | "pluginName"
+		>,
 	) {
-		super(runtime, lifecycle);
+		super(plugin, lifecycle);
 		this.prepare();
 	}
 

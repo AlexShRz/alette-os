@@ -1,22 +1,16 @@
 import { BusEvent } from "@alette/event-sourcing";
-import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Queue from "effect/Queue";
 import * as Scope from "effect/Scope";
 import { v4 as uuid } from "uuid";
 import { IRequestSessionSettingSupplier } from "../../../domain/execution/services/RequestSessionContext";
+import { ApiPlugin } from "../../plugins/ApiPlugin";
 
-export abstract class RequestController<
-	State = unknown,
-	R = never,
-	ER = never,
-> {
+export abstract class RequestController<State = unknown> {
 	protected settingSupplier: IRequestSessionSettingSupplier | undefined;
 	protected stateSubscribers: ((state: State) => void)[] = [];
 	protected id = uuid();
 
-	protected constructor(
-		protected runtime: ManagedRuntime.ManagedRuntime<R, ER>,
-	) {}
+	protected constructor(protected plugin: ApiPlugin) {}
 
 	getId() {
 		return this.id;
