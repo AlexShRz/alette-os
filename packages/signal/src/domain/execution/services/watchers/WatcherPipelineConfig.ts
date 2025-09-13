@@ -5,7 +5,7 @@ import { RequestWatcher } from "../../../watchers/RequestWatcher";
 
 export class WatcherPipelineConfig implements Equal.Equal {
 	constructor(
-		protected controller: RequestController<any>,
+		protected controller: RequestController<any, any>,
 		protected watchers: RequestWatcher[],
 	) {}
 

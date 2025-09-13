@@ -12,6 +12,7 @@ import { RequestSessionEvent } from "../RequestSessionEvent";
  * */
 export class RunRequest extends RequestSessionEvent {
 	protected contextProvider: E.Effect<void, never, never> = E.void;
+	protected afterContextExecutor: E.Effect<void, never, never> = E.void;
 
 	constructor(
 		protected settingSupplier: IRequestSessionSettingSupplier = () => ({}),
@@ -34,6 +35,16 @@ export class RunRequest extends RequestSessionEvent {
 		return this;
 	}
 
+	executeLazyLast(
+		provider: (
+			old: typeof this.contextProvider,
+			getSelf: () => this,
+		) => typeof this.contextProvider,
+	) {
+		this.afterContextExecutor = provider(this.afterContextExecutor, () => this);
+		return this;
+	}
+
 	protected provideRequestContext() {
 		return E.gen(this, function* () {
 			const session = yield* E.serviceOptional(RequestSession);
@@ -44,11 +55,15 @@ export class RunRequest extends RequestSessionEvent {
 			 * */
 			yield* session.setRequestId(this.getRequestId()).pipe(
 				/**
-				 * 1. Must be last.
+				 * 1. Must be first.
 				 * 2. We need to make sure all context provide effects
 				 * have access to latest request session data.
 				 * */
 				E.andThen(() => this.contextProvider),
+				/**
+				 * Must be last
+				 * */
+				E.andThen(() => this.afterContextExecutor),
 			);
 		}).pipe(E.orDie);
 	}

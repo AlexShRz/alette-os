@@ -13,7 +13,7 @@ import { createOrGetRequestWorker } from "./createRequestWorker";
 /**
  * This effect is executed inside another runtime with
  * different services, so we cannot access services of the
- * plugin that bootstrapped the workflow.
+ * plugin that bootstraps the workflow.
  * */
 const runWorkflow = E.gen(function* () {
 	const {
@@ -49,17 +49,6 @@ const runWorkflow = E.gen(function* () {
 	// 		console.log("sdsdsd");
 	// 	}),
 	// );
-	// yield* Scope.addFinalizer(
-	// 	yield* plugin.getScope(),
-	// 	E.gen(function* () {
-	// 		console.log("adasd");
-	// 		yield* E.sleep("2 seconds").pipe(
-	// 			E.andThen(() => Scope.close(controllerScope, Exit.void)),
-	// 			E.forkDaemon,
-	// 		);
-	// 		console.log("sdsdsd");
-	// 	}),
-	// );
 
 	return yield* E.gen(function* () {
 		const thread = yield* createOrGetRequestThread(plugin);
@@ -67,14 +56,7 @@ const runWorkflow = E.gen(function* () {
 		yield* attachRequestWatcherPipeline(worker);
 		return worker;
 	}).pipe(
-		E.provide(
-			/**
-			 * Make sure event bus with middleware and watcher
-			 * injectors is created lazily, only if the service
-			 * is required
-			 * */
-			EventBus.Default(middlewareInjectors),
-		),
+		E.provide(EventBus.Default(middlewareInjectors)),
 		/**
 		 * 1. Make sure to apply CONTROLLER, not plugin scope here -
 		 * the moment our controller is disposed, the scope

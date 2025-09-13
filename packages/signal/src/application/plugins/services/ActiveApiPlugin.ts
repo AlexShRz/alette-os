@@ -20,6 +20,7 @@ import { ActivePluginRef } from "./ref/ActivePluginRef";
 export class ActiveApiPlugin extends E.Service<ActiveApiPlugin>()(
 	"ActiveApiPlugin",
 	{
+		dependencies: [RequestThreadRegistry.Default],
 		effect: E.fn(function* (pluginReference: ActivePluginRef) {
 			const taskScheduler = yield* TaskScheduler;
 			const threads = yield* RequestThreadRegistry;

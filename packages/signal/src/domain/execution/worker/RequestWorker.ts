@@ -1,8 +1,5 @@
 import { EventBus } from "@alette/event-sourcing";
-import * as Context from "effect/Context";
 import * as E from "effect/Effect";
-import * as Exit from "effect/Exit";
-import * as Fiber from "effect/Fiber";
 import * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Scope from "effect/Scope";
@@ -22,8 +19,8 @@ import { RequestWorkerConfig } from "./RequestWorkerConfig";
 
 export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 	dependencies: [GlobalContext.Default],
-	effect: E.fn(function* (config: RequestWorkerConfig) {
-		const scope = yield* Scope.make();
+	scoped: E.fn(function* (config: RequestWorkerConfig) {
+		const scope = yield* E.scope;
 		const context = yield* E.context<GlobalContext>();
 		const session = RequestSession.Default({
 			/**
@@ -39,9 +36,6 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 			initialRequestId: config.getId(),
 			requestMode: config.getRequestMode(),
 		});
-		const requestEventBus = EventBus.Default(config.getMiddleware()).pipe(
-			Layer.provide(RequestEventInterceptor.Default),
-		);
 
 		const container = Layer.provideMerge(
 			Layer.provideMerge(
@@ -63,7 +57,9 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 						 * type (oneShot vs stream).
 						 * */
 						RequestStateTimeline.make(),
-						requestEventBus,
+						EventBus.Default(config.getMiddleware()).pipe(
+							Layer.provide(RequestEventInterceptor.Default),
+						),
 					),
 					session,
 				),
@@ -73,16 +69,18 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 
 		const requestRuntime = ManagedRuntime.make(container);
 
+		yield* E.addFinalizer(
+			E.fn(function* () {
+				yield* requestRuntime.disposeEffect;
+			}),
+		);
+
 		return {
 			isWatchedBy(controllerId: string) {
-				return Fiber.join(
-					requestRuntime.runFork(
-						E.gen(function* () {
-							const registry = yield* WatcherPipelineRegistry;
-							return yield* registry.has(controllerId);
-						}),
-					),
-				);
+				return E.gen(function* () {
+					const registry = yield* WatcherPipelineRegistry;
+					return yield* registry.has(controllerId);
+				}).pipe(E.provide(requestRuntime));
 			},
 
 			getId() {
@@ -94,27 +92,11 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 			},
 
 			addWatchers(config: WatcherPipelineConfig) {
-				return Fiber.join(
-					requestRuntime.runFork(
-						E.gen(function* () {
-							const registry = yield* WatcherPipelineRegistry;
-							yield* registry.set(config);
-						}).pipe(Scope.extend(scope)),
-					),
-				);
-			},
-
-			shutdown() {
 				return E.gen(function* () {
-					yield* Scope.close(scope, Exit.void);
-				});
+					const registry = yield* WatcherPipelineRegistry;
+					yield* registry.set(config);
+				}).pipe(Scope.extend(scope), E.provide(requestRuntime));
 			},
 		};
 	}),
-}) {
-	static makeAsValue(worker: Layer.Layer<RequestWorker>) {
-		return Layer.build(worker).pipe(
-			E.andThen((c) => Context.unsafeGet(c, RequestWorker)),
-		);
-	}
-}
+}) {}

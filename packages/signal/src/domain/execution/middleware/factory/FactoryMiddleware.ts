@@ -33,12 +33,6 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 					return yield* urlContext.get.pipe(E.andThen((c) => c.getState()));
 				});
 
-				yield* E.addFinalizer(() =>
-					E.sync(() => {
-						console.log("asdansdknasdknadkasnd");
-					}),
-				);
-
 				const runRequest = (event: RunRequest) =>
 					E.gen(function* () {
 						/**

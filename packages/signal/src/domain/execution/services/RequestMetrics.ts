@@ -1,27 +1,32 @@
 import * as E from "effect/Effect";
 import * as Stream from "effect/Stream";
-import * as SynchronizedRef from "effect/SynchronizedRef";
+import * as SubscriptionRef from "effect/SubscriptionRef";
 import { RequestSession } from "./RequestSession";
-
-interface IRequestMetrics {
-	attempt: number;
-}
 
 export class RequestMetrics extends E.Service<RequestMetrics>()(
 	"RequestMetrics",
 	{
 		scoped: E.gen(function* () {
 			const session = yield* E.serviceOptional(RequestSession);
-			const metrics = yield* SynchronizedRef.make<IRequestMetrics>({
+			const metrics = yield* SubscriptionRef.make<{
+				/**
+				 * Same as attempts, we just do not
+				 * reset it after request id changes.
+				 * */
+				attemptsAcrossRequests: number;
+				attempt: number;
+			}>({
+				attemptsAcrossRequests: 0,
 				attempt: 0,
 			});
 
 			yield* session.getRequestIdChanges().pipe(
 				Stream.tap(
 					E.fn(function* () {
-						yield* SynchronizedRef.set(metrics, {
+						yield* SubscriptionRef.getAndUpdate(metrics, (prev) => ({
+							...prev,
 							attempt: 0,
-						});
+						}));
 					}),
 				),
 				Stream.runDrain,
@@ -36,10 +41,18 @@ export class RequestMetrics extends E.Service<RequestMetrics>()(
 					});
 				},
 
+				getAmountOfAttemptsAcrossRequests() {
+					return E.gen(function* () {
+						const { attemptsAcrossRequests } = yield* metrics.get;
+						return attemptsAcrossRequests;
+					});
+				},
+
 				recordAttemptedExecution() {
-					return SynchronizedRef.getAndUpdate(metrics, (m) => {
+					return SubscriptionRef.getAndUpdate(metrics, (m) => {
 						return {
 							...m,
+							attemptsAcrossRequests: m.attemptsAcrossRequests + 1,
 							attempt: m.attempt + 1,
 						};
 					});

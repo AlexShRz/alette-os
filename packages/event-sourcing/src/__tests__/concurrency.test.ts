@@ -1,36 +1,13 @@
 import { expect, it } from "@effect/vitest";
-import { Effect as E } from "effect";
+import { Effect as E, TestClock, TestContext } from "effect";
 import { EventBus } from "../EventBus";
 import { Listener } from "../listeners";
 import { DummyEvent } from "../testUtils/DummyEvent";
 
-test("it differentiates between listeners", () => {
-	class Listener1 extends Listener("Listener1")(
-		() =>
-			({ parent }) =>
-				E.succeed({
-					...parent,
-				}),
-	) {}
-
-	class Listener2 extends Listener("Listener2")(
-		() =>
-			({ parent }) =>
-				E.succeed({
-					...parent,
-				}),
-	) {}
-
-	const instance1: unknown = new Listener1();
-
-	expect(instance1 instanceof Listener1).toBeTruthy();
-	expect(instance1 instanceof Listener2).toBeFalsy();
-});
-
-it.scoped("sets up listeners once", () =>
+it.scoped("waits for pipeline to be constructed before processing events", () =>
 	E.gen(function* () {
 		let enteredBodyTimes = 0;
-		let enteredEventProcessorTimes = 0;
+		let processedTimes = 0;
 
 		class Listener1 extends Listener("Listener1")(
 			() =>
@@ -42,7 +19,7 @@ it.scoped("sets up listeners once", () =>
 							...parent,
 							send(e) {
 								return E.gen(this, function* () {
-									enteredEventProcessorTimes++;
+									processedTimes++;
 									return yield* context.next(e);
 								});
 							},
@@ -54,13 +31,14 @@ it.scoped("sets up listeners once", () =>
 			() =>
 				({ parent, context }) =>
 					E.gen(function* () {
+						yield* E.sleep("10 minutes");
 						enteredBodyTimes++;
 
 						return {
 							...parent,
 							send(e) {
 								return E.gen(this, function* () {
-									enteredEventProcessorTimes++;
+									processedTimes++;
 									return yield* context.next(e);
 								});
 							},
@@ -70,13 +48,28 @@ it.scoped("sets up listeners once", () =>
 
 		const eventBus = yield* E.serviceOptional(EventBus).pipe(
 			E.provide(EventBus.Default([new Listener1(), new Listener2()])),
+			E.provide(TestContext.TestContext),
 		);
 
-		yield* eventBus.send(new DummyEvent());
-		yield* eventBus.send(new DummyEvent());
-		yield* eventBus.send(new DummyEvent());
-		yield* eventBus.send(new DummyEvent());
+		yield* eventBus.send(new DummyEvent()).pipe(E.fork);
+		yield* eventBus.send(new DummyEvent()).pipe(E.fork);
+		yield* eventBus.send(new DummyEvent()).pipe(E.fork);
+		yield* eventBus.send(new DummyEvent()).pipe(E.fork);
+
+		/**
+		 * Make sure to yield here
+		 * */
+		yield* E.yieldNow();
+		/**
+		 * 1. Here one listener has already been set up,
+		 * but the setup of another one is still in progress.
+		 * 2. Hence, the count should be 1
+		 * */
+		expect(enteredBodyTimes).toEqual(1);
+
+		yield* TestClock.adjust("11 minutes");
 
 		expect(enteredBodyTimes).toEqual(2);
+		expect(processedTimes).toEqual(8);
 	}),
 );

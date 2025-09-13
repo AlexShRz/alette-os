@@ -15,6 +15,10 @@ export class RequestSession extends E.Service<RequestSession>()(
 			const requestId = yield* SubscriptionRef.make(initialRequestId);
 
 			return {
+				isOneShotMode() {
+					return requestMode === "oneShot";
+				},
+
 				getRequestId() {
 					return requestId.get;
 				},

@@ -1,4 +1,5 @@
 import * as E from "effect/Effect";
+import { RequestThread } from "../../../../domain/execution/RequestThread";
 import { ActiveApiPlugin } from "../../../plugins/services/ActiveApiPlugin";
 import { PrepareRequestWorkerArguments } from "./PrepareRequestWorkerArguments";
 
@@ -11,5 +12,7 @@ export const createOrGetRequestThread = E.fn(function* (
 ) {
 	const { threadId } = yield* PrepareRequestWorkerArguments;
 	const threadRegistry = plugin.getThreads();
-	return yield* threadRegistry.getOrCreate(threadId);
+	return yield* E.serviceOptional(RequestThread).pipe(
+		E.provide(yield* threadRegistry.getOrCreateThreadRuntime(threadId)),
+	);
 });

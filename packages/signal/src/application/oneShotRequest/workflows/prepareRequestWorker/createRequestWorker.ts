@@ -4,6 +4,7 @@ import { RequestThread } from "../../../../domain/execution/RequestThread";
 import { AggregateRequestMiddleware } from "../../../../domain/execution/events/preparation/AggregateRequestMiddleware";
 import { ChooseRequestWorker } from "../../../../domain/execution/events/preparation/ChooseRequestWorker";
 import { TransactionManager } from "../../../../domain/execution/services/TransactionManager";
+import { RequestWorker } from "../../../../domain/execution/worker/RequestWorker";
 import { RequestWorkerConfig } from "../../../../domain/execution/worker/RequestWorkerConfig";
 import { PrepareRequestWorkerArguments } from "./PrepareRequestWorkerArguments";
 
@@ -61,7 +62,9 @@ export const createOrGetRequestWorker = E.fn(function* (thread: RequestThread) {
 
 			const workerId = result.getPreferredWorker();
 			const workerConfig = yield* createRequestWorkerConfig(workerId);
-			return yield* thread.getOrCreateWorker(workerConfig);
+			return yield* E.serviceOptional(RequestWorker).pipe(
+				E.provide(yield* thread.getOrCreateWorkerRuntime(workerConfig)),
+			);
 		}),
 	);
 });

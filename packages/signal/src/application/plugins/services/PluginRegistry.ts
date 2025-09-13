@@ -1,7 +1,6 @@
 import * as E from "effect/Effect";
 import * as Scope from "effect/Scope";
 import * as SynchronizedRef from "effect/SynchronizedRef";
-import { RequestThreadRegistry } from "../../../domain/execution/RequestThreadRegistry";
 import { TaskScheduler } from "../tasks/TaskScheduler";
 import { ActiveApiPlugin } from "./ActiveApiPlugin";
 import { ActivePluginRef } from "./ref/ActivePluginRef";
@@ -69,20 +68,15 @@ export class PluginRegistry extends E.Service<PluginRegistry>()(
 					return E.gen(function* () {
 						const scope = plugin.getScope();
 
-						return yield* SynchronizedRef.getAndUpdateEffect(
-							plugins,
-							(registry) =>
-								E.gen(function* () {
-									const name = plugin.getName();
-									const activatedPlugin = yield* ActiveApiPlugin.makeAsValue(
-										plugin,
-									).pipe(
-										E.provide(RequestThreadRegistry.Default),
-										E.provideService(TaskScheduler, taskScheduler),
-									);
-									registry.set(name, activatedPlugin);
-									return registry;
-								}),
+						yield* SynchronizedRef.getAndUpdateEffect(plugins, (registry) =>
+							E.gen(function* () {
+								const name = plugin.getName();
+								const activatedPlugin = yield* ActiveApiPlugin.makeAsValue(
+									plugin,
+								).pipe(E.provideService(TaskScheduler, taskScheduler));
+								registry.set(name, activatedPlugin);
+								return registry;
+							}),
 						).pipe(Scope.extend(scope));
 					});
 				},

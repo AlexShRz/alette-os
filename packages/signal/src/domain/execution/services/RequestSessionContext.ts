@@ -43,6 +43,24 @@ export class RequestSessionContext extends E.Service<RequestSessionContext>()(
 				E.forkScoped,
 			);
 
+			const getSessionContextWithoutGlobalContext = E.fn(function* (
+				allContext: IAllContext,
+			) {
+				let aggregated: Record<string, unknown> = {};
+
+				for (const key of Object.keys(
+					allContext,
+				) as (keyof typeof allContext)[]) {
+					const obtained = yield* SynchronizedRef.get(allContext[key]);
+					aggregated = {
+						...aggregated,
+						...obtained.toRecord(),
+					};
+				}
+
+				return aggregated;
+			});
+
 			return {
 				has(key: TKnownRequestContextKey) {
 					return context.get.pipe(E.andThen((v) => !!v[key]));
@@ -56,20 +74,18 @@ export class RequestSessionContext extends E.Service<RequestSessionContext>()(
 					return context.get.pipe(
 						E.andThen((allContext) =>
 							E.gen(function* () {
-								let aggregated: Record<string, unknown> = {};
-
-								for (const key of Object.keys(
-									allContext,
-								) as (keyof typeof allContext)[]) {
-									const obtained = yield* SynchronizedRef.get(allContext[key]);
-									aggregated = {
-										...aggregated,
-										...obtained.toRecord(),
-									};
-								}
-
+								const aggregated =
+									yield* getSessionContextWithoutGlobalContext(allContext);
 								return { ...aggregated, context: globalContext.get() };
 							}),
+						),
+					);
+				},
+
+				getSnapshotWithoutGlobalContext() {
+					return context.get.pipe(
+						E.andThen((allContext) =>
+							getSessionContextWithoutGlobalContext(allContext),
 						),
 					);
 				},

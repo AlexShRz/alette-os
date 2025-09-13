@@ -1,6 +1,7 @@
 import * as Context from "effect/Context";
 import * as E from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as SynchronizedRef from "effect/SynchronizedRef";
 import { v4 as uuid } from "uuid";
 import { BusEvent } from "./events/BusEvent.js";
 import {
@@ -18,7 +19,35 @@ export class EventBus extends E.Service<EventBus>()("EventBus", {
 		E.gen(function* () {
 			const id = uuid();
 			const pipelineBuilder = yield* EventBusPipelineBuilder;
-			let pipeline: IEventBusListenerContext["next"] | null = null;
+			const pipeline = yield* SynchronizedRef.make<
+				IEventBusListenerContext["next"] | null
+			>(null);
+
+			const getPipelineOrThrow = pipeline.get.pipe(
+				E.andThen(
+					E.fn(function* (current) {
+						if (!current) {
+							return yield* E.dieMessage("No constructed pipeline found.");
+						}
+
+						return current;
+					}),
+				),
+			);
+
+			const createOrGetPipeline = (getSelf: () => EventBus) =>
+				SynchronizedRef.getAndUpdateEffect(pipeline, (currentPipeline) =>
+					E.gen(function* () {
+						if (currentPipeline) {
+							return currentPipeline;
+						}
+
+						return yield* pipelineBuilder.create(
+							providedListeners as EventBusListenerFactory[],
+							getSelf,
+						);
+					}),
+				).pipe(E.andThen(() => getPipelineOrThrow));
 
 			return {
 				getId() {
@@ -31,15 +60,10 @@ export class EventBus extends E.Service<EventBus>()("EventBus", {
 
 				send<T extends BusEvent>(event: T) {
 					return E.gen(this, function* () {
-						if (pipeline) {
-							return yield* pipeline(event);
-						}
-
-						pipeline = yield* pipelineBuilder.create(
-							providedListeners as EventBusListenerFactory[],
+						const currentPipeline = yield* createOrGetPipeline(
 							() => this as EventBus,
 						);
-						return yield* pipeline(event);
+						return yield* currentPipeline(event);
 					});
 				},
 			};

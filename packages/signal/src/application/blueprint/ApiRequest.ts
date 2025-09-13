@@ -64,12 +64,12 @@ export abstract class ApiRequest<
 	}
 
 	using(supplier: () => TRequestArguments<Context>) {
-		this.settingSupplier = supplier;
 		/**
 		 * Here we need to CLONE everything WITHOUT
 		 * changing our request thread id.
 		 * */
 		const self = this.clone();
+		self.settingSupplier = supplier;
 		self.requestThreadId = this.requestThreadId;
 		return self;
 	}

@@ -5,10 +5,8 @@ import { TRequestArguments } from "../../../domain/context/typeUtils/RequestIOTy
 import { CancelRequest } from "../../../domain/execution/events/CancelRequest";
 import { TSessionEvent } from "../../../domain/execution/events/SessionEvent";
 import { WithCurrentRequestOverride } from "../../../domain/execution/events/envelope/WithCurrentRequestOverride";
-import { WithReloadableCheck } from "../../../domain/execution/events/envelope/WithReloadableCheck";
 import { WithRunOnMountCheck } from "../../../domain/execution/events/envelope/WithRunOnMountCheck";
 import { RunRequest } from "../../../domain/execution/events/request/RunRequest";
-import { IRequestSessionSettingSupplier } from "../../../domain/execution/services/RequestSessionContext";
 import { RequestController } from "../../blueprint/controller/RequestController";
 import { ApiPlugin } from "../../plugins/ApiPlugin";
 import { PrepareRequestWorkerArguments } from "../workflows/prepareRequestWorker/PrepareRequestWorkerArguments";
@@ -21,7 +19,7 @@ import { OneShotRequestWorker } from "./OneShotRequestWorker";
 
 export class OneShotRequestController<
 	Context extends IRequestContext,
-> extends RequestController<ILocalOneShotRequestState<Context>> {
+> extends RequestController<Context, ILocalOneShotRequestState<Context>> {
 	protected supervisor = new OneShotRequestSupervisor(this.plugin);
 	protected state = new OneShotRequestState<Context>(
 		this.plugin,
@@ -91,25 +89,18 @@ export class OneShotRequestController<
 	}
 
 	protected executeRequest(
-		args: TRequestArguments<Context> = {} as TRequestArguments<Context>,
+		settings: TRequestArguments<Context> = {} as TRequestArguments<Context>,
 	) {
-		const providedSupplier = this.getSettingSupplier();
-		const supplier =
-			!Object.keys(args).length && providedSupplier
-				? providedSupplier
-				: () => args;
 		this.dispatch(
 			new WithCurrentRequestOverride(
-				new RunRequest(supplier as IRequestSessionSettingSupplier),
+				new RunRequest(this.getSettingSupplier(settings)),
 			),
 		);
 	}
 
-	run() {
+	reload() {
 		this.dispatch(
-			new WithRunOnMountCheck(
-				new WithReloadableCheck(new RunRequest(this.getSettingSupplier())),
-			),
+			new WithRunOnMountCheck(new RunRequest(this.getSettingSupplier())),
 		);
 	}
 

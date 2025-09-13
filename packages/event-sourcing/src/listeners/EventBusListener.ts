@@ -1,6 +1,7 @@
 import * as Context from "effect/Context";
 import * as E from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Scope from "effect/Scope";
 import { v4 as uuid } from "uuid";
 import { BusEvent } from "../events/BusEvent.js";
 import { EventBusListenerContext } from "./EventBusListenerContext.js";
@@ -26,7 +27,7 @@ export class EventBusListener extends Context.Tag("EventBusListener")<
 	IEventBusListener
 >() {
 	static make<A extends IEventBusListener, E, R>(
-		factory: IEventBusListenerFactory<A, E, R>,
+		factory: IEventBusListenerFactory<A, E, Exclude<R, Scope.Scope>>,
 	) {
 		return Layer.scoped(
 			this,

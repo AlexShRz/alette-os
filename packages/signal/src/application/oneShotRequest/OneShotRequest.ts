@@ -21,7 +21,7 @@ export class OneShotRequest<
 			plugin: this.plugin,
 			requestMode: mode,
 			middlewareInjectors: this.getAllMiddlewareInjectors(),
-		});
+		}).setSettingSupplier(this.settingSupplier);
 	}
 
 	asFunction() {
@@ -50,8 +50,10 @@ export class OneShotRequest<
 
 	mount() {
 		const controller = this.createController("subscription");
+		controller.reload();
 		return {
 			getState: controller.getState.bind(controller),
+			reload: controller.reload.bind(controller),
 			when: (subscriber: Parameters<typeof controller.subscribe>[0]) => {
 				const unsubscribe = controller.subscribe.bind(controller)(subscriber);
 				/**

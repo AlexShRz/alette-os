@@ -27,7 +27,7 @@ it.scoped("allows listeners to dispatch events back to event buses", () =>
 				({ parent, context }) =>
 					E.gen(function* () {
 						const alreadyDispatched: string[] = [];
-						const savedEvent = new DummyEvent("myDummyEvent");
+						const savedEvent = new DummyEvent([], "myDummyEvent");
 
 						return {
 							...parent,
@@ -85,7 +85,7 @@ it.scoped("can opt in to seeing events dispatched by itself", () =>
 				({ parent, context }) =>
 					E.gen(function* () {
 						const alreadyDispatched: string[] = [];
-						const savedEvent = new DummyEvent("myDummyEvent");
+						const savedEvent = new DummyEvent([], "myDummyEvent");
 
 						return {
 							...parent,

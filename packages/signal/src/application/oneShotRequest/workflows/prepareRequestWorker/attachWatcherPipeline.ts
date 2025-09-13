@@ -5,27 +5,28 @@ import { WatcherPipelineConfig } from "../../../../domain/execution/services/wat
 import { RequestWorker } from "../../../../domain/execution/worker/RequestWorker";
 import { PrepareRequestWorkerArguments } from "./PrepareRequestWorkerArguments";
 
-export const attachRequestWatcherPipeline = (worker: RequestWorker) =>
-	E.gen(function* () {
-		const { controller } = yield* PrepareRequestWorkerArguments;
-		const requestControllerId = controller.getId();
-		const controllerEventBus = yield* EventBus;
+export const attachRequestWatcherPipeline = E.fn(function* (
+	worker: RequestWorker,
+) {
+	const { controller } = yield* PrepareRequestWorkerArguments;
+	const requestControllerId = controller.getId();
+	const controllerEventBus = yield* EventBus;
 
-		if (yield* worker.isWatchedBy(requestControllerId)) {
-			return;
-		}
+	if (yield* worker.isWatchedBy(requestControllerId)) {
+		return;
+	}
 
-		const watchers = yield* controllerEventBus.send(
-			new AggregateRequestWatchers(),
+	const watchers = yield* controllerEventBus.send(
+		new AggregateRequestWatchers(),
+	);
+
+	if (!(watchers instanceof AggregateRequestWatchers)) {
+		return yield* E.dieMessage(
+			'Expected returned event to be of type "AggregateRequestWatchers"',
 		);
+	}
 
-		if (!(watchers instanceof AggregateRequestWatchers)) {
-			return yield* E.dieMessage(
-				'Expected returned event to be of type "AggregateRequestWatchers"',
-			);
-		}
-
-		yield* worker.addWatchers(
-			new WatcherPipelineConfig(controller, watchers.getWatchers()),
-		);
-	});
+	yield* worker.addWatchers(
+		new WatcherPipelineConfig(controller, watchers.getWatchers()),
+	);
+});

@@ -1,6 +1,4 @@
-import * as Context from "effect/Context";
 import * as E from "effect/Effect";
-import * as Layer from "effect/Layer";
 import { BusEvent } from "../events/BusEvent.js";
 
 export interface IEventBusListenerContext {
@@ -52,11 +50,4 @@ export class EventBusListenerContext extends E.Service<EventBusListenerContext>(
 			};
 		}),
 	},
-) {
-	static makeAsValue() {
-		return E.gen(function* () {
-			const context = yield* Layer.build(EventBusListenerContext.Default);
-			return Context.unsafeGet(context, EventBusListenerContext);
-		});
-	}
-}
+) {}

@@ -2,10 +2,15 @@ import { BusEvent } from "@alette/event-sourcing";
 import * as Queue from "effect/Queue";
 import * as Scope from "effect/Scope";
 import { v4 as uuid } from "uuid";
+import { IRequestContext } from "../../../domain/context/IRequestContext";
+import { TRequestArguments } from "../../../domain/context/typeUtils/RequestIOTypes";
 import { IRequestSessionSettingSupplier } from "../../../domain/execution/services/RequestSessionContext";
 import { ApiPlugin } from "../../plugins/ApiPlugin";
 
-export abstract class RequestController<State = unknown> {
+export abstract class RequestController<
+	Context extends IRequestContext = IRequestContext,
+	State = unknown,
+> {
 	protected settingSupplier: IRequestSessionSettingSupplier | undefined;
 	protected stateSubscribers: ((state: State) => void)[] = [];
 	protected id = uuid();
@@ -16,6 +21,12 @@ export abstract class RequestController<State = unknown> {
 		return this.id;
 	}
 
+	protected getSettingSupplier(settings: TRequestArguments<Context> = {}) {
+		return !Object.keys(settings).length && this.settingSupplier
+			? this.settingSupplier
+			: () => settings;
+	}
+
 	abstract getState(): State;
 
 	abstract getHandlers(): Record<string, any>;
@@ -23,10 +34,6 @@ export abstract class RequestController<State = unknown> {
 	abstract getScope(): Scope.CloseableScope;
 
 	abstract getEventReceiver(): Queue.Queue<BusEvent>;
-
-	getSettingSupplier() {
-		return this.settingSupplier;
-	}
 
 	subscribe(subscriber: (typeof this.stateSubscribers)[number]) {
 		this.stateSubscribers = [...this.stateSubscribers, subscriber];
@@ -42,7 +49,7 @@ export abstract class RequestController<State = unknown> {
 		return this;
 	}
 
-	abstract run(): void;
+	abstract reload(): void;
 
 	abstract dispose(): void;
 }
