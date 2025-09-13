@@ -1,6 +1,7 @@
 import * as E from "effect/Effect";
 import * as P from "effect/Predicate";
 import { RunRequest } from "../../../execution/events/request/RunRequest";
+import { RequestMeta } from "../../../execution/services/RequestMeta";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
@@ -12,32 +13,53 @@ import { TInputMiddlewareArgValue } from "./InputMiddlewareFactory";
 export class InputMiddleware extends Middleware("InputMiddleware", {
 	priority: MiddlewarePriority.Creational,
 })(
-	(argSchema: TInputMiddlewareArgValue) =>
+	(argSchemaOrAdapter: TInputMiddlewareArgValue) =>
 		({ parent, context }) =>
 			E.gen(function* () {
-				const setUpArgs = (passedEvent: RunRequest) =>
-					E.gen(function* () {
-						const context = yield* E.serviceOptional(RequestSessionContext);
+				const sessionContext = yield* E.serviceOptional(RequestSessionContext);
+				const requestMeta = yield* E.serviceOptional(RequestMeta);
 
+				const setUpArgAdapterContext = E.gen(function* () {
+					const argAdapter = requestMeta.getArgumentAdapterConfig();
+
+					argAdapter.setAdapter(
+						argSchemaOrAdapter instanceof ArgumentAdapter
+							? argSchemaOrAdapter
+							: argumentAdapter().schema(argSchemaOrAdapter).build(),
+					);
+				});
+				/**
+				 * 1. Set up argument adapter context immediately, even before
+				 * the request has been started.
+				 * 2. Other middleware might need to access it, so it must
+				 * be filled at start up.
+				 * */
+				yield* setUpArgAdapterContext;
+
+				const fillRequestArgumentContext = (passedEvent: RunRequest) =>
+					E.gen(function* () {
 						const settingSupplier = passedEvent.getSettingSupplier();
 						const obtainedSettings = settingSupplier();
 
-						const argAdapter =
-							argSchema instanceof ArgumentAdapter
-								? argSchema
-								: argumentAdapter().build();
+						const argAdapter = requestMeta
+							.getArgumentAdapterConfig()
+							.getAdapter();
 
 						const extractedArgs = P.hasProperty(obtainedSettings, "args")
 							? obtainedSettings.args
 							: null;
 
-						const validatedArgs = yield* E.orDie(
+						const validatedArgsRef = yield* E.orDie(
 							E.succeed(argAdapter.from(extractedArgs)),
 						);
 
-						yield* context.getOrCreate(
+						/**
+						 * Argument context will be wiped on every request id
+						 * change, so "getOrCreate" is ok here.
+						 * */
+						yield* sessionContext.getOrCreate(
 							"args",
-							E.succeed(new ArgumentContext(validatedArgs)),
+							E.succeed(new ArgumentContext(validatedArgsRef)),
 						);
 					}).pipe(E.orDie);
 
@@ -50,7 +72,9 @@ export class InputMiddleware extends Middleware("InputMiddleware", {
 							}
 
 							event.executeLazy((operation, getSelf) =>
-								operation.pipe(E.andThen(setUpArgs(getSelf()))),
+								operation.pipe(
+									E.andThen(fillRequestArgumentContext(getSelf())),
+								),
 							);
 
 							return yield* context.next(event);

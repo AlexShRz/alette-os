@@ -13,7 +13,7 @@ export class ArgumentContext extends RequestContextPart<ArgumentRef, {}> {
 		}
 	}
 
-	toRecord() {
+	override toRecord() {
 		return {
 			args: this.state.get(),
 		};

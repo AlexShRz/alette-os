@@ -27,7 +27,7 @@ export class UrlContext<
 		};
 	}
 
-	toRecord() {
+	override toRecord() {
 		return {
 			origin: this.state.getOrigin(),
 			queryParams: this.state.getParams().get() as QueryParams,

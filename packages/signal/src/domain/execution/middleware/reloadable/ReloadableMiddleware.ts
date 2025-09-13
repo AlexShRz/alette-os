@@ -2,12 +2,12 @@ import { IEventBusListener } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as SynchronizedRef from "effect/SynchronizedRef";
-import isEqual from "lodash.isequal";
 import { GlobalContext } from "../../../context/services/GlobalContext";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
 import { WithReloadableCheck } from "../../events/envelope/WithReloadableCheck";
 import { RunRequest } from "../../events/request/RunRequest";
+import { RequestMeta } from "../../services/RequestMeta";
 import { RequestSession } from "../../services/RequestSession";
 import { RequestSessionContext } from "../../services/RequestSessionContext";
 import { IReloadableMiddlewareCheck } from "./ReloadableMiddlewareFactory";
@@ -19,6 +19,7 @@ export class ReloadableMiddleware extends Middleware("ReloadableMiddleware", {
 		({ parent, context }) =>
 			E.gen(function* () {
 				const session = yield* E.serviceOptional(RequestSession);
+				const requestMeta = yield* E.serviceOptional(RequestMeta);
 				const globalContext = yield* E.serviceOptional(GlobalContext);
 				/**
 				 * 1. Prev context can be empty because reloadable
@@ -42,6 +43,35 @@ export class ReloadableMiddleware extends Middleware("ReloadableMiddleware", {
 						prevContextSnapshot,
 						yield* sessionContext.getSnapshotWithoutGlobalContext(),
 					);
+				});
+
+				const doArgumentsDiffer = E.fn(function* (
+					obtainedPrevContext: Record<string, unknown> | null,
+					currentRequestSettings: Record<string, unknown>,
+				) {
+					const doesCurrentContextHaveArgs = P.hasProperty(
+						currentRequestSettings,
+						"args",
+					);
+
+					/**
+					 * If our current context does not have args for
+					 * some reason, but prev context does, we must
+					 * return false here.
+					 * */
+					if (!doesCurrentContextHaveArgs) {
+						return false;
+					}
+
+					const prevArgs = obtainedPrevContext?.args || null;
+
+					const argAdapter = requestMeta
+						.getArgumentAdapterConfig()
+						.getAdapter();
+
+					return !argAdapter
+						.from(currentRequestSettings.args)
+						.isEqual(prevArgs);
 				});
 
 				return {
@@ -75,57 +105,27 @@ export class ReloadableMiddleware extends Middleware("ReloadableMiddleware", {
 							 * fall back to default check that just does isEqual(prevArgs, args).
 							 * 2. If our arguments are not equal, the request can be reloaded
 							 * */
-							const doArgumentsDiffer = () => {
-								const prevContext = obtainedPrevContext || {};
-								const doesPrevContextHaveArgs = P.hasProperty(
-									prevContext,
-									"args",
-								);
-
-								/**
-								 * 1. If our previous context has no args set,
-								 * this means that we cannot compare anything.
-								 * 2. In this case, we should allow request reload
-								 * and wait for our prev context snapshot to fill.
-								 * */
-								if (!doesPrevContextHaveArgs) {
-									return true;
-								}
-
-								const doesCurrentContextHaveArgs = P.hasProperty(
-									currentRequestSettings,
-									"args",
-								);
-
-								/**
-								 * If our current context does not have args for
-								 * some reason, but prev context does, we must
-								 * return false here.
-								 * */
-								if (!doesCurrentContextHaveArgs) {
-									return false;
-								}
-
-								return !isEqual(prevContext.args, currentRequestSettings.args);
-							};
-
 							const isReloadable = predicate
-								? () =>
-										predicate(
+								? E.gen(function* () {
+										return predicate(
 											{
 												prev: obtainedPrevContext,
 												current: currentRequestSettings,
 											},
 											{ context: globalContext.get() },
-										)
-								: doArgumentsDiffer;
+										);
+									})
+								: doArgumentsDiffer(
+										obtainedPrevContext,
+										currentRequestSettings,
+									);
 
 							/**
 							 * If our check fails, we need to cancel the
 							 * command immediately. There's no point in
 							 * doing anything else.
 							 * */
-							if (!isReloadable()) {
+							if (!(yield* isReloadable)) {
 								yield* unwrappedEvent.cancel();
 								return yield* context.next(unwrappedEvent);
 							}

@@ -25,7 +25,9 @@ export abstract class RequestContextPart<
 	 * Used to get all state from the context,
 	 * and provide it to middleware functions.
 	 * */
-	abstract toRecord(): Record<string, unknown>;
+	toRecord(): Record<string, unknown> {
+		return {};
+	}
 
 	/**
 	 * Used for inferring state from raw params

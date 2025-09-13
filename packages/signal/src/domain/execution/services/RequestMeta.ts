@@ -1,12 +1,22 @@
 import * as E from "effect/Effect";
+import { RequestArgumentAdapters } from "./meta/RequestArgumentAdapters";
 import { RequestRecognizedErrors } from "./meta/RequestRecognizedErrors";
 import { RequestValueAdapters } from "./meta/RequestValueAdapters";
 
+/**
+ * Request meta does not care about request id and
+ * wiped ONLY after our request middleware tree has been disposed of.
+ * */
 export class RequestMeta extends E.Service<RequestMeta>()("RequestMeta", {
-	dependencies: [RequestRecognizedErrors.Default, RequestValueAdapters.Default],
+	dependencies: [
+		RequestRecognizedErrors.Default,
+		RequestValueAdapters.Default,
+		RequestArgumentAdapters.Default,
+	],
 	scoped: E.gen(function* () {
 		const errors = yield* RequestRecognizedErrors;
 		const valueAdapters = yield* RequestValueAdapters;
+		const argumentAdapters = yield* RequestArgumentAdapters;
 
 		return {
 			getErrorConfig() {
@@ -15,6 +25,10 @@ export class RequestMeta extends E.Service<RequestMeta>()("RequestMeta", {
 
 			getValueAdapterConfig() {
 				return valueAdapters;
+			},
+
+			getArgumentAdapterConfig() {
+				return argumentAdapters;
 			},
 		};
 	}),
