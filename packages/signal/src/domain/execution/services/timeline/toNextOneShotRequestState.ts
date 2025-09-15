@@ -1,4 +1,4 @@
-import { RequestInterruptedException } from "../../../../shared/exception/RequestInterruptedException";
+import { RequestInterruptedError } from "../../../../shared/error/RequestInterruptedError";
 import { IRequestContext } from "../../../context/IRequestContext";
 import { ApplyRequestState } from "../../events/request/ApplyRequestState";
 import { RequestState } from "../../events/request/RequestState";
@@ -49,7 +49,7 @@ export const toNextOneShotRequestState = <T extends ApplyRequestState | null>(
 			isUninitialized: false,
 			isError: true,
 			data: null,
-			error: new RequestInterruptedException(),
+			error: new RequestInterruptedError(),
 		});
 	}
 

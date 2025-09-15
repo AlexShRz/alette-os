@@ -1,11 +1,11 @@
-import type { ApiExceptionInstance } from "@alette/pulse";
+import type { ApiErrorInstance } from "@alette/pulse";
 import type { Ctor } from "effect/Types";
 import { IRequestContext } from "../../../context/IRequestContext";
 import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 
 export interface IRecognizedRequestError<
-	Exception extends ApiExceptionInstance = ApiExceptionInstance,
-> extends Ctor<Exception> {}
+	Error extends ApiErrorInstance = ApiErrorInstance,
+> extends Ctor<Error> {}
 
 export type TGetRecognizedRequestErrors<C extends IRequestContext> =
 	C["types"]["errorType"];
@@ -18,7 +18,7 @@ export type TAddDefaultRequestErrors<
 	C extends IRequestContext,
 	ErrorsConstructors extends IRecognizedRequestError[],
 	Errors = TExtractErrorInstances<ErrorsConstructors>,
-> = C["types"]["errorType"] extends ApiExceptionInstance
+> = C["types"]["errorType"] extends ApiErrorInstance
 	? TMergeRecords<
 			C["types"],
 			{

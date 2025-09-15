@@ -1,4 +1,4 @@
-import { ApiException } from "@alette/pulse";
+import { ApiError } from "@alette/pulse";
 import { setContext } from "../../application";
 import {
 	path,
@@ -10,7 +10,7 @@ import {
 } from "../../domain";
 import { createTestApi } from "../../shared/testUtils/createTestApi";
 
-class MyError extends ApiException.As("MyError") {
+class MyError extends ApiError.As("MyError") {
 	cloneSelf() {
 		return new MyError();
 	}

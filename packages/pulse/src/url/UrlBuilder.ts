@@ -1,12 +1,12 @@
 import { AbstractBuilder } from "../utils/AbstractBuilder";
-import { CannotCreateUrlException } from "./exception/CannotCreateUrlException";
-import { CannotCreateUrlFromInstanceException } from "./exception/CannotCreateUrlFromInstanceException";
-import { CannotSetHashException } from "./exception/CannotSetHashException";
-import { CannotSetHostException } from "./exception/CannotSetHostException";
-import { CannotSetOriginException } from "./exception/CannotSetOriginException";
-import { CannotSetPathException } from "./exception/CannotSetPathException";
-import { CannotSetPortException } from "./exception/CannotSetPortException";
-import { CannotSetProtocol } from "./exception/CannotSetProtocolException";
+import { CannotCreateUrlError } from "./error/CannotCreateUrlError";
+import { CannotCreateUrlFromInstanceError } from "./error/CannotCreateUrlFromInstanceError";
+import { CannotSetHashError } from "./error/CannotSetHashError";
+import { CannotSetHostError } from "./error/CannotSetHostError";
+import { CannotSetOriginError } from "./error/CannotSetOriginError";
+import { CannotSetPathError } from "./error/CannotSetPathError";
+import { CannotSetPortError } from "./error/CannotSetPortError";
+import { CannotSetProtocol } from "./error/CannotSetProtocolError";
 import { IQueryParams } from "./queryParams/IQueryParams";
 import { UrlQueryParamsBuilder } from "./queryParams/UrlQueryParamsBuilder";
 
@@ -131,7 +131,7 @@ export class UrlBuilder<
 				.setHost(data.hostname as any)
 				.setPort(data.port as any);
 		} catch (e) {
-			throw new CannotSetOriginException(origin, e);
+			throw new CannotSetOriginError(origin, e);
 		}
 	}
 
@@ -170,7 +170,7 @@ export class UrlBuilder<
 			this.path = new URL(`http://localhost:8888${path}`).pathname;
 			return this;
 		} catch (e) {
-			throw new CannotSetPathException(path, e);
+			throw new CannotSetPathError(path, e);
 		}
 	}
 
@@ -183,7 +183,7 @@ export class UrlBuilder<
 			this.hash = new URL(`http://localhost:8888${hash}`).hash;
 			return this;
 		} catch (e) {
-			throw new CannotSetHashException(hash, e);
+			throw new CannotSetHashError(hash, e);
 		}
 	}
 
@@ -198,7 +198,7 @@ export class UrlBuilder<
 			this.host = data.hostname;
 			return this;
 		} catch (e) {
-			throw new CannotSetHostException(host, e);
+			throw new CannotSetHostError(host, e);
 		}
 	}
 
@@ -211,7 +211,7 @@ export class UrlBuilder<
 			this.port = new URL(`http://localhost:${port}/`).port;
 			return this;
 		} catch (e) {
-			throw new CannotSetPortException(port, e);
+			throw new CannotSetPortError(port, e);
 		}
 	}
 
@@ -233,7 +233,7 @@ export class UrlBuilder<
 					UrlQueryParamsBuilder.fromUrlParams(urlInstance.searchParams),
 				);
 		} catch (e) {
-			throw new CannotCreateUrlFromInstanceException(urlInstance, e);
+			throw new CannotCreateUrlFromInstanceError(urlInstance, e);
 		}
 	}
 
@@ -241,7 +241,7 @@ export class UrlBuilder<
 		try {
 			return UrlBuilder.fromUrlInstance(new URL(url, origin));
 		} catch (e) {
-			throw new CannotCreateUrlException(url, e);
+			throw new CannotCreateUrlError(url, e);
 		}
 	}
 

@@ -1,2 +1,2 @@
-export * from "./RequestArgValidationException";
-export * from "./RequestArgCloningException";
+export * from "./RequestArgValidationError";
+export * from "./RequestArgCloningError";

@@ -1,4 +1,4 @@
-import { ApiException } from "@alette/pulse";
+import { ApiError } from "@alette/pulse";
 import { expect } from "@effect/vitest";
 import { BehaviorSubject, Subject } from "rxjs";
 import { forActiveRequestWorkers } from "../../../application";
@@ -74,7 +74,7 @@ test("it updates state snapshots based on actual request state", async () => {
 	let errorStateOccurred = 0;
 	let successStateOccurred = 0;
 
-	class MyError extends ApiException.As("MyError") {
+	class MyError extends ApiError.As("MyError") {
 		cloneSelf() {
 			return new MyError();
 		}
@@ -195,7 +195,7 @@ test("it returns full state snapshots on every request state update", async () =
 	const trigger = new Subject<string | MyError>();
 	let lastSnapshot: IOneShotRequestState.AnyUnwrapped | null = null;
 
-	class MyError extends ApiException.As("MyError") {
+	class MyError extends ApiError.As("MyError") {
 		cloneSelf() {
 			return new MyError();
 		}

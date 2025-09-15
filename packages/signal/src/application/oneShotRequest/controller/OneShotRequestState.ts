@@ -10,7 +10,7 @@ import {
 } from "../../../domain/context/typeUtils/RequestIOTypes";
 import { ApplyRequestState } from "../../../domain/execution/events/request/ApplyRequestState";
 import { IOneShotRequestState } from "../../../domain/execution/state/IOneShotRequestState";
-import { RequestInterruptedException } from "../../../shared/exception/RequestInterruptedException";
+import { RequestInterruptedError } from "../../../shared/error/RequestInterruptedError";
 import { RequestControllerState } from "../../blueprint/controller/RequestControllerState";
 import { ApiPlugin } from "../../plugins/ApiPlugin";
 import { OneShotRequestSupervisor } from "./OneShotRequestSupervisor";
@@ -81,13 +81,13 @@ export class OneShotRequestState<
 	awaitResult() {
 		const task = E.async<
 			TRequestResponse<Context>,
-			TRequestError<Context> | RequestInterruptedException
+			TRequestError<Context> | RequestInterruptedError
 		>((resume) => {
 			this.supervisor.spawnAndSupervise(
 				E.gen(this, function* () {
 					yield* E.addFinalizer(() =>
 						E.sync(() => {
-							resume(E.fail(new RequestInterruptedException()));
+							resume(E.fail(new RequestInterruptedError()));
 						}),
 					);
 
@@ -110,7 +110,7 @@ export class OneShotRequestState<
 			);
 
 			return E.sync(() => {
-				resume(E.fail(new RequestInterruptedException()));
+				resume(E.fail(new RequestInterruptedError()));
 			});
 		});
 

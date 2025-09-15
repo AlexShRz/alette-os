@@ -1,5 +1,5 @@
 import { path, factory } from "../../domain";
-import { RequestInterruptedException } from "../../shared/exception/RequestInterruptedException";
+import { RequestInterruptedError } from "../../shared/error/RequestInterruptedError";
 import { createTestApi } from "../../shared/testUtils/createTestApi";
 
 test("it sets path", async () => {
@@ -84,7 +84,5 @@ test.todo("it throws a fatal error if our path is incorrect", async () => {
 		}),
 	);
 
-	expect(await getData.execute()).rejects.toThrowError(
-		RequestInterruptedException,
-	);
+	expect(await getData.execute()).rejects.toThrowError(RequestInterruptedError);
 });

@@ -3,7 +3,7 @@ import * as LayerMap from "effect/LayerMap";
 import * as RcMap from "effect/RcMap";
 import * as Stream from "effect/Stream";
 import { v4 as uuid } from "uuid";
-import { RequestExceptionProcessor } from "../exceptions/services/RequestExceptionProcessor";
+import { RequestErrorProcessor } from "../errors/services/RequestErrorProcessor";
 import { RequestThread } from "./RequestThread";
 
 /**
@@ -18,10 +18,10 @@ export const REQUEST_THREAD_TTL = "5 seconds";
 export class RequestThreadRegistry extends E.Service<RequestThreadRegistry>()(
 	"RequestThreadRegistry",
 	{
-		dependencies: [RequestExceptionProcessor.Default],
+		dependencies: [RequestErrorProcessor.Default],
 		scoped: E.gen(function* () {
 			const id = uuid();
-			const errorProcessor = yield* RequestExceptionProcessor;
+			const errorProcessor = yield* RequestErrorProcessor;
 			/**
 			 * 1. We need to create scope manually here,
 			 * and provide it to RcMap

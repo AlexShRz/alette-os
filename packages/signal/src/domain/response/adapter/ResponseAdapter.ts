@@ -1,7 +1,7 @@
 import { ISchema, validateSchema } from "@alette/pulse";
 import { IResponseValueDeserializer } from "./ResponseAdapterBuilder";
 import { ResponseRef } from "./ResponseRef";
-import { ResponseValueValidationException } from "./errors/ResponseValueValidationException";
+import { ResponseValueValidationError } from "./errors/ResponseValueValidationError";
 
 export class ResponseAdapter<Value = unknown> {
 	constructor(
@@ -32,7 +32,7 @@ export class ResponseAdapter<Value = unknown> {
 		try {
 			return validateSchema(this.getSchema(), value);
 		} catch {
-			throw new ResponseValueValidationException(value);
+			throw new ResponseValueValidationError(value);
 		}
 	}
 }

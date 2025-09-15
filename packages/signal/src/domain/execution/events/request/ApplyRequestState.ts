@@ -1,4 +1,4 @@
-import { ApiExceptionInstance } from "@alette/pulse";
+import { ApiErrorInstance } from "@alette/pulse";
 import { IRequestContext } from "../../../context/IRequestContext";
 import { IOneShotRequestState } from "../../state/IOneShotRequestState";
 import { RequestSessionEvent } from "../RequestSessionEvent";
@@ -46,7 +46,7 @@ export class ApplyRequestState<
 		const self = new ApplyRequestState<C, State>({
 			...state,
 			data: state.data?.clone() ?? null,
-			error: (state.error as ApiExceptionInstance | null)?.clone() ?? null,
+			error: (state.error as ApiErrorInstance | null)?.clone() ?? null,
 		});
 		return self as this;
 	}

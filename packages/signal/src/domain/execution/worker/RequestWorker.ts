@@ -4,7 +4,7 @@ import * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Scope from "effect/Scope";
 import { GlobalContext } from "../../context/services/GlobalContext";
-import { RequestExceptionProcessor } from "../../exceptions/services/RequestExceptionProcessor";
+import { RequestErrorProcessor } from "../../errors/services/RequestErrorProcessor";
 import { TSessionEvent } from "../events/SessionEvent";
 import { RequestEventInterceptor } from "../services/RequestEventInterceptor";
 import { RequestMeta } from "../services/RequestMeta";
@@ -22,9 +22,7 @@ import { RequestWorkerConfig } from "./RequestWorkerConfig";
 export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 	scoped: E.fn(function* (config: RequestWorkerConfig) {
 		const scope = yield* E.scope;
-		const context = yield* E.context<
-			GlobalContext | RequestExceptionProcessor
-		>();
+		const context = yield* E.context<GlobalContext | RequestErrorProcessor>();
 		/**
 		 * 1. Because workers are usually created once
 		 * for every dispatched request, we can safely

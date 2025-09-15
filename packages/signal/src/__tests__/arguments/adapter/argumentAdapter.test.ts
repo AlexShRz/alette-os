@@ -1,7 +1,7 @@
 import { Schema } from "effect";
 import {
-	RequestArgCloningException,
-	RequestArgValidationException,
+	RequestArgCloningError,
+	RequestArgValidationError,
 	argumentAdapter,
 	type,
 } from "../../../domain";
@@ -29,7 +29,7 @@ test("it throws if arguments are not compatible with the schema", async () => {
 		.build();
 
 	expect(() => MyArgs.from("ssddssdsds")).toThrowError(
-		RequestArgValidationException,
+		RequestArgValidationError,
 	);
 	MyArgs.from("hiii");
 });
@@ -60,9 +60,7 @@ test("it throws an error if default clone algorithm cannot clone arguments", () 
 
 	const MyArgs = argumentAdapter().schema(type<typeof obj>()).build();
 
-	expect(() => MyArgs.from(obj).clone()).toThrowError(
-		RequestArgCloningException,
-	);
+	expect(() => MyArgs.from(obj).clone()).toThrowError(RequestArgCloningError);
 });
 
 test("it can override set arguments", () => {
@@ -85,6 +83,6 @@ test("it throws an error during arg override if arg type is not compatible", () 
 	const args = MyArgs.from("ssss");
 
 	expect(() => args.set("asdaksbdkasdbaksjdbaskjb")).toThrowError(
-		RequestArgValidationException,
+		RequestArgValidationError,
 	);
 });

@@ -1,4 +1,4 @@
-import { RequestInterruptedException } from "../../../shared/exception/RequestInterruptedException";
+import { RequestInterruptedError } from "../../../shared/error/RequestInterruptedError";
 import { IRequestContext } from "../../context/IRequestContext";
 import {
 	TRequestError,
@@ -16,7 +16,7 @@ export namespace IOneShotRequestState {
 		isSuccess: boolean;
 		isError: boolean;
 		data: ResponseRef<TRequestResponse<C>> | null;
-		error: TRequestError<C> | RequestInterruptedException | null;
+		error: TRequestError<C> | RequestInterruptedError | null;
 	};
 
 	type AnyUnwrapped<C extends IRequestContext = IRequestContext> = {
@@ -28,7 +28,7 @@ export namespace IOneShotRequestState {
 		 * Unwrapped must not contain response refs
 		 * */
 		data: TRequestResponse<C> | null;
-		error: TRequestError<C> | RequestInterruptedException | null;
+		error: TRequestError<C> | RequestInterruptedError | null;
 	};
 
 	interface Default {
@@ -64,6 +64,6 @@ export namespace IOneShotRequestState {
 
 	interface Interrupted extends Any {
 		isError: true;
-		error: RequestInterruptedException;
+		error: RequestInterruptedError;
 	}
 }

@@ -1,7 +1,7 @@
 import { expect } from "@effect/vitest";
 import { deactivatePlugins } from "../../application";
 import { factory, input, type } from "../../domain";
-import { RequestInterruptedException } from "../../shared/exception/RequestInterruptedException";
+import { RequestInterruptedError } from "../../shared/error/RequestInterruptedError";
 import { createTestApi } from "../../shared/testUtils/createTestApi";
 
 test("it overrides previous request when a new request command is received", async () => {
@@ -66,7 +66,7 @@ test.todo(
 		await vi.waitFor(
 			() => {
 				const error = getState().error;
-				expect(error instanceof RequestInterruptedException).toBeTruthy();
+				expect(error instanceof RequestInterruptedError).toBeTruthy();
 			},
 			{ timeout: 5000 },
 		);

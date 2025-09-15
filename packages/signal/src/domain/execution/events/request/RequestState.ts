@@ -1,5 +1,5 @@
-import { ApiExceptionInstance, type } from "@alette/pulse";
-import { RequestInterruptedException } from "../../../../shared/exception/RequestInterruptedException";
+import { ApiErrorInstance, type } from "@alette/pulse";
+import { RequestInterruptedError } from "../../../../shared/error/RequestInterruptedError";
 import { IRequestContext } from "../../../context/IRequestContext";
 import {
 	TRequestError,
@@ -27,7 +27,7 @@ export class RequestState {
 		event: ApplyRequestState<C>,
 	): event is ApplyRequestState<C, IOneShotRequestState.Failure<C>> {
 		const state: IOneShotRequestState.Any<C> = event.getState();
-		return state.isError && state.error instanceof ApiExceptionInstance;
+		return state.isError && state.error instanceof ApiErrorInstance;
 	}
 
 	static isUninitialized<C extends IRequestContext = IRequestContext>(
@@ -40,7 +40,7 @@ export class RequestState {
 		event: ApplyRequestState<C>,
 	): event is ApplyRequestState<C, IOneShotRequestState.Interrupted> {
 		const state: IOneShotRequestState.Any<C> = event.getState();
-		return state.isError && state.error instanceof RequestInterruptedException;
+		return state.isError && state.error instanceof RequestInterruptedError;
 	}
 
 	static Uninitialized(requestId: string) {
@@ -104,7 +104,7 @@ export class RequestState {
 			isUninitialized: false,
 			isError: true,
 			data: null,
-			error: new RequestInterruptedException(),
+			error: new RequestInterruptedError(),
 		});
 	}
 

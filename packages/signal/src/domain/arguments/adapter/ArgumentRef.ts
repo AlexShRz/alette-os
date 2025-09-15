@@ -1,7 +1,7 @@
 import { ISchema, validateSchema } from "@alette/pulse";
 import { v4 as uuid } from "uuid";
 import { IArgumentCloner, IArgumentComparator } from "./ArgumentAdapterBuilder";
-import { RequestArgValidationException } from "./errors";
+import { RequestArgValidationError } from "./errors";
 
 export class ArgumentRef<Arguments = unknown> {
 	protected id = uuid();
@@ -32,7 +32,7 @@ export class ArgumentRef<Arguments = unknown> {
 			this.args = validateSchema(this.config.schema, newArgs);
 			return this;
 		} catch {
-			throw new RequestArgValidationException(newArgs);
+			throw new RequestArgValidationError(newArgs);
 		}
 	}
 

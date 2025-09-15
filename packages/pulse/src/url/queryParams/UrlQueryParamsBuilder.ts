@@ -3,7 +3,7 @@ import queryString from "query-string";
 import { type, validateSchema } from "../../schema";
 import { AbstractBuilder } from "../../utils/AbstractBuilder";
 import { IQueryParams } from "./IQueryParams";
-import { CannotSetQueryParamsException } from "./exception/CannotSetQueryParamsException";
+import { CannotSetQueryParamsError } from "./error/CannotSetQueryParamsError";
 
 export type PossibleParamSupplier<
 	QueryParams extends IQueryParams = IQueryParams,
@@ -39,7 +39,7 @@ export class UrlQueryParamsBuilder<
 			this.storedParams = validateSchema(this.paramSchema, queryParams);
 			return this;
 		} catch (e) {
-			throw new CannotSetQueryParamsException(queryParams, e);
+			throw new CannotSetQueryParamsError(queryParams, e);
 		}
 	}
 

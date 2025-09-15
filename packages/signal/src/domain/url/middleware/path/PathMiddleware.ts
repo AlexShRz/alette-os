@@ -1,7 +1,7 @@
 import * as E from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as SynchronizedRef from "effect/SynchronizedRef";
-import { orPanic } from "../../../exceptions/utils/orPanic";
+import { orPanic } from "../../../errors/utils/orPanic";
 import { RunRequest } from "../../../execution/events/request/RunRequest";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { Middleware } from "../../../middleware/Middleware";

@@ -22,19 +22,19 @@ export class EventBusListenerFactory<
 		Tag extends string,
 		LayerType extends EventBusListener,
 		LayerReturn extends IEventBusListener,
-		Exceptions,
+		Errors,
 	>(tag: Tag, passedConfig: Partial<IEventBusListenerFactoryConfig> = {}) {
 		return <Args extends any[]>(
 			factory: (
 				...args: Args
-			) => IEventBusListenerFactory<LayerReturn, Exceptions, Scope.Scope>,
+			) => IEventBusListenerFactory<LayerReturn, Errors, Scope.Scope>,
 		) =>
 			class extends EventBusListenerFactory<Tag, LayerType> {
 				constructor(...factoryArgs: Args extends [] ? [] : Args) {
 					super(
 						tag,
 						() =>
-							EventBusListener.make<LayerReturn, Exceptions, Scope.Scope>(
+							EventBusListener.make<LayerReturn, Errors, Scope.Scope>(
 								factory(...(factoryArgs as Args)),
 							),
 						passedConfig,
