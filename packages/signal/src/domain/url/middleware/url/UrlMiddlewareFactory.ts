@@ -2,29 +2,33 @@ import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
 import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
 import { TMergeContextAdapters } from "../../../context/typeUtils/TMergeContextAdapters";
-import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
 import { UrlContext } from "../../UrlContext";
-import { OriginMiddleware } from "./OriginMiddleware";
-import { IRequestOrigin, TGetRequestOrigin } from "./RequestOrigin";
-import { originMiddlewareSpecification } from "./originMiddlewareSpecification";
+import { TGetRequestOrigin } from "../origin/RequestOrigin";
+import { TGetRequestPath } from "../path/RequestPath";
+import { TGetRequestQueryParams } from "../queryParams/RequestQueryParams";
+import { UrlMiddleware } from "./UrlMiddleware";
+import { urlMiddlewareSpecification } from "./urlMiddlewareSpecification";
 
-export type TOriginMiddlewareArgs<
-	NewOrigin extends string = string,
+export interface IUrlMiddlewareCollectedUrlProps<
 	C extends IRequestContext = IRequestContext,
-> =
-	| ((
-			prevPath: TGetRequestOrigin<C>,
-			context: TGetAllRequestContext<C>,
-	  ) => NewOrigin | Promise<NewOrigin>)
-	| NewOrigin;
+> {
+	origin: TGetRequestOrigin<C>;
+	path: TGetRequestPath<C>;
+	queryParams: TGetRequestQueryParams<C>;
+}
 
-export class OriginMiddlewareFactory extends Middleware(
-	"OriginMiddlewareFactory",
-)(
-	(getMiddleware: () => OriginMiddleware) =>
+export type TUrlMiddlewareArgs<C extends IRequestContext = IRequestContext> =
+	| ((
+			collectedUrlProps: IUrlMiddlewareCollectedUrlProps<C>,
+			context: TGetAllRequestContext<C>,
+	  ) => string)
+	| string;
+
+export class UrlMiddlewareFactory extends Middleware("UrlMiddlewareFactory")(
+	(getMiddleware: () => UrlMiddleware) =>
 		({ parent, context }) =>
 			E.gen(function* () {
 				return {
@@ -32,7 +36,7 @@ export class OriginMiddlewareFactory extends Middleware(
 					send(event) {
 						return E.gen(this, function* () {
 							if (event instanceof AggregateRequestMiddleware) {
-								event.addMiddleware(getMiddleware());
+								event.replaceMiddleware([UrlMiddleware], [getMiddleware()]);
 							}
 
 							return yield* context.next(event);
@@ -42,22 +46,22 @@ export class OriginMiddlewareFactory extends Middleware(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext, Origin extends string>(
-			args?: TOriginMiddlewareArgs<Origin, Context>,
+		return <Context extends IRequestContext>(
+			args: TUrlMiddlewareArgs<Context>,
 		) => {
 			return toMiddlewareFactory<
 				Context,
 				IRequestContext<
 					TMergeContextAdapters<Context, UrlContext>,
-					TMergeRecords<Context["value"], IRequestOrigin<Origin>>,
+					Context["value"],
 					Context["settings"],
 					Context["accepts"]
 				>,
-				typeof originMiddlewareSpecification
+				typeof urlMiddlewareSpecification
 			>(
 				() =>
-					new OriginMiddlewareFactory(
-						() => new OriginMiddleware(args as TOriginMiddlewareArgs),
+					new UrlMiddlewareFactory(
+						() => new UrlMiddleware(args as TUrlMiddlewareArgs),
 					),
 			);
 		};

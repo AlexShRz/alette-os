@@ -2,6 +2,7 @@ import { EventInterceptorTag, TEventInterceptor } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
 import { RequestSessionEvent } from "../events/RequestSessionEvent";
 import { SessionEventEnvelope } from "../events/SessionEventEnvelope";
+import { RunRequest } from "../events/request/RunRequest";
 import { RequestSession } from "./RequestSession";
 
 export class RequestEventInterceptor extends E.Service<RequestEventInterceptor>()(
@@ -33,19 +34,33 @@ export class RequestEventInterceptor extends E.Service<RequestEventInterceptor>(
 					const currentRequestId = yield* session.getRequestId();
 
 					/**
-					 * 1. Cancel all "stray" events that might have been
+					 * If we receive the "run request" command that already has a
+					 * different request id from our session request id, it
+					 * means that we want to start a new session (reload/refetch), and
+					 * we need to make it pass.
+					 * */
+					const isStartingNewRequestSession =
+						unwrappedEvent instanceof RunRequest &&
+						unwrappedEvent.getRequestId() !== currentRequestId;
+
+					if (isStartingNewRequestSession) {
+						return event;
+					}
+
+					/**
+					 * Cancel all "stray" events that might have been
 					 * dispatched by request middleware, etc.
 					 * */
 					if (unwrappedEvent.getRequestId() !== currentRequestId) {
 						/**
-						 * 2. Cancel the envelope, NOT
+						 * Cancel the envelope, NOT
 						 * the wrapped event.
 						 * */
 						yield* event.cancel();
 					}
 
 					/**
-					 * 3. Return the envelope back to the
+					 * Return the envelope back to the
 					 * chain. Or the event itself if not wrapped.
 					 * */
 					return event;

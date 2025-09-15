@@ -1,10 +1,8 @@
 import * as E from "effect/Effect";
-import * as Stream from "effect/Stream";
 import * as SynchronizedRef from "effect/SynchronizedRef";
 import { RequestContextPart } from "../../context/RequestContextPart";
 import { TKnownRequestContextKey } from "../../context/TKnownRequestContextKey";
 import { GlobalContext } from "../../context/services/GlobalContext";
-import { RequestSession } from "./RequestSession";
 
 interface IAllContext
 	extends Record<
@@ -20,28 +18,8 @@ export class RequestSessionContext extends E.Service<RequestSessionContext>()(
 	"RequestSessionContext",
 	{
 		scoped: E.gen(function* () {
-			const session = yield* RequestSession;
 			const globalContext = yield* GlobalContext;
 			const context = yield* SynchronizedRef.make({} as IAllContext);
-
-			yield* session.getRequestIdChanges().pipe(
-				Stream.tap(() =>
-					E.all(
-						[
-							SynchronizedRef.set(
-								context,
-								/**
-								 * Reset context on request id change
-								 * */
-								{} as IAllContext,
-							),
-						],
-						{ concurrency: "unbounded" },
-					),
-				),
-				Stream.runDrain,
-				E.forkScoped,
-			);
 
 			const getSessionContextWithoutGlobalContext = E.fn(function* (
 				allContext: IAllContext,
@@ -121,6 +99,16 @@ export class RequestSessionContext extends E.Service<RequestSessionContext>()(
 							return allContext;
 						}),
 					).pipe(E.andThen(() => this.getOrThrow<T>(key)));
+				},
+
+				reset() {
+					return SynchronizedRef.set(
+						context,
+						/**
+						 * Reset context on request id change
+						 * */
+						{} as IAllContext,
+					);
 				},
 			};
 		}),

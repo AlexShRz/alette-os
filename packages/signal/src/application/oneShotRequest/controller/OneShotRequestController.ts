@@ -94,13 +94,15 @@ export class OneShotRequestController<
 		this.dispatch(
 			new WithCurrentRequestOverride(
 				new RunRequest(this.getSettingSupplier(settings)),
-			),
+			).setRequestId(),
 		);
 	}
 
 	reload() {
 		this.dispatch(
-			new WithRunOnMountCheck(new RunRequest(this.getSettingSupplier())),
+			new WithRunOnMountCheck(
+				new RunRequest(this.getSettingSupplier()),
+			).setRequestId(),
 		);
 	}
 

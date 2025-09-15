@@ -1,24 +1,23 @@
 import * as E from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as SynchronizedRef from "effect/SynchronizedRef";
+import { orPanic } from "../../../exceptions/utils/orPanic";
 import { RunRequest } from "../../../execution/events/request/RunRequest";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
-import { GlobalUrlConfig } from "../../services/GlobalUrlConfig";
 import { getOrCreateUrlContext } from "../getOrCreateUrlContext";
-import { TOriginMiddlewareArgs } from "./OriginMiddlewareFactory";
+import { TQueryParamsMiddlewareArgs } from "./QueryParamsMiddlewareFactory";
 
-export class OriginMiddleware extends Middleware("OriginMiddleware", {
+export class QueryParamsMiddleware extends Middleware("QueryParamsMiddleware", {
 	priority: MiddlewarePriority.Creational,
 })(
-	(originSupplier?: TOriginMiddlewareArgs) =>
+	(queryParamSupplier: TQueryParamsMiddlewareArgs) =>
 		({ parent, context }) =>
 			E.gen(function* () {
 				const requestContext = yield* E.serviceOptional(RequestSessionContext);
 
-				const provideOriginContext = E.gen(function* () {
-					const globalUrlConfig = yield* E.serviceOptional(GlobalUrlConfig);
+				const updateParams = E.fn(function* () {
 					const urlContext = yield* getOrCreateUrlContext();
 					const contextSnapshot = yield* requestContext.getSnapshot();
 
@@ -27,23 +26,22 @@ export class OriginMiddleware extends Middleware("OriginMiddleware", {
 							const state = url.getState();
 							const adapter = url.getAdapter();
 
-							if (!originSupplier) {
-								adapter.setOrigin(globalUrlConfig.getOrigin());
-								return url;
-							}
-
-							const getUpdatedPath = P.isFunction(originSupplier)
+							const getUpdatedQueryParams = P.isFunction(queryParamSupplier)
 								? async () =>
-										await originSupplier(state.getOrigin(), contextSnapshot)
-								: async () => originSupplier;
+										await queryParamSupplier(
+											state.getParams().get(),
+											contextSnapshot,
+										)
+								: async () => queryParamSupplier;
+							const updatedParams = yield* E.promise(() =>
+								getUpdatedQueryParams(),
+							);
 
-							const newOrigin = yield* E.promise(() => getUpdatedPath());
-
-							adapter.setOrigin(newOrigin);
+							adapter.setQueryParams(updatedParams);
 							return url;
 						}),
-					);
-				}).pipe(E.orDie);
+					).pipe(orPanic);
+				});
 
 				return {
 					...parent,
@@ -55,7 +53,7 @@ export class OriginMiddleware extends Middleware("OriginMiddleware", {
 
 							return yield* context.next(
 								event.executeLazy((operation) =>
-									operation.pipe(E.andThen(() => provideOriginContext)),
+									operation.pipe(E.andThen(updateParams)),
 								),
 							);
 						});

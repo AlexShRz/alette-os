@@ -1,7 +1,7 @@
 import { RequestSpecification } from "@alette/pulse";
 import { IRequestContext } from "../../domain/context/IRequestContext";
 import { TRequestArguments } from "../../domain/context/typeUtils/RequestIOTypes";
-import { TRequestMode } from "../../domain/execution/worker/RequestWorkerConfig";
+import { TRequestMode } from "../../domain/execution/services/RequestMode";
 import { IMiddlewareSupplierFn } from "../../domain/middleware/IMiddlewareSupplierFn";
 import { ApiRequest } from "../blueprint/ApiRequest";
 import { IOneShotRequestWithMiddleware } from "./IOneShotRequestWithMiddleware";

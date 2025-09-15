@@ -7,7 +7,7 @@ import { WithReloadableCheck } from "../../events/envelope/WithReloadableCheck";
 import { WithRunOnMountCheck } from "../../events/envelope/WithRunOnMountCheck";
 import { RunRequest } from "../../events/request/RunRequest";
 import { RequestMetrics } from "../../services/RequestMetrics";
-import { RequestSession } from "../../services/RequestSession";
+import { RequestMode } from "../../services/RequestMode";
 
 export class RunOnMountMiddleware extends Middleware("RunOnMountMiddleware", {
 	priority: MiddlewarePriority.BeforeCreation,
@@ -15,7 +15,7 @@ export class RunOnMountMiddleware extends Middleware("RunOnMountMiddleware", {
 	(isEnabled = true) =>
 		({ parent, context }) =>
 			E.gen(function* () {
-				const session = yield* E.serviceOptional(RequestSession);
+				const requestMode = yield* E.serviceOptional(RequestMode);
 				const metrics = yield* E.serviceOptional(RequestMetrics);
 				/**
 				 * 1. We do not care about request id here.
@@ -72,7 +72,7 @@ export class RunOnMountMiddleware extends Middleware("RunOnMountMiddleware", {
 							 * */
 							const shouldSkipValidation =
 								!(event instanceof WithRunOnMountCheck) ||
-								session.isOneShotMode();
+								requestMode.isOneShot();
 
 							if (shouldSkipValidation) {
 								return yield* context.next(event);

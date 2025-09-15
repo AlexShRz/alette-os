@@ -1,4 +1,5 @@
 import { BusEvent } from "@alette/event-sourcing";
+import { v4 as uuid } from "uuid";
 
 export abstract class RequestSessionEvent extends BusEvent {
 	protected requestId: string | null = null;
@@ -23,8 +24,8 @@ export abstract class RequestSessionEvent extends BusEvent {
 		return this.requestId;
 	}
 
-	setRequestId(id: string) {
-		this.requestId = id;
+	setRequestId(id?: string) {
+		this.requestId = id || uuid();
 		return this;
 	}
 

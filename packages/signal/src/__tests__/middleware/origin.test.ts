@@ -1,0 +1,73 @@
+import { setOrigin } from "../../application";
+import { factory, origin } from "../../domain";
+import { createTestApi } from "../../shared/testUtils/createTestApi";
+
+test("it uses globally set origin if nothing was provided", async () => {
+	const { api, custom } = createTestApi();
+	const value = "https://www.wikipedia.org";
+	api.tell(setOrigin(value));
+
+	const getData = custom(
+		origin(),
+		factory(({ origin, url }) => {
+			return [origin, url.getOrigin()];
+		}),
+	);
+
+	const result = await getData.execute();
+
+	await vi.waitFor(() => {
+		expect(result).toEqual([value, value]);
+	});
+});
+
+test("it can compose origins", async () => {
+	const { api, custom } = createTestApi();
+	const myOrigin = "https://www.wikipedia.org";
+	const value1 = myOrigin.replace("wikipedia", "url1");
+	const value2 = value1.replace("url1", "url2");
+	const value3 = value2.replace("url2", "url3");
+
+	api.tell(setOrigin(myOrigin));
+
+	const getData = custom(
+		origin(),
+		origin((prev) => prev.replace("wikipedia", "url1")),
+		origin((prev) => prev.replace("url1", "url2")),
+		origin((prev) => prev.replace("url2", "url3")),
+		factory(({ origin, url }) => {
+			return [origin, url.getOrigin()];
+		}),
+	);
+
+	const result = await getData.execute();
+
+	await vi.waitFor(() => {
+		expect(result).toEqual([value3, value3]);
+	});
+});
+
+test("it can override origin set by upstream middleware", async () => {
+	const { api, custom } = createTestApi();
+	const myOrigin = "https://www.wikipedia.org";
+	const myOrigin2 = "https://www.hellooothere.org";
+
+	api.tell(setOrigin(myOrigin));
+
+	const getData = custom(
+		origin(),
+		origin((prev) => prev.replace("wikipedia", "url1")),
+		origin((prev) => prev.replace("url1", "url2")),
+		origin((prev) => prev.replace("url2", "url3")),
+		origin(myOrigin2),
+		factory(({ origin, url }) => {
+			return [origin, url.getOrigin()];
+		}),
+	);
+
+	const result = await getData.execute();
+
+	await vi.waitFor(() => {
+		expect(result).toEqual([myOrigin2, myOrigin2]);
+	});
+});

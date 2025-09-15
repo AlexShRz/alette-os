@@ -1,4 +1,4 @@
-import { ApiException, type } from "@alette/pulse";
+import { ApiExceptionInstance, type } from "@alette/pulse";
 import { RequestInterruptedException } from "../../../../shared/exception/RequestInterruptedException";
 import { IRequestContext } from "../../../context/IRequestContext";
 import {
@@ -27,7 +27,7 @@ export class RequestState {
 		event: ApplyRequestState<C>,
 	): event is ApplyRequestState<C, IOneShotRequestState.Failure<C>> {
 		const state: IOneShotRequestState.Any<C> = event.getState();
-		return state.isError && state.error instanceof ApiException;
+		return state.isError && state.error instanceof ApiExceptionInstance;
 	}
 
 	static isUninitialized<C extends IRequestContext = IRequestContext>(

@@ -1,5 +1,5 @@
 import { AbstractBuilder } from "../../utils/AbstractBuilder.js";
-import { ApiException } from "../common/ApiException.js";
+import { ApiExceptionInstance } from "../common/ApiExceptionInstance";
 
 export class ExceptionLogMessageBuilder extends AbstractBuilder<ExceptionLogMessageBuilder> {
 	protected shouldDisplayContext = true;
@@ -49,7 +49,7 @@ export class ExceptionLogMessageBuilder extends AbstractBuilder<ExceptionLogMess
 		return this;
 	}
 
-	fromException(exception: ApiException) {
+	fromException(exception: ApiExceptionInstance) {
 		return new ExceptionLogMessageBuilder()
 			.setName(exception.getName())
 			.setStack(exception.getStack())

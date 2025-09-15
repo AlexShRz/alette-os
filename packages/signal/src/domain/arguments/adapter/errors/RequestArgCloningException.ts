@@ -1,6 +1,6 @@
-import { Exception } from "@alette/pulse";
+import { ApiException } from "@alette/pulse";
 
-export class RequestArgCloningException extends Exception.AsFatal(
+export class RequestArgCloningException extends ApiException.AsFatal(
 	"RequestArgCloningException",
 ) {
 	constructor(args: unknown) {

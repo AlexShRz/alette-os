@@ -1,4 +1,5 @@
 import { EventEnvelope } from "@alette/event-sourcing";
+import { v4 as uuid } from "uuid";
 import { RequestSessionEvent } from "./RequestSessionEvent";
 import { IRequestSessionEvent } from "./SessionEvent";
 
@@ -12,10 +13,12 @@ export abstract class SessionEventEnvelope<
 		return this.getWrappedEvent().unsafeGetRequestId() !== null;
 	}
 
-	setRequestId(id: string) {
+	setRequestId(id?: string) {
+		const requestId = id || uuid();
+
 		this.forEachEventLayer((e) => {
 			if (e instanceof RequestSessionEvent) {
-				e.setRequestId(id);
+				e.setRequestId(requestId);
 			}
 
 			return e;

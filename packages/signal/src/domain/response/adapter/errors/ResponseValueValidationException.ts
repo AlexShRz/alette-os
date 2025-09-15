@@ -1,6 +1,6 @@
-import { Exception } from "@alette/pulse";
+import { ApiException } from "@alette/pulse";
 
-export class ResponseValueValidationException extends Exception.AsFatal(
+export class ResponseValueValidationException extends ApiException.AsFatal(
 	"ResponseValueValidationException",
 ) {
 	constructor(value: unknown) {

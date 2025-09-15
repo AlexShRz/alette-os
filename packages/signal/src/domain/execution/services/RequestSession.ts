@@ -1,44 +1,38 @@
 import * as E from "effect/Effect";
-import * as SubscriptionRef from "effect/SubscriptionRef";
-import { TRequestMode } from "../worker/RequestWorkerConfig";
+import * as SynchronizedRef from "effect/SynchronizedRef";
+import { RequestMetrics } from "./RequestMetrics";
+import { RequestSessionContext } from "./RequestSessionContext";
 
 export class RequestSession extends E.Service<RequestSession>()(
 	"RequestSession",
 	{
-		scoped: E.fn(function* ({
-			initialRequestId,
-			requestMode,
-		}: {
-			initialRequestId: string;
-			requestMode: TRequestMode;
-		}) {
-			const requestId = yield* SubscriptionRef.make(initialRequestId);
+		dependencies: [RequestMetrics.Default],
+		scoped: E.fn(function* (initialRequestId: string) {
+			const requestId = yield* SynchronizedRef.make(initialRequestId);
+			const context = yield* RequestSessionContext;
+			const metrics = yield* RequestMetrics;
+
+			const resetSessionData = E.gen(function* () {
+				yield* context.reset();
+				yield* metrics.reset();
+			});
 
 			return {
-				isOneShotMode() {
-					return requestMode === "oneShot";
-				},
-
 				getRequestId() {
 					return requestId.get;
 				},
 
-				getRequestIdChanges() {
-					return requestId.changes;
-				},
-
-				getMode() {
-					return requestMode;
-				},
-
 				setRequestId(newId: string) {
-					return SubscriptionRef.getAndUpdate(requestId, (id) => {
-						if (id === newId) {
-							return id;
-						}
+					return SynchronizedRef.getAndUpdateEffect(requestId, (id) =>
+						E.gen(function* () {
+							if (id === newId) {
+								return id;
+							}
 
-						return newId;
-					});
+							yield* resetSessionData;
+							return newId;
+						}),
+					);
 				},
 			};
 		}),

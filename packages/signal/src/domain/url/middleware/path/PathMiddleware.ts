@@ -1,6 +1,7 @@
 import * as E from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as SynchronizedRef from "effect/SynchronizedRef";
+import { orPanic } from "../../../exceptions/utils/orPanic";
 import { RunRequest } from "../../../execution/events/request/RunRequest";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { Middleware } from "../../../middleware/Middleware";
@@ -11,7 +12,7 @@ import { TPathMiddlewareArgs } from "./PathMiddlewareFactory";
 export class PathMiddleware extends Middleware("PathMiddleware", {
 	priority: MiddlewarePriority.Creational,
 })(
-	(args: TPathMiddlewareArgs) =>
+	(pathSupplier: TPathMiddlewareArgs) =>
 		({ parent, context }) =>
 			E.gen(function* () {
 				const requestContext = yield* E.serviceOptional(RequestSessionContext);
@@ -25,15 +26,16 @@ export class PathMiddleware extends Middleware("PathMiddleware", {
 							const state = url.getState();
 							const adapter = url.getAdapter();
 
-							const getUpdatedPath = P.isFunction(args)
-								? async () => await args(state.getPath(), contextSnapshot)
-								: async () => args;
-							const updatedPath = yield* E.promise(getUpdatedPath);
+							const getUpdatedPath = P.isFunction(pathSupplier)
+								? async () =>
+										await pathSupplier(state.getPath(), contextSnapshot)
+								: async () => pathSupplier;
+							const updatedPath = yield* E.promise(() => getUpdatedPath());
 
 							adapter.setPath(updatedPath);
 							return url;
 						}),
-					);
+					).pipe(orPanic);
 				});
 
 				return {

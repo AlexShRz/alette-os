@@ -1,6 +1,7 @@
 import * as E from "effect/Effect";
 import * as Scope from "effect/Scope";
 import * as SynchronizedRef from "effect/SynchronizedRef";
+import { RequestExceptionProcessor } from "../../../domain/exceptions/services/RequestExceptionProcessor";
 import { TaskScheduler } from "../tasks/TaskScheduler";
 import { ActiveApiPlugin } from "./ActiveApiPlugin";
 import { ActivePluginRef } from "./ref/ActivePluginRef";
@@ -8,6 +9,7 @@ import { ActivePluginRef } from "./ref/ActivePluginRef";
 export class PluginRegistry extends E.Service<PluginRegistry>()(
 	"PluginRegistry",
 	{
+		dependencies: [RequestExceptionProcessor.Default],
 		scoped: E.gen(function* () {
 			const taskScheduler = yield* TaskScheduler;
 			/**

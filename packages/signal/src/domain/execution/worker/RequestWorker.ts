@@ -4,10 +4,12 @@ import * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Scope from "effect/Scope";
 import { GlobalContext } from "../../context/services/GlobalContext";
+import { RequestExceptionProcessor } from "../../exceptions/services/RequestExceptionProcessor";
 import { TSessionEvent } from "../events/SessionEvent";
 import { RequestEventInterceptor } from "../services/RequestEventInterceptor";
 import { RequestMeta } from "../services/RequestMeta";
 import { RequestMetrics } from "../services/RequestMetrics";
+import { RequestMode } from "../services/RequestMode";
 import { RequestRunner } from "../services/RequestRunner";
 import { RequestSession } from "../services/RequestSession";
 import { RequestSessionContext } from "../services/RequestSessionContext";
@@ -21,52 +23,49 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 	dependencies: [GlobalContext.Default],
 	scoped: E.fn(function* (config: RequestWorkerConfig) {
 		const scope = yield* E.scope;
-		const context = yield* E.context<GlobalContext>();
-		const session = RequestSession.Default({
+		const context = yield* E.context<
+			GlobalContext | RequestExceptionProcessor
+		>();
+		/**
+		 * 1. Because workers are usually created once
+		 * for every dispatched request, we can safely
+		 * use their id as initialRequestId. Workers CAN
+		 * be reused only if request state sharing is turned on.
+		 * 2. The request id can be is changed ONLY if we
+		 * are in the "subscription" mode. For example,
+		 * it is changed when we refetch the request using
+		 * the same subscription, etc.
+		 * */
+		const session = RequestSession.Default(config.getId()).pipe(
+			Layer.provide(RequestSessionContext.Default),
+		);
+		const common = Layer.mergeAll(
+			RequestSessionContext.Default,
+			RequestMetrics.Default,
+			RequestMeta.Default,
 			/**
-			 * 1. Because workers are usually created once
-			 * for every dispatched request, we can safely
-			 * use their id as initialRequestId. Workers CAN
-			 * be reused only if request state sharing is turned on.
-			 * 2. The request id can be is changed ONLY if we
-			 * are in the "subscription" mode. For example,
-			 * it is changed when we refetch the request using
-			 * the same subscription, etc.
+			 * TODO: Switch runner based on request
+			 * type (oneShot vs stream).
 			 * */
-			initialRequestId: config.getId(),
-			requestMode: config.getRequestMode(),
-		});
-
-		const container = Layer.provideMerge(
-			Layer.provideMerge(
-				Layer.mergeAll(
-					RequestSessionContext.Default,
-					RequestMetrics.Default,
-					RequestMeta.Default,
-					/**
-					 * TODO: Switch runner based on request
-					 * type (oneShot vs stream).
-					 * */
-					RequestRunner.make(),
-					WatcherPipelineRegistry.Default,
-				),
-				Layer.provideMerge(
-					Layer.provideMerge(
-						/**
-						 * TODO: Switch timeline based on request
-						 * type (oneShot vs stream).
-						 * */
-						RequestStateTimeline.make(),
-						EventBus.Default(config.getMiddleware()).pipe(
-							Layer.provide(RequestEventInterceptor.Default),
-						),
-					),
-					session,
-				),
+			RequestRunner.make(),
+			WatcherPipelineRegistry.Default,
+			RequestMode.Default(config.getRequestMode()),
+		);
+		const timeline = Layer.provideMerge(
+			/**
+			 * TODO: Switch timeline based on request
+			 * type (oneShot vs stream).
+			 * */
+			RequestStateTimeline.make(),
+			EventBus.Default(config.getMiddleware()).pipe(
+				Layer.provide(RequestEventInterceptor.Default),
 			),
-			Layer.succeedContext(context),
 		);
 
+		const container = Layer.provideMerge(
+			Layer.provideMerge(common, Layer.provideMerge(timeline, session)),
+			Layer.succeedContext(context),
+		);
 		const requestRuntime = ManagedRuntime.make(container);
 
 		yield* E.addFinalizer(

@@ -1,5 +1,5 @@
-import { path, factory, input, output, type } from "../../domain";
-import { createTestApi } from "../../shared/testUtils/createTestApi";
+import { path, factory, input, output, type } from "../domain";
+import { createTestApi } from "../shared/testUtils/createTestApi";
 
 /**
  * Just a simple sanity check

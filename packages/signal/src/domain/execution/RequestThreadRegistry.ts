@@ -1,7 +1,9 @@
 import * as E from "effect/Effect";
 import * as LayerMap from "effect/LayerMap";
 import * as RcMap from "effect/RcMap";
+import * as Stream from "effect/Stream";
 import { v4 as uuid } from "uuid";
+import { RequestExceptionProcessor } from "../exceptions/services/RequestExceptionProcessor";
 import { RequestThread } from "./RequestThread";
 
 /**
@@ -16,8 +18,10 @@ export const REQUEST_THREAD_TTL = "5 seconds";
 export class RequestThreadRegistry extends E.Service<RequestThreadRegistry>()(
 	"RequestThreadRegistry",
 	{
+		dependencies: [RequestExceptionProcessor.Default],
 		scoped: E.gen(function* () {
 			const id = uuid();
+			const errorProcessor = yield* RequestExceptionProcessor;
 			/**
 			 * 1. We need to create scope manually here,
 			 * and provide it to RcMap
@@ -46,7 +50,7 @@ export class RequestThreadRegistry extends E.Service<RequestThreadRegistry>()(
 				},
 			);
 
-			return {
+			const self = {
 				has(threadId: string) {
 					return RcMap.has(threads.rcMap, threadId);
 				},
@@ -85,6 +89,23 @@ export class RequestThreadRegistry extends E.Service<RequestThreadRegistry>()(
 					return threads.invalidate(threadId);
 				},
 			};
+
+			/**
+			 * Dispose of all threads on fatal error
+			 * */
+			yield* errorProcessor.takeFatal().pipe(
+				Stream.tap(() =>
+					E.gen(function* () {
+						for (const threadId of yield* self.getIds()) {
+							yield* self.remove(threadId);
+						}
+					}),
+				),
+				Stream.runDrain,
+				E.forkScoped,
+			);
+
+			return self;
 		}),
 	},
 ) {}

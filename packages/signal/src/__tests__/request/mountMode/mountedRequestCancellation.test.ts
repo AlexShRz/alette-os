@@ -1,4 +1,4 @@
-import { Exception } from "@alette/pulse";
+import { ApiException } from "@alette/pulse";
 import { Subject } from "rxjs";
 import { factory, output, throws, type } from "../../../domain";
 import { createTestApi } from "../../../shared/testUtils/createTestApi";
@@ -50,7 +50,7 @@ test("it cancels requests without overriding their error and success states", as
 	const trigger = new Subject<string | MyError>();
 	const value = "asdas";
 
-	class MyError extends Exception.As("MyError") {
+	class MyError extends ApiException.As("MyError") {
 		cloneSelf() {
 			return new MyError();
 		}

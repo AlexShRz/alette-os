@@ -1,9 +1,7 @@
 import * as Equal from "effect/Equal";
 import * as Hash from "effect/Hash";
 import { RequestMiddleware } from "../../middleware/RequestMiddleware";
-
-// TODO: Add stream mode
-export type TRequestMode = "oneShot" | "subscription";
+import { TRequestMode } from "../services/RequestMode";
 
 export class RequestWorkerConfig implements Equal.Equal {
 	constructor(

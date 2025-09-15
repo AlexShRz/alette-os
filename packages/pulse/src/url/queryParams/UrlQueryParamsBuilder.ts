@@ -14,8 +14,15 @@ export class UrlQueryParamsBuilder<
 > extends AbstractBuilder<UrlQueryParamsBuilder<Params>> {
 	protected paramSchema = type<Params>();
 	protected storedParams = {} as Params;
-	protected converter: (params: Readonly<Params>) => string = (params) =>
-		queryString.stringify(params);
+	protected converter: (params: Readonly<Params>) => string = (params) => {
+		const hasParams = !!Object.keys(params).length;
+
+		if (!hasParams) {
+			return "";
+		}
+
+		return `?${queryString.stringify(params)}`;
+	};
 
 	get(): Readonly<Params> {
 		return this.storedParams;

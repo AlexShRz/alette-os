@@ -10,6 +10,6 @@ export const getOrCreateUrlContext = <
 		const context = yield* E.serviceOptional(RequestSessionContext);
 		return yield* context.getOrCreate(
 			"url",
-			E.sync(() => new UrlContext<Params>()),
+			E.succeed(new UrlContext<Params>()),
 		);
 	}).pipe(E.orDie);

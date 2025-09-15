@@ -1,3 +1,4 @@
+import { IQueryParams } from "@alette/pulse";
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
 import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
@@ -7,24 +8,27 @@ import { AggregateRequestMiddleware } from "../../../execution/events/preparatio
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
 import { UrlContext } from "../../UrlContext";
-import { OriginMiddleware } from "./OriginMiddleware";
-import { IRequestOrigin, TGetRequestOrigin } from "./RequestOrigin";
-import { originMiddlewareSpecification } from "./originMiddlewareSpecification";
+import { QueryParamsMiddleware } from "./QueryParamsMiddleware";
+import {
+	IRequestQueryParams,
+	TGetRequestQueryParams,
+} from "./RequestQueryParams";
+import { queryParamsMiddlewareSpecification } from "./queryParamsMiddlewareSpecification";
 
-export type TOriginMiddlewareArgs<
-	NewOrigin extends string = string,
+export type TQueryParamsMiddlewareArgs<
+	NextQueryParams extends IQueryParams = IQueryParams,
 	C extends IRequestContext = IRequestContext,
 > =
 	| ((
-			prevPath: TGetRequestOrigin<C>,
+			prevPath: TGetRequestQueryParams<C>,
 			context: TGetAllRequestContext<C>,
-	  ) => NewOrigin | Promise<NewOrigin>)
-	| NewOrigin;
+	  ) => NextQueryParams | Promise<NextQueryParams>)
+	| NextQueryParams;
 
-export class OriginMiddlewareFactory extends Middleware(
-	"OriginMiddlewareFactory",
+export class QueryParamsMiddlewareFactory extends Middleware(
+	"QueryParamsMiddlewareFactory",
 )(
-	(getMiddleware: () => OriginMiddleware) =>
+	(getMiddleware: () => QueryParamsMiddleware) =>
 		({ parent, context }) =>
 			E.gen(function* () {
 				return {
@@ -42,22 +46,22 @@ export class OriginMiddlewareFactory extends Middleware(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext, Origin extends string>(
-			args?: TOriginMiddlewareArgs<Origin, Context>,
+		return <Context extends IRequestContext, QueryParams extends IQueryParams>(
+			args: TQueryParamsMiddlewareArgs<QueryParams, Context>,
 		) => {
 			return toMiddlewareFactory<
 				Context,
 				IRequestContext<
 					TMergeContextAdapters<Context, UrlContext>,
-					TMergeRecords<Context["value"], IRequestOrigin<Origin>>,
+					TMergeRecords<Context["value"], IRequestQueryParams<QueryParams>>,
 					Context["settings"],
 					Context["accepts"]
 				>,
-				typeof originMiddlewareSpecification
+				typeof queryParamsMiddlewareSpecification
 			>(
 				() =>
-					new OriginMiddlewareFactory(
-						() => new OriginMiddleware(args as TOriginMiddlewareArgs),
+					new QueryParamsMiddlewareFactory(
+						() => new QueryParamsMiddleware(args as TQueryParamsMiddlewareArgs),
 					),
 			);
 		};

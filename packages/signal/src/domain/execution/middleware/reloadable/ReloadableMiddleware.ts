@@ -8,7 +8,7 @@ import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
 import { WithReloadableCheck } from "../../events/envelope/WithReloadableCheck";
 import { RunRequest } from "../../events/request/RunRequest";
 import { RequestMeta } from "../../services/RequestMeta";
-import { RequestSession } from "../../services/RequestSession";
+import { RequestMode } from "../../services/RequestMode";
 import { RequestSessionContext } from "../../services/RequestSessionContext";
 import { IReloadableMiddlewareCheck } from "./ReloadableMiddlewareFactory";
 
@@ -18,8 +18,8 @@ export class ReloadableMiddleware extends Middleware("ReloadableMiddleware", {
 	(predicate?: IReloadableMiddlewareCheck) =>
 		({ parent, context }) =>
 			E.gen(function* () {
-				const session = yield* E.serviceOptional(RequestSession);
 				const requestMeta = yield* E.serviceOptional(RequestMeta);
+				const requestMode = yield* E.serviceOptional(RequestMode);
 				const globalContext = yield* E.serviceOptional(GlobalContext);
 				/**
 				 * 1. Prev context can be empty because reloadable
@@ -83,7 +83,7 @@ export class ReloadableMiddleware extends Middleware("ReloadableMiddleware", {
 							 * this middleware should be disabled.
 							 * */
 							if (
-								session.isOneShotMode() ||
+								requestMode.isOneShot() ||
 								!(event instanceof WithReloadableCheck)
 							) {
 								return yield* context.next(event);
