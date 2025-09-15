@@ -1,4 +1,4 @@
-import { ApiExceptionInstance } from "@alette/pulse";
+import type { ApiExceptionInstance } from "@alette/pulse";
 import type { Ctor } from "effect/Types";
 import { IRequestContext } from "../../../context/IRequestContext";
 import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";

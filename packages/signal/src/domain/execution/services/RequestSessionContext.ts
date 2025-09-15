@@ -54,7 +54,7 @@ export class RequestSessionContext extends E.Service<RequestSessionContext>()(
 							E.gen(function* () {
 								const aggregated =
 									yield* getSessionContextWithoutGlobalContext(allContext);
-								return { ...aggregated, context: globalContext.get() };
+								return { ...aggregated, context: yield* globalContext.get() };
 							}),
 						),
 					);

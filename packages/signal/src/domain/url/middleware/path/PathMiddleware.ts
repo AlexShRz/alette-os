@@ -10,7 +10,7 @@ import { getOrCreateUrlContext } from "../getOrCreateUrlContext";
 import { TPathMiddlewareArgs } from "./PathMiddlewareFactory";
 
 export class PathMiddleware extends Middleware("PathMiddleware", {
-	priority: MiddlewarePriority.Creational,
+	priority: MiddlewarePriority.Creation,
 })(
 	(pathSupplier: TPathMiddlewareArgs) =>
 		({ parent, context }) =>

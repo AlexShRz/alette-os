@@ -6,6 +6,6 @@ export const forContext = () =>
 	queryTask(() =>
 		E.gen(function* () {
 			const context = yield* E.serviceOptional(GlobalContext);
-			return context.get();
+			return yield* context.get();
 		}).pipe(E.orDie),
 	);

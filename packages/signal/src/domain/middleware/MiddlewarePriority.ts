@@ -1,6 +1,8 @@
 export enum MiddlewarePriority {
 	BeforeCreation,
 	Interception,
-	Creational,
+	Creation,
+	BeforeExecution,
 	Execution,
+	Mapping,
 }

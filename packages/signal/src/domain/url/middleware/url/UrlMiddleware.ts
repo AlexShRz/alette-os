@@ -13,7 +13,7 @@ import {
 } from "./UrlMiddlewareFactory";
 
 export class UrlMiddleware extends Middleware("UrlMiddleware", {
-	priority: MiddlewarePriority.Creational,
+	priority: MiddlewarePriority.Creation,
 })(
 	(urlSupplier: TUrlMiddlewareArgs) =>
 		({ parent, context }) =>

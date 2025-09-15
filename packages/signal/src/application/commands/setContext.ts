@@ -7,6 +7,6 @@ export const setContext = (newContext: IGlobalContext) =>
 	task(() =>
 		E.gen(function* () {
 			const context = yield* E.serviceOptional(GlobalContext);
-			context.set(newContext);
+			yield* context.set(newContext);
 		}).pipe(E.orDie),
 	);

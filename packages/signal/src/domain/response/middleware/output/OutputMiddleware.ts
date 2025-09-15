@@ -9,7 +9,7 @@ import { ResponseAdapter } from "../../adapter/ResponseAdapter";
 import { TOutputMiddlewareArgs } from "./OutputMiddlewareFactory";
 
 export class OutputMiddleware extends Middleware("OutputMiddleware", {
-	priority: MiddlewarePriority.Creational,
+	priority: MiddlewarePriority.Creation,
 })(
 	(schemaOrAdapter: TOutputMiddlewareArgs) =>
 		({ parent, context }) =>

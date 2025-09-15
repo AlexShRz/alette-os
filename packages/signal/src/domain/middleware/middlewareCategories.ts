@@ -7,3 +7,5 @@ export const executionMiddleware = middlewareCategory("executionMiddleware");
 export const behaviouralMiddleware = middlewareCategory(
 	"behaviouralMiddleware",
 );
+
+export const mapperMiddleware = middlewareCategory("mapperMiddleware");

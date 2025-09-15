@@ -10,7 +10,7 @@ import { getOrCreateUrlContext } from "../getOrCreateUrlContext";
 import { TQueryParamsMiddlewareArgs } from "./QueryParamsMiddlewareFactory";
 
 export class QueryParamsMiddleware extends Middleware("QueryParamsMiddleware", {
-	priority: MiddlewarePriority.Creational,
+	priority: MiddlewarePriority.Creation,
 })(
 	(queryParamSupplier: TQueryParamsMiddlewareArgs) =>
 		({ parent, context }) =>

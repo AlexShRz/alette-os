@@ -10,7 +10,7 @@ import { getOrCreateUrlContext } from "../getOrCreateUrlContext";
 import { TOriginMiddlewareArgs } from "./OriginMiddlewareFactory";
 
 export class OriginMiddleware extends Middleware("OriginMiddleware", {
-	priority: MiddlewarePriority.Creational,
+	priority: MiddlewarePriority.Creation,
 })(
 	(originSupplier?: TOriginMiddlewareArgs) =>
 		({ parent, context }) =>

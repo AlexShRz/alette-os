@@ -8,13 +8,13 @@ export type TRequestArguments<C extends IRequestContext> = C["accepts"];
 export type TRequestResponse<C extends IRequestContext> =
 	C["types"]["resultType"];
 
-export type TRequestError<C extends IRequestContext> =
-	| C["types"]["errorType"]
-	| RequestInterruptedException;
+export type TRequestError<C extends IRequestContext> = C["types"]["errorType"];
 
 export type TGetRequestContextWithoutGlobalContext<
 	C extends IRequestContext = IRequestContext,
 > = TMergeRecords<C["value"], C["settings"]>;
 
+export type TRequestGlobalContext = { context: IGlobalContext };
+
 export type TGetAllRequestContext<C extends IRequestContext = IRequestContext> =
-	TGetRequestContextWithoutGlobalContext<C> & { context: IGlobalContext };
+	TGetRequestContextWithoutGlobalContext<C> & TRequestGlobalContext;

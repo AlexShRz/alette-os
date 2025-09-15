@@ -112,7 +112,7 @@ export class ReloadableMiddleware extends Middleware("ReloadableMiddleware", {
 												prev: obtainedPrevContext,
 												current: currentRequestSettings,
 											},
-											{ context: globalContext.get() },
+											{ context: yield* globalContext.get() },
 										);
 									})
 								: doArgumentsDiffer(

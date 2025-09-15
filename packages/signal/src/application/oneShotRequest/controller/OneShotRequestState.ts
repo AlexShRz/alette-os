@@ -79,39 +79,40 @@ export class OneShotRequestState<
 	}
 
 	awaitResult() {
-		const task = E.async<TRequestResponse<Context>, TRequestError<Context>>(
-			(resume) => {
-				this.supervisor.spawnAndSupervise(
-					E.gen(this, function* () {
-						yield* E.addFinalizer(() =>
+		const task = E.async<
+			TRequestResponse<Context>,
+			TRequestError<Context> | RequestInterruptedException
+		>((resume) => {
+			this.supervisor.spawnAndSupervise(
+				E.gen(this, function* () {
+					yield* E.addFinalizer(() =>
+						E.sync(() => {
+							resume(E.fail(new RequestInterruptedException()));
+						}),
+					);
+
+					yield* this.changes().pipe(
+						Stream.tap(({ data, error, isError, isSuccess }) =>
 							E.sync(() => {
-								resume(E.fail(new RequestInterruptedException()));
+								if (isError && error) {
+									return resume(E.fail(error));
+								}
+
+								if (isSuccess && data) {
+									return resume(E.succeed(data));
+								}
 							}),
-						);
+						),
+						Stream.runDrain,
+						E.forkScoped,
+					);
+				}),
+			);
 
-						yield* this.changes().pipe(
-							Stream.tap(({ data, error, isError, isSuccess }) =>
-								E.sync(() => {
-									if (isError && error) {
-										return resume(E.fail(error));
-									}
-
-									if (isSuccess && data) {
-										return resume(E.succeed(data));
-									}
-								}),
-							),
-							Stream.runDrain,
-							E.forkScoped,
-						);
-					}),
-				);
-
-				return E.sync(() => {
-					resume(E.fail(new RequestInterruptedException()));
-				});
-			},
-		);
+			return E.sync(() => {
+				resume(E.fail(new RequestInterruptedException()));
+			});
+		});
 
 		return this.plugin
 			.getRuntime()

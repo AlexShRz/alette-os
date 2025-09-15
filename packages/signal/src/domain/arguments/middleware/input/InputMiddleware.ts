@@ -11,7 +11,7 @@ import { ArgumentAdapter } from "../../adapter/ArgumentAdapter";
 import { TInputMiddlewareArgValue } from "./InputMiddlewareFactory";
 
 export class InputMiddleware extends Middleware("InputMiddleware", {
-	priority: MiddlewarePriority.Creational,
+	priority: MiddlewarePriority.Creation,
 })(
 	(argSchemaOrAdapter: TInputMiddlewareArgValue) =>
 		({ parent, context }) =>
