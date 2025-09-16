@@ -54,7 +54,7 @@ test("it synchronizes error state between requests", async () => {
 	const trigger = new Subject<string | MyError>();
 	let triggeredTimes = 0;
 
-	class MyError extends ApiError.As("MyError") {
+	class MyError extends ApiError {
 		cloneSelf() {
 			return new MyError();
 		}

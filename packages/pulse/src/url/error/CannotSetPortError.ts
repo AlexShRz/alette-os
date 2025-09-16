@@ -8,9 +8,6 @@ export class CannotSetPortError extends UrlBuilderError {
 				.addNewLineMessage(`Cannot set url port using - "${port}".`)
 				.addNewLineMessage(`The port is invalid.`)
 				.toString(),
-			{
-				cause: originalError,
-			},
 		);
 	}
 }

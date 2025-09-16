@@ -1,4 +1,4 @@
-import { ApiErrorInstance } from "@alette/pulse";
+import { ApiError } from "@alette/pulse";
 import * as E from "effect/Effect";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
@@ -15,7 +15,7 @@ export class TapErrorMiddleware extends Middleware("TapErrorMiddleware", {
 			E.gen(function* () {
 				const sessionContext = yield* E.serviceOptional(RequestSessionContext);
 
-				const runTap = (error: ApiErrorInstance) =>
+				const runTap = (error: ApiError) =>
 					E.gen(function* () {
 						const requestContext = yield* sessionContext.getSnapshot();
 

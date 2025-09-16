@@ -1,8 +1,6 @@
-import { ApiError, makeErrorMessage } from "../../error";
+import { FatalApiError, makeErrorMessage } from "../../error";
 
-export abstract class UrlBuilderError extends ApiError.AsFatal(
-	"UrlBuilderError",
-) {
+export abstract class UrlBuilderError extends FatalApiError {
 	protected static message() {
 		return makeErrorMessage()
 			.setName("UnknownUrlBuilderError")

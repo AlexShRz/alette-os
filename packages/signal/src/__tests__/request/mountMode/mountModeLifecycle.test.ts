@@ -74,7 +74,7 @@ test("it updates state snapshots based on actual request state", async () => {
 	let errorStateOccurred = 0;
 	let successStateOccurred = 0;
 
-	class MyError extends ApiError.As("MyError") {
+	class MyError extends ApiError {
 		cloneSelf() {
 			return new MyError();
 		}
@@ -195,7 +195,7 @@ test("it returns full state snapshots on every request state update", async () =
 	const trigger = new Subject<string | MyError>();
 	let lastSnapshot: IOneShotRequestState.AnyUnwrapped | null = null;
 
-	class MyError extends ApiError.As("MyError") {
+	class MyError extends ApiError {
 		cloneSelf() {
 			return new MyError();
 		}

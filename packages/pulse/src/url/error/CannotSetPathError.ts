@@ -8,9 +8,6 @@ export class CannotSetPathError extends UrlBuilderError {
 				.addNewLineMessage(`Cannot set path using - "${path}".`)
 				.addNewLineMessage(`The path is invalid.`)
 				.toString(),
-			{
-				cause: originalError,
-			},
 		);
 	}
 }

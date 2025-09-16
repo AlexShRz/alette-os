@@ -7,9 +7,6 @@ export class CannotSetOriginError extends UrlBuilderError {
 				.setName("CannotSetOriginError")
 				.addNewLineMessage(`Cannot set origin using - "${origin}".`)
 				.toString(),
-			{
-				cause: originalError,
-			},
 		);
 	}
 }

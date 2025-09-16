@@ -1,8 +1,6 @@
-import { ApiError } from "@alette/pulse";
+import { FatalApiError } from "@alette/pulse";
 
-export class ResponseValueValidationError extends ApiError.AsFatal(
-	"ResponseValueValidationError",
-) {
+export class ResponseValueValidationError extends FatalApiError {
 	constructor(value: unknown) {
 		super(`Response value does not match schema: "${value}"`);
 	}

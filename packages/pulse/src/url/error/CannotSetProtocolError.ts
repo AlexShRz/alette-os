@@ -8,9 +8,6 @@ export class CannotSetProtocol extends UrlBuilderError {
 				.addNewLineMessage(`Cannot set url protocol using - "${protocol}".`)
 				.addNewLineMessage(`The protocol is invalid.`)
 				.toString(),
-			{
-				cause: originalError,
-			},
 		);
 	}
 }

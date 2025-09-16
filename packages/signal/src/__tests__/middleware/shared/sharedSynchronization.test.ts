@@ -9,7 +9,7 @@ test("it keeps mounted requests in sync through the whole request lifecycle", as
 	const trigger = new Subject<string | MyError>();
 	const value = "asdasd";
 
-	class MyError extends ApiError.As("MyError") {
+	class MyError extends ApiError {
 		cloneSelf() {
 			return new MyError();
 		}

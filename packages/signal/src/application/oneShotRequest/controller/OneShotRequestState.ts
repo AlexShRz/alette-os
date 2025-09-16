@@ -1,16 +1,11 @@
 import { BusEvent } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
-import * as Fiber from "effect/Fiber";
 import * as Stream from "effect/Stream";
 import * as SubscriptionRef from "effect/SubscriptionRef";
 import { IRequestContext } from "../../../domain/context/IRequestContext";
-import {
-	TRequestError,
-	TRequestResponse,
-} from "../../../domain/context/typeUtils/RequestIOTypes";
+import { TRequestResponse } from "../../../domain/context/typeUtils/RequestIOTypes";
 import { ApplyRequestState } from "../../../domain/execution/events/request/ApplyRequestState";
 import { IOneShotRequestState } from "../../../domain/execution/state/IOneShotRequestState";
-import { RequestInterruptedError } from "../../../shared/error/RequestInterruptedError";
 import { RequestControllerState } from "../../blueprint/controller/RequestControllerState";
 import { ApiPlugin } from "../../plugins/ApiPlugin";
 import { OneShotRequestSupervisor } from "./OneShotRequestSupervisor";
@@ -76,46 +71,5 @@ export class OneShotRequestState<
 			 * */
 			Stream.filter(({ isUninitialized }) => !isUninitialized),
 		);
-	}
-
-	awaitResult() {
-		const task = E.async<
-			TRequestResponse<Context>,
-			TRequestError<Context> | RequestInterruptedError
-		>((resume) => {
-			this.supervisor.spawnAndSupervise(
-				E.gen(this, function* () {
-					yield* E.addFinalizer(() =>
-						E.sync(() => {
-							resume(E.fail(new RequestInterruptedError()));
-						}),
-					);
-
-					yield* this.changes().pipe(
-						Stream.tap(({ data, error, isError, isSuccess }) =>
-							E.sync(() => {
-								if (isError && error) {
-									return resume(E.fail(error));
-								}
-
-								if (isSuccess && data) {
-									return resume(E.succeed(data));
-								}
-							}),
-						),
-						Stream.runDrain,
-						E.forkScoped,
-					);
-				}),
-			);
-
-			return E.sync(() => {
-				resume(E.fail(new RequestInterruptedError()));
-			});
-		});
-
-		return this.plugin
-			.getRuntime()
-			.runPromise(Fiber.join(this.supervisor.spawnAndSupervise(task)));
 	}
 }

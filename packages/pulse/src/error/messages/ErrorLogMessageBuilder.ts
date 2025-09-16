@@ -1,5 +1,5 @@
 import { AbstractBuilder } from "../../utils/AbstractBuilder.js";
-import { ApiErrorInstance } from "../common/ApiErrorInstance";
+import { ApiError } from "../common/ApiError";
 
 export class ErrorLogMessageBuilder extends AbstractBuilder<ErrorLogMessageBuilder> {
 	protected shouldDisplayContext = true;
@@ -49,7 +49,7 @@ export class ErrorLogMessageBuilder extends AbstractBuilder<ErrorLogMessageBuild
 		return this;
 	}
 
-	fromError(error: ApiErrorInstance) {
+	fromError(error: ApiError) {
 		return new ErrorLogMessageBuilder()
 			.setName(error.getName())
 			.setStack(error.getStack())

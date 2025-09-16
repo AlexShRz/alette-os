@@ -1,8 +1,6 @@
-import { ApiError } from "@alette/pulse";
+import { FatalApiError } from "@alette/pulse";
 
-export class RequestArgCloningError extends ApiError.AsFatal(
-	"RequestArgCloningError",
-) {
+export class RequestArgCloningError extends FatalApiError {
 	constructor(args: unknown) {
 		super(
 			"Cannot clone request arguments.\n" +

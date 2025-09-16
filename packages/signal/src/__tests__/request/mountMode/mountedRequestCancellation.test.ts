@@ -50,7 +50,7 @@ test("it cancels requests without overriding their error and success states", as
 	const trigger = new Subject<string | MyError>();
 	const value = "asdas";
 
-	class MyError extends ApiError.As("MyError") {
+	class MyError extends ApiError {
 		cloneSelf() {
 			return new MyError();
 		}

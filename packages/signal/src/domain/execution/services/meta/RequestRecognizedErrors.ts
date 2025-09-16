@@ -1,8 +1,8 @@
-import { ApiErrorInstance } from "@alette/pulse";
+import { ApiError } from "@alette/pulse";
 import * as E from "effect/Effect";
 import type { Ctor } from "effect/Types";
 
-type ErrorBlueprint = Ctor<ApiErrorInstance>;
+type ErrorBlueprint = Ctor<ApiError>;
 
 export class RequestRecognizedErrors extends E.Service<RequestRecognizedErrors>()(
 	"RequestRecognizedErrors",

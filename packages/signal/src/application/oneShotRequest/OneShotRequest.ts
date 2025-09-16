@@ -40,10 +40,28 @@ export class OneShotRequest<
 
 	async execute(args: TRequestArguments<Context> = {}) {
 		const controller = this.createController("oneShot");
-
 		const { execute } = controller.getHandlers();
 		execute(args);
-		return controller.awaitResult().finally(() => {
+
+		return new Promise((resolve, reject) => {
+			const unsubscribe = controller.subscribe(
+				({ isSuccess, isError, error, data }) => {
+					if (isSuccess || isError) {
+						unsubscribe();
+					}
+
+					if (isSuccess) {
+						resolve(data);
+						return;
+					}
+
+					if (isError) {
+						reject(error);
+						return;
+					}
+				},
+			);
+		}).finally(() => {
 			controller.dispose();
 		});
 	}

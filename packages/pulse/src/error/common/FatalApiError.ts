@@ -1,9 +1,9 @@
-import { RuntimeException } from "effect/Cause";
+import { YieldableError } from "effect/Cause";
 
-export abstract class FatalApiError extends RuntimeException {
-	protected customName: string = "UnknownFatalApiError";
+export abstract class FatalApiError extends YieldableError {
+	public readonly _tag = "FatalApiError" as const;
 
 	getName() {
-		return this.customName;
+		return this._tag;
 	}
 }

@@ -8,9 +8,6 @@ export class CannotCreateUrlFromInstanceError extends UrlBuilderError {
 				.addNewLineMessage(`Cannot create url from URL instance.`)
 				.addNewLineMessage(`Instance data: "${urlInstance.toString()}"`)
 				.toString(),
-			{
-				cause: originalError,
-			},
 		);
 	}
 }

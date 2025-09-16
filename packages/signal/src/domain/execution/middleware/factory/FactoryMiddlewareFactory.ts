@@ -4,6 +4,7 @@ import { IRequestContext } from "../../../context/IRequestContext";
 import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { TGetOriginalRequestResponseValue } from "../../../response/middleware/output/OriginalResponseValue";
 import { TGetRequestQueryParams } from "../../../url/middleware/queryParams/RequestQueryParams";
 import { AggregateRequestMiddleware } from "../../events/preparation/AggregateRequestMiddleware";
 import { FactoryMiddleware } from "./FactoryMiddleware";
@@ -14,7 +15,9 @@ export interface IRequestRunner<C extends IRequestContext = IRequestContext> {
 		requestContext: TGetAllRequestContext<C> & {
 			url: UrlBuilder<TGetRequestQueryParams<C>>;
 		},
-	): Promise<unknown> | unknown;
+	):
+		| Promise<TGetOriginalRequestResponseValue<C>>
+		| TGetOriginalRequestResponseValue<C>;
 }
 
 export class FactoryMiddlewareFactory extends Middleware(

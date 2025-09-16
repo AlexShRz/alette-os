@@ -7,9 +7,6 @@ export class CannotCreateUrlError extends UrlBuilderError {
 				.setName("CannotCreateUrlError")
 				.addNewLineMessage(`Cannot create url from - "${attemptedUrl}".`)
 				.toString(),
-			{
-				cause: originalError,
-			},
 		);
 	}
 }

@@ -8,9 +8,6 @@ export class CannotSetHostError extends UrlBuilderError {
 				.addNewLineMessage(`Cannot set url host using - "${host}".`)
 				.addNewLineMessage(`The host is invalid.`)
 				.toString(),
-			{
-				cause: originalError,
-			},
 		);
 	}
 }

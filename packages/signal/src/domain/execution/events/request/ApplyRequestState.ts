@@ -1,4 +1,4 @@
-import { ApiErrorInstance } from "@alette/pulse";
+import { ApiError } from "@alette/pulse";
 import { IRequestContext } from "../../../context/IRequestContext";
 import { IOneShotRequestState } from "../../state/IOneShotRequestState";
 import { RequestSessionEvent } from "../RequestSessionEvent";
@@ -34,10 +34,11 @@ export class ApplyRequestState<
 		return this.state.error;
 	}
 
-	update<NewState extends IOneShotRequestState.Any<C>>(
-		provider: (prevState: typeof this.state) => NewState,
-	): ApplyRequestState<C, NewState> {
-		this.state = provider(this.state) as any;
+	async update<NewState extends IOneShotRequestState.Any<C>>(
+		provider: (prevState: typeof this.state) => NewState | Promise<NewState>,
+	): Promise<ApplyRequestState<C, NewState>> {
+		const updater = async () => await provider(this.state);
+		this.state = (await updater()) as any;
 		return this as any;
 	}
 
@@ -46,7 +47,7 @@ export class ApplyRequestState<
 		const self = new ApplyRequestState<C, State>({
 			...state,
 			data: state.data?.clone() ?? null,
-			error: (state.error as ApiErrorInstance | null)?.clone() ?? null,
+			error: (state.error as ApiError | null)?.clone() ?? null,
 		});
 		return self as this;
 	}

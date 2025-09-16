@@ -128,9 +128,4 @@ export class OneShotRequestController<
 	dispose() {
 		this.supervisor.shutdown();
 	}
-
-	/** @internal */
-	awaitResult() {
-		return this.state.awaitResult();
-	}
 }

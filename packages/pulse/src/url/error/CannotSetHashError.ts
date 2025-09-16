@@ -8,9 +8,6 @@ export class CannotSetHashError extends UrlBuilderError {
 				.addNewLineMessage(`Cannot set hash using - "${hash}".`)
 				.addNewLineMessage(`The hash is invalid.`)
 				.toString(),
-			{
-				cause: originalError,
-			},
 		);
 	}
 }
