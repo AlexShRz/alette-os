@@ -5,6 +5,7 @@ import { TRequestArguments } from "../../../domain/context/typeUtils/RequestIOTy
 import { CancelRequest } from "../../../domain/execution/events/CancelRequest";
 import { TSessionEvent } from "../../../domain/execution/events/SessionEvent";
 import { WithCurrentRequestOverride } from "../../../domain/execution/events/envelope/WithCurrentRequestOverride";
+import { WithReloadableCheck } from "../../../domain/execution/events/envelope/WithReloadableCheck";
 import { WithRunOnMountCheck } from "../../../domain/execution/events/envelope/WithRunOnMountCheck";
 import { RunRequest } from "../../../domain/execution/events/request/RunRequest";
 import { RequestController } from "../../blueprint/controller/RequestController";
@@ -20,6 +21,13 @@ import { OneShotRequestWorker } from "./OneShotRequestWorker";
 export class OneShotRequestController<
 	Context extends IRequestContext,
 > extends RequestController<Context, ILocalOneShotRequestState<Context>> {
+	/**
+	 * 1. The moment we sent our first runOnMount check to
+	 * the system, we need to set this to true.
+	 * 2. We do not care whether the request was cancelled or not.
+	 * */
+	protected wasMounted = false;
+
 	protected supervisor = new OneShotRequestSupervisor(this.plugin);
 	protected state = new OneShotRequestState<Context>(
 		this.plugin,
@@ -91,6 +99,10 @@ export class OneShotRequestController<
 	protected executeRequest(
 		settings: TRequestArguments<Context> = {} as TRequestArguments<Context>,
 	) {
+		if (!this.wasMounted) {
+			this.wasMounted = true;
+		}
+
 		this.dispatch(
 			new WithCurrentRequestOverride(
 				new RunRequest(this.getSettingSupplier(settings)),
@@ -98,11 +110,18 @@ export class OneShotRequestController<
 		);
 	}
 
+	protected configureMountModeEvent(event: RunRequest) {
+		if (!this.wasMounted) {
+			this.wasMounted = true;
+			return new WithRunOnMountCheck(event).setRequestId();
+		}
+
+		return new WithReloadableCheck(event).setRequestId();
+	}
+
 	reload() {
 		this.dispatch(
-			new WithRunOnMountCheck(
-				new RunRequest(this.getSettingSupplier()),
-			).setRequestId(),
+			this.configureMountModeEvent(new RunRequest(this.getSettingSupplier())),
 		);
 	}
 

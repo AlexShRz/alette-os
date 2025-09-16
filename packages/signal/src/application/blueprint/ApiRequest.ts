@@ -48,19 +48,23 @@ export abstract class ApiRequest<
 	protected mergeInjectorsAndCloneSelf(
 		lazyMiddlewareSuppliers: IMiddlewareSupplierFn<any, any, any, any>[],
 	) {
-		this.middlewareInjectors = [
-			...this.middlewareInjectors,
-			...(lazyMiddlewareSuppliers as IRuntimeMiddlewareSupplierFn[]).map((fn) =>
-				fn()(),
-			),
-		];
 		/**
 		 * 1. Here we need to CLONE the request WHILE
 		 * changing our request thread id.
 		 * 2. When we add any new middleware to the request,
 		 * it means that we are creating a COMPLETELY NEW REQUEST.
 		 * */
-		return this.clone();
+		const self = this.clone();
+		/**
+		 * Make sure to copy middleware AFTER cloning
+		 * */
+		self.middlewareInjectors = [
+			...this.middlewareInjectors,
+			...(lazyMiddlewareSuppliers as IRuntimeMiddlewareSupplierFn[]).map((fn) =>
+				fn()(),
+			),
+		];
+		return self;
 	}
 
 	using(supplier: () => TRequestArguments<Context>) {

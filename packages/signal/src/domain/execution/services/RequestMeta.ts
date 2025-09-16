@@ -1,5 +1,6 @@
 import * as E from "effect/Effect";
 import { RequestArgumentAdapters } from "./meta/RequestArgumentAdapters";
+import { RequestMountModeMeta } from "./meta/RequestMountModeMeta";
 import { RequestRecognizedErrors } from "./meta/RequestRecognizedErrors";
 import { RequestValueAdapters } from "./meta/RequestValueAdapters";
 
@@ -12,11 +13,13 @@ export class RequestMeta extends E.Service<RequestMeta>()("RequestMeta", {
 		RequestRecognizedErrors.Default,
 		RequestValueAdapters.Default,
 		RequestArgumentAdapters.Default,
+		RequestMountModeMeta.Default,
 	],
 	scoped: E.gen(function* () {
 		const errors = yield* RequestRecognizedErrors;
 		const valueAdapters = yield* RequestValueAdapters;
 		const argumentAdapters = yield* RequestArgumentAdapters;
+		const mountModeMeta = yield* RequestMountModeMeta;
 
 		return {
 			getErrorConfig() {
@@ -25,6 +28,10 @@ export class RequestMeta extends E.Service<RequestMeta>()("RequestMeta", {
 
 			getValueAdapterConfig() {
 				return valueAdapters;
+			},
+
+			getMountModeMeta() {
+				return mountModeMeta;
 			},
 
 			getArgumentAdapterConfig() {

@@ -4,3 +4,4 @@ export * from "./reloadable";
 export * from "./tapTrigger";
 export * from "./tap";
 export * from "./tapError";
+export * from "./shared";

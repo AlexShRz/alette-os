@@ -118,9 +118,23 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 							 * scheduled by us, we need to make sure that no other
 							 * requests are running and ONLY THEN run our request.
 							 * */
-							if (event instanceof RunRequest && !requestRunner.isRunning()) {
+							if (
+								event instanceof RunRequest &&
+								!(yield* requestRunner.isRunning())
+							) {
 								yield* runRequest(event);
 								return yield* context.next(event);
+							}
+
+							/**
+							 * 4. If we receive the RunRequest event and our request
+							 * is already running, we need to cancel the event.
+							 * */
+							if (
+								event instanceof RunRequest &&
+								(yield* requestRunner.isRunning())
+							) {
+								return yield* E.zipRight(event.cancel(), context.next(event));
 							}
 
 							if (event instanceof CancelRequest) {

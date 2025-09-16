@@ -35,7 +35,8 @@ export class EventBusListenerFactory<
 						tag,
 						() =>
 							EventBusListener.make<LayerReturn, Errors, Scope.Scope>(
-								factory(...(factoryArgs as Args)),
+								// TODO: Fix any
+								factory(...(factoryArgs as Args)) as any,
 							),
 						passedConfig,
 					);

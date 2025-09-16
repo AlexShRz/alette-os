@@ -59,3 +59,7 @@ test("it iterates over all envelope layers while including the actual wrapped ev
 	expect(envelope.getValuesFromAllLayers()).toStrictEqual(expected);
 	expect(ranTimes).toEqual(3);
 });
+
+test("it calls completion hooks for every wrapped event", async () => {});
+
+test("it calls cancellation hooks for every wrapped event", async () => {});

@@ -8,9 +8,20 @@ import { RequestWorker } from "../../../../domain/execution/worker/RequestWorker
 import { RequestWorkerConfig } from "../../../../domain/execution/worker/RequestWorkerConfig";
 import { PrepareRequestWorkerArguments } from "./PrepareRequestWorkerArguments";
 
-const createRequestWorkerConfig = E.fn(function* (passedWorkerId: string) {
+const createRequestWorkerConfig = E.fn(function* (
+	passedWorkerId: string,
+	existingWorkers: string[],
+) {
 	const controllerEventBus = yield* EventBus;
 	const { requestMode } = yield* PrepareRequestWorkerArguments;
+
+	/**
+	 * Make sure we don't execute middleware aggregation logic
+	 * when we try to reuse our worker
+	 * */
+	if (existingWorkers.includes(passedWorkerId)) {
+		return new RequestWorkerConfig(passedWorkerId, requestMode);
+	}
 
 	const aggregatedMiddleware = yield* controllerEventBus.send(
 		new AggregateRequestMiddleware(),
@@ -61,7 +72,10 @@ export const createOrGetRequestWorker = E.fn(function* (thread: RequestThread) {
 			}
 
 			const workerId = result.getPreferredWorker();
-			const workerConfig = yield* createRequestWorkerConfig(workerId);
+			const workerConfig = yield* createRequestWorkerConfig(
+				workerId,
+				allWorkers,
+			);
 			return yield* E.serviceOptional(RequestWorker).pipe(
 				E.provide(yield* thread.getOrCreateWorkerRuntime(workerConfig)),
 			);

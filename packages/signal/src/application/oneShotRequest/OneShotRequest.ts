@@ -69,8 +69,8 @@ export class OneShotRequest<
 	}
 
 	/**
-	 * @internal
-	 * For UI only
+	 * 1. For UI framework integrations ONLY
+	 * 2. Low level version of "mount"
 	 * */
 	control() {
 		return this.createController("subscription");
