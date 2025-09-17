@@ -21,8 +21,6 @@ export class RequestThread extends E.Service<RequestThread>()("RequestThread", {
 			RequestWorker.Default(config),
 		);
 
-		yield* E.addFinalizer(() => E.log("asdasd"));
-
 		return {
 			getIdsOfSupervisedWorkers() {
 				return RcMap.keys(workers.rcMap).pipe(

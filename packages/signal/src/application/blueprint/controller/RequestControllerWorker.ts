@@ -38,6 +38,11 @@ export abstract class RequestControllerWorker {
 			yield* workerConfig.shutdown();
 		});
 
-		this.plugin.getScheduler().schedule(task);
+		/**
+		 * Must be runPromiseExit, otherwise the scope won't
+		 * shut down.
+		 * I have no clue why it needs to be a promise.
+		 * */
+		E.runPromiseExit(task).catch((e) => e);
 	}
 }

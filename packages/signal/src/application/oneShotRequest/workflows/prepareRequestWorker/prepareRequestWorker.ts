@@ -1,4 +1,5 @@
 import { EventBus } from "@alette/event-sourcing";
+import { ExecutionStrategy } from "effect";
 import * as E from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Scope from "effect/Scope";
@@ -24,7 +25,7 @@ const runWorkflow = E.gen(function* () {
 	const plugin = yield* pluginRegistry.getPluginOrThrow(pluginFacade.getName());
 
 	const controllerScope = getController().getScope();
-	const pluginScope = plugin.getScope();
+	const requestScope = yield* Scope.make();
 
 	/**
 	 * TODO: Fix this.
@@ -40,12 +41,12 @@ const runWorkflow = E.gen(function* () {
 	 * 2. This makes sure controllers are deactivated the
 	 * moment our plugin is.
 	 * */
-	yield* Scope.addFinalizer(
-		pluginScope,
-		E.gen(function* () {
-			yield* Scope.close(controllerScope, Exit.void);
-		}),
-	);
+	// yield* Scope.addFinalizer(
+	// 	pluginScope,
+	// 	E.gen(function* () {
+	// 		yield* Scope.close(controllerScope, Exit.void);
+	// 	}),
+	// );
 
 	return yield* E.gen(function* () {
 		const thread = yield* createOrGetRequestThread(plugin);
@@ -53,11 +54,11 @@ const runWorkflow = E.gen(function* () {
 		yield* attachRequestWatcherPipeline(worker);
 		return {
 			worker,
-			shutdown: () => E.void,
+			shutdown: () => Scope.close(requestScope, Exit.void),
 		};
 	}).pipe(
 		E.provide(EventBus.Default(middlewareInjectors)),
-		Scope.extend(controllerScope),
+		Scope.extend(requestScope),
 		E.orDie,
 	);
 });

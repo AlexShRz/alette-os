@@ -21,7 +21,7 @@ import { sendSessionEvent } from "../utils/sendSessionEvent";
 import { RequestWorkerConfig } from "./RequestWorkerConfig";
 
 export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
-	scoped: E.fn(function* (config: RequestWorkerConfig) {
+	effect: E.fn(function* (config: RequestWorkerConfig) {
 		const scope = yield* E.scope;
 		const context = yield* E.context<GlobalContext | RequestErrorProcessor>();
 		/**

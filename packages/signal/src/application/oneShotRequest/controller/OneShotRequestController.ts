@@ -29,6 +29,7 @@ export class OneShotRequestController<
 	 * 2. We do not care whether the request was cancelled or not.
 	 * */
 	protected wasMounted = false;
+	protected wasUnmounted = false;
 
 	protected scope = new OneShotRequestScope(this.plugin);
 	protected state = new OneShotRequestState<Context, State>(this.plugin);
@@ -86,6 +87,10 @@ export class OneShotRequestController<
 	}
 
 	protected dispatch<T extends TSessionEvent>(event: T) {
+		if (this.wasUnmounted) {
+			return;
+		}
+
 		this.plugin.getScheduler().schedule(this.worker.dispatch(event));
 	}
 
@@ -123,6 +128,7 @@ export class OneShotRequestController<
 	}
 
 	dispose() {
+		this.wasUnmounted = true;
 		this.worker.shutdown();
 	}
 }
