@@ -1,8 +1,10 @@
 import * as E from "effect/Effect";
+import * as Layer from "effect/Layer";
 import * as LayerMap from "effect/LayerMap";
 import * as RcMap from "effect/RcMap";
 import * as Stream from "effect/Stream";
 import { v4 as uuid } from "uuid";
+import { GlobalContext } from "../context/services/GlobalContext";
 import { RequestErrorProcessor } from "../errors/RequestErrorProcessor";
 import { RequestThread } from "./RequestThread";
 
@@ -22,6 +24,7 @@ export class RequestThreadRegistry extends E.Service<RequestThreadRegistry>()(
 		scoped: E.gen(function* () {
 			const id = uuid();
 			const errorProcessor = yield* RequestErrorProcessor;
+			const globalContext = yield* GlobalContext;
 
 			/**
 			 * 1. Multiple requests will try to access thread data
@@ -29,7 +32,10 @@ export class RequestThreadRegistry extends E.Service<RequestThreadRegistry>()(
 			 * between them)
 			 * */
 			const threads = yield* LayerMap.make(
-				(threadId: string) => RequestThread.Default(threadId),
+				(threadId: string) =>
+					RequestThread.Default(threadId).pipe(
+						Layer.provide(Layer.succeed(GlobalContext, globalContext)),
+					),
 				{
 					idleTimeToLive: REQUEST_THREAD_TTL,
 				},

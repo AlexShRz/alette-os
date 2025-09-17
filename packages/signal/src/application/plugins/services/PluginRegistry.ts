@@ -13,7 +13,7 @@ import { ApiPluginServices } from "./activation/ApiPluginServices";
 export class PluginRegistry extends E.Service<PluginRegistry>()(
 	"PluginRegistry",
 	{
-		dependencies: [RequestErrorProcessor.Default, GlobalContext.Default],
+		dependencies: [RequestErrorProcessor.Default],
 		scoped: E.gen(function* () {
 			const context = yield* E.context<GlobalContext>();
 

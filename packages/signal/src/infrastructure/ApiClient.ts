@@ -4,6 +4,7 @@ import * as Logger from "effect/Logger";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import { CommandTaskBuilder } from "../application/plugins/tasks/primitive/CommandTaskBuilder";
 import { QueryTaskBuilder } from "../application/plugins/tasks/primitive/QueryTaskBuilder";
+import { GlobalContext } from "../domain/context/services/GlobalContext";
 import { Kernel } from "./Kernel";
 
 export const client = (...commands: CommandTaskBuilder[]) =>
@@ -24,7 +25,10 @@ export class ApiClient {
 	protected getRuntimeServices() {
 		return Layer.mergeAll(
 			Logger.pretty,
-			Layer.provideMerge(Kernel.Default, Layer.scope),
+			Layer.provideMerge(
+				Kernel.Default.pipe(Layer.provide(GlobalContext.Default)),
+				Layer.scope,
+			),
 		);
 	}
 
