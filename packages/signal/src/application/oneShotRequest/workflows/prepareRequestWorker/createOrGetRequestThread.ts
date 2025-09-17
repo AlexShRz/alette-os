@@ -12,7 +12,7 @@ export const createOrGetRequestThread = E.fn(function* (
 ) {
 	const { threadId } = yield* PrepareRequestWorkerArguments;
 	const threadRegistry = plugin.getThreads();
-	return yield* E.serviceOptional(RequestThread).pipe(
-		E.provide(yield* threadRegistry.getOrCreateThreadRuntime(threadId)),
-	);
+	const threadRuntime =
+		yield* threadRegistry.getOrCreateThreadRuntime(threadId);
+	return yield* E.serviceOptional(RequestThread).pipe(E.provide(threadRuntime));
 });

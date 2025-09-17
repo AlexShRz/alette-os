@@ -1,99 +1,132 @@
+import * as Cause from "effect/Cause";
+import * as Context from "effect/Context";
 import * as E from "effect/Effect";
-import * as Scope from "effect/Scope";
+import * as Layer from "effect/Layer";
+import * as LayerMap from "effect/LayerMap";
+import * as RcMap from "effect/RcMap";
 import * as SynchronizedRef from "effect/SynchronizedRef";
+import { GlobalContext } from "../../../domain/context/services/GlobalContext";
 import { RequestErrorProcessor } from "../../../domain/errors/services/RequestErrorProcessor";
-import { TaskScheduler } from "../tasks/TaskScheduler";
 import { ActiveApiPlugin } from "./ActiveApiPlugin";
-import { ActivePluginRef } from "./ref/ActivePluginRef";
+import { ApiPluginServices } from "./activation/ApiPluginServices";
 
 export class PluginRegistry extends E.Service<PluginRegistry>()(
 	"PluginRegistry",
 	{
-		dependencies: [RequestErrorProcessor.Default],
+		dependencies: [RequestErrorProcessor.Default, GlobalContext.Default],
 		scoped: E.gen(function* () {
-			const taskScheduler = yield* TaskScheduler;
+			const context = yield* E.context<GlobalContext>();
+
 			/**
-			 * We need synchronization here, otherwise
-			 * there will be dirty reads.
+			 * 1. idleTimeToLive must be Infinity - plugins can
+			 * be removed only manually, we do not care about scopes here.
+			 * 2. When we are getting a plugin from the list, we should use
+			 * a transient scope - "E.scoped" that's closed immediately.
+			 * 3. Because idleTimeToLive is Infinity, the activate plugin won't
+			 * be removed until we call ".invalidate()"
 			 * */
 			const plugins = yield* SynchronizedRef.make(
-				new Map<string, ActiveApiPlugin>(),
+				yield* LayerMap.make(
+					(services: ApiPluginServices) =>
+						ActiveApiPlugin.Default.pipe(
+							Layer.provide(
+								Layer.mergeAll(
+									services.toLayer(),
+									Layer.succeedContext(context),
+								),
+							),
+						),
+					{ idleTimeToLive: Infinity },
+				),
 			);
 
-			const getRegistry = () => SynchronizedRef.get(plugins);
+			const findPluginServices = (pluginName: string) =>
+				E.gen(function* () {
+					const registry = yield* plugins.get;
+					const services = yield* RcMap.keys(registry.rcMap);
+					return services.find((s) => s.getPluginName() === pluginName);
+				});
 
 			return {
 				has(pluginName: string) {
 					return E.gen(function* () {
-						const registry = yield* getRegistry();
-						return registry.has(pluginName);
+						const services = yield* findPluginServices(pluginName);
+						return !!services;
 					});
 				},
 
 				getActivatedPluginNames() {
 					return E.gen(function* () {
-						const registry = yield* getRegistry();
-						return [...registry.keys()];
+						const registry = yield* plugins.get;
+						const services = yield* RcMap.keys(registry.rcMap);
+						return services.map((s) => s.getPluginName());
 					});
 				},
 
-				get(pluginName: string) {
-					return E.gen(function* () {
-						const registry = yield* getRegistry();
-						return registry.get(pluginName);
-					});
-				},
+				getPluginOrThrow(pluginName: string) {
+					return E.gen(this, function* () {
+						const services = yield* findPluginServices(pluginName);
 
-				getAll() {
-					return E.gen(function* () {
-						const registry = yield* getRegistry();
-						return [...registry.values()];
-					});
-				},
-
-				getOrThrow(pluginName: string) {
-					return E.gen(function* () {
-						const registry = yield* getRegistry();
-						const plugin = registry.get(pluginName);
-
-						if (!plugin) {
-							return yield* E.dieMessage(
-								`[PluginRegistry] - Cannot find activated api plugin with name '${pluginName}'`,
+						if (!services) {
+							return yield* new Cause.NoSuchElementException(
+								`Cannot find plugin with name - "${pluginName}"`,
 							);
 						}
 
-						return plugin;
+						const registry = yield* plugins.get;
+
+						return yield* E.serviceOptional(ActiveApiPlugin).pipe(
+							E.provide(registry.get(services)),
+						);
 					});
 				},
 
-				activate(plugin: ActivePluginRef) {
+				getOrCreatePlugin(services: ApiPluginServices) {
 					return E.gen(function* () {
-						const scope = plugin.getScope();
-
-						yield* SynchronizedRef.getAndUpdateEffect(plugins, (registry) =>
-							E.gen(function* () {
-								const name = plugin.getName();
-								const activatedPlugin = yield* ActiveApiPlugin.makeAsValue(
-									plugin,
-								).pipe(E.provideService(TaskScheduler, taskScheduler));
-								registry.set(name, activatedPlugin);
-								return registry;
-							}),
-						).pipe(Scope.extend(scope));
-					});
+						const registry = yield* plugins.get;
+						const runtime = yield* registry.runtime(services);
+						return Context.unsafeGet(runtime.context, ActiveApiPlugin);
+					}).pipe(E.scoped);
 				},
 
-				deactivate(name: string) {
-					return SynchronizedRef.getAndUpdateEffect(plugins, (registry) =>
-						E.gen(function* () {
-							const activePlugin = registry.get(name);
+				getAll() {
+					return E.gen(this, function* () {
+						const registry = yield* plugins.get;
+						const pluginServices = yield* RcMap.keys(registry.rcMap);
+						const collected: ActiveApiPlugin[] = [];
 
-							if (!activePlugin) {
-								return registry;
+						for (const services of pluginServices) {
+							const plugin = yield* this.getOrCreatePlugin(services);
+							collected.push(plugin);
+						}
+
+						return collected;
+					}).pipe(E.orDie);
+				},
+
+				activate(services: ApiPluginServices) {
+					return SynchronizedRef.getAndUpdateEffect(plugins, (registry) =>
+						E.gen(this, function* () {
+							const scheduler = services.getScheduler();
+							const plugin = yield* this.getOrCreatePlugin(services);
+							yield* scheduler.setActivePlugin(plugin);
+							return registry;
+						}),
+					);
+				},
+
+				deactivate(pluginName: string) {
+					return SynchronizedRef.getAndUpdateEffect(plugins, (registry) =>
+						E.gen(this, function* () {
+							const services = yield* RcMap.keys(registry.rcMap);
+							const pluginServices = services.find(
+								(s) => s.getPluginName() === pluginName,
+							);
+
+							if (pluginServices) {
+								yield* registry.invalidate(pluginServices);
 							}
 
-							yield* activePlugin.shutdown();
-							registry.delete(name);
 							return registry;
 						}),
 					);

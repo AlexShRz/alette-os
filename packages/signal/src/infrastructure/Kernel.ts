@@ -1,7 +1,7 @@
 import * as E from "effect/Effect";
-import * as Stream from "effect/Stream";
+import * as FiberSet from "effect/FiberSet";
+import * as Scope from "effect/Scope";
 import { PluginRegistry } from "../application/plugins/services/PluginRegistry";
-import { TaskScheduler } from "../application/plugins/tasks/TaskScheduler";
 import { GlobalContext } from "../domain/context/services/GlobalContext";
 import { TransactionManager } from "../domain/execution/services/TransactionManager";
 import { GlobalUrlConfig } from "../domain/url/services/GlobalUrlConfig";
@@ -13,35 +13,29 @@ export class Kernel extends E.Service<Kernel>()("Kernel", {
 	 * */
 	dependencies: [
 		PluginRegistry.Default,
-		TaskScheduler.Default,
 		GlobalContext.Default,
 		GlobalUrlConfig.Default,
 		TransactionManager.Default,
 	],
 	scoped: E.gen(function* () {
-		const taskScheduler = yield* TaskScheduler;
+		const scope = yield* E.scope;
+		const runtime = yield* E.runtime();
+		const runningCommands = yield* FiberSet.make();
 
-		/**
-		 * Run each task in sequence, one by one:
-		 * 1. Until a task is finished/failed, we cannot move on to the
-		 * next one.
-		 * 2. Next concurrent tasks MUST WAIT if we are running a sync
-		 * task at the moment.
-		 * */
-		yield* taskScheduler.take().pipe(
-			Stream.runForEach((task) =>
-				E.gen(function* () {
-					yield* task.spawn();
+		return {
+			runQuery<A, E, R>(query: E.Effect<A, E, R>) {
+				return E.zipRight(
+					FiberSet.awaitEmpty(runningCommands),
+					query.pipe(E.provide(runtime), Scope.extend(scope)),
+				);
+			},
 
-					if (task.isSequential()) {
-						yield* task.waitForCompletion();
-					}
-				}),
-			),
-			E.forkScoped,
-			Stream.runDrain,
-		);
-
-		return {};
+			runCommand<A, E, R>(command: E.Effect<A, E, R>) {
+				return FiberSet.run(
+					runningCommands,
+					command.pipe(E.provide(runtime), Scope.extend(scope)),
+				);
+			},
+		};
 	}),
 }) {}

@@ -8,7 +8,6 @@ import { ApplyRequestState } from "../../../domain/execution/events/request/Appl
 import { IOneShotRequestState } from "../../../domain/execution/state/IOneShotRequestState";
 import { RequestControllerState } from "../../blueprint/controller/RequestControllerState";
 import { ApiPlugin } from "../../plugins/ApiPlugin";
-import { OneShotRequestSupervisor } from "./OneShotRequestSupervisor";
 
 export interface ILocalOneShotRequestState<Context extends IRequestContext>
 	extends Omit<IOneShotRequestState.Any<Context>, "data"> {
@@ -17,17 +16,13 @@ export interface ILocalOneShotRequestState<Context extends IRequestContext>
 
 export class OneShotRequestState<
 	Context extends IRequestContext,
-> extends RequestControllerState<ILocalOneShotRequestState<Context>> {
-	protected state: SubscriptionRef.SubscriptionRef<
-		ILocalOneShotRequestState<Context>
-	>;
+	State extends ILocalOneShotRequestState<Context>,
+> extends RequestControllerState<State> {
+	protected state: SubscriptionRef.SubscriptionRef<State>;
 
-	constructor(
-		plugin: ApiPlugin,
-		protected supervisor: OneShotRequestSupervisor,
-	) {
+	constructor(plugin: ApiPlugin) {
 		super(plugin);
-		this.state = plugin.getRuntime().runSync(
+		this.state = plugin.getScheduler().runSync(
 			SubscriptionRef.make({
 				isLoading: false,
 				isUninitialized: true,
@@ -35,13 +30,13 @@ export class OneShotRequestState<
 				isError: false,
 				data: null,
 				error: null,
-			} as ILocalOneShotRequestState<Context>),
+			} as State),
 		);
 		this.startStateSync();
 	}
 
 	getState() {
-		return this.plugin.getRuntime().runSync(this.state.get);
+		return this.plugin.getScheduler().runSync(this.state.get);
 	}
 
 	protected startStateSync() {
@@ -51,7 +46,7 @@ export class OneShotRequestState<
 			E.forkScoped,
 		);
 
-		return this.supervisor.spawnAndSupervise(task);
+		return this.plugin.getScheduler().schedule(task);
 	}
 
 	protected applyEvent(event: BusEvent) {

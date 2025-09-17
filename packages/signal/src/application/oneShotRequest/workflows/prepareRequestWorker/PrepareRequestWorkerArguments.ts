@@ -43,7 +43,7 @@ export class PrepareRequestWorkerArguments extends Context.Tag(
 		 * and injectors provide actual middleware.
 		 * */
 		middlewareInjectors: TAnyMiddlewareInjector[];
-		controller: RequestController;
+		getController: () => RequestController;
 	}
 >() {
 	static make(args: PrepareRequestWorkerArguments["Type"]) {

@@ -2,7 +2,6 @@ import * as E from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as ManagedRuntime from "effect/ManagedRuntime";
-import { TaskScheduler } from "../application/plugins/tasks/TaskScheduler";
 import { CommandTaskBuilder } from "../application/plugins/tasks/primitive/CommandTaskBuilder";
 import { QueryTaskBuilder } from "../application/plugins/tasks/primitive/QueryTaskBuilder";
 import { Kernel } from "./Kernel";
@@ -25,7 +24,7 @@ export class ApiClient {
 	protected getRuntimeServices() {
 		return Layer.mergeAll(
 			Logger.pretty,
-			Layer.provideMerge(Kernel.Default, TaskScheduler.Default),
+			Layer.provideMerge(Kernel.Default, Layer.scope),
 		);
 	}
 
@@ -36,20 +35,19 @@ export class ApiClient {
 	ask<A, E>(query: QueryTaskBuilder<A, E>): Promise<A> {
 		return this.runtime.runPromise(
 			E.gen(function* () {
-				const scheduler = yield* E.serviceOptional(TaskScheduler);
-				const runnable = yield* scheduler.scheduleHighPriority(query.build());
-				return yield* runnable.result();
+				const kernel = yield* Kernel;
+				return yield* kernel.runQuery(query.build());
 			}),
 		);
 	}
 
 	tell<I>(...commands: CommandTaskBuilder<I>[]): void {
 		this.runtime.runSync(
-			E.gen(function* () {
-				const scheduler = yield* E.serviceOptional(TaskScheduler);
+			E.gen(this, function* () {
+				const kernel = yield* Kernel;
 
 				for (const command of commands) {
-					yield* scheduler.scheduleHighPriority(command.concurrent().build());
+					yield* kernel.runCommand(command.build());
 				}
 			}),
 		);

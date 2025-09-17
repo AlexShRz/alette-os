@@ -8,7 +8,8 @@ import { PrepareRequestWorkerArguments } from "./PrepareRequestWorkerArguments";
 export const attachRequestWatcherPipeline = E.fn(function* (
 	worker: RequestWorker,
 ) {
-	const { controller } = yield* PrepareRequestWorkerArguments;
+	const { getController } = yield* PrepareRequestWorkerArguments;
+	const controller = getController();
 	const requestControllerId = controller.getId();
 	const controllerEventBus = yield* EventBus;
 

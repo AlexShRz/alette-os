@@ -1,11 +1,14 @@
+import { ExecutionStrategy } from "effect";
 import * as E from "effect/Effect";
 import * as LayerMap from "effect/LayerMap";
 import * as RcMap from "effect/RcMap";
+import * as Scope from "effect/Scope";
 import { RequestWorker } from "./worker/RequestWorker";
 import { RequestWorkerConfig } from "./worker/RequestWorkerConfig";
 
 export class RequestThread extends E.Service<RequestThread>()("RequestThread", {
 	scoped: E.fn(function* (id: string) {
+		const scope = yield* E.scope;
 		/**
 		 * 1. We shouldn't provide idle TTL here -
 		 * the worker should be removed IMMEDIATELY if
@@ -17,6 +20,8 @@ export class RequestThread extends E.Service<RequestThread>()("RequestThread", {
 		const workers = yield* LayerMap.make((config: RequestWorkerConfig) =>
 			RequestWorker.Default(config),
 		);
+
+		yield* E.addFinalizer(() => E.log("asdasd"));
 
 		return {
 			getIdsOfSupervisedWorkers() {
@@ -31,6 +36,10 @@ export class RequestThread extends E.Service<RequestThread>()("RequestThread", {
 
 			getOrCreateWorkerRuntime(workerConfig: RequestWorkerConfig) {
 				return workers.runtime(workerConfig);
+			},
+
+			getScope() {
+				return Scope.fork(scope, ExecutionStrategy.sequential);
 			},
 
 			removeWorker(workerId: string) {

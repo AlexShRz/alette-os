@@ -3,7 +3,7 @@ import { queryTask } from "../plugins/tasks/primitive/functions";
 import { getAllThreads } from "./utils/getAllThreads";
 
 export const forActiveRequestWorkers = () =>
-	queryTask(() =>
+	queryTask(
 		E.gen(function* () {
 			const threads = yield* getAllThreads;
 

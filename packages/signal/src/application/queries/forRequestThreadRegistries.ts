@@ -3,7 +3,7 @@ import { queryTask } from "../plugins/tasks/primitive/functions";
 import { getAllThreadRegistries } from "./utils/getAllThreadRegistries";
 
 export const forRequestThreadRegistries = () =>
-	queryTask(() =>
+	queryTask(
 		E.gen(function* () {
 			const registries = yield* getAllThreadRegistries;
 			return registries.map((r) => r.getId());

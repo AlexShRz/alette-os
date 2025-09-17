@@ -4,7 +4,7 @@ import { GlobalContext } from "../../domain/context/services/GlobalContext";
 import { task } from "../plugins/tasks/primitive/functions";
 
 export const setContext = (newContext: IGlobalContext) =>
-	task(() =>
+	task(
 		E.gen(function* () {
 			const context = yield* E.serviceOptional(GlobalContext);
 			yield* context.set(newContext);

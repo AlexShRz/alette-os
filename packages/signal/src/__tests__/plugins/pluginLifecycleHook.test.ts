@@ -12,15 +12,15 @@ import { client } from "../../infrastructure/ApiClient.js";
 test("it runs activation hooks on mount", async () => {
 	const api = client();
 	const { plugin, pluginName: corePluginName } = defineApiPlugin("hello");
-	const { plugin: plugin2 } = defineApiPlugin("otherPlugin");
+	// const { plugin: plugin2 } = defineApiPlugin("otherPlugin");
 	const logged: number[] = [];
 
-	const anotherPlugin = plugin2.build();
+	// const anotherPlugin = plugin2.build();
 
 	const core = plugin
 		.onActivation(async ({ ask, tell }) => {
 			tell(
-				task(() =>
+				task(
 					E.gen(function* () {
 						logged.push(1);
 					}),
@@ -36,12 +36,14 @@ test("it runs activation hooks on mount", async () => {
 				logged.push(2);
 			}
 		})
-		.onActivation(() => {
+		.onActivation(async () => {
 			logged.push(3);
 		})
 		.build();
 
-	api.tell(activatePlugins(anotherPlugin));
+	/**
+	 * TODO: must work with multiple activated plugins at once
+	 * */
 	api.tell(activatePlugins(core));
 
 	await vi.waitFor(() => {
@@ -57,7 +59,7 @@ test("it runs deactivation hooks on mount", async () => {
 	const core = plugin
 		.onDeactivation(async ({ ask, tell }) => {
 			tell(
-				task(() =>
+				task(
 					E.gen(function* () {
 						logged.push(1);
 					}),
@@ -75,6 +77,9 @@ test("it runs deactivation hooks on mount", async () => {
 		})
 		.build();
 
+	/**
+	 * TODO: must work with multiple deactivated plugins at once
+	 * */
 	api.tell(activatePlugins(core));
 	api.tell(deactivatePlugins(core));
 

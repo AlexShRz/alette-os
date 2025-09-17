@@ -5,7 +5,7 @@ import { task } from "../plugins/tasks/primitive/functions";
 import { asPluginTransaction } from "./utils/asPluginTransaction";
 
 export const deactivatePlugins = (...plugins: ApiPlugin[]) =>
-	task(() =>
+	task(
 		asPluginTransaction(
 			E.gen(function* () {
 				const registry = yield* E.serviceOptional(PluginRegistry);
@@ -15,5 +15,5 @@ export const deactivatePlugins = (...plugins: ApiPlugin[]) =>
 					yield* registry.deactivate(pluginName);
 				}
 			}),
-		).pipe(E.orDie),
+		),
 	);

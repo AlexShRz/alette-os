@@ -1,5 +1,5 @@
 import { ApiPlugin } from "./ApiPlugin.js";
-import { IPluginRuntime } from "./defineApiPlugin.js";
+import { PluginTaskScheduler } from "./PluginTaskScheduler";
 import { CommandTaskBuilder } from "./tasks/primitive/CommandTaskBuilder";
 import { QueryTaskBuilder } from "./tasks/primitive/QueryTaskBuilder";
 
@@ -23,7 +23,7 @@ export class ApiPluginBuilder {
 	constructor(
 		protected config: {
 			name: string;
-			runtime: IPluginRuntime;
+			scheduler: PluginTaskScheduler;
 		},
 	) {}
 
@@ -40,7 +40,7 @@ export class ApiPluginBuilder {
 	build() {
 		return new ApiPlugin({
 			name: this.config.name,
-			runtime: this.config.runtime,
+			scheduler: this.config.scheduler,
 			activationHooks: [...this.activationHooks] as any,
 			deactivationHooks: [...this.deactivationHooks] as any,
 		});

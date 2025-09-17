@@ -29,9 +29,9 @@ export abstract class RequestController<
 
 	abstract getState(): State;
 
-	abstract getHandlers(): Record<string, any>;
-
 	abstract getScope(): Scope.CloseableScope;
+
+	abstract getHandlers(): Record<string, any>;
 
 	abstract getEventReceiver(): Queue.Queue<BusEvent>;
 

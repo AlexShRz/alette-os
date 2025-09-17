@@ -22,21 +22,6 @@ export class RequestThreadRegistry extends E.Service<RequestThreadRegistry>()(
 		scoped: E.gen(function* () {
 			const id = uuid();
 			const errorProcessor = yield* RequestErrorProcessor;
-			/**
-			 * 1. We need to create scope manually here,
-			 * and provide it to RcMap
-			 * 2. Otherwise, the whole program will freeze when
-			 * we try to do something with rc map. I have no idea why.
-			 * */
-			// const scope = yield* Scope.make();
-			// const threads = yield* RcMap.make({
-			// 	lookup: (threadId: string) =>
-			// 		E.acquireRelease(
-			// 			RequestThread.makeAsValue(RequestThread.Default(threadId)),
-			// 			(thread) => thread.shutdown(),
-			// 		),
-			// 	idleTimeToLive: REQUEST_THREAD_TTL,
-			// }).pipe(Scope.extend(scope));
 
 			/**
 			 * 1. Multiple requests will try to access thread data

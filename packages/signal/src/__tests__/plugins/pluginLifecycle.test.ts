@@ -7,8 +7,6 @@ import {
 	forActivePlugins,
 	forRequestThreadRegistries,
 } from "../../application";
-import { PluginMailbox } from "../../application/plugins/services/PluginMailbox";
-import { task } from "../../application/plugins/tasks/primitive/functions";
 import { client } from "../../infrastructure/ApiClient.js";
 
 test("it activates plugins", async () => {
@@ -23,7 +21,6 @@ test("it activates plugins", async () => {
 
 	api.tell(activatePlugins(core1, core2, core3));
 	const active = await api.ask(forActivePlugins());
-
 	expect(active).toStrictEqual(["hello", "hello1", "hello2"]);
 });
 
@@ -42,8 +39,11 @@ test("it deactivates plugins", async () => {
 	expect(active).toStrictEqual(["hello", "hello1", "hello2"]);
 
 	api.tell(deactivatePlugins(core1, core2, core3));
-	const active2 = await api.ask(forActivePlugins());
-	expect(active2).toEqual([]);
+
+	await vi.waitFor(async () => {
+		const active2 = await api.ask(forActivePlugins());
+		expect(active2).toEqual([]);
+	});
 });
 
 test("it creates request thread registry for each plugin", async () => {
@@ -67,22 +67,11 @@ test("it executes plugin tasks when the plugin is activated", async () => {
 	const logged: number[] = [];
 
 	const core = plugin.build();
-	const mailbox = await E.runPromise(
-		core.getRuntime().runFork(
-			E.gen(function* () {
-				return yield* PluginMailbox;
-			}),
-		),
-	);
 
-	await E.runPromise(
-		mailbox.sendCommand(
-			task(() =>
-				E.gen(function* () {
-					logged.push(1);
-				}),
-			),
-		),
+	core.getScheduler().schedule(
+		E.gen(function* () {
+			logged.push(1);
+		}),
 	);
 
 	api.tell(activatePlugins(core));
@@ -98,40 +87,24 @@ test("interrupts all running tasks when a plugin is deactivated", async () => {
 	const logged: number[] = [];
 
 	const core = plugin.build();
-	const mailbox = await E.runPromise(
-		core.getRuntime().runFork(
-			E.gen(function* () {
-				return yield* PluginMailbox;
-			}),
-		),
-	);
 
-	await E.runPromise(
-		mailbox.sendCommand(
-			task(() =>
-				E.gen(function* () {
-					yield* E.forever(E.void);
-				}).pipe(
-					E.onInterrupt(() =>
-						E.sync(() => {
-							logged.push(1);
-						}),
-					),
-				),
-			).concurrent(),
+	core.getScheduler().schedule(
+		E.gen(function* () {
+			yield* E.forever(E.void);
+		}).pipe(
+			E.onInterrupt(() =>
+				E.sync(() => {
+					logged.push(1);
+				}),
+			),
+			E.fork,
 		),
 	);
 
 	api.tell(activatePlugins(core));
+	api.tell(deactivatePlugins(core));
 
-	await E.runPromise(
-		E.sleep(200).pipe(E.andThen(() => api.tell(deactivatePlugins(core)))),
-	);
-
-	await vi.waitFor(
-		() => {
-			expect(logged).toEqual([1]);
-		},
-		{ timeout: 5000 },
-	);
+	await vi.waitFor(() => {
+		expect(logged).toEqual([1]);
+	});
 });

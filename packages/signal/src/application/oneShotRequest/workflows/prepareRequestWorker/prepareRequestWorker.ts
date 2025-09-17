@@ -1,10 +1,9 @@
 import { EventBus } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as Scope from "effect/Scope";
 import { v4 as uuid } from "uuid";
-import { PluginMailbox } from "../../../plugins/services/PluginMailbox";
 import { PluginRegistry } from "../../../plugins/services/PluginRegistry";
-import { queryTask } from "../../../plugins/tasks/primitive/functions";
 import { PrepareRequestWorkerArguments } from "./PrepareRequestWorkerArguments";
 import { attachRequestWatcherPipeline } from "./attachWatcherPipeline";
 import { createOrGetRequestThread } from "./createOrGetRequestThread";
@@ -17,13 +16,15 @@ import { createOrGetRequestWorker } from "./createRequestWorker";
  * */
 const runWorkflow = E.gen(function* () {
 	const {
-		plugin: maybeInactivePlugin,
+		getController,
+		plugin: pluginFacade,
 		middlewareInjectors,
-		controller,
 	} = yield* PrepareRequestWorkerArguments;
-	const pluginRef = yield* maybeInactivePlugin.getOrCreatePluginRef();
 	const pluginRegistry = yield* E.serviceOptional(PluginRegistry);
-	const plugin = yield* pluginRegistry.getOrThrow(pluginRef.getName());
+	const plugin = yield* pluginRegistry.getPluginOrThrow(pluginFacade.getName());
+
+	const controllerScope = getController().getScope();
+	const pluginScope = plugin.getScope();
 
 	/**
 	 * TODO: Fix this.
@@ -34,35 +35,29 @@ const runWorkflow = E.gen(function* () {
 	 * require a pretty big rewrite. We would have to move RequestController, etc.,
 	 * to services, I don't have time to do that now.
 	 * */
-	// const pluginScope = yield* plugin.getScope();
-	// /**
-	//  * 1. Tie controller scope to plugin scope.
-	//  * 2. This makes sure controllers are deactivated the
-	//  * moment our plugin is.
-	//  * */
-	// const controllerScope = controller.getScope();
-	// yield* Scope.addFinalizer(
-	// 	pluginScope,
-	// 	E.gen(function* () {
-	// 		console.log("adasd");
-	// 		yield* Scope.close(controllerScope, Exit.void);
-	// 		console.log("sdsdsd");
-	// 	}),
-	// );
+	/**
+	 * 1. Tie controller scope to plugin scope.
+	 * 2. This makes sure controllers are deactivated the
+	 * moment our plugin is.
+	 * */
+	yield* Scope.addFinalizer(
+		pluginScope,
+		E.gen(function* () {
+			yield* Scope.close(controllerScope, Exit.void);
+		}),
+	);
 
 	return yield* E.gen(function* () {
 		const thread = yield* createOrGetRequestThread(plugin);
 		const worker = yield* createOrGetRequestWorker(thread);
 		yield* attachRequestWatcherPipeline(worker);
-		return worker;
+		return {
+			worker,
+			shutdown: () => E.void,
+		};
 	}).pipe(
 		E.provide(EventBus.Default(middlewareInjectors)),
-		/**
-		 * 1. Make sure to apply CONTROLLER, not plugin scope here -
-		 * the moment our controller is disposed, the scope
-		 * should release ref counted resources (threads, workers, etc.)
-		 * */
-		Scope.extend(controller.getScope()),
+		Scope.extend(controllerScope),
 		E.orDie,
 	);
 });
@@ -70,19 +65,13 @@ const runWorkflow = E.gen(function* () {
 export const prepareRequestWorker = E.fn(function* (
 	args: Omit<PrepareRequestWorkerArguments["Type"], "workerId">,
 ) {
-	const pluginMailbox = yield* PluginMailbox;
 	const requestId = uuid();
-
-	return yield* pluginMailbox.sendQuery(
-		queryTask(() =>
-			runWorkflow.pipe(
-				E.provide(
-					PrepareRequestWorkerArguments.make({
-						...args,
-						workerId: requestId,
-					}),
-				),
-			),
-		).concurrent(),
+	return yield* runWorkflow.pipe(
+		E.provide(
+			PrepareRequestWorkerArguments.make({
+				...args,
+				workerId: requestId,
+			}),
+		),
 	);
 });

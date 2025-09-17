@@ -1,4 +1,5 @@
 import { EventBus } from "@alette/event-sourcing";
+import { ExecutionStrategy } from "effect";
 import * as E from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
@@ -81,6 +82,14 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 
 			getId() {
 				return config.getId();
+			},
+
+			getRuntime() {
+				return requestRuntime;
+			},
+
+			getScope() {
+				return Scope.fork(scope, ExecutionStrategy.sequential);
 			},
 
 			dispatch<T extends TSessionEvent>(event: T) {

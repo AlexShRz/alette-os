@@ -11,16 +11,18 @@ import { RunRequest } from "../../../domain/execution/events/request/RunRequest"
 import { RequestController } from "../../blueprint/controller/RequestController";
 import { ApiPlugin } from "../../plugins/ApiPlugin";
 import { PrepareRequestWorkerArguments } from "../workflows/prepareRequestWorker/PrepareRequestWorkerArguments";
+import { OneShotRequestScope } from "./OneShotRequestScope";
 import {
 	ILocalOneShotRequestState,
 	OneShotRequestState,
 } from "./OneShotRequestState";
-import { OneShotRequestSupervisor } from "./OneShotRequestSupervisor";
 import { OneShotRequestWorker } from "./OneShotRequestWorker";
 
 export class OneShotRequestController<
 	Context extends IRequestContext,
-> extends RequestController<Context, ILocalOneShotRequestState<Context>> {
+	State extends
+		ILocalOneShotRequestState<Context> = ILocalOneShotRequestState<Context>,
+> extends RequestController<Context, State> {
 	/**
 	 * 1. The moment we sent our first runOnMount check to
 	 * the system, we need to set this to true.
@@ -28,25 +30,21 @@ export class OneShotRequestController<
 	 * */
 	protected wasMounted = false;
 
-	protected supervisor = new OneShotRequestSupervisor(this.plugin);
-	protected state = new OneShotRequestState<Context>(
-		this.plugin,
-		this.supervisor,
-	);
+	protected scope = new OneShotRequestScope(this.plugin);
+	protected state = new OneShotRequestState<Context, State>(this.plugin);
 	protected worker: OneShotRequestWorker;
 
 	constructor(
 		plugin: ApiPlugin,
 		workerConfig: Omit<
 			PrepareRequestWorkerArguments["Type"],
-			"controller" | "workerId" | "pluginName"
+			"getController" | "workerId" | "pluginName"
 		>,
 	) {
 		super(plugin);
-		this.worker = new OneShotRequestWorker(this.plugin, this.supervisor, {
+		this.worker = new OneShotRequestWorker(this.plugin, {
 			...workerConfig,
-			// TODO: Fix any
-			controller: this as any,
+			getController: () => this as RequestController,
 		});
 
 		const task = this.state.changes().pipe(
@@ -63,7 +61,7 @@ export class OneShotRequestController<
 			E.forkScoped,
 		);
 
-		this.supervisor.spawnAndSupervise(task);
+		plugin.getScheduler().schedule(task);
 	}
 
 	getHandlers() {
@@ -78,9 +76,8 @@ export class OneShotRequestController<
 		return this.state.getState();
 	}
 
-	/** @internal */
 	getScope() {
-		return this.supervisor.getScope();
+		return this.scope.get();
 	}
 
 	/** @internal */
@@ -89,7 +86,7 @@ export class OneShotRequestController<
 	}
 
 	protected dispatch<T extends TSessionEvent>(event: T) {
-		this.supervisor.spawnAndSupervise(this.worker.dispatch(event));
+		this.plugin.getScheduler().schedule(this.worker.dispatch(event));
 	}
 
 	protected cancelRequest() {
@@ -126,6 +123,6 @@ export class OneShotRequestController<
 	}
 
 	dispose() {
-		this.supervisor.shutdown();
+		this.worker.shutdown();
 	}
 }

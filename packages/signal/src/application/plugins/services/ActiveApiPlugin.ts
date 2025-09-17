@@ -1,14 +1,9 @@
-import { ExecutionStrategy } from "effect";
-import * as Context from "effect/Context";
 import * as E from "effect/Effect";
 import * as Fiber from "effect/Fiber";
-import * as FiberSet from "effect/FiberSet";
-import * as Layer from "effect/Layer";
 import * as Scope from "effect/Scope";
-import * as Stream from "effect/Stream";
 import { RequestThreadRegistry } from "../../../domain/execution/RequestThreadRegistry";
-import { TaskScheduler } from "../tasks/TaskScheduler";
-import { ActivePluginRef } from "./ref/ActivePluginRef";
+import { ApiPluginInfo } from "./activation/ApiPluginInfo";
+import { ApiPluginLifecycleHooks } from "./activation/ApiPluginLifecycleHooks";
 
 /**
  * 1. All plugin blueprint requests pass through here and then
@@ -21,56 +16,19 @@ export class ActiveApiPlugin extends E.Service<ActiveApiPlugin>()(
 	"ActiveApiPlugin",
 	{
 		dependencies: [RequestThreadRegistry.Default],
-		effect: E.fn(function* (pluginReference: ActivePluginRef) {
-			const taskScheduler = yield* TaskScheduler;
+		scoped: E.gen(function* () {
+			const scope = yield* E.scope;
+			const pluginInfo = yield* ApiPluginInfo;
+			const hooks = yield* ApiPluginLifecycleHooks;
 			const threads = yield* RequestThreadRegistry;
-			const pluginScope = pluginReference.getScope();
+			const runtime = yield* E.runtime();
 
-			/**
-			 * Set up our reference to activate
-			 * plugin hooks
-			 * */
-			yield* pluginReference.activate();
-
-			const name = pluginReference.getName();
-			const queuedPluginTasks = pluginReference.getMailbox();
-			const supervisedTasks = yield* FiberSet.make().pipe(
-				Scope.extend(pluginScope),
-			);
-
-			const superviseFiber = (fiber: Fiber.RuntimeFiber<any>) => {
-				return FiberSet.add(supervisedTasks, fiber);
-			};
-
-			/**
-			 * Send tasks from plugin mailbox to main registry mailbox
-			 * for execution.
-			 * */
-			yield* Stream.fromQueue(queuedPluginTasks).pipe(
-				Stream.runForEach((task) =>
-					E.gen(function* () {
-						const runnable = yield* taskScheduler.scheduleLowPriority(
-							task.build(),
-						);
-
-						/**
-						 * Add task fiber for supervision automatically
-						 * */
-						yield* E.zipRight(
-							runnable.waitForTrigger(),
-							runnable.getFiberOrThrow(),
-						).pipe(E.andThen(superviseFiber), E.forkIn(pluginScope));
-
-						return runnable;
-					}),
-				),
-				E.forkIn(pluginScope),
-				Stream.runDrain,
-			);
+			yield* hooks.runActivationHooks();
+			yield* E.addFinalizer(() => hooks.runDeactivationHooks());
 
 			return {
 				getName() {
-					return name;
+					return pluginInfo.pluginName;
 				},
 
 				getThreads() {
@@ -78,19 +36,26 @@ export class ActiveApiPlugin extends E.Service<ActiveApiPlugin>()(
 				},
 
 				getScope() {
-					return Scope.fork(pluginScope, ExecutionStrategy.sequential);
+					return scope;
 				},
 
-				shutdown() {
-					return pluginReference.invalidate();
+				/**
+				 * IMPORTANT
+				 * 1. Make sure scheduled tasks NEVER use forkScoped,
+				 * otherwise they will never complete
+				 * */
+				runWithSupervision<A, E, R>(task: E.Effect<A, E, R>) {
+					return E.gen(function* () {
+						const result = yield* task;
+
+						if (Fiber.isFiber(result) && Fiber.isRuntimeFiber(result)) {
+							yield* E.addFinalizer(() => Fiber.interruptFork(result));
+						}
+
+						return result;
+					}).pipe(E.provide(runtime), Scope.extend(scope));
 				},
 			};
 		}),
 	},
-) {
-	static makeAsValue(plugin: ActivePluginRef) {
-		return Layer.build(ActiveApiPlugin.Default(plugin)).pipe(
-			E.andThen((c) => Context.unsafeGet(c, ActiveApiPlugin)),
-		);
-	}
-}
+) {}

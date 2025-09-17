@@ -7,7 +7,7 @@ export abstract class RequestControllerState<State> {
 
 	protected constructor(protected plugin: ApiPlugin) {
 		this.eventReceiver = this.plugin
-			.getRuntime()
+			.getScheduler()
 			.runSync(Queue.unbounded<BusEvent>());
 	}
 
