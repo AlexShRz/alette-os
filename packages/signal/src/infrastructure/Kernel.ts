@@ -3,6 +3,7 @@ import * as FiberSet from "effect/FiberSet";
 import * as Scope from "effect/Scope";
 import { PluginRegistry } from "../application/plugins/services/PluginRegistry";
 import { GlobalContext } from "../domain/context/services/GlobalContext";
+import { RequestThreadRegistry } from "../domain/execution/RequestThreadRegistry";
 import { TransactionManager } from "../domain/execution/services/TransactionManager";
 import { GlobalUrlConfig } from "../domain/url/services/GlobalUrlConfig";
 
@@ -15,6 +16,7 @@ export class Kernel extends E.Service<Kernel>()("Kernel", {
 		PluginRegistry.Default,
 		GlobalContext.Default,
 		GlobalUrlConfig.Default,
+		RequestThreadRegistry.Default,
 		TransactionManager.Default,
 	],
 	scoped: E.gen(function* () {

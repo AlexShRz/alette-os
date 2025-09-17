@@ -33,7 +33,20 @@ export class RequestRunner extends Context.Tag("RequestRunner")<
 				);
 				const metrics = yield* RequestMetrics;
 
-				yield* E.addFinalizer(() => SynchronizedRef.set(isRunning, false));
+				const interruptRunning = E.zipRight(
+					FiberHandle.clear(requestHandle),
+					SynchronizedRef.set(isRunning, false),
+				);
+
+				/**
+				 * Interrupt running request on shutdown
+				 * */
+				yield* E.addFinalizer(
+					E.fn(function* () {
+						yield* SynchronizedRef.set(isRunning, false);
+						yield* interruptRunning;
+					}),
+				);
 
 				return {
 					isRunning() {
@@ -49,12 +62,7 @@ export class RequestRunner extends Context.Tag("RequestRunner")<
 							);
 						});
 					},
-					interrupt() {
-						return E.zipRight(
-							FiberHandle.clear(requestHandle),
-							SynchronizedRef.set(isRunning, false),
-						);
-					},
+					interrupt: () => interruptRunning,
 				};
 			}),
 		).pipe(Layer.provide(RequestMetrics.Default));

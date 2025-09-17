@@ -15,7 +15,7 @@ import { toNextOneShotRequestState } from "./toNextOneShotRequestState";
 export class RequestStateTimeline extends Context.Tag("RequestStateTimeline")<
 	RequestStateTimeline,
 	{
-		broadcast(): Stream.Stream<ApplyRequestState>;
+		updates(): Stream.Stream<ApplyRequestState>;
 		/**
 		 * 1. Can be used to replay the whole timeline to an abstract receiver.
 		 * 2. Usually used to replay state events for watchers that are
@@ -60,7 +60,7 @@ export class RequestStateTimeline extends Context.Tag("RequestStateTimeline")<
 					 * 2. We must not broadcast "null" if we have no
 					 * last state event set.
 					 * */
-					broadcast() {
+					updates() {
 						return lastStateEvent.changes.pipe(
 							Stream.filter((event) => !!event),
 							Stream.mapEffect((event) =>

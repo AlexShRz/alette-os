@@ -11,7 +11,6 @@ import { RunRequest } from "../../../domain/execution/events/request/RunRequest"
 import { RequestController } from "../../blueprint/controller/RequestController";
 import { ApiPlugin } from "../../plugins/ApiPlugin";
 import { PrepareRequestWorkerArguments } from "../workflows/prepareRequestWorker/PrepareRequestWorkerArguments";
-import { OneShotRequestScope } from "./OneShotRequestScope";
 import {
 	ILocalOneShotRequestState,
 	OneShotRequestState,
@@ -19,7 +18,7 @@ import {
 import { OneShotRequestWorker } from "./OneShotRequestWorker";
 
 export class OneShotRequestController<
-	Context extends IRequestContext,
+	Context extends IRequestContext = IRequestContext,
 	State extends
 		ILocalOneShotRequestState<Context> = ILocalOneShotRequestState<Context>,
 > extends RequestController<Context, State> {
@@ -31,7 +30,6 @@ export class OneShotRequestController<
 	protected wasMounted = false;
 	protected wasUnmounted = false;
 
-	protected scope = new OneShotRequestScope(this.plugin);
 	protected state = new OneShotRequestState<Context, State>(this.plugin);
 	protected worker: OneShotRequestWorker;
 
@@ -75,10 +73,6 @@ export class OneShotRequestController<
 
 	getState() {
 		return this.state.getState();
-	}
-
-	getScope() {
-		return this.scope.get();
 	}
 
 	/** @internal */

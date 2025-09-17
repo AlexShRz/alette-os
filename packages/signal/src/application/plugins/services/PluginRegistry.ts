@@ -6,7 +6,7 @@ import * as LayerMap from "effect/LayerMap";
 import * as RcMap from "effect/RcMap";
 import * as SynchronizedRef from "effect/SynchronizedRef";
 import { GlobalContext } from "../../../domain/context/services/GlobalContext";
-import { RequestErrorProcessor } from "../../../domain/errors/services/RequestErrorProcessor";
+import { RequestErrorProcessor } from "../../../domain/errors/RequestErrorProcessor";
 import { ActiveApiPlugin } from "./ActiveApiPlugin";
 import { ApiPluginServices } from "./activation/ApiPluginServices";
 

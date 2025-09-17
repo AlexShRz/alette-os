@@ -9,49 +9,34 @@ import { PrepareRequestWorkerArguments } from "./PrepareRequestWorkerArguments";
 import { attachRequestWatcherPipeline } from "./attachWatcherPipeline";
 import { createOrGetRequestThread } from "./createOrGetRequestThread";
 import { createOrGetRequestWorker } from "./createRequestWorker";
+import { setUpInterruptionRecovery } from "./setUpInterruptionRecovery";
 
 /**
- * This effect is executed inside another runtime with
+ * This effect is executed using another runtime with
  * different services, so we cannot access services of the
  * plugin that bootstraps the workflow.
  * */
 const runWorkflow = E.gen(function* () {
-	const {
-		getController,
-		plugin: pluginFacade,
-		middlewareInjectors,
-	} = yield* PrepareRequestWorkerArguments;
+	const { plugin: pluginFacade, middlewareInjectors } =
+		yield* PrepareRequestWorkerArguments;
 	const pluginRegistry = yield* E.serviceOptional(PluginRegistry);
 	const plugin = yield* pluginRegistry.getPluginOrThrow(pluginFacade.getName());
 
-	const controllerScope = getController().getScope();
-	const requestScope = yield* Scope.make();
-
 	/**
-	 * TODO: Fix this.
-	 * 1. Right now Scope.close(controllerScope, Exit.void); becomes
-	 * stuck and does not finish.
-	 * 2. If you close controllerScope somewhere else it works.
-	 * 3. Maybe we need to do Scope.fork() from ActivePluginRef? But that would
-	 * require a pretty big rewrite. We would have to move RequestController, etc.,
-	 * to services, I don't have time to do that now.
-	 * */
-	/**
-	 * 1. Tie controller scope to plugin scope.
+	 * 1. Tie controller scope to plugin scope using scope.fork.
 	 * 2. This makes sure controllers are deactivated the
 	 * moment our plugin is.
 	 * */
-	// yield* Scope.addFinalizer(
-	// 	pluginScope,
-	// 	E.gen(function* () {
-	// 		yield* Scope.close(controllerScope, Exit.void);
-	// 	}),
-	// );
+	const requestScope = yield* Scope.fork(
+		plugin.getScope(),
+		ExecutionStrategy.sequential,
+	);
 
 	return yield* E.gen(function* () {
-		const thread = yield* createOrGetRequestThread(plugin);
+		const thread = yield* createOrGetRequestThread;
 		const worker = yield* createOrGetRequestWorker(thread);
 		yield* attachRequestWatcherPipeline(worker);
+		yield* setUpInterruptionRecovery;
 		return {
 			worker,
 			shutdown: () => Scope.close(requestScope, Exit.void),

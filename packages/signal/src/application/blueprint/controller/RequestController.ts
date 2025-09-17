@@ -1,6 +1,5 @@
 import { BusEvent } from "@alette/event-sourcing";
 import * as Queue from "effect/Queue";
-import * as Scope from "effect/Scope";
 import { v4 as uuid } from "uuid";
 import { IRequestContext } from "../../../domain/context/IRequestContext";
 import { TRequestArguments } from "../../../domain/context/typeUtils/RequestIOTypes";
@@ -28,8 +27,6 @@ export abstract class RequestController<
 	}
 
 	abstract getState(): State;
-
-	abstract getScope(): Scope.CloseableScope;
 
 	abstract getHandlers(): Record<string, any>;
 

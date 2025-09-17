@@ -1,11 +1,10 @@
 import { EventBus } from "@alette/event-sourcing";
-import { ExecutionStrategy } from "effect";
 import * as E from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Scope from "effect/Scope";
 import { GlobalContext } from "../../context/services/GlobalContext";
-import { RequestErrorProcessor } from "../../errors/services/RequestErrorProcessor";
+import { RequestErrorProcessor } from "../../errors/RequestErrorProcessor";
 import { TSessionEvent } from "../events/SessionEvent";
 import { RequestEventInterceptor } from "../services/RequestEventInterceptor";
 import { RequestMeta } from "../services/RequestMeta";
@@ -21,7 +20,7 @@ import { sendSessionEvent } from "../utils/sendSessionEvent";
 import { RequestWorkerConfig } from "./RequestWorkerConfig";
 
 export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
-	effect: E.fn(function* (config: RequestWorkerConfig) {
+	scoped: E.fn(function* (config: RequestWorkerConfig) {
 		const scope = yield* E.scope;
 		const context = yield* E.context<GlobalContext | RequestErrorProcessor>();
 		/**
@@ -84,14 +83,6 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 				return config.getId();
 			},
 
-			getRuntime() {
-				return requestRuntime;
-			},
-
-			getScope() {
-				return Scope.fork(scope, ExecutionStrategy.sequential);
-			},
-
 			dispatch<T extends TSessionEvent>(event: T) {
 				return requestRuntime.runFork(sendSessionEvent(event));
 			},
@@ -99,7 +90,7 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 			addWatchers(config: WatcherPipelineConfig) {
 				return E.gen(function* () {
 					const registry = yield* WatcherPipelineRegistry;
-					yield* registry.set(config);
+					yield* registry.getOrCreateWatcherRuntime(config);
 				}).pipe(Scope.extend(scope), E.provide(requestRuntime));
 			},
 		};

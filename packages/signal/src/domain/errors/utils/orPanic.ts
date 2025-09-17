@@ -1,6 +1,6 @@
 import { FatalApiError } from "@alette/pulse";
 import * as E from "effect/Effect";
-import { RequestErrorProcessor } from "../services/RequestErrorProcessor";
+import { RequestErrorProcessor } from "../RequestErrorProcessor";
 
 export const orPanic = <A, E, R>(task: E.Effect<A, E, R>) =>
 	E.catchAllDefect((defect) =>

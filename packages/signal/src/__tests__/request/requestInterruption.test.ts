@@ -43,32 +43,26 @@ test("it overrides previous request when a new request command is received", asy
  * Fix later, have no idea how to fix now
  * See prepareRequestWorker
  * */
-test.todo(
-	"it interrupts plugin requests if the plugin is deactivated",
-	async () => {
-		const { api, custom, corePlugin } = createTestApi();
+test("it interrupts plugin requests if the plugin is deactivated", async () => {
+	const { api, custom, corePlugin } = createTestApi();
 
-		const getData1 = custom(
-			factory(async () => {
-				return await new Promise<string>(() => {
-					// Do not resolve anything
-				});
-			}),
-		);
+	const getData1 = custom(
+		factory(async () => {
+			return await new Promise<string>(() => {
+				// Do not resolve anything
+			});
+		}),
+	);
 
-		const { execute, getState } = getData1.mount();
-		execute();
-		await vi.waitFor(() => {
-			expect(getState().isLoading).toBeTruthy();
-		});
+	const { execute, getState } = getData1.mount();
+	execute();
+	await vi.waitFor(() => {
+		expect(getState().isLoading).toBeTruthy();
+	});
 
-		api.tell(deactivatePlugins(corePlugin));
-		await vi.waitFor(
-			() => {
-				const error = getState().error;
-				expect(error instanceof RequestInterruptedError).toBeTruthy();
-			},
-			{ timeout: 160000 },
-		);
-	},
-);
+	api.tell(deactivatePlugins(corePlugin));
+	await vi.waitFor(() => {
+		const error = getState().error;
+		expect(error instanceof RequestInterruptedError).toBeTruthy();
+	});
+});

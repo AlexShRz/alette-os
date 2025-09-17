@@ -97,7 +97,7 @@ export class RequestState {
 		});
 	}
 
-	static Interrupted(requestId: string) {
+	static Interrupted() {
 		return new ApplyRequestState<any, IOneShotRequestState.Interrupted>({
 			isLoading: false,
 			isSuccess: false,

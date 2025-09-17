@@ -5,7 +5,6 @@ import {
 	deactivatePlugins,
 	defineApiPlugin,
 	forActivePlugins,
-	forRequestThreadRegistries,
 } from "../../application";
 import { client } from "../../infrastructure/ApiClient.js";
 
@@ -44,21 +43,6 @@ test("it deactivates plugins", async () => {
 		const active2 = await api.ask(forActivePlugins());
 		expect(active2).toEqual([]);
 	});
-});
-
-test("it creates request thread registry for each plugin", async () => {
-	const api = client();
-	const { plugin: plugin1 } = defineApiPlugin("hello");
-	const { plugin: plugin2 } = defineApiPlugin("hello1");
-	const { plugin: plugin3 } = defineApiPlugin("hello2");
-
-	const core1 = plugin1.build();
-	const core2 = plugin2.build();
-	const core3 = plugin3.build();
-
-	api.tell(activatePlugins(core1, core2, core3));
-	const registries = await api.ask(forRequestThreadRegistries());
-	expect(registries.length).toEqual(3);
 });
 
 test("it executes plugin tasks when the plugin is activated", async () => {

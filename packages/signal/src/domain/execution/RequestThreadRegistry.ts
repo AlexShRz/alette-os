@@ -3,7 +3,7 @@ import * as LayerMap from "effect/LayerMap";
 import * as RcMap from "effect/RcMap";
 import * as Stream from "effect/Stream";
 import { v4 as uuid } from "uuid";
-import { RequestErrorProcessor } from "../errors/services/RequestErrorProcessor";
+import { RequestErrorProcessor } from "../errors/RequestErrorProcessor";
 import { RequestThread } from "./RequestThread";
 
 /**

@@ -47,7 +47,7 @@ export class ApiPluginLifecycleHooks extends E.Service<ApiPluginLifecycleHooks>(
 					 * 2. DO NOT execute hooks without forking them. Otherwise, if
 					 * some of them contain "ask" everything will become stuck.
 					 * */
-					yield* E.all(boundHooks).pipe(E.forkDaemon);
+					return yield* E.all(boundHooks).pipe(E.forkDaemon);
 				});
 			};
 
