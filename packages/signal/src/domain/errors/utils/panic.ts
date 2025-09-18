@@ -5,6 +5,6 @@ import { ErrorHandler } from "../ErrorHandler";
 export const panic = (fatal: FatalApiError) =>
 	E.gen(function* () {
 		const errors = yield* E.serviceOptional(ErrorHandler);
-		yield* errors.report(fatal);
+		yield* errors.handle(fatal);
 		yield* E.die(fatal);
 	}).pipe(E.orDie);

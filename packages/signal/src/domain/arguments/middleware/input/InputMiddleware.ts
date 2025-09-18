@@ -1,5 +1,6 @@
 import * as E from "effect/Effect";
 import * as P from "effect/Predicate";
+import { orPanic } from "../../../errors/utils/orPanic";
 import { RunRequest } from "../../../execution/events/request/RunRequest";
 import { RequestMeta } from "../../../execution/services/RequestMeta";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
@@ -49,9 +50,7 @@ export class InputMiddleware extends Middleware("InputMiddleware", {
 							? obtainedSettings.args
 							: null;
 
-						const validatedArgsRef = yield* E.orDie(
-							E.succeed(argAdapter.from(extractedArgs)),
-						);
+						const validatedArgsRef = argAdapter.from(extractedArgs);
 
 						/**
 						 * Argument context will be wiped on every request id
@@ -61,7 +60,7 @@ export class InputMiddleware extends Middleware("InputMiddleware", {
 							"args",
 							E.succeed(new ArgumentContext(validatedArgsRef)),
 						);
-					}).pipe(E.orDie);
+					}).pipe(orPanic);
 
 				return {
 					...parent,

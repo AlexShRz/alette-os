@@ -1,4 +1,5 @@
 import * as E from "effect/Effect";
+import { orPanic } from "../../../errors/utils/orPanic";
 import { ApplyRequestState } from "../../../execution/events/request/ApplyRequestState";
 import { RequestState } from "../../../execution/events/request/RequestState";
 import { RequestMeta } from "../../../execution/services/RequestMeta";
@@ -45,7 +46,7 @@ export class OutputMiddleware extends Middleware("OutputMiddleware", {
 							 * */
 							const value = data.unsafeGet();
 							const responseAdapter = adapters.getAdapter();
-							yield* E.orDie(E.succeed(responseAdapter.from(value)));
+							yield* E.sync(() => responseAdapter.from(value)).pipe(orPanic);
 
 							return yield* context.next(event);
 						});

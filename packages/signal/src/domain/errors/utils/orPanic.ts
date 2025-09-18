@@ -7,7 +7,7 @@ export const orPanic = <A, E, R>(task: E.Effect<A, E, R>) =>
 		E.gen(function* () {
 			if (defect instanceof FatalApiError) {
 				const errors = yield* E.serviceOptional(ErrorHandler);
-				yield* errors.report(defect);
+				yield* errors.handle(defect);
 			}
 
 			return yield* E.die(defect);

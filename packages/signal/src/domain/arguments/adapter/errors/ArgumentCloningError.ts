@@ -1,6 +1,6 @@
 import { FatalApiError } from "@alette/pulse";
 
-export class RequestArgCloningError extends FatalApiError {
+export class ArgumentCloningError extends FatalApiError {
 	constructor(args: unknown) {
 		super(
 			"Cannot clone request arguments.\n" +

@@ -1,7 +1,8 @@
 import { ApiError } from "@alette/pulse";
-import { setContext } from "../../application";
+import { setContext, setErrorHandler } from "../../application";
 import {
 	path,
+	InvalidErrorMappingError,
 	factory,
 	mapError,
 	reloadable,
@@ -144,4 +145,37 @@ test("it can access request props and context", async () => {
 	});
 });
 
-test.todo("it throws a fatal error if an incorrect error type is returned");
+test("it throws a fatal error if an incorrect error type is returned", async () => {
+	const { api, custom } = createTestApi();
+	let failed = false;
+
+	class RandomError extends Error {}
+
+	api.tell(
+		setErrorHandler((error) => {
+			if (
+				error instanceof InvalidErrorMappingError &&
+				error.getInvalidError() instanceof RandomError
+			) {
+				failed = true;
+			}
+		}),
+	);
+
+	const getData = custom(
+		throws(MyError),
+		factory(() => {
+			throw new MyError("");
+		}),
+		// @ts-expect-error
+		mapError((_) => {
+			return new RandomError();
+		}),
+	);
+
+	getData.execute().catch((e) => e);
+
+	await vi.waitFor(() => {
+		expect(failed).toBeTruthy();
+	});
+});

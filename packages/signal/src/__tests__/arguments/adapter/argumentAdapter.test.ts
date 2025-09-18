@@ -1,6 +1,6 @@
 import { Schema } from "effect";
 import {
-	RequestArgCloningError,
+	ArgumentCloningError,
 	RequestArgValidationError,
 	argumentAdapter,
 	type,
@@ -60,7 +60,7 @@ test("it throws an error if default clone algorithm cannot clone arguments", () 
 
 	const MyArgs = argumentAdapter().schema(type<typeof obj>()).build();
 
-	expect(() => MyArgs.from(obj).clone()).toThrowError(RequestArgCloningError);
+	expect(() => MyArgs.from(obj).clone()).toThrowError(ArgumentCloningError);
 });
 
 test("it can override set arguments", () => {

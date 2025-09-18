@@ -1,5 +1,6 @@
+import { CannotSetPathError } from "@alette/pulse";
+import { setErrorHandler } from "../../application";
 import { path, factory } from "../../domain";
-import { RequestInterruptedError } from "../../shared/error/RequestInterruptedError";
 import { createTestApi } from "../../shared/testUtils/createTestApi";
 
 test("it sets path", async () => {
@@ -74,15 +75,28 @@ test("it can override path set by upstream middleware", async () => {
 	});
 });
 
-test.todo("it throws a fatal error if our path is incorrect", async () => {
-	const { custom } = createTestApi();
+test("it throws a fatal error if the path is incorrect", async () => {
+	const { api, custom } = createTestApi();
+	let failed = false;
+
+	api.tell(
+		setErrorHandler((error) => {
+			if (error instanceof CannotSetPathError) {
+				failed = true;
+			}
+		}),
+	);
 
 	const getData = custom(
-		path("asldnbaskdbaskjbdas"),
+		path("21423423"),
 		factory(() => {
 			return true;
 		}),
 	);
 
-	expect(await getData.execute()).rejects.toThrowError(RequestInterruptedError);
+	getData.execute().catch((e) => e);
+
+	await vi.waitFor(() => {
+		expect(failed).toBeTruthy();
+	});
 });

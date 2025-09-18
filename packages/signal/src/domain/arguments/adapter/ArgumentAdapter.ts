@@ -1,6 +1,6 @@
 import { ISchema, validateSchema } from "@alette/pulse";
 import { ArgumentRef } from "./ArgumentRef";
-import { RequestArgValidationError } from "./errors";
+import { ArgumentValidationError } from "./errors";
 
 export class ArgumentAdapter<Arguments = unknown> {
 	constructor(
@@ -23,7 +23,7 @@ export class ArgumentAdapter<Arguments = unknown> {
 		try {
 			return validateSchema(this.getSchema(), args);
 		} catch {
-			throw new RequestArgValidationError(args);
+			throw new ArgumentValidationError(args);
 		}
 	}
 }

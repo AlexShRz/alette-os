@@ -1,12 +1,14 @@
 import { ApiError } from "@alette/pulse";
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
+import { orPanic } from "../../../errors/utils/orPanic";
 import { ApplyRequestState } from "../../../execution/events/request/ApplyRequestState";
 import { RequestState } from "../../../execution/events/request/RequestState";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { IOneShotRequestState } from "../../../execution/state/IOneShotRequestState";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { InvalidErrorMappingError } from "./InvalidErrorMappingError";
 import { TMapErrorArgs } from "./MapErrorMiddlewareFactory";
 
 export class MapErrorMiddleware extends Middleware("MapErrorMiddleware", {
@@ -35,6 +37,10 @@ export class MapErrorMiddleware extends Middleware("MapErrorMiddleware", {
 								 * */
 								const updatedError = await mapper((error as ApiError).clone());
 
+								if (!(updatedError instanceof ApiError)) {
+									throw new InvalidErrorMappingError(updatedError);
+								}
+
 								return {
 									...otherState,
 									error: updatedError,
@@ -42,7 +48,7 @@ export class MapErrorMiddleware extends Middleware("MapErrorMiddleware", {
 							});
 
 						return yield* E.promise(() => updateErrorEvent());
-					});
+					}).pipe(orPanic);
 
 				return {
 					...parent,

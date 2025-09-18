@@ -1,1 +1,1 @@
-export * from "./ResponseValueValidationError";
+export * from "./ResponseValidationError";

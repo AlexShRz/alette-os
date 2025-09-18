@@ -2,7 +2,7 @@ import { ISchema, type } from "@alette/pulse";
 import isEqual from "lodash.isequal";
 import { ArgumentAdapter } from "./ArgumentAdapter";
 import { ArgumentRef } from "./ArgumentRef";
-import { RequestArgCloningError } from "./errors";
+import { ArgumentCloningError } from "./errors";
 
 export interface IArgumentComparator<V> {
 	(passedArgs: V | null, currentArgs: V): boolean;
@@ -22,7 +22,7 @@ export class ArgumentAdapterBuilder<Arguments> {
 		try {
 			return structuredClone(args);
 		} catch {
-			throw new RequestArgCloningError(args);
+			throw new ArgumentCloningError(args);
 		}
 	};
 
@@ -43,7 +43,7 @@ export class ArgumentAdapterBuilder<Arguments> {
 			try {
 				return cloner(args);
 			} catch {
-				throw new RequestArgCloningError(args);
+				throw new ArgumentCloningError(args);
 			}
 		};
 		return this;

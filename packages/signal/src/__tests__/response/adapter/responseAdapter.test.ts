@@ -1,5 +1,5 @@
 import * as S from "effect/Schema";
-import { ResponseValueValidationError, responseAdapter } from "../../../domain";
+import { ResponseValidationError, responseAdapter } from "../../../domain";
 
 const valueSchema = S.standardSchemaV1(
 	S.Struct({
@@ -45,7 +45,7 @@ test("it throws an error if response value does not match schema ", async () => 
 	const MyResponse = responseAdapter().schema(valueSchema).build();
 
 	expect(() => MyResponse.from("asdasdkjasdjkasnd")).toThrowError(
-		ResponseValueValidationError,
+		ResponseValidationError,
 	);
 });
 

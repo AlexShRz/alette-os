@@ -1,4 +1,5 @@
-import { setOrigin } from "../../application";
+import { CannotSetOriginError } from "@alette/pulse";
+import { setErrorHandler, setOrigin } from "../../application";
 import { factory, origin } from "../../domain";
 import { createTestApi } from "../../shared/testUtils/createTestApi";
 
@@ -69,5 +70,31 @@ test("it can override origin set by upstream middleware", async () => {
 
 	await vi.waitFor(() => {
 		expect(result).toEqual([myOrigin2, myOrigin2]);
+	});
+});
+
+test("it throws a fatal error if the path is incorrect", async () => {
+	const { api, custom } = createTestApi();
+	let failed = false;
+
+	api.tell(
+		setErrorHandler((error) => {
+			if (error instanceof CannotSetOriginError) {
+				failed = true;
+			}
+		}),
+	);
+
+	const getData = custom(
+		origin("21423423"),
+		factory(() => {
+			return true;
+		}),
+	);
+
+	getData.execute().catch((e) => e);
+
+	await vi.waitFor(() => {
+		expect(failed).toBeTruthy();
 	});
 });

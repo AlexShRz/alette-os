@@ -1,11 +1,15 @@
 import * as E from "effect/Effect";
 import { ApplyRequestState } from "../../../execution/events/request/ApplyRequestState";
-import { RequestState } from "../../../execution/events/request/RequestState";
 import { RequestMeta } from "../../../execution/services/RequestMeta";
 import { Middleware } from "../../../middleware/Middleware";
+import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { UnrecognizedErrorCaught } from "../../errors/UnrecognizedErrorCaught";
+import { panic } from "../../utils/panic";
 import { IRecognizedRequestError } from "./RequestRecoverableErrors";
 
-export class ThrowsMiddleware extends Middleware("ThrowsMiddleware")(
+export class ThrowsMiddleware extends Middleware("ThrowsMiddleware", {
+	priority: MiddlewarePriority.Interception,
+})(
 	(recoverableErrors: IRecognizedRequestError[]) =>
 		({ parent, context }) =>
 			E.gen(function* () {
@@ -17,18 +21,18 @@ export class ThrowsMiddleware extends Middleware("ThrowsMiddleware")(
 					...parent,
 					send(event) {
 						return E.gen(this, function* () {
-							if (
-								!(event instanceof ApplyRequestState) ||
-								!RequestState.isFailure(event)
-							) {
+							if (!(event instanceof ApplyRequestState)) {
 								return yield* context.next(event);
 							}
 
-							const { error } = event.getState();
+							/**
+							 * We cannot rely on RequestState.isFailure(event)
+							 * checks here, because we can receive a random error
+							 * */
+							const { isError, error } = event.getState();
 
-							if (!errorConfig.isRecognizedError(error)) {
-								const text = `[ThrowsMiddleware] - unrecognized request error was thrown. Error data -`;
-								return yield* E.dieMessage(`${text} '${error}'`);
+							if (isError && !errorConfig.isRecognizedError(error)) {
+								yield* panic(new UnrecognizedErrorCaught(error));
 							}
 
 							return yield* context.next(event);
