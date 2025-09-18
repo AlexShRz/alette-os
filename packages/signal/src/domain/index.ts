@@ -1,6 +1,7 @@
 export * from "./url";
 export * from "./arguments";
 export * from "./context";
+export * from "./headers";
 export * from "./response";
 export * from "./execution";
 export * from "./errors";

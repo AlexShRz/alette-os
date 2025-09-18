@@ -4,11 +4,11 @@ import * as ManagedRuntime from "effect/ManagedRuntime";
 import { IGlobalContext } from "../context";
 import { GlobalContext } from "../context/services/GlobalContext";
 
-export type TReportableError = ApiError | FatalApiError;
+export type THandleableError = ApiError | FatalApiError | unknown;
 
 export interface IErrorHandlerFn {
 	(
-		error: TReportableError,
+		error: THandleableError,
 		utils: { context: IGlobalContext },
 	): void | Promise<void>;
 }
@@ -26,7 +26,7 @@ export class ErrorHandler extends E.Service<ErrorHandler>()("ErrorHandler", {
 				return this;
 			},
 
-			handle<T extends ApiError | FatalApiError>(error: T) {
+			handle<T extends THandleableError>(error: T) {
 				return E.gen(function* () {
 					const context = yield* globalContext.get();
 					const runHandler = async () =>

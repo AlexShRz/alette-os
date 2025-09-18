@@ -3,7 +3,7 @@ import { ApplyRequestState } from "../../../execution/events/request/ApplyReques
 import { RequestMeta } from "../../../execution/services/RequestMeta";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
-import { UnrecognizedErrorCaught } from "../../errors/UnrecognizedErrorCaught";
+import { UnknownErrorCaught } from "../../errors/UnknownErrorCaught";
 import { panic } from "../../utils/panic";
 import { IRecognizedRequestError } from "./RequestRecoverableErrors";
 
@@ -32,7 +32,7 @@ export class ThrowsMiddleware extends Middleware("ThrowsMiddleware", {
 							const { isError, error } = event.getState();
 
 							if (isError && !errorConfig.isRecognizedError(error)) {
-								yield* panic(new UnrecognizedErrorCaught(error));
+								yield* panic(new UnknownErrorCaught(error));
 							}
 
 							return yield* context.next(event);

@@ -1,3 +1,3 @@
 export * from "./throws";
-export { UnrecognizedErrorCaught } from "../../errors/UnrecognizedErrorCaught";
+export { UnknownErrorCaught } from "../../errors/UnknownErrorCaught";
 export { throwsMiddlewareName } from "./throwsMiddlewareSpecification";

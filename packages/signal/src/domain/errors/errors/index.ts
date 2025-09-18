@@ -1,1 +1,1 @@
-export * from "./UnrecognizedErrorCaught";
+export * from "./UnknownErrorCaught";

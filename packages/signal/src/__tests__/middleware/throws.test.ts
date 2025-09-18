@@ -1,6 +1,6 @@
 import { ApiError } from "@alette/pulse";
 import { setErrorHandler } from "../../application";
-import { UnrecognizedErrorCaught, factory, throws } from "../../domain";
+import { UnknownErrorCaught, factory, throws } from "../../domain";
 import { createTestApi } from "../../shared/testUtils/createTestApi";
 
 test("it throws a fatal error if the error in unrecognized", async () => {
@@ -12,8 +12,8 @@ test("it throws a fatal error if the error in unrecognized", async () => {
 	api.tell(
 		setErrorHandler((error) => {
 			if (
-				error instanceof UnrecognizedErrorCaught &&
-				error.getUnrecognizedError() instanceof RandomError
+				error instanceof UnknownErrorCaught &&
+				error.getUnknownError() instanceof RandomError
 			) {
 				failed = true;
 			}
