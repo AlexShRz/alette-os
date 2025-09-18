@@ -14,10 +14,12 @@ export const setUpInterruptionRecovery = E.gen(function* () {
 	yield* E.addFinalizer(
 		E.fn(function* () {
 			const state = (controller as OneShotRequestController).getState();
-			const isUndeterminedState =
-				state.isLoading && !state.isSuccess && !state.isError;
 
-			if (isUndeterminedState) {
+			/**
+			 * Switch to interrupted state only if
+			 * our request is loading
+			 * */
+			if (state.isLoading) {
 				yield* controller.getEventReceiver().offer(RequestState.Interrupted());
 			}
 		}),

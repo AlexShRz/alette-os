@@ -12,7 +12,14 @@ export class WatcherPipelineRegistry extends E.Service<WatcherPipelineRegistry>(
 		scoped: E.gen(function* () {
 			const pipelines = yield* LayerMap.make((config: WatcherPipelineConfig) =>
 				WatcherPipeline.Default(config).pipe(
-					Layer.provide(EventBus.Default(config.getWatchers())),
+					/**
+					 * 1. Make sure to use Layer.fresh() for event bus here,
+					 * otherwise it will be created once and reused for every
+					 * watcher pipeline.
+					 * 2. This is NOT what we want, every pipeline must have
+					 * its own event bus.
+					 * */
+					Layer.provide(Layer.fresh(EventBus.Default(config.getWatchers()))),
 				),
 			);
 

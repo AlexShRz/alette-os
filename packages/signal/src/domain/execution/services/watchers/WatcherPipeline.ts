@@ -10,7 +10,6 @@ export class WatcherPipeline extends E.Service<WatcherPipeline>()(
 	{
 		scoped: (config: WatcherPipelineConfig) =>
 			E.gen(function* () {
-				const scope = yield* E.scope;
 				const id = config.getId();
 				const controllerEventReceiver = config.getEventReceiver();
 				const timeline = yield* E.serviceOptional(RequestStateTimeline);
@@ -40,7 +39,7 @@ export class WatcherPipeline extends E.Service<WatcherPipeline>()(
 						Stream.runForEach((event) => sendToPipeline(event.clone())),
 						Stream.runDrain,
 					),
-				).pipe(E.forkIn(scope));
+				).pipe(E.forkScoped);
 
 				return {
 					getId() {

@@ -10,9 +10,9 @@ export abstract class RequestController<
 	Context extends IRequestContext = IRequestContext,
 	State = unknown,
 > {
+	protected id = uuid();
 	protected settingSupplier: IRequestSessionSettingSupplier | undefined;
 	protected stateSubscribers: ((state: State) => void)[] = [];
-	protected id = uuid();
 
 	protected constructor(protected plugin: ApiPlugin) {}
 

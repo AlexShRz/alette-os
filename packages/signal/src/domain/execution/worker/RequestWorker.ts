@@ -14,6 +14,7 @@ import { RequestRunner } from "../services/RequestRunner";
 import { RequestSession } from "../services/RequestSession";
 import { RequestSessionContext } from "../services/RequestSessionContext";
 import { RequestStateTimeline } from "../services/timeline/RequestStateTimeline";
+import { WatcherPipeline } from "../services/watchers/WatcherPipeline";
 import { WatcherPipelineConfig } from "../services/watchers/WatcherPipelineConfig";
 import { WatcherPipelineRegistry } from "../services/watchers/WatcherPipelineRegistry";
 import { sendSessionEvent } from "../utils/sendSessionEvent";
@@ -90,7 +91,10 @@ export class RequestWorker extends E.Service<RequestWorker>()("RequestWorker", {
 			addWatchers(config: WatcherPipelineConfig) {
 				return E.gen(function* () {
 					const registry = yield* WatcherPipelineRegistry;
-					yield* registry.getOrCreateWatcherRuntime(config);
+					const runtime = yield* registry.getOrCreateWatcherRuntime(config);
+					return yield* E.serviceOptional(WatcherPipeline).pipe(
+						E.provide(runtime),
+					);
 				}).pipe(Scope.extend(scope), E.provide(requestRuntime));
 			},
 		};

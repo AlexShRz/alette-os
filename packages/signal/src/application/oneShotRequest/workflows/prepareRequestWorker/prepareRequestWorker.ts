@@ -23,7 +23,7 @@ const runWorkflow = E.gen(function* () {
 	const plugin = yield* pluginRegistry.getPluginOrThrow(pluginFacade.getName());
 
 	/**
-	 * 1. Tie controller scope to plugin scope using scope.fork.
+	 * 1. Tie request scope to plugin scope using scope.fork.
 	 * 2. This makes sure controllers are deactivated the
 	 * moment our plugin is.
 	 * */

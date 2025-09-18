@@ -41,7 +41,7 @@ export class OneShotRequestState<
 
 	protected startStateSync() {
 		const task = Stream.fromQueue(this.getStateEventReceiver()).pipe(
-			Stream.tap((e) => this.applyEvent(e)),
+			Stream.tap((e) => this.applyStateSnapshot(e)),
 			Stream.runDrain,
 			E.forkScoped,
 		);
@@ -49,7 +49,7 @@ export class OneShotRequestState<
 		return this.plugin.getScheduler().schedule(task);
 	}
 
-	protected applyEvent(event: BusEvent) {
+	protected applyStateSnapshot(event: BusEvent) {
 		return SubscriptionRef.getAndUpdate(this.state, (state) => {
 			if (!(event instanceof ApplyRequestState)) {
 				return state;
