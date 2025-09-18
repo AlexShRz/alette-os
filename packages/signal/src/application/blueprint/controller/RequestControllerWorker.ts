@@ -16,6 +16,7 @@ export abstract class RequestControllerWorker {
 	protected constructor(protected plugin: ApiPlugin) {
 		this.workerConfig = this.plugin
 			.getScheduler()
+			.getOwnRuntime()
 			.runSync(SubscriptionRef.make<IWorkerConfig | null>(null));
 	}
 

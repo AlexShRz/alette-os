@@ -1,10 +1,9 @@
-import { BusEvent } from "@alette/event-sourcing";
-import * as Queue from "effect/Queue";
 import { v4 as uuid } from "uuid";
 import { IRequestContext } from "../../../domain/context/IRequestContext";
 import { TRequestArguments } from "../../../domain/context/typeUtils/RequestIOTypes";
 import { IRequestSessionSettingSupplier } from "../../../domain/execution/services/RequestSessionContext";
 import { ApiPlugin } from "../../plugins/ApiPlugin";
+import { RequestControllerState } from "./RequestControllerState";
 
 export abstract class RequestController<
 	Context extends IRequestContext = IRequestContext,
@@ -12,7 +11,6 @@ export abstract class RequestController<
 > {
 	protected id = uuid();
 	protected settingSupplier: IRequestSessionSettingSupplier | undefined;
-	protected stateSubscribers: ((state: State) => void)[] = [];
 
 	protected constructor(protected plugin: ApiPlugin) {}
 
@@ -30,16 +28,11 @@ export abstract class RequestController<
 
 	abstract getHandlers(): Record<string, any>;
 
-	abstract getEventReceiver(): Queue.Queue<BusEvent>;
+	abstract getStateManager(): RequestControllerState<State>;
 
-	subscribe(subscriber: (typeof this.stateSubscribers)[number]) {
-		this.stateSubscribers = [...this.stateSubscribers, subscriber];
-		return () => {
-			this.stateSubscribers = this.stateSubscribers.filter(
-				(sub) => sub !== subscriber,
-			);
-		};
-	}
+	abstract subscribe(
+		...params: Parameters<RequestControllerState<State>["subscribe"]>
+	): () => void;
 
 	setSettingSupplier(supplier: IRequestSessionSettingSupplier) {
 		this.settingSupplier = supplier;

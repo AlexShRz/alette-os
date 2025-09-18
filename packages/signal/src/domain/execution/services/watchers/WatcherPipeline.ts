@@ -11,7 +11,7 @@ export class WatcherPipeline extends E.Service<WatcherPipeline>()(
 		scoped: (config: WatcherPipelineConfig) =>
 			E.gen(function* () {
 				const id = config.getId();
-				const controllerEventReceiver = config.getEventReceiver();
+				const controllerStateManager = config.getStateManager();
 				const timeline = yield* E.serviceOptional(RequestStateTimeline);
 				const pipelineBus = yield* EventBus;
 
@@ -19,7 +19,9 @@ export class WatcherPipeline extends E.Service<WatcherPipeline>()(
 				 * When all watchers have processed the request event,
 				 * send the event to our controller
 				 * */
-				pipelineBus.broadcast((e) => controllerEventReceiver.offer(e));
+				pipelineBus.broadcast((e) =>
+					controllerStateManager.applyStateSnapshot(e),
+				);
 
 				const sendToPipeline = <T extends TSessionEvent>(event: T) => {
 					return pipelineBus.send(event);

@@ -1,10 +1,10 @@
 import { FatalApiError } from "@alette/pulse";
 import * as E from "effect/Effect";
-import { RequestErrorProcessor } from "../RequestErrorProcessor";
+import { ErrorHandler } from "../ErrorHandler";
 
 export const panic = (fatal: FatalApiError) =>
 	E.gen(function* () {
-		const errors = yield* E.serviceOptional(RequestErrorProcessor);
-		yield* errors.failWithFatal(fatal);
+		const errors = yield* E.serviceOptional(ErrorHandler);
+		yield* errors.report(fatal);
 		yield* E.die(fatal);
 	}).pipe(E.orDie);

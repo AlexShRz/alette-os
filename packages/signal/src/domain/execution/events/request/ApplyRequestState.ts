@@ -5,7 +5,7 @@ import { RequestSessionEvent } from "../RequestSessionEvent";
 
 export class ApplyRequestState<
 	C extends IRequestContext = IRequestContext,
-	State extends IOneShotRequestState.Any<C> = any,
+	State extends IOneShotRequestState.Any<C> = IOneShotRequestState.Any<C>,
 > extends RequestSessionEvent {
 	constructor(protected state: State) {
 		super();

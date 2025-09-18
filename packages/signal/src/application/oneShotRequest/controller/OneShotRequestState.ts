@@ -1,6 +1,3 @@
-import { BusEvent } from "@alette/event-sourcing";
-import * as E from "effect/Effect";
-import * as Stream from "effect/Stream";
 import * as SubscriptionRef from "effect/SubscriptionRef";
 import { IRequestContext } from "../../../domain/context/IRequestContext";
 import { TRequestResponse } from "../../../domain/context/typeUtils/RequestIOTypes";
@@ -22,49 +19,45 @@ export class OneShotRequestState<
 
 	constructor(plugin: ApiPlugin) {
 		super(plugin);
-		this.state = plugin.getScheduler().runSync(
-			SubscriptionRef.make({
-				isLoading: false,
-				isUninitialized: true,
-				isSuccess: false,
-				isError: false,
-				data: null,
-				error: null,
-			} as State),
-		);
-		this.startStateSync();
+		this.state = plugin
+			.getScheduler()
+			.getOwnRuntime()
+			.runSync(
+				SubscriptionRef.make({
+					isLoading: false,
+					isUninitialized: true,
+					isSuccess: false,
+					isError: false,
+					data: null,
+					error: null,
+				} as State),
+			);
 	}
 
 	getState() {
-		return this.plugin.getScheduler().runSync(this.state.get);
+		return this.plugin.getScheduler().getOwnRuntime().runSync(this.state.get);
 	}
 
-	protected startStateSync() {
-		const task = Stream.fromQueue(this.getStateEventReceiver()).pipe(
-			Stream.tap((e) => this.applyStateSnapshot(e)),
-			Stream.runDrain,
-			E.forkScoped,
-		);
-
-		return this.plugin.getScheduler().schedule(task);
-	}
-
-	protected applyStateSnapshot(event: BusEvent) {
+	applyStateSnapshot(event: ApplyRequestState<Context>) {
 		return SubscriptionRef.getAndUpdate(this.state, (state) => {
 			if (!(event instanceof ApplyRequestState)) {
 				return state;
 			}
 
-			return (event as ApplyRequestState<Context>).getUnwrappedState();
-		});
-	}
+			const newState = event.getUnwrappedState() as State;
 
-	changes() {
-		return this.state.changes.pipe(
 			/**
 			 * Skip default state broadcasting
 			 * */
-			Stream.filter(({ isUninitialized }) => !isUninitialized),
-		);
+			if (!newState.isUninitialized) {
+				this.stateSubscribers.forEach((subscriber) => {
+					subscriber({
+						...newState,
+					});
+				});
+			}
+
+			return newState;
+		});
 	}
 }

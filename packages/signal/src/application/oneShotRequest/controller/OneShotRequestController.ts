@@ -1,5 +1,3 @@
-import * as E from "effect/Effect";
-import * as Stream from "effect/Stream";
 import { IRequestContext } from "../../../domain/context/IRequestContext";
 import { TRequestArguments } from "../../../domain/context/typeUtils/RequestIOTypes";
 import { CancelRequest } from "../../../domain/execution/events/CancelRequest";
@@ -45,22 +43,6 @@ export class OneShotRequestController<
 			...workerConfig,
 			getController: () => this as RequestController,
 		});
-
-		const task = this.state.changes().pipe(
-			Stream.tap((state) =>
-				E.sync(() => {
-					this.stateSubscribers.forEach((subscriber) => {
-						subscriber({
-							...state,
-						});
-					});
-				}),
-			),
-			Stream.runDrain,
-			E.forkScoped,
-		);
-
-		plugin.getScheduler().schedule(task);
 	}
 
 	getHandlers() {
@@ -76,8 +58,12 @@ export class OneShotRequestController<
 	}
 
 	/** @internal */
-	getEventReceiver() {
-		return this.state.getStateEventReceiver();
+	getStateManager() {
+		return this.state;
+	}
+
+	subscribe(...params: Parameters<(typeof this.state)["subscribe"]>) {
+		return this.state.subscribe(...params);
 	}
 
 	protected dispatch<T extends TSessionEvent>(event: T) {

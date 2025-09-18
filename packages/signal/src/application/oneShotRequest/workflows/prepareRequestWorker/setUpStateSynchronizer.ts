@@ -3,7 +3,7 @@ import { RequestState } from "../../../../domain/execution/events/request/Reques
 import { OneShotRequestController } from "../../controller/OneShotRequestController";
 import { PrepareRequestWorkerArguments } from "./PrepareRequestWorkerArguments";
 
-export const setUpInterruptionRecovery = E.gen(function* () {
+export const setUpStateSynchronizer = E.gen(function* () {
 	const { getController } = yield* PrepareRequestWorkerArguments;
 	const controller = getController();
 
@@ -20,7 +20,9 @@ export const setUpInterruptionRecovery = E.gen(function* () {
 			 * our request is loading
 			 * */
 			if (state.isLoading) {
-				yield* controller.getEventReceiver().offer(RequestState.Interrupted());
+				yield* controller
+					.getStateManager()
+					.applyStateSnapshot(RequestState.Interrupted());
 			}
 		}),
 	);

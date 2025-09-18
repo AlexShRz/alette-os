@@ -5,6 +5,7 @@ import * as ManagedRuntime from "effect/ManagedRuntime";
 import { CommandTaskBuilder } from "../application/plugins/tasks/primitive/CommandTaskBuilder";
 import { QueryTaskBuilder } from "../application/plugins/tasks/primitive/QueryTaskBuilder";
 import { GlobalContext } from "../domain/context/services/GlobalContext";
+import { ErrorHandler } from "../domain/errors/ErrorHandler";
 import { Kernel } from "./Kernel";
 
 export const client = (...commands: CommandTaskBuilder[]) =>
@@ -22,18 +23,23 @@ export class ApiClient {
 		this.tell(...this.getMemoizedConfig());
 	}
 
-	protected getRuntimeServices() {
-		return Layer.mergeAll(
-			Logger.pretty,
-			Layer.provideMerge(
-				Kernel.Default.pipe(Layer.provide(GlobalContext.Default)),
-				Layer.scope,
+	protected createRuntime() {
+		const runtime = ManagedRuntime.make(
+			Layer.mergeAll(
+				Logger.pretty,
+				Kernel.Default.pipe(
+					Layer.provide(
+						Layer.provideMerge(
+							ErrorHandler.Default((() => runtime) as () => any),
+							GlobalContext.Default,
+						),
+					),
+					Layer.provide(Layer.scope),
+				),
 			),
 		);
-	}
 
-	protected createRuntime() {
-		return ManagedRuntime.make(this.getRuntimeServices());
+		return runtime;
 	}
 
 	ask<A, E>(query: QueryTaskBuilder<A, E>): Promise<A> {

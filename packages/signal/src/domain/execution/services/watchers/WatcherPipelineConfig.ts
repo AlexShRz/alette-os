@@ -17,8 +17,8 @@ export class WatcherPipelineConfig implements Equal.Equal {
 		return this.controller.getId();
 	}
 
-	getEventReceiver() {
-		return this.controller.getEventReceiver();
+	getStateManager() {
+		return this.controller.getStateManager();
 	}
 
 	getWatchers() {

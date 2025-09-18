@@ -19,6 +19,8 @@ export class ApiPlugin {
 		return this.config.name;
 	}
 
+	getRuntime() {}
+
 	/** @internal  */
 	getScheduler() {
 		return this.config.scheduler;

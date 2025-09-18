@@ -9,7 +9,7 @@ import { PrepareRequestWorkerArguments } from "./PrepareRequestWorkerArguments";
 import { attachRequestWatcherPipeline } from "./attachWatcherPipeline";
 import { createOrGetRequestThread } from "./createOrGetRequestThread";
 import { createOrGetRequestWorker } from "./createRequestWorker";
-import { setUpInterruptionRecovery } from "./setUpInterruptionRecovery";
+import { setUpStateSynchronizer } from "./setUpStateSynchronizer";
 
 /**
  * This effect is executed using another runtime with
@@ -36,7 +36,7 @@ const runWorkflow = E.gen(function* () {
 		const thread = yield* createOrGetRequestThread;
 		const worker = yield* createOrGetRequestWorker(thread);
 		yield* attachRequestWatcherPipeline(worker);
-		yield* setUpInterruptionRecovery;
+		yield* setUpStateSynchronizer;
 		return {
 			worker,
 			shutdown: () => Scope.close(requestScope, Exit.void),

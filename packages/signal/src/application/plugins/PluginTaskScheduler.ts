@@ -24,6 +24,10 @@ export class PluginTaskScheduler {
 		this.schedulerRuntime.runFork(this.processTasks());
 	}
 
+	getOwnRuntime() {
+		return this.schedulerRuntime;
+	}
+
 	protected getPlugin() {
 		return this.activePlugin.changes.pipe(
 			Stream.filter((plugin) => !!plugin),
@@ -54,9 +58,5 @@ export class PluginTaskScheduler {
 		this.schedulerRuntime.runFork(
 			this.mailbox.offer(task as E.Effect<unknown>),
 		);
-	}
-
-	runSync<A, E>(task: E.Effect<A, E, never>) {
-		return this.schedulerRuntime.runSync(task);
 	}
 }
