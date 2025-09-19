@@ -1,27 +1,26 @@
-import { ApiError } from "@alette/pulse";
 import * as E from "effect/Effect";
+import { TTapErrorArgs } from "../../../errors/middleware/tapError/TapErrorMiddlewareFactory";
+import { ApplyRequestState } from "../../../execution/events/request/ApplyRequestState";
+import { RequestState } from "../../../execution/events/request/RequestState";
+import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
-import { ApplyRequestState } from "../../events/request/ApplyRequestState";
-import { RequestState } from "../../events/request/RequestState";
-import { RequestSessionContext } from "../../services/RequestSessionContext";
-import { TTapErrorArgs } from "./TapErrorMiddlewareFactory";
 
-export class TapErrorMiddleware extends Middleware("TapErrorMiddleware", {
+export class TapMiddleware extends Middleware("TapMiddleware", {
 	priority: MiddlewarePriority.Mapping,
 })(
-	(tapErrorFn: TTapErrorArgs) =>
+	(tapSuccessFn: TTapErrorArgs) =>
 		({ parent, context }) =>
 			E.gen(function* () {
 				const sessionContext = yield* E.serviceOptional(RequestSessionContext);
 
-				const runTap = (error: ApiError) =>
+				const runTap = (response: unknown) =>
 					E.gen(function* () {
 						const requestContext = yield* sessionContext.getSnapshot();
 
 						yield* E.promise(() => {
 							const configured = async () =>
-								await tapErrorFn(error, requestContext);
+								await tapSuccessFn(response, requestContext);
 							return configured();
 						});
 					});
@@ -32,9 +31,9 @@ export class TapErrorMiddleware extends Middleware("TapErrorMiddleware", {
 						return E.gen(this, function* () {
 							if (
 								event instanceof ApplyRequestState &&
-								RequestState.isFailure(event)
+								RequestState.isSuccess(event)
 							) {
-								yield* runTap(event.getError());
+								yield* runTap(event.getResult());
 							}
 
 							return yield* context.next(event);

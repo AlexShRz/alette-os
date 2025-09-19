@@ -4,6 +4,7 @@ export * from "./context";
 export * from "./headers";
 export * from "./response";
 export * from "./execution";
+export * from "./lifecycle";
 export * from "./errors";
 export * from "./categorization";
 export { type } from "@alette/pulse";

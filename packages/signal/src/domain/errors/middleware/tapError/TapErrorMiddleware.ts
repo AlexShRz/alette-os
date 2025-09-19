@@ -1,26 +1,27 @@
+import { ApiError } from "@alette/pulse";
 import * as E from "effect/Effect";
+import { ApplyRequestState } from "../../../execution/events/request/ApplyRequestState";
+import { RequestState } from "../../../execution/events/request/RequestState";
+import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
-import { ApplyRequestState } from "../../events/request/ApplyRequestState";
-import { RequestState } from "../../events/request/RequestState";
-import { RequestSessionContext } from "../../services/RequestSessionContext";
-import { TTapErrorArgs } from "../tapError/TapErrorMiddlewareFactory";
+import { TTapErrorArgs } from "./TapErrorMiddlewareFactory";
 
-export class TapMiddleware extends Middleware("TapMiddleware", {
+export class TapErrorMiddleware extends Middleware("TapErrorMiddleware", {
 	priority: MiddlewarePriority.Mapping,
 })(
-	(tapSuccessFn: TTapErrorArgs) =>
+	(tapErrorFn: TTapErrorArgs) =>
 		({ parent, context }) =>
 			E.gen(function* () {
 				const sessionContext = yield* E.serviceOptional(RequestSessionContext);
 
-				const runTap = (response: unknown) =>
+				const runTap = (error: ApiError) =>
 					E.gen(function* () {
 						const requestContext = yield* sessionContext.getSnapshot();
 
 						yield* E.promise(() => {
 							const configured = async () =>
-								await tapSuccessFn(response, requestContext);
+								await tapErrorFn(error, requestContext);
 							return configured();
 						});
 					});
@@ -31,9 +32,9 @@ export class TapMiddleware extends Middleware("TapMiddleware", {
 						return E.gen(this, function* () {
 							if (
 								event instanceof ApplyRequestState &&
-								RequestState.isSuccess(event)
+								RequestState.isFailure(event)
 							) {
-								yield* runTap(event.getResult());
+								yield* runTap(event.getError());
 							}
 
 							return yield* context.next(event);

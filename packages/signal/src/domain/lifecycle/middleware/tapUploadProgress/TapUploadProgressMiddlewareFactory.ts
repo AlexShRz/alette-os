@@ -1,22 +1,24 @@
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
 import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
-import { TGetRecognizedRequestErrors } from "../../../errors/middleware/throws/RequestRecoverableErrors";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
-import { TapErrorMiddleware } from "./TapErrorMiddleware";
-import { tapErrorMiddlewareSpecification } from "./tapErrorMiddlewareSpecification";
+import { IUploadProgressData } from "../../events/UploadProgressReceived";
+import { TapUploadProgressMiddleware } from "./TapUploadProgressMiddleware";
+import { tapUploadProgressMiddlewareSpecification } from "./tapUploadProgressMiddlewareSpecification";
 
-export type TTapErrorArgs<C extends IRequestContext = IRequestContext> = (
-	error: TGetRecognizedRequestErrors<C>,
+export type TTapUploadProgressArgs<
+	C extends IRequestContext = IRequestContext,
+> = (
+	uploadProgressData: IUploadProgressData,
 	requestContext: TGetAllRequestContext<C>,
 ) => void | Promise<void>;
 
-export class TapErrorMiddlewareFactory extends Middleware(
-	"TapErrorMiddlewareFactory",
+export class TapUploadProgressMiddlewareFactory extends Middleware(
+	"TapUploadProgressMiddlewareFactory",
 )(
-	(getMiddleware: () => TapErrorMiddleware) =>
+	(getMiddleware: () => TapUploadProgressMiddleware) =>
 		({ parent, context }) =>
 			E.gen(function* () {
 				return {
@@ -34,15 +36,18 @@ export class TapErrorMiddlewareFactory extends Middleware(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext>(args: TTapErrorArgs<Context>) => {
+		return <Context extends IRequestContext>(
+			args: TTapUploadProgressArgs<Context>,
+		) => {
 			return toMiddlewareFactory<
 				Context,
 				Context,
-				typeof tapErrorMiddlewareSpecification
+				typeof tapUploadProgressMiddlewareSpecification
 			>(
 				() =>
-					new TapErrorMiddlewareFactory(
-						() => new TapErrorMiddleware(args as TTapErrorArgs),
+					new TapUploadProgressMiddlewareFactory(
+						() =>
+							new TapUploadProgressMiddleware(args as TTapUploadProgressArgs),
 					),
 			);
 		};

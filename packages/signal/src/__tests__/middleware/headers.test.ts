@@ -38,7 +38,7 @@ test("it can be combined", async () => {
 	const getData = custom(
 		headers(myHeaders1),
 		headers((prev) => ({ ...prev, ...myHeaders2 })),
-		headers((prev) => ({ ...prev, ...myHeaders3 })),
+		headers(async (prev) => ({ ...prev, ...myHeaders3 })),
 		factory(({ headers }) => {
 			return headers;
 		}),

@@ -2,6 +2,7 @@ import { UrlBuilder } from "@alette/pulse";
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
 import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
+import { OneShotRequestNotification } from "../../../lifecycle/notifications/OneShotRequestNotification";
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
 import { TGetOriginalRequestResponseValue } from "../../../response/middleware/output/OriginalResponseValue";
@@ -15,6 +16,7 @@ export interface IRequestRunner<C extends IRequestContext = IRequestContext> {
 		requestContext: TGetAllRequestContext<C> & {
 			url: UrlBuilder<TGetRequestQueryParams<C>>;
 		},
+		utils: { notify: (notification: OneShotRequestNotification) => void },
 	):
 		| Promise<TGetOriginalRequestResponseValue<C>>
 		| TGetOriginalRequestResponseValue<C>;

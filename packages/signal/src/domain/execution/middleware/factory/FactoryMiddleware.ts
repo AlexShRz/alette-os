@@ -1,6 +1,7 @@
 import { IEventBusListener } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
 import * as Runtime from "effect/Runtime";
+import { OneShotRequestNotification } from "../../../lifecycle/notifications/OneShotRequestNotification";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
 import { UrlContext } from "../../../url/UrlContext";
@@ -33,6 +34,20 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 					return yield* urlContext.get.pipe(E.andThen((c) => c.getState()));
 				});
 
+				/**
+				 * Make sure to use context.sendToBus() for notifications,
+				 * otherwise the program will become stuck.
+				 * */
+				const sendNotification = (notification: OneShotRequestNotification) => {
+					runFork(
+						E.gen(function* () {
+							const event = yield* notification.toEvent();
+							yield* attachRequestId(event);
+							runFork(context.sendToBus(event));
+						}),
+					);
+				};
+
 				const runRequest = (event: RunRequest) =>
 					E.gen(function* () {
 						/**
@@ -44,10 +59,13 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 						const fullUrl = yield* getFullUrl;
 
 						const runner = async () =>
-							await executor({
-								...fullContext,
-								url: fullUrl,
-							});
+							await executor(
+								{
+									...fullContext,
+									url: fullUrl,
+								},
+								{ notify: sendNotification },
+							);
 
 						/**
 						 * IMPORTANT:

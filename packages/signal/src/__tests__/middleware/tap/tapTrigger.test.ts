@@ -1,12 +1,12 @@
-import { setContext } from "../../application";
+import { setContext } from "../../../application";
 import {
 	path,
 	factory,
 	reloadable,
 	runOnMount,
 	tapTrigger,
-} from "../../domain";
-import { createTestApi } from "../../shared/testUtils/createTestApi";
+} from "../../../domain";
+import { createTestApi } from "../../../shared/testUtils/createTestApi";
 
 test("it is triggered on request execution attempt", async () => {
 	const { custom } = createTestApi();
