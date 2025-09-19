@@ -1,3 +1,4 @@
+import { validateHeaders } from "@alette/pulse";
 import * as E from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as SynchronizedRef from "effect/SynchronizedRef";
@@ -7,7 +8,7 @@ import { RequestSessionContext } from "../../../execution/services/RequestSessio
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
 import { HeaderContext } from "../../HeaderContext";
-import { THeaderSupplier } from "./HeadersMiddlewareFactory";
+import { THeaderSupplier } from "../../RequestHeaders";
 
 export class HeadersMiddleware extends Middleware("HeadersMiddleware", {
 	priority: MiddlewarePriority.Creation,
@@ -24,22 +25,45 @@ export class HeadersMiddleware extends Middleware("HeadersMiddleware", {
 					);
 					const contextSnapshot = yield* requestContext.getSnapshot();
 
-					yield* SynchronizedRef.getAndUpdateEffect(headerContext, (headers) =>
-						E.gen(function* () {
-							const headerRecord = headers.getState();
-							const adapter = headers.getAdapter();
+					yield* SynchronizedRef.getAndUpdateEffect(
+						headerContext,
+						(headerContext) =>
+							E.gen(function* () {
+								const prevHeaders = headerContext.getState();
+								const adapter = headerContext.getAdapter();
 
-							const getUpdatedHeaders = P.isFunction(headerSupplier)
-								? async () =>
-										await headerSupplier(headerRecord, contextSnapshot)
-								: async () => headerSupplier;
-							const updatedHeaders = yield* E.promise(() =>
-								getUpdatedHeaders(),
-							);
+								/**
+								 * If a function was passed, then we completely
+								 * replace our headers.
+								 * */
+								if (P.isFunction(headerSupplier)) {
+									const getUpdatedHeaders = async () =>
+										await headerSupplier(prevHeaders, contextSnapshot);
+									const newHeaders = yield* E.promise(() =>
+										getUpdatedHeaders(),
+									);
+									adapter.setHeaders(newHeaders);
+									return headerContext;
+								}
 
-							adapter.setHeaders(updatedHeaders);
-							return headers;
-						}),
+								/**
+								 * If a record was passed, then we need to
+								 * merge our prev and current headers.
+								 * */
+								const getUpdatedHeaders = async () => headerSupplier;
+								const newHeaders = yield* E.promise(() => getUpdatedHeaders());
+
+								/**
+								 * Validate headers first
+								 * */
+								const validatedHeaders = validateHeaders(newHeaders);
+
+								adapter.setHeaders({
+									...prevHeaders,
+									...validatedHeaders,
+								});
+								return headerContext;
+							}),
 					).pipe(orPanic);
 				});
 

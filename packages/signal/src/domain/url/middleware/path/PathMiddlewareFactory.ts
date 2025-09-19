@@ -11,8 +11,10 @@ import { PathMiddleware } from "./PathMiddleware";
 import { IRequestPath, TGetRequestPath } from "./RequestPath";
 import { pathMiddlewareSpecification } from "./pathMiddlewareSpecification";
 
+type TStrictPath = `/${string}`;
+
 export type TPathMiddlewareArgs<
-	NextPath extends string = string,
+	NextPath extends TStrictPath = TStrictPath,
 	C extends IRequestContext = IRequestContext,
 > =
 	| ((
@@ -40,7 +42,7 @@ export class PathMiddlewareFactory extends Middleware("PathMiddlewareFactory")(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext, Path extends string>(
+		return <Context extends IRequestContext, Path extends TStrictPath>(
 			args: TPathMiddlewareArgs<Path, Context>,
 		) => {
 			return toMiddlewareFactory<

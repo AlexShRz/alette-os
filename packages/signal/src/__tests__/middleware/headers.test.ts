@@ -55,6 +55,38 @@ test("it can be combined", async () => {
 	});
 });
 
+test("it merges headers instead of replacing them if simple record is passed", async () => {
+	const { custom } = createTestApi();
+	const myHeaders1 = {
+		hey: "there",
+	};
+	const myHeaders2 = {
+		asdasd: "asdasd",
+	};
+	const myHeaders3 = {
+		aasdasdasdas: "asdasd",
+	};
+
+	const getData = custom(
+		headers(myHeaders1),
+		headers(myHeaders2),
+		headers(myHeaders3),
+		factory(({ headers }) => {
+			return headers;
+		}),
+	);
+
+	const result = await getData.execute();
+
+	await vi.waitFor(() => {
+		expect(result).toStrictEqual({
+			...myHeaders1,
+			...myHeaders2,
+			...myHeaders3,
+		});
+	});
+});
+
 test.each([
 	[
 		{
@@ -65,7 +97,7 @@ test.each([
 	["asdasd"],
 	[21312],
 ])(
-	"it throws a fatal error if the path is incorrect",
+	"it throws a fatal error if headers are incorrect",
 	async (invalidHeaders) => {
 		const { api, custom } = createTestApi();
 		let failed = false;

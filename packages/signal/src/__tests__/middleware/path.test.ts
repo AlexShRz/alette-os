@@ -88,6 +88,7 @@ test("it throws a fatal error if the path is incorrect", async () => {
 	);
 
 	const getData = custom(
+		// @ts-expect-error
 		path("21423423"),
 		factory(() => {
 			return true;
