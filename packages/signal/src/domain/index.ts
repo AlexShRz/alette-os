@@ -4,6 +4,7 @@ export * from "./context";
 export * from "./headers";
 export * from "./response";
 export * from "./execution";
+export * from "./method";
 export * from "./lifecycle";
 export * from "./errors";
 export * from "./categorization";
