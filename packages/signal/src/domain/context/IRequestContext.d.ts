@@ -14,6 +14,7 @@ export interface IRequestContext<
 	V = {},
 	S = {},
 	A = {},
+	AM = {},
 > {
 	/**
 	 * 1. Non-existent in the code itself (ts types only).
@@ -42,4 +43,8 @@ export interface IRequestContext<
 	 * their configuration (client side).
 	 * */
 	accepts: A;
+	/**
+	 * Same as "accepts", but for mounted mode
+	 * */
+	acceptsMounted: AM;
 }

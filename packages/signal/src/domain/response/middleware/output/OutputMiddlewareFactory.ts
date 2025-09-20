@@ -47,7 +47,8 @@ export class OutputMiddlewareFactory extends Middleware(
 					>,
 					Context["value"],
 					Context["settings"],
-					Context["accepts"]
+					Context["accepts"],
+					Context["acceptsMounted"]
 				>,
 				typeof outputMiddlewareSpecification
 			>(

@@ -4,6 +4,9 @@ import { TMergeRecords } from "./TMergeRecords";
 
 export type TRequestArguments<C extends IRequestContext> = C["accepts"];
 
+export type TMountedRequestArguments<C extends IRequestContext> =
+	C["acceptsMounted"];
+
 export type TRequestResponse<C extends IRequestContext> =
 	C["types"]["resultType"];
 

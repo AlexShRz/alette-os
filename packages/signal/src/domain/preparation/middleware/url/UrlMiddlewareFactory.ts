@@ -55,7 +55,8 @@ export class UrlMiddlewareFactory extends Middleware("UrlMiddlewareFactory")(
 					TMergeContextAdapters<Context, UrlContext>,
 					Context["value"],
 					Context["settings"],
-					Context["accepts"]
+					Context["accepts"],
+					Context["acceptsMounted"]
 				>,
 				typeof urlMiddlewareSpecification
 			>(

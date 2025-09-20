@@ -55,7 +55,8 @@ export class HeadersMiddlewareFactory extends Middleware(
 					TMergeContextAdapters<Context, HeaderContext>,
 					TMergeRecords<Context["value"], IRequestHeaders<Headers>>,
 					Context["settings"],
-					Context["accepts"]
+					Context["accepts"],
+					Context["acceptsMounted"]
 				>,
 				typeof headersMiddlewareSpecification
 			>(

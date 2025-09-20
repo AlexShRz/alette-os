@@ -46,7 +46,8 @@ export class InputMiddlewareFactory extends Middleware(
 					Context["types"],
 					Context["value"],
 					TMergeRecords<Context["settings"], IRequestArguments<ArgType>>,
-					TMergeRecords<Context["accepts"], IRequestArguments<ArgType>>
+					TMergeRecords<Context["accepts"], IRequestArguments<ArgType>>,
+					TMergeRecords<Context["acceptsMounted"], IRequestArguments<ArgType>>
 				>,
 				Spec
 			>(

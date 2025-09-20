@@ -43,7 +43,8 @@ export class ThrowsMiddlewareFactory extends Middleware(
 					TAddDefaultRequestErrors<Context, RecoverableErrors>,
 					Context["value"],
 					Context["settings"],
-					Context["accepts"]
+					Context["accepts"],
+					Context["acceptsMounted"]
 				>,
 				typeof throwsMiddlewareSpecification
 			>(() => new ThrowsMiddlewareFactory(() => new ThrowsMiddleware(errors)));

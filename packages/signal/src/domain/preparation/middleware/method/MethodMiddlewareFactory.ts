@@ -47,7 +47,8 @@ export class MethodMiddlewareFactory extends Middleware(
 					Context["types"],
 					TMergeRecords<Context["value"], IRequestMethod<Method>>,
 					Context["settings"],
-					Context["accepts"]
+					Context["accepts"],
+					Context["acceptsMounted"]
 				>,
 				typeof methodMiddlewareSpecification
 			>(

@@ -51,7 +51,8 @@ export class BodyMiddlewareFactory extends Middleware("BodyMiddlewareFactory")(
 						TRequestBody<Context, NewBody, TGetRequestHeaders<Context>>
 					>,
 					Context["settings"],
-					Context["accepts"]
+					Context["accepts"],
+					Context["acceptsMounted"]
 				>,
 				typeof bodyMiddlewareSpecification
 			>(

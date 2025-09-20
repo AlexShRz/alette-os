@@ -51,7 +51,8 @@ export class PathMiddlewareFactory extends Middleware("PathMiddlewareFactory")(
 					TMergeContextAdapters<Context, UrlContext>,
 					TMergeRecords<Context["value"], IRequestPath<Path>>,
 					Context["settings"],
-					Context["accepts"]
+					Context["accepts"],
+					Context["acceptsMounted"]
 				>,
 				typeof pathMiddlewareSpecification
 			>(

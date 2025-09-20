@@ -51,7 +51,8 @@ export class OriginMiddlewareFactory extends Middleware(
 					TMergeContextAdapters<Context, UrlContext>,
 					TMergeRecords<Context["value"], IRequestOrigin<Origin>>,
 					Context["settings"],
-					Context["accepts"]
+					Context["accepts"],
+					Context["acceptsMounted"]
 				>,
 				typeof originMiddlewareSpecification
 			>(

@@ -51,7 +51,8 @@ export class MapErrorMiddlewareFactory extends Middleware(
 					TMergeRecords<Context["types"], IMappedErrorType<MappedError>>,
 					Context["value"],
 					Context["settings"],
-					Context["accepts"]
+					Context["accepts"],
+					Context["acceptsMounted"]
 				>,
 				typeof mapErrorMiddlewareSpecification
 			>(

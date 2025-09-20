@@ -1,8 +1,9 @@
 import { RunRequestEventEnvelope } from "./RunRequestEventEnvelope";
 
 /**
- * Signals to "execution" middleware family
+ * 1. Signals to "execution" middleware family
  * that they need to override currently running request
+ * 2. Sent by the user.
  * */
 export class WithCurrentRequestOverride extends RunRequestEventEnvelope {
 	clone() {

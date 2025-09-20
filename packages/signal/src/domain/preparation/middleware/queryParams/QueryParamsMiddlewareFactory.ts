@@ -55,7 +55,8 @@ export class QueryParamsMiddlewareFactory extends Middleware(
 					TMergeContextAdapters<Context, UrlContext>,
 					TMergeRecords<Context["value"], IRequestQueryParams<QueryParams>>,
 					Context["settings"],
-					Context["accepts"]
+					Context["accepts"],
+					Context["acceptsMounted"]
 				>,
 				typeof queryParamsMiddlewareSpecification
 			>(

@@ -48,7 +48,8 @@ export class MapMiddlewareFactory extends Middleware("MapMiddlewareFactory")(
 					TMergeRecords<Context["types"], IMappedResponseValue<Mapped>>,
 					Context["value"],
 					Context["settings"],
-					Context["accepts"]
+					Context["accepts"],
+					Context["acceptsMounted"]
 				>,
 				typeof mapMiddlewareSpecification
 			>(
