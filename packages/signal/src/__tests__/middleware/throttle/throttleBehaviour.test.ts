@@ -12,14 +12,14 @@ beforeEach(() => {
 	vi.useRealTimers();
 });
 
-test("it does not debounce run on mount behaviour", async () => {
+test("it does not throttle run on mount behaviour", async () => {
 	const { custom } = createTestApi();
 	const returnValue = "asdasdasdas";
 
 	const getData = custom(
 		runOnMount(),
 		reloadable(() => true),
-		debounce(() => {
+		throttle(() => {
 			return "10 seconds";
 		}),
 		factory(() => {
@@ -35,14 +35,14 @@ test("it does not debounce run on mount behaviour", async () => {
 	});
 });
 
-test("it allows users to skip debounce", async () => {
+test("it allows users to skip throttle", async () => {
 	const { custom } = createTestApi();
 	const returnValue = "asdasdasdas";
 
 	const getData = custom(
 		runOnMount(false),
 		reloadable(() => true),
-		debounce(() => {
+		throttle(() => {
 			return "10 seconds";
 		}),
 		factory(() => {
@@ -52,7 +52,7 @@ test("it allows users to skip debounce", async () => {
 
 	vi.useFakeTimers();
 	const { getState, execute } = getData.mount();
-	execute({ skipDebounce: true });
+	execute({ skipThrottle: true });
 
 	await vi.waitFor(async () => {
 		expect(getState().data).toEqual(returnValue);
@@ -60,7 +60,7 @@ test("it allows users to skip debounce", async () => {
 });
 
 test.fails(
-	"it does not allow users to skip debounce if debounce flag is set to false",
+	"it does not allow users to skip throttle if throttle flag is set to false",
 	async () => {
 		const { custom } = createTestApi();
 		const returnValue = "asdasdasdas";
@@ -68,7 +68,7 @@ test.fails(
 		const getData = custom(
 			runOnMount(false),
 			reloadable(() => true),
-			debounce(() => {
+			throttle(() => {
 				return "10 seconds";
 			}),
 			factory(() => {
@@ -78,7 +78,7 @@ test.fails(
 
 		vi.useFakeTimers();
 		const { getState, execute } = getData.mount();
-		execute({ skipDebounce: false });
+		execute({ skipThrottle: false });
 
 		await vi.waitFor(async () => {
 			expect(getState().data).toEqual(returnValue);
@@ -86,19 +86,19 @@ test.fails(
 	},
 );
 
-test.fails("it removes throttle middleware if encountered", async () => {
+test.fails("it removes debounce middleware if encountered", async () => {
 	const { custom } = createTestApi();
 	const returnValue = "asdasdasdas";
-	let reachedThrottle = false;
+	let reachedDebounce = false;
 
 	const getData = custom(
 		runOnMount(false),
 		reloadable(() => true),
-		throttle(() => {
-			reachedThrottle = true;
+		debounce(() => {
+			reachedDebounce = true;
 			return "20 seconds";
 		}),
-		debounce(300),
+		throttle(300),
 		factory(() => {
 			return returnValue;
 		}),
@@ -108,6 +108,6 @@ test.fails("it removes throttle middleware if encountered", async () => {
 	execute();
 
 	await vi.waitFor(async () => {
-		expect(reachedThrottle).toBeTruthy();
+		expect(reachedDebounce).toBeTruthy();
 	});
 });

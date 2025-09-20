@@ -6,21 +6,21 @@ import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
 import { AggregateRequestMiddleware } from "../../events/preparation/AggregateRequestMiddleware";
-import { ThrottleMiddleware } from "../throttle/ThrottleMiddleware";
-import { DebounceMiddleware } from "./DebounceMiddleware";
-import { IDebounceSettings } from "./DebounceSettings";
-import { debounceMiddlewareSpecification } from "./debounceMiddlewareSpecification";
+import { DebounceMiddleware } from "../debounce/DebounceMiddleware";
+import { ThrottleMiddleware } from "./ThrottleMiddleware";
+import { IThrottleSettings } from "./ThrottleSettings";
+import { throttleMiddlewareSpecification } from "./throttleMiddlewareSpecification";
 
-export type TDebounceMiddlewareDurationSupplier =
+export type TThrottleMiddlewareDurationSupplier =
 	| ((
 			options: TRequestGlobalContext,
 	  ) => TRecognizedApiDuration | Promise<TRecognizedApiDuration>)
 	| TRecognizedApiDuration;
 
-export class DebounceMiddlewareFactory extends Middleware(
-	"DebounceMiddlewareFactory",
+export class ThrottleMiddlewareFactory extends Middleware(
+	"ThrottleMiddlewareFactory",
 )(
-	(getMiddleware: () => DebounceMiddleware) =>
+	(getMiddleware: () => ThrottleMiddleware) =>
 		({ parent, context }) =>
 			E.gen(function* () {
 				return {
@@ -42,7 +42,7 @@ export class DebounceMiddlewareFactory extends Middleware(
 ) {
 	static toFactory() {
 		return <Context extends IRequestContext>(
-			durationSupplier: TDebounceMiddlewareDurationSupplier,
+			durationSupplier: TThrottleMiddlewareDurationSupplier,
 		) => {
 			return toMiddlewareFactory<
 				Context,
@@ -51,13 +51,13 @@ export class DebounceMiddlewareFactory extends Middleware(
 					Context["value"],
 					Context["settings"],
 					Context["accepts"],
-					TMergeRecords<Context["acceptsMounted"], IDebounceSettings>
+					TMergeRecords<Context["acceptsMounted"], IThrottleSettings>
 				>,
-				typeof debounceMiddlewareSpecification
+				typeof throttleMiddlewareSpecification
 			>(
 				() =>
-					new DebounceMiddlewareFactory(
-						() => new DebounceMiddleware(durationSupplier),
+					new ThrottleMiddlewareFactory(
+						() => new ThrottleMiddleware(durationSupplier),
 					),
 			);
 		};
