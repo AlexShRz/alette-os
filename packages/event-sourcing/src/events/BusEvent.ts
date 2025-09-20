@@ -39,20 +39,20 @@ export abstract class BusEvent {
 		return this.createdAt;
 	}
 
-	getDispatchedBy() {
-		return this.dispatchedBy;
+	getCompletionHookExecutor() {
+		return E.all(
+			this.completionHooks.map((hook) => hook(() => this as any)),
+		).pipe(
+			E.andThen(
+				E.sync(() => {
+					this.eventStatus = "completed";
+				}),
+			),
+			E.orDie,
+		);
 	}
 
-	setDispatchedBy(listenerId: string) {
-		this.dispatchedBy = listenerId;
-		return this;
-	}
-
-	cancel() {
-		if (!this.isUndetermined()) {
-			return E.void;
-		}
-
+	getCancellationHookExecutor() {
 		return E.all(
 			this.cancellationHooks.map((hook) => hook(() => this as any)),
 		).pipe(
@@ -65,21 +65,29 @@ export abstract class BusEvent {
 		);
 	}
 
+	getDispatchedBy() {
+		return this.dispatchedBy;
+	}
+
+	setDispatchedBy(listenerId: string) {
+		this.dispatchedBy = listenerId;
+		return this;
+	}
+
 	complete() {
 		if (!this.isUndetermined()) {
 			return E.void;
 		}
 
-		return E.all(
-			this.completionHooks.map((hook) => hook(() => this as any)),
-		).pipe(
-			E.andThen(
-				E.sync(() => {
-					this.eventStatus = "completed";
-				}),
-			),
-			E.orDie,
-		);
+		return this.getCompletionHookExecutor();
+	}
+
+	cancel() {
+		if (!this.isUndetermined()) {
+			return E.void;
+		}
+
+		return this.getCancellationHookExecutor();
 	}
 
 	onCancel(hook: (typeof this.cancellationHooks)[number]) {

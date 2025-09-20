@@ -1,3 +1,4 @@
+import * as E from "effect/Effect";
 import { BusEvent } from "./index";
 
 export type TMaybeWrappedEvent<T extends BusEvent = BusEvent> =
@@ -28,27 +29,49 @@ export abstract class EventEnvelope<
 		return this.config.wrapped;
 	}
 
+	override complete(): E.Effect<void> {
+		const collectedHooks: E.Effect<void>[] = [
+			super.getCompletionHookExecutor(),
+		];
+
+		this.forEachEventLayer((event) => {
+			collectedHooks.push(event.getCompletionHookExecutor());
+		});
+
+		return E.all(collectedHooks);
+	}
+
+	override cancel(): E.Effect<void> {
+		const collectedHooks: E.Effect<void>[] = [
+			super.getCancellationHookExecutor(),
+		];
+
+		this.forEachEventLayer((event) => {
+			collectedHooks.push(event.getCancellationHookExecutor());
+		});
+
+		return E.all(collectedHooks);
+	}
+
 	protected unwrapAllLayers(event: TMaybeWrappedEvent<T>): T {
 		return this.isUnwrappedEvent(event)
 			? event
 			: this.unwrapAllLayers(event.getWrappedEvent());
 	}
 
-	protected forEachEventLayer(
-		fn: (prevEvent: TMaybeWrappedEvent<T>) => TMaybeWrappedEvent<T>,
-	) {
-		const iterate = (prevEvent: TMaybeWrappedEvent<T>) => {
-			const returned = fn(prevEvent);
+	protected forEachEventLayer(fn: (prevEvent: TMaybeWrappedEvent<T>) => void) {
+		const iterate = (currentEvent: TMaybeWrappedEvent<T>) => {
+			fn(currentEvent);
 
 			/**
 			 * If we've reached the last wrapped event
 			 * stop the loop.
 			 * */
-			if (this.isUnwrappedEvent(returned)) {
+			if (this.isUnwrappedEvent(currentEvent)) {
 				return;
 			}
 
-			return iterate(returned.peel());
+			return iterate(currentEvent.peel());
 		};
 
 		return iterate(this.config.wrapped);

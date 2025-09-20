@@ -45,7 +45,6 @@ export class DummyEventEnvelope extends EventEnvelope<DummyEvent> {
 	forEachLayer(fn: (event: TMaybeWrappedEvent<DummyEvent>) => void) {
 		this.forEachEventLayer((e) => {
 			fn(e);
-			return e;
 		});
 	}
 

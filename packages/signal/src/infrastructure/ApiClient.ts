@@ -8,6 +8,10 @@ import { GlobalContext } from "../domain/context/services/GlobalContext";
 import { ErrorHandler } from "../domain/errors/ErrorHandler";
 import { Kernel } from "./Kernel";
 
+export interface IApiRuntimeGetter {
+	(): ManagedRuntime.ManagedRuntime<any, any>;
+}
+
 export const client = (...commands: CommandTaskBuilder[]) =>
 	new ApiClient(...commands);
 
@@ -23,22 +27,28 @@ export class ApiClient {
 		this.tell(...this.getMemoizedConfig());
 	}
 
-	protected createRuntime() {
-		const runtime = ManagedRuntime.make(
-			Layer.mergeAll(
-				Logger.pretty,
-				Kernel.Default.pipe(
-					Layer.provide(
-						Layer.provideMerge(
-							ErrorHandler.Default((() => runtime) as () => any),
-							GlobalContext.Default,
-						),
+	/**
+	 * This method can be overridden for testing
+	 * */
+	protected getServices(getRuntime: IApiRuntimeGetter) {
+		return Layer.mergeAll(
+			Logger.pretty,
+			Kernel.Default.pipe(
+				Layer.provide(
+					Layer.provideMerge(
+						ErrorHandler.Default(getRuntime),
+						GlobalContext.Default,
 					),
-					Layer.provide(Layer.scope),
 				),
+				Layer.provide(Layer.scope),
 			),
 		);
+	}
 
+	protected createRuntime() {
+		const runtime = ManagedRuntime.make(
+			this.getServices((() => runtime) as () => any),
+		);
 		return runtime;
 	}
 

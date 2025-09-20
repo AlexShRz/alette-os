@@ -1,3 +1,5 @@
+import { expect, it } from "@effect/vitest";
+import { Effect as E } from "effect";
 import { DummyEvent } from "../testUtils/DummyEvent";
 import { DummyEventEnvelope } from "../testUtils/DummyEventEnvelope";
 
@@ -60,6 +62,56 @@ test("it iterates over all envelope layers while including the actual wrapped ev
 	expect(ranTimes).toEqual(3);
 });
 
-test("it calls completion hooks for every wrapped event", async () => {});
+it.scoped("calls completion hooks for every wrapped event", () =>
+	E.gen(function* () {
+		const logged: any[] = [];
+		const envelope = new DummyEventEnvelope(
+			new DummyEventEnvelope(
+				new DummyEvent().onComplete(
+					E.fn(function* () {
+						logged.push(3);
+					}),
+				),
+			).onComplete(
+				E.fn(function* () {
+					logged.push(2);
+				}),
+			),
+		).onComplete(
+			E.fn(function* () {
+				logged.push(1);
+			}),
+		);
 
-test("it calls cancellation hooks for every wrapped event", async () => {});
+		yield* envelope.complete();
+
+		expect(logged).toStrictEqual([1, 2, 3]);
+	}),
+);
+
+it.scoped("calls cancellation hooks for every wrapped event", () =>
+	E.gen(function* () {
+		const logged: any[] = [];
+		const envelope = new DummyEventEnvelope(
+			new DummyEventEnvelope(
+				new DummyEvent().onCancel(
+					E.fn(function* () {
+						logged.push(3);
+					}),
+				),
+			).onCancel(
+				E.fn(function* () {
+					logged.push(2);
+				}),
+			),
+		).onCancel(
+			E.fn(function* () {
+				logged.push(1);
+			}),
+		);
+
+		yield* envelope.cancel();
+
+		expect(logged).toStrictEqual([1, 2, 3]);
+	}),
+);
