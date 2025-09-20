@@ -5,6 +5,7 @@ import {
 	map,
 	output,
 	reloadable,
+	responseAdapter,
 	runOnMount,
 	type,
 } from "../../domain";
@@ -129,5 +130,38 @@ test("it has access to request props and context", async () => {
 	await vi.waitFor(() => {
 		expect(caughtContext).toBe(context);
 		expect(caughtPath).toBe(pathValue);
+	});
+});
+
+test("it allows users to map response into response adapters", async () => {
+	const { custom } = createTestApi();
+	const myResponse = "asda";
+	const expected = { hey: myResponse };
+
+	const MyResponseRecord = responseAdapter()
+		.schema(type<{ hey: string }>())
+		.build();
+
+	const getData = custom(
+		output(type<string>()),
+		runOnMount(false),
+		reloadable(() => true),
+		factory(() => {
+			return "asdasd";
+		}),
+		map(async () => MyResponseRecord.from({ ...expected })),
+		map((response) => response),
+	);
+
+	const res = await getData.execute();
+	await vi.waitFor(() => {
+		expect(res).toStrictEqual(expected);
+	});
+
+	const { getState, execute } = getData.mount();
+	execute();
+
+	await vi.waitFor(() => {
+		expect(getState().data).toStrictEqual({ ...expected });
 	});
 });

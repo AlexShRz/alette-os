@@ -157,3 +157,19 @@ test("it creates a new reference if mapped value does not match previous schema"
 	 * */
 	expect(mappedResponse2.isDirty()).toBeTruthy();
 });
+
+test("it allows mapping into other adapters", async () => {
+	const initial: typeof valueSchema.Type = { key: "" };
+	const expected: typeof valueSchema.Type = { key: "hasdnasdknjasdkjndan" };
+
+	const MyResponse1 = responseAdapter().schema(valueSchema).build();
+	const MyResponse2 = responseAdapter().schema(valueSchema).build();
+
+	const response = MyResponse1.from(initial);
+	const newResponse = await response.map(async () =>
+		MyResponse2.from(expected),
+	);
+
+	expect(response.getId() !== newResponse.getId()).toBeTruthy();
+	expect(newResponse.unsafeGet()).toStrictEqual(expected);
+});

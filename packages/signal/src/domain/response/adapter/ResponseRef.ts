@@ -41,7 +41,9 @@ export class ResponseRef<Value> {
 	}
 
 	async map<NewValue>(
-		mapper: (value: Value) => Promise<NewValue>,
+		mapper: (
+			value: Value,
+		) => Promise<NewValue> | Promise<ResponseRef<NewValue>>,
 	): Promise<ResponseRef<NewValue>> {
 		const { cloner, schema } = this.config;
 
@@ -62,6 +64,14 @@ export class ResponseRef<Value> {
 			? this.response.value
 			: cloner(this.response.value, { schema });
 		const result = await mapper(valueForMapping);
+
+		/**
+		 * If we return a new response ref from the mapping,
+		 * abandon current response ref and switch to it.
+		 * */
+		if (result instanceof ResponseRef) {
+			return result;
+		}
 
 		const newResponseValue = {
 			value: result as any,
@@ -89,11 +99,6 @@ export class ResponseRef<Value> {
 				schema: type<NewValue>() as any,
 			}) as any;
 		}
-	}
-
-	async tap(fn: (value: Value) => Promise<void>) {
-		await fn(this.response.value);
-		return this;
 	}
 
 	serialize() {

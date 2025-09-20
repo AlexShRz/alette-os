@@ -8,6 +8,7 @@ import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { ResponseRef } from "../../adapter/ResponseRef";
 import { MapMiddleware } from "./MapMiddleware";
 import { IMappedResponseValue } from "./MappedResponseValue";
 import { mapMiddlewareSpecification } from "./mapMiddlewareSpecification";
@@ -18,7 +19,11 @@ export type TMapArgs<
 > = (
 	response: TRequestResponse<C>,
 	requestContext: TGetAllRequestContext<C>,
-) => Mapped | Promise<Mapped>;
+) =>
+	| Mapped
+	| Promise<Mapped>
+	| ResponseRef<Mapped>
+	| Promise<ResponseRef<Mapped>>;
 
 export class MapMiddlewareFactory extends Middleware("MapMiddlewareFactory")(
 	(getMiddleware: () => MapMiddleware) =>

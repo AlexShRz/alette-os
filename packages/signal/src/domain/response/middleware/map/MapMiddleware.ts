@@ -29,11 +29,13 @@ export class MapMiddleware extends Middleware("MapMiddleware", {
 							event.update(async ({ data, ...otherState }) => {
 								const mapper = async (value: unknown) =>
 									await mapFn(value, requestContext);
-								const updatedData = await data.map((value) => mapper(value));
+								const updatedResponseRef = await data.map((value) =>
+									mapper(value),
+								);
 
 								return {
 									...otherState,
-									data: updatedData,
+									data: updatedResponseRef,
 								};
 							});
 
