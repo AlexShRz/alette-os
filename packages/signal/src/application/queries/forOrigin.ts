@@ -1,5 +1,5 @@
 import * as E from "effect/Effect";
-import { GlobalUrlConfig } from "../../domain/url/services/GlobalUrlConfig";
+import { GlobalUrlConfig } from "../../domain/preparation/context/url/services/GlobalUrlConfig";
 import { queryTask } from "../plugins/tasks/primitive/functions";
 
 export const forOrigin = () =>

@@ -10,7 +10,6 @@ export const validateHeaders = (headers: unknown) => {
 	}
 
 	try {
-		// @ts-expect-error
 		new Headers(Object.entries(headers) as any);
 		return headers as IHeaders;
 	} catch {

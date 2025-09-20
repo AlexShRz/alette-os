@@ -5,8 +5,8 @@ import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes
 import { OneShotRequestNotification } from "../../../lifecycle/notifications/OneShotRequestNotification";
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { TGetRequestQueryParams } from "../../../preparation/middleware/queryParams/RequestQueryParams";
 import { TGetOriginalRequestResponseValue } from "../../../response/middleware/output/OriginalResponseValue";
-import { TGetRequestQueryParams } from "../../../url/middleware/queryParams/RequestQueryParams";
 import { AggregateRequestMiddleware } from "../../events/preparation/AggregateRequestMiddleware";
 import { FactoryMiddleware } from "./FactoryMiddleware";
 import { factoryMiddlewareSpecification } from "./factoryMiddlewareSpecification";

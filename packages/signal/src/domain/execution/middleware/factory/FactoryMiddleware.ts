@@ -4,7 +4,7 @@ import * as Runtime from "effect/Runtime";
 import { OneShotRequestNotification } from "../../../lifecycle/notifications/OneShotRequestNotification";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
-import { UrlContext } from "../../../url/UrlContext";
+import { UrlContext } from "../../../preparation/context/url/UrlContext";
 import { CancelRequest } from "../../events/CancelRequest";
 import { WithCurrentRequestOverride } from "../../events/envelope/WithCurrentRequestOverride";
 import { RequestState } from "../../events/request/RequestState";

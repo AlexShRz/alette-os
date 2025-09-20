@@ -1,6 +1,6 @@
 import * as E from "effect/Effect";
-import { argumentAdapter } from "../../../arguments";
-import { ArgumentAdapter } from "../../../arguments/adapter/ArgumentAdapter";
+import { argumentAdapter } from "../../../preparation";
+import { ArgumentAdapter } from "../../../preparation/context/arguments/adapter/ArgumentAdapter";
 
 export class RequestArgumentAdapters extends E.Service<RequestArgumentAdapters>()(
 	"RequestArgumentAdapters",
