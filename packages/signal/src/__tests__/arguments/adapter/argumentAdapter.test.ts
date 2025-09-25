@@ -1,7 +1,7 @@
 import { Schema } from "effect";
 import {
 	ArgumentCloningError,
-	RequestArgValidationError,
+	ArgumentValidationError,
 	argumentAdapter,
 	type,
 } from "../../../domain";
@@ -28,9 +28,7 @@ test("it throws if arguments are not compatible with the schema", async () => {
 		.schema(Schema.standardSchemaV1(Schema.Literal("hiii")))
 		.build();
 
-	expect(() => MyArgs.from("ssddssdsds")).toThrowError(
-		RequestArgValidationError,
-	);
+	expect(() => MyArgs.from("ssddssdsds")).toThrowError(ArgumentValidationError);
 	MyArgs.from("hiii");
 });
 
@@ -83,6 +81,6 @@ test("it throws an error during arg override if arg type is not compatible", () 
 	const args = MyArgs.from("ssss");
 
 	expect(() => args.set("asdaksbdkasdbaksjdbaskjb")).toThrowError(
-		RequestArgValidationError,
+		ArgumentValidationError,
 	);
 });

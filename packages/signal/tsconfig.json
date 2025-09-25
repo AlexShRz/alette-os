@@ -4,6 +4,9 @@
   "include": [],
   "references": [
     {
+      "path": "../pulse"
+    },
+    {
       "path": "../event-sourcing"
     },
     {
