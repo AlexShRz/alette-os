@@ -18,7 +18,10 @@
 		"@alette/event-sourcing": "workspace:*",
 		"@alette/pulse": "workspace:*"
 	},
-	"files": ["dist", "!**/*.tsbuildinfo"],
+	"files": [
+		"dist",
+		"!**/*.tsbuildinfo"
+	],
 	"peerDependencies": {
 		"effect": "^3.17.8",
 		"fast-deep-equal": "^3.1.3",

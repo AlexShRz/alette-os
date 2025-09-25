@@ -27,7 +27,7 @@ export const tapOnThrottle = <C extends IRequestContext>(fn: () => void) =>
 test("it captures first request command and executes it, while cancelling all that have arrived after capture", async () => {
 	const { api, custom } = createTestApi();
 	const myArgs = "asdasdasdas";
-	let debounceReached = false;
+	let throttleReached = false;
 	let reachedFactory = 0;
 
 	const getData = custom(
@@ -38,7 +38,7 @@ test("it captures first request command and executes it, while cancelling all th
 			return "10 seconds";
 		}),
 		tapOnThrottle(() => {
-			debounceReached = true;
+			throttleReached = true;
 		}),
 		factory(({ args }) => {
 			reachedFactory++;
@@ -55,7 +55,7 @@ test("it captures first request command and executes it, while cancelling all th
 	execute({ args: "asd" });
 
 	await vi.waitFor(() => {
-		expect(debounceReached).toBeTruthy();
+		expect(throttleReached).toBeTruthy();
 	});
 
 	await api.timeTravel("20 seconds");
@@ -141,17 +141,17 @@ test("it can access request props and context", async () => {
 test("it overrides middleware of the same type", async () => {
 	const { custom } = createTestApi();
 	const returnValue = "asdasdasdas";
-	let reachedDebounce = 0;
+	let reachedThrottle = 0;
 
 	const getData = custom(
 		runOnMount(false),
 		reloadable(() => true),
 		throttle(() => {
-			reachedDebounce++;
+			reachedThrottle++;
 			return 10;
 		}),
 		throttle(() => {
-			reachedDebounce++;
+			reachedThrottle++;
 			return 100;
 		}),
 		factory(() => {
@@ -163,6 +163,6 @@ test("it overrides middleware of the same type", async () => {
 	execute();
 
 	await vi.waitFor(async () => {
-		expect(reachedDebounce).toEqual(1);
+		expect(reachedThrottle).toEqual(1);
 	});
 });
