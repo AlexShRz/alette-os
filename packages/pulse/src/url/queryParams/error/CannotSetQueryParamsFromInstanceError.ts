@@ -11,9 +11,6 @@ export class CannotSetQueryParamsFromInstanceError extends UrlQueryParamsBuilder
 				.addNewLineMessage(`The instance is invalid.`)
 				.setContext({ attemptedSearchParamInstance: instance })
 				.toString(),
-			{
-				cause: originalError,
-			},
 		);
 	}
 }

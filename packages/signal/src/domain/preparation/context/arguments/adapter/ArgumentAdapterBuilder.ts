@@ -1,5 +1,5 @@
 import { ISchema, type } from "@alette/pulse";
-import isEqual from "lodash.isequal";
+import isEqual from "fast-deep-equal";
 import { ArgumentAdapter } from "./ArgumentAdapter";
 import { ArgumentRef } from "./ArgumentRef";
 import { ArgumentCloningError } from "./errors";

@@ -9,9 +9,6 @@ export class CannotSetQueryParamsError extends UrlQueryParamsBuilderError {
 				.addNewLineMessage(`Query params are invalid.`)
 				.setContext({ attemptedQueryParams: queryParams })
 				.toString(),
-			{
-				cause: originalError,
-			},
 		);
 	}
 }

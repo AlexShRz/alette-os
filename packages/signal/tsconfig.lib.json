@@ -12,10 +12,13 @@
 	},
 	"include": ["src/**/*.ts"],
 	"references": [
-		{
-			"path": "../event-sourcing/tsconfig.lib.json"
-		}
-	],
+    {
+      "path": "../pulse/tsconfig.lib.json"
+    },
+    {
+      "path": "../event-sourcing/tsconfig.lib.json"
+    }
+  ],
 	"exclude": [
 		"vite.config.ts",
 		"vite.config.mts",

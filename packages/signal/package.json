@@ -4,6 +4,7 @@
 	"type": "module",
 	"main": "./dist/index.js",
 	"module": "./dist/index.js",
+	"sideEffects": false,
 	"types": "./dist/index.d.ts",
 	"exports": {
 		"./package.json": "./package.json",
@@ -18,18 +19,19 @@
 		"@alette/event-sourcing": "workspace:*",
 		"@alette/pulse": "workspace:*"
 	},
-	"files": [
-		"dist",
-		"!**/*.tsbuildinfo"
-	],
+	"files": ["dist", "!**/*.tsbuildinfo"],
 	"peerDependencies": {
 		"effect": "^3.17.8",
+		"@datastructures-js/graph": "^5.3.1",
+		"fast-deep-equal": "^3.1.3",
 		"lodash.isequal": "^4.5.0",
 		"uuid": "^11.1.0"
 	},
 	"devDependencies": {
 		"@effect/vitest": "^0.24.1",
+		"@rollup/plugin-babel": "^6.0.4",
 		"@types/lodash.isequal": "^4.5.8",
+		"babel-plugin-lodash": "^3.3.4",
 		"rxjs": "^7.8.2",
 		"ts-toolbelt": "6.13.11"
 	}
