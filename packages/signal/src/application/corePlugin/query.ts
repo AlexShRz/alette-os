@@ -1,10 +1,15 @@
-import { requestCategory, requestSpecification } from "@alette/pulse";
+import {
+	RequestError,
+	requestCategory,
+	requestSpecification,
+} from "@alette/pulse";
 import {
 	allRequestMiddleware,
 	baseRequest,
 	origin,
 	reloadable,
 	runOnMount,
+	throws,
 } from "../../domain";
 import { blueprint } from "../oneShotRequest";
 
@@ -17,4 +22,4 @@ const querySpec = requestSpecification()
 
 export const queryFactory = blueprint()
 	.specification(querySpec)
-	.use(origin(), runOnMount(true), reloadable());
+	.use(origin(), runOnMount(true), reloadable(), throws(RequestError));

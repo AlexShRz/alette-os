@@ -11,12 +11,6 @@
     },
     {
       "path": "./packages/signal"
-    },
-    {
-      "path": "./packages/signal"
-    },
-    {
-      "path": "./packages/event-sourcing-b"
     }
   ]
 }

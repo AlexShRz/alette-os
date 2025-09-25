@@ -1,4 +1,4 @@
-import { requestSpecification } from "@alette/pulse";
+import { RequestError, requestSpecification } from "@alette/pulse";
 import {
 	allRequestMiddleware,
 	baseRequest,
@@ -6,6 +6,7 @@ import {
 	origin,
 	reloadable,
 	runOnMount,
+	throws,
 } from "../../domain";
 import { blueprint } from "../oneShotRequest";
 
@@ -16,4 +17,4 @@ export const customRequestSpec = requestSpecification()
 
 export const customRequestFactory = blueprint()
 	.specification(customRequestSpec)
-	.use(origin(), runOnMount(false), reloadable());
+	.use(origin(), runOnMount(false), reloadable(), throws(RequestError));

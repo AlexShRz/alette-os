@@ -118,9 +118,9 @@ importers:
       effect:
         specifier: ^3.17.8
         version: 3.17.8
-      lodash.isequal:
-        specifier: ^4.5.0
-        version: 4.5.0
+      fast-deep-equal:
+        specifier: ^3.1.3
+        version: 3.1.3
       uuid:
         specifier: ^11.1.0
         version: 11.1.0
@@ -2573,10 +2573,6 @@ packages:
 
   lodash.isboolean@3.0.3:
     resolution: {integrity: sha512-Bz5mupy2SVbPHURB98VAcw+aHh4vRV5IPNhILUCsOzRmsTmSQ17jIuqopAentWoehktxGd9e/hbIXq980/1QJg==}
-
-  lodash.isequal@4.5.0:
-    resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
-    deprecated: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
 
   lodash.isinteger@4.0.4:
     resolution: {integrity: sha512-DBwtEWN2caHQ9/imiNeEA5ys1JoRtRfY3d7V9wkqtbycnAmTvRRmbHKDV4a0EYc678/dia0jrte4tjYwVBaZUA==}
@@ -6389,8 +6385,6 @@ snapshots:
   lodash.includes@4.3.0: {}
 
   lodash.isboolean@3.0.3: {}
-
-  lodash.isequal@4.5.0: {}
 
   lodash.isinteger@4.0.4: {}
 

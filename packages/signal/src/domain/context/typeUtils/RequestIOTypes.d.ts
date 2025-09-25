@@ -12,6 +12,9 @@ export type TRequestResponse<C extends IRequestContext> =
 
 export type TRequestError<C extends IRequestContext> = C["types"]["errorType"];
 
+export type TRequestContextAdapter<C extends IRequestContext> =
+	C["types"]["contextAdapter"];
+
 export type TGetRequestContextWithoutGlobalContext<
 	C extends IRequestContext = IRequestContext,
 > = TMergeRecords<C["value"], C["settings"]>;
