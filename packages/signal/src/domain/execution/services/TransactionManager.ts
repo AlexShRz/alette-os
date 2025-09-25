@@ -18,7 +18,7 @@ export class TransactionManager extends E.Service<TransactionManager>()(
 
 							if (!current) {
 								return yield* E.dieMessage(
-									`Could get transaction semaphore for transaction "${key}".`,
+									`Could not get transaction semaphore for transaction "${key}".`,
 								);
 							}
 

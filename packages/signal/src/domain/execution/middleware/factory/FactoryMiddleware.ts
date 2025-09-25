@@ -7,6 +7,7 @@ import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
 import { UrlContext } from "../../../preparation/context/url/UrlContext";
 import { CancelRequest } from "../../events/CancelRequest";
 import { WithCurrentRequestOverride } from "../../events/envelope/WithCurrentRequestOverride";
+import { AutoRunRequest } from "../../events/request/AutoRunRequest";
 import { RequestState } from "../../events/request/RequestState";
 import { RunRequest } from "../../events/request/RunRequest";
 import { RequestRunner } from "../../services/RequestRunner";
@@ -21,6 +22,8 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 	<T extends IRequestRunner>(executor: T) =>
 		({ id, parent, context }) =>
 			E.gen(function* () {
+				const scope = yield* E.scope;
+
 				const requestRunner = yield* E.serviceOptional(RequestRunner);
 				const requestContext = yield* E.serviceOptional(RequestSessionContext);
 				const runFork = Runtime.runFork(yield* E.runtime());
@@ -48,7 +51,7 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 					);
 				};
 
-				const runRequest = (event: RunRequest) =>
+				const runRequest = (event: RunRequest | AutoRunRequest) =>
 					E.gen(function* () {
 						/**
 						 * Complete the event first to make sure
@@ -100,14 +103,27 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 								),
 							),
 						);
-					});
+					}).pipe(E.forkIn(scope));
 
 				return {
 					...parent,
 					send(event) {
 						return E.gen(this, function* () {
 							/**
-							 * 1. When we peel our envelope layer and get the
+							 * If we receive automatic run request event
+							 * sent by a middleware we should run it only
+							 * if we have no other requests in progress.
+							 * */
+							if (
+								event instanceof AutoRunRequest &&
+								!(yield* requestRunner.isRunning())
+							) {
+								yield* runRequest(event);
+								return yield* context.next(event);
+							}
+
+							/**
+							 * When we peel our envelope layer and get the
 							 * RunRequest event back, we need to send it
 							 * to the bus WITHOUT waiting for its result (use fork here)
 							 * ALSO, The system will mark the event as if it was sent by us.
@@ -121,7 +137,7 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 								event instanceof RunRequest && event.getDispatchedBy() === id;
 
 							/**
-							 * 2. If we detect that the event is sent by us,
+							 * If we detect that the event is sent by us,
 							 * we need to immediately execute it, skipping all
 							 * safety checks. This also makes sure that all
 							 * currently supervised requests are interrupted.
@@ -132,7 +148,7 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 							}
 
 							/**
-							 * 3. If we receive the RunRequest event that wasn't
+							 * If we receive the RunRequest event that wasn't
 							 * scheduled by us, we need to make sure that no other
 							 * requests are running and ONLY THEN run our request.
 							 * */
@@ -145,7 +161,7 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 							}
 
 							/**
-							 * 4. If we receive the RunRequest event and our request
+							 * If we receive the RunRequest event and our request
 							 * is already running, we need to cancel the event.
 							 * */
 							if (

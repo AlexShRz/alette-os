@@ -13,6 +13,10 @@ export abstract class SessionEventEnvelope<
 		return this.getWrappedEvent().unsafeGetRequestId() !== null;
 	}
 
+	getRequestId() {
+		return this.getWrappedEvent().getRequestId();
+	}
+
 	setRequestId(id?: string) {
 		const requestId = id || uuid();
 

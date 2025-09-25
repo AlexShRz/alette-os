@@ -1,7 +1,11 @@
 import { BusEvent } from "@alette/event-sourcing";
 import { v4 as uuid } from "uuid";
+import { IRequestSessionEvent } from "./SessionEvent";
 
-export abstract class RequestSessionEvent extends BusEvent {
+export abstract class RequestSessionEvent
+	extends BusEvent
+	implements IRequestSessionEvent
+{
 	protected requestId: string | null = null;
 
 	constructor() {

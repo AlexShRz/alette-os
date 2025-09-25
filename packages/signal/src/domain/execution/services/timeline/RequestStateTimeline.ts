@@ -120,6 +120,10 @@ export class RequestStateTimeline extends Context.Tag("RequestStateTimeline")<
 				const middlewareEventBus = yield* EventBus;
 				middlewareEventBus.broadcast((e) =>
 					E.gen(function* () {
+						if (e.isCancelled()) {
+							return;
+						}
+
 						if (e instanceof ApplyRequestState) {
 							yield* recordEvent(e);
 						}

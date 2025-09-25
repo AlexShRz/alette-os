@@ -1,10 +1,10 @@
 import { middlewareCategory, middlewareSpecification } from "@alette/pulse";
-import { mapperMiddleware } from "../../../middleware";
+import { behaviouralMiddleware } from "../../../middleware";
 
 export const retryWhenMiddlewareName = middlewareCategory(
 	"retryWhenMiddlewareName",
 );
 
 export const retryWhenMiddlewareSpecification = middlewareSpecification()
-	.categorizedAs(retryWhenMiddlewareName, mapperMiddleware)
+	.categorizedAs(retryWhenMiddlewareName, behaviouralMiddleware)
 	.build();

@@ -20,6 +20,8 @@ export class RequestSessionContext extends E.Service<RequestSessionContext>()(
 		scoped: E.gen(function* () {
 			const globalContext = yield* GlobalContext;
 			const context = yield* SynchronizedRef.make({} as IAllContext);
+			const settingSupplierHolder =
+				yield* SynchronizedRef.make<IRequestSessionSettingSupplier>(() => ({}));
 
 			const getSessionContextWithoutGlobalContext = E.fn(function* (
 				allContext: IAllContext,
@@ -42,6 +44,10 @@ export class RequestSessionContext extends E.Service<RequestSessionContext>()(
 			return {
 				has(key: TKnownRequestContextKey) {
 					return context.get.pipe(E.andThen((v) => !!v[key]));
+				},
+
+				getSettingSupplier() {
+					return settingSupplierHolder.get;
 				},
 
 				/**
@@ -99,6 +105,13 @@ export class RequestSessionContext extends E.Service<RequestSessionContext>()(
 							return allContext;
 						}),
 					).pipe(E.andThen(() => this.getOrThrow<T>(key)));
+				},
+
+				setSettingSupplier(supplier: IRequestSessionSettingSupplier) {
+					return SynchronizedRef.getAndUpdate(
+						settingSupplierHolder,
+						() => supplier,
+					);
 				},
 
 				reset() {

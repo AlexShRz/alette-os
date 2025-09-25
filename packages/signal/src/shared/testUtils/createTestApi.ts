@@ -1,7 +1,9 @@
 import { Duration, Layer } from "effect";
 import { vi } from "vitest";
-import { activatePlugins, coreApiPlugin } from "../../application";
+import { activatePlugins, blueprint, coreApiPlugin } from "../../application";
+import { customRequestSpec } from "../../application/corePlugin/custom";
 import { CommandTaskBuilder } from "../../application/plugins/tasks/primitive/CommandTaskBuilder";
+import { origin, reloadable, runOnMount } from "../../domain";
 import { ApiClient, IApiRuntimeGetter } from "../../infrastructure/ApiClient";
 import { TRecognizedApiDuration } from "../types";
 
@@ -35,5 +37,18 @@ export const createTestApi = (...commands: CommandTaskBuilder[]) => {
 		...commands,
 	);
 
-	return { api, corePlugin: core.plugin, ...core.use() };
+	return {
+		api,
+		corePlugin: core.plugin,
+		/**
+		 * Make sure we use request types created for
+		 * tests specifically, not our default plugin requests
+		 * */
+		custom: blueprint()
+			.specification(customRequestSpec)
+			.use(origin(), runOnMount(false), reloadable())
+			.belongsTo(core.plugin)
+			.build()
+			.asFunction(),
+	};
 };

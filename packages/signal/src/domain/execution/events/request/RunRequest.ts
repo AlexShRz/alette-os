@@ -1,6 +1,9 @@
 import * as E from "effect/Effect";
 import { RequestSession } from "../../services/RequestSession";
-import { IRequestSessionSettingSupplier } from "../../services/RequestSessionContext";
+import {
+	IRequestSessionSettingSupplier,
+	RequestSessionContext,
+} from "../../services/RequestSessionContext";
 import { RequestSessionEvent } from "../RequestSessionEvent";
 
 /**
@@ -48,22 +51,31 @@ export class RunRequest extends RequestSessionEvent {
 	protected provideRequestContext() {
 		return E.gen(this, function* () {
 			const session = yield* E.serviceOptional(RequestSession);
+			const requestContext = yield* E.serviceOptional(RequestSessionContext);
 			/**
 			 * 1. Prepare initial request data.
 			 * 2. Request id update should be first
 			 * to prevent accidental data wipe.
 			 * */
 			yield* session.setRequestId(this.getRequestId()).pipe(
-				/**
-				 * 1. Must be first.
-				 * 2. We need to make sure all context provide effects
-				 * have access to latest request session data.
-				 * */
-				E.andThen(() => this.contextProvider),
-				/**
-				 * Must be last
-				 * */
-				E.andThen(() => this.afterContextExecutor),
+				E.andThen(() =>
+					E.gen(this, function* () {
+						/**
+						 * Set setting provider first
+						 * */
+						yield* requestContext.setSettingSupplier(this.settingSupplier);
+						/**
+						 * 1. Must be second.
+						 * 2. We need to make sure all context provide effects
+						 * have access to latest request session data.
+						 * */
+						yield* this.contextProvider;
+						/**
+						 * Must be last
+						 * */
+						yield* this.afterContextExecutor;
+					}),
+				),
 			);
 		}).pipe(E.orDie);
 	}

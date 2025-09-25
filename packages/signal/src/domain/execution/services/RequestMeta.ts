@@ -5,7 +5,7 @@ import { RequestRecognizedErrors } from "./meta/RequestRecognizedErrors";
 import { RequestValueAdapters } from "./meta/RequestValueAdapters";
 
 /**
- * Request meta does not care about request id and
+ * Request meta does not care about request id and is
  * wiped ONLY after our request middleware tree has been disposed of.
  * */
 export class RequestMeta extends E.Service<RequestMeta>()("RequestMeta", {

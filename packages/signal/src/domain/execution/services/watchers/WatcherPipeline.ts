@@ -19,9 +19,13 @@ export class WatcherPipeline extends E.Service<WatcherPipeline>()(
 				 * When all watchers have processed the request event,
 				 * send the event to our controller
 				 * */
-				pipelineBus.broadcast((e) =>
-					controllerStateManager.applyStateSnapshot(e),
-				);
+				pipelineBus.broadcast((e) => {
+					if (e.isCancelled()) {
+						return E.void;
+					}
+
+					return controllerStateManager.applyStateSnapshot(e);
+				});
 
 				const sendToPipeline = <T extends TSessionEvent>(event: T) => {
 					return pipelineBus.send(event);
