@@ -1,6 +1,9 @@
 import { RequestSpecification } from "@alette/pulse";
 import { IRequestContext } from "../../domain/context/IRequestContext";
-import { TRequestArguments } from "../../domain/context/typeUtils/RequestIOTypes";
+import {
+	TRequestArguments,
+	TRequestResponse,
+} from "../../domain/context/typeUtils/RequestIOTypes";
 import { TRequestMode } from "../../domain/execution/services/RequestMode";
 import { IMiddlewareSupplierFn } from "../../domain/middleware/IMiddlewareSupplierFn";
 import { ApiRequest } from "../blueprint/ApiRequest";
@@ -43,7 +46,7 @@ export class OneShotRequest<
 		const { execute } = controller.getHandlers();
 		execute(args);
 
-		return new Promise((resolve, reject) => {
+		return new Promise<TRequestResponse<Context>>((resolve, reject) => {
 			const unsubscribe = controller.subscribe(
 				({ isSuccess, isError, error, data }) => {
 					if (isSuccess || isError) {
