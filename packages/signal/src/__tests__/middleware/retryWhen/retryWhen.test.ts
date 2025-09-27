@@ -7,6 +7,7 @@ import {
 	mapError,
 	output,
 	reloadable,
+	retry,
 	retryWhen,
 	runOnMount,
 	throws,
@@ -157,36 +158,6 @@ test("it can access request props and context", async () => {
 	});
 });
 
-test("it overrides middleware of the same type", async () => {
-	const { custom } = createTestApi();
-	const myResponse = "asda";
-	let triedTimes = 0;
-	let reachedPrevious = false;
-
-	const getData = custom(
-		output(type<string>()),
-		factory(() => {
-			if (!triedTimes) {
-				triedTimes++;
-				throw new MyError();
-			}
-
-			return myResponse;
-		}),
-		retryWhen(() => {
-			reachedPrevious = true;
-			return true;
-		}),
-		retryWhen(async () => {
-			return true;
-		}),
-	);
-
-	const res = await getData.execute();
-	expect(res).toEqual(myResponse);
-	expect(reachedPrevious).toBeFalsy();
-});
-
 test("it is not affected by error mapping", async () => {
 	const { custom } = createTestApi();
 	const myResponse = "asda";
@@ -267,4 +238,59 @@ test("it allows users to disable retries per request (mount mode)", async () => 
 		expect(getState().error).toBeInstanceOf(MyError);
 		expect(enteredRetry).toEqual(2);
 	});
+});
+
+test("it overrides middleware of the same type", async () => {
+	const { custom } = createTestApi();
+	const myResponse = "asda";
+	let triedTimes = 0;
+	let reachedPrevious = false;
+
+	const getData = custom(
+		output(type<string>()),
+		factory(() => {
+			if (!triedTimes) {
+				triedTimes++;
+				throw new MyError();
+			}
+
+			return myResponse;
+		}),
+		retryWhen(() => {
+			reachedPrevious = true;
+			return true;
+		}),
+		retryWhen(async () => {
+			return true;
+		}),
+	);
+
+	const res = await getData.execute();
+	expect(res).toEqual(myResponse);
+	expect(reachedPrevious).toBeFalsy();
+});
+
+test("it overrides 'retry()' middleware", async () => {
+	const { custom } = createTestApi();
+	let enteredTimes = 0;
+
+	const getData = custom(
+		output(type<string>()),
+		factory(() => {
+			enteredTimes++;
+			throw new MyError();
+		}),
+		retry({
+			times: 5,
+		}),
+		retryWhen(() => {
+			return false;
+		}),
+	);
+
+	try {
+		await getData.execute();
+	} catch {}
+
+	expect(enteredTimes).toEqual(1);
 });

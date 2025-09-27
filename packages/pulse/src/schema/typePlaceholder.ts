@@ -1,9 +1,6 @@
 import { ISchema } from "./StandardSchemaTypes";
 
-export const type = <ValueToInfer = any>(): ISchema<
-	ValueToInfer,
-	ValueToInfer
-> => {
+export const type = <ValueToInfer = any>(): ISchema<unknown, ValueToInfer> => {
 	return {
 		"~standard": {
 			vendor: "alette-signal",

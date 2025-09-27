@@ -1,5 +1,5 @@
 import {
-	RequestError,
+	RequestFailedError,
 	requestCategory,
 	requestSpecification,
 } from "@alette/pulse";
@@ -22,4 +22,4 @@ const querySpec = requestSpecification()
 
 export const queryFactory = blueprint()
 	.specification(querySpec)
-	.use(origin(), runOnMount(true), reloadable(), throws(RequestError));
+	.use(origin(), runOnMount(true), reloadable(), throws(RequestFailedError));

@@ -11,12 +11,12 @@ import { RequestSessionContext } from "../../../execution/services/RequestSessio
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
 import { IRetrySettings } from "../RetrySettings";
-import { IRetryMiddlewareArgs } from "./RetryWhenMiddlewareFactory";
+import { IRetryWhenMiddlewareArgs } from "./RetryWhenMiddlewareFactory";
 
 export class RetryWhenMiddleware extends Middleware("RetryWhenMiddleware", {
 	priority: MiddlewarePriority.Interception,
 })(
-	(waitForRetryDecision: IRetryMiddlewareArgs) =>
+	(waitForRetryDecision: IRetryWhenMiddlewareArgs) =>
 		({ parent, context }) =>
 			E.gen(function* () {
 				const metrics = yield* E.serviceOptional(RequestMetrics);

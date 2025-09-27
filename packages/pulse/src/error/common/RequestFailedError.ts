@@ -18,7 +18,7 @@ export interface IRequestErrorProps {
 	serverResponse: unknown;
 }
 
-export class RequestError extends ApiError {
+export class RequestFailedError extends ApiError {
 	protected props: IRequestErrorProps = {
 		serverResponse: null,
 		status: null,
@@ -46,6 +46,6 @@ export class RequestError extends ApiError {
 	}
 
 	cloneSelf() {
-		return new RequestError(this.props);
+		return new RequestFailedError(this.props);
 	}
 }

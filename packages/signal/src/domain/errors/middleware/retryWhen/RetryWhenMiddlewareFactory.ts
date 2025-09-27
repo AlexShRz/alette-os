@@ -12,7 +12,7 @@ import { IRetrySettings } from "../RetrySettings";
 import { RetryWhenMiddleware } from "./RetryWhenMiddleware";
 import { retryWhenMiddlewareSpecification } from "./retryWhenMiddlewareSpecification";
 
-export interface IRetryMiddlewareArgs<
+export interface IRetryWhenMiddlewareArgs<
 	C extends IRequestContext = IRequestContext,
 > {
 	(
@@ -49,7 +49,7 @@ export class RetryWhenMiddlewareFactory extends Middleware(
 ) {
 	static toFactory() {
 		return <Context extends IRequestContext>(
-			args: IRetryMiddlewareArgs<Context>,
+			args: IRetryWhenMiddlewareArgs<Context>,
 		) => {
 			return toMiddlewareFactory<
 				Context,
@@ -64,7 +64,7 @@ export class RetryWhenMiddlewareFactory extends Middleware(
 			>(
 				() =>
 					new RetryWhenMiddlewareFactory(
-						() => new RetryWhenMiddleware(args as IRetryMiddlewareArgs),
+						() => new RetryWhenMiddleware(args as IRetryWhenMiddlewareArgs),
 					),
 			);
 		};
