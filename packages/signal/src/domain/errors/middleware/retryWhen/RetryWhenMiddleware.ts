@@ -1,6 +1,7 @@
 import { BusEvent } from "@alette/event-sourcing";
 import { ApiError } from "@alette/pulse";
 import * as E from "effect/Effect";
+import * as P from "effect/Predicate";
 import * as Runtime from "effect/Runtime";
 import { ApplyRequestState } from "../../../execution/events/request/ApplyRequestState";
 import { AutoRunRequest } from "../../../execution/events/request/AutoRunRequest";
@@ -9,10 +10,11 @@ import { RequestMetrics } from "../../../execution/services/RequestMetrics";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { IRetrySettings } from "../RetrySettings";
 import { IRetryMiddlewareArgs } from "./RetryWhenMiddlewareFactory";
 
 export class RetryWhenMiddleware extends Middleware("RetryWhenMiddleware", {
-	priority: MiddlewarePriority.Mapping,
+	priority: MiddlewarePriority.Interception,
 })(
 	(waitForRetryDecision: IRetryMiddlewareArgs) =>
 		({ parent, context }) =>
@@ -23,6 +25,16 @@ export class RetryWhenMiddleware extends Middleware("RetryWhenMiddleware", {
 				const runFork = Runtime.runFork(runtime);
 				const runPromise = Runtime.runPromise(runtime);
 
+				const isManuallyDisabled = E.gen(function* () {
+					const getSettings = yield* requestContext.getSettingSupplier();
+					const obtainedSettings: IRetrySettings = getSettings();
+
+					return (
+						P.hasProperty(obtainedSettings, "skipRetry") &&
+						obtainedSettings.skipRetry
+					);
+				});
+
 				const canRetryEvent = (error: ApiError) =>
 					E.gen(function* () {
 						const canRetry = async () => {
@@ -32,6 +44,11 @@ export class RetryWhenMiddleware extends Middleware("RetryWhenMiddleware", {
 							const contextSnapshot = await runPromise(
 								requestContext.getSnapshot(),
 							);
+							const isDisabled = await runPromise(isManuallyDisabled);
+
+							if (isDisabled) {
+								return false;
+							}
 
 							return waitForRetryDecision(
 								{

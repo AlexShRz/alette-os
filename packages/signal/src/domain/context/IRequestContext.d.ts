@@ -2,6 +2,7 @@ export interface IRequestContext<
 	T = {
 		originalResultType: unknown;
 		resultType: unknown;
+		originalErrorType: unknown;
 		errorType: unknown;
 		/**
 		 * 1. Used by the "retry" middleware family, etc.

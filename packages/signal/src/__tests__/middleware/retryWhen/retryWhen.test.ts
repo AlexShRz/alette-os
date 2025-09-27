@@ -6,7 +6,10 @@ import {
 	factory,
 	mapError,
 	output,
+	reloadable,
 	retryWhen,
+	runOnMount,
+	throws,
 	type,
 } from "../../../domain";
 import { createTestApi } from "../../../shared/testUtils/createTestApi";
@@ -184,11 +187,11 @@ test("it overrides middleware of the same type", async () => {
 	expect(reachedPrevious).toBeFalsy();
 });
 
-test("it allows to react to mapped errors", async () => {
+test("it is not affected by error mapping", async () => {
 	const { custom } = createTestApi();
 	const myResponse = "asda";
 	let triedTimes = 0;
-	let caughtError: unknown = null;
+	let caughtError: MyError | null = null;
 
 	const getData = custom(
 		output(type<string>()),
@@ -200,6 +203,7 @@ test("it allows to react to mapped errors", async () => {
 
 			return myResponse;
 		}),
+		throws(MyError),
 		mapError(() => new MyError2()),
 		retryWhen(async ({ error }) => {
 			caughtError = error;
@@ -209,5 +213,58 @@ test("it allows to react to mapped errors", async () => {
 
 	const res = await getData.execute();
 	expect(res).toEqual(myResponse);
-	expect(caughtError).toBeInstanceOf(MyError2);
+	expect(caughtError).toBeInstanceOf(MyError);
+});
+
+test("it allows users to disable retries per request", async () => {
+	const { custom } = createTestApi();
+	let enteredRetry = 0;
+
+	const getData = custom(
+		output(type<string>()),
+		factory(() => {
+			throw new MyError();
+		}),
+		retryWhen(async () => {
+			enteredRetry++;
+			return true;
+		}),
+	);
+
+	await expect(() => getData.execute({ skipRetry: true })).rejects.toThrowError(
+		MyError,
+	);
+	expect(enteredRetry).toEqual(0);
+});
+
+test("it allows users to disable retries per request (mount mode)", async () => {
+	const { custom } = createTestApi();
+	let enteredRetry = 0;
+
+	const getData = custom(
+		output(type<string>()),
+		runOnMount(false),
+		reloadable(() => true),
+		factory(() => {
+			throw new MyError();
+		}),
+		retryWhen(async () => {
+			enteredRetry++;
+			return enteredRetry <= 1;
+		}),
+	);
+
+	const { execute, getState } = getData.mount();
+
+	execute({ skipRetry: true });
+	await vi.waitFor(() => {
+		expect(getState().error).toBeInstanceOf(MyError);
+		expect(enteredRetry).toEqual(0);
+	});
+
+	execute({ skipRetry: false });
+	await vi.waitFor(() => {
+		expect(getState().error).toBeInstanceOf(MyError);
+		expect(enteredRetry).toEqual(2);
+	});
 });

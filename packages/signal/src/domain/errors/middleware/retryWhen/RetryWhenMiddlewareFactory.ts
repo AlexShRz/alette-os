@@ -1,10 +1,14 @@
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
-import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
+import {
+	TGetAllRequestContext,
+	TOriginalRequestError,
+} from "../../../context/typeUtils/RequestIOTypes";
+import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
-import { TGetRecognizedRequestErrors } from "../throws/RequestRecoverableErrors";
+import { IRetrySettings } from "../RetrySettings";
 import { RetryWhenMiddleware } from "./RetryWhenMiddleware";
 import { retryWhenMiddlewareSpecification } from "./retryWhenMiddlewareSpecification";
 
@@ -13,7 +17,7 @@ export interface IRetryMiddlewareArgs<
 > {
 	(
 		errorContext: {
-			error: TGetRecognizedRequestErrors<C>;
+			error: TOriginalRequestError<C>;
 			attempt: number;
 		},
 		requestContext: TGetAllRequestContext<C>,
@@ -49,7 +53,13 @@ export class RetryWhenMiddlewareFactory extends Middleware(
 		) => {
 			return toMiddlewareFactory<
 				Context,
-				Context,
+				IRequestContext<
+					Context["types"],
+					Context["value"],
+					Context["settings"],
+					TMergeRecords<Context["accepts"], IRetrySettings>,
+					TMergeRecords<Context["acceptsMounted"], IRetrySettings>
+				>,
 				typeof retryWhenMiddlewareSpecification
 			>(
 				() =>

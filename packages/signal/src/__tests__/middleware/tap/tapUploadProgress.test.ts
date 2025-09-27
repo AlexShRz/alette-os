@@ -157,12 +157,6 @@ test("it can access request props and context", async () => {
 
 	const getData = custom(
 		path(pathValue),
-		// patches()
-		// puts()
-		// posts()
-		// deletes()
-		// gets()
-		// method('...')
 		factory((_, { notify }) => {
 			isLoading = true;
 			progressDataSender.subscribe({

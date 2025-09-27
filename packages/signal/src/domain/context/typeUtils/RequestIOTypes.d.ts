@@ -12,6 +12,9 @@ export type TRequestResponse<C extends IRequestContext> =
 
 export type TRequestError<C extends IRequestContext> = C["types"]["errorType"];
 
+export type TOriginalRequestError<C extends IRequestContext> =
+	C["types"]["originalErrorType"];
+
 export type TRequestContextAdapter<C extends IRequestContext> =
 	C["types"]["contextAdapter"];
 
