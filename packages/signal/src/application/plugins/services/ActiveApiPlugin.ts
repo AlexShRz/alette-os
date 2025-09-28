@@ -1,15 +1,18 @@
 import * as E from "effect/Effect";
 import * as Fiber from "effect/Fiber";
 import * as Scope from "effect/Scope";
+import { RequestThreadRegistry } from "../../../domain/execution/RequestThreadRegistry";
 import { ApiPluginInfo } from "./activation/ApiPluginInfo";
 import { ApiPluginLifecycleHooks } from "./activation/ApiPluginLifecycleHooks";
 
 export class ActiveApiPlugin extends E.Service<ActiveApiPlugin>()(
 	"ActiveApiPlugin",
 	{
+		dependencies: [RequestThreadRegistry.Default],
 		scoped: E.gen(function* () {
 			const scope = yield* E.scope;
 
+			const threads = yield* RequestThreadRegistry;
 			const pluginInfo = yield* ApiPluginInfo;
 			const hooks = yield* ApiPluginLifecycleHooks;
 			const runtime = yield* E.runtime();
@@ -24,6 +27,10 @@ export class ActiveApiPlugin extends E.Service<ActiveApiPlugin>()(
 
 				getScope() {
 					return scope;
+				},
+
+				getThreads() {
+					return threads;
 				},
 
 				/**

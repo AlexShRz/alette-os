@@ -6,6 +6,7 @@ import * as LayerMap from "effect/LayerMap";
 import * as RcMap from "effect/RcMap";
 import * as SynchronizedRef from "effect/SynchronizedRef";
 import { GlobalContext } from "../../../domain/context/services/GlobalContext";
+import { ErrorHandler } from "../../../domain/errors/ErrorHandler";
 import { ActiveApiPlugin } from "./ActiveApiPlugin";
 import { ApiPluginServices } from "./activation/ApiPluginServices";
 
@@ -13,7 +14,7 @@ export class PluginRegistry extends E.Service<PluginRegistry>()(
 	"PluginRegistry",
 	{
 		scoped: E.gen(function* () {
-			const context = yield* E.context<GlobalContext>();
+			const context = yield* E.context<GlobalContext | ErrorHandler>();
 
 			/**
 			 * 1. idleTimeToLive must be Infinity - plugins can

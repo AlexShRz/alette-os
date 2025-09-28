@@ -1,7 +1,7 @@
 import { ApiError } from "@alette/pulse";
 import { Subject } from "rxjs";
 import { forActiveRequestWorkers } from "../../../application";
-import { factory, reloadable, runOnMount, shared } from "../../../domain";
+import { factory, reloadable, runOnMount, synchronized } from "../../../domain";
 import { createTestApi } from "../../../shared/testUtils/createTestApi";
 
 test("it keeps mounted requests in sync through the whole request lifecycle", async () => {
@@ -16,7 +16,7 @@ test("it keeps mounted requests in sync through the whole request lifecycle", as
 	}
 
 	const getData = custom(
-		shared(),
+		synchronized(),
 		runOnMount(false),
 		reloadable(() => true),
 		factory(async () => {
@@ -103,7 +103,7 @@ test("it removes only manually disposed subscriptions while keeping others intac
 	const value = "asdasd";
 
 	const getData = custom(
-		shared(),
+		synchronized(),
 		runOnMount(false),
 		reloadable(() => true),
 		factory(async () => {
@@ -159,7 +159,7 @@ test("it does not interfere with other synchronized request sets", async () => {
 	const value2 = "asdasdasdasda";
 
 	const getData1 = custom(
-		shared(),
+		synchronized(),
 		runOnMount(false),
 		reloadable(() => true),
 		factory(async () => {

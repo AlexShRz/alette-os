@@ -54,12 +54,6 @@ export class ApiPluginServices implements Equal.Equal {
 
 	[Equal.symbol](that: Equal.Equal): boolean {
 		if (that instanceof ApiPluginServices) {
-			/**
-			 * TODO: This is incorrect, we must use ===.
-			 * However now LayerMap seems to be bugged and compares same values.
-			 * Fix later.
-			 * */
-			// return this.config.pluginName === that.getPluginName();
 			return this.config.pluginName === that.getPluginName();
 		}
 

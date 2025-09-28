@@ -18,7 +18,7 @@ export class OneShotRequest<
 	extends ApiRequest<PrevContext, Context, RequestSpec>
 	implements IOneShotRequestWithMiddleware<Context, RequestSpec>
 {
-	protected createController(mode: TRequestMode) {
+	protected getController(mode: TRequestMode) {
 		return new OneShotRequestController<Context>(this.plugin, {
 			threadId: this.requestThreadId,
 			plugin: this.plugin,
@@ -42,7 +42,7 @@ export class OneShotRequest<
 	}
 
 	async execute(args: TRequestArguments<Context> = {}) {
-		const controller = this.createController("oneShot");
+		const controller = this.getController("oneShot");
 		const { execute } = controller.getHandlers();
 		execute(args);
 
@@ -70,7 +70,7 @@ export class OneShotRequest<
 	}
 
 	mount() {
-		const controller = this.createController("subscription");
+		const controller = this.getController("subscription");
 		controller.reload();
 		return {
 			getState: controller.getState.bind(controller),
@@ -94,6 +94,6 @@ export class OneShotRequest<
 	 * 2. Low level version of "mount"
 	 * */
 	control() {
-		return this.createController("subscription");
+		return this.getController("subscription");
 	}
 }

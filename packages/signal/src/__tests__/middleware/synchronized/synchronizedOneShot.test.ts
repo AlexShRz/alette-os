@@ -1,5 +1,5 @@
 import { Subject } from "rxjs";
-import { factory, reloadable, runOnMount, shared } from "../../../domain";
+import { factory, reloadable, runOnMount, synchronized } from "../../../domain";
 import { createTestApi } from "../../../shared/testUtils/createTestApi";
 
 test("it does not synchronize one shot requests", async () => {
@@ -10,7 +10,7 @@ test("it does not synchronize one shot requests", async () => {
 	const logged: any[] = [];
 
 	const getData = custom(
-		shared(),
+		synchronized(),
 		runOnMount(false),
 		reloadable(() => true),
 		factory(async () => {

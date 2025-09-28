@@ -4,13 +4,13 @@ import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
 import { AggregateRequestMiddleware } from "../../events/preparation/AggregateRequestMiddleware";
 import { ChooseRequestWorker } from "../../events/preparation/ChooseRequestWorker";
-import { SharedMiddleware } from "./SharedMiddleware";
-import { sharedMiddlewareSpecification } from "./sharedMiddlewareSpecification";
+import { SynchronizedMiddleware } from "./SynchronizedMiddleware";
+import { synchronizedMiddlewareSpecification } from "./synchronizedMiddlewareSpecification";
 
-export class SharedMiddlewareFactory extends Middleware(
-	"SharedMiddlewareFactory",
+export class SynchronizedMiddlewareFactory extends Middleware(
+	"SynchronizedMiddlewareFactory",
 )(
-	(getMiddleware: () => SharedMiddleware) =>
+	(getMiddleware: () => SynchronizedMiddleware) =>
 		({ parent, context }) =>
 			E.gen(function* () {
 				const selectReusedWorker = (event: ChooseRequestWorker) => {
@@ -44,7 +44,10 @@ export class SharedMiddlewareFactory extends Middleware(
 							}
 
 							if (event instanceof AggregateRequestMiddleware) {
-								event.replaceMiddleware([SharedMiddleware], [getMiddleware()]);
+								event.replaceMiddleware(
+									[SynchronizedMiddleware],
+									[getMiddleware()],
+								);
 							}
 
 							return yield* context.next(event);
@@ -58,8 +61,11 @@ export class SharedMiddlewareFactory extends Middleware(
 			return toMiddlewareFactory<
 				Context,
 				Context,
-				typeof sharedMiddlewareSpecification
-			>(() => new SharedMiddlewareFactory(() => new SharedMiddleware()));
+				typeof synchronizedMiddlewareSpecification
+			>(
+				() =>
+					new SynchronizedMiddlewareFactory(() => new SynchronizedMiddleware()),
+			);
 		};
 	}
 }

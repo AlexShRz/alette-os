@@ -2,9 +2,12 @@ import * as E from "effect/Effect";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
 
-export class SharedMiddleware extends Middleware("SharedMiddleware", {
-	priority: MiddlewarePriority.BeforeExecution,
-})(
+export class SynchronizedMiddleware extends Middleware(
+	"SynchronizedMiddleware",
+	{
+		priority: MiddlewarePriority.BeforeExecution,
+	},
+)(
 	() =>
 		({ parent, context }) =>
 			E.gen(function* () {

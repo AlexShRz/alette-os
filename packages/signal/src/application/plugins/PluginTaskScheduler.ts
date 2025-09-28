@@ -11,6 +11,10 @@ import { ActiveApiPlugin } from "./services/ActiveApiPlugin";
 type TActivatedPlugin = ActiveApiPlugin | null;
 
 export class PluginTaskScheduler {
+	/**
+	 * TODO: Won't work for SSR, we need to remove the mailbox
+	 * and store almost nothing here.
+	 * */
 	protected mailbox: Queue.Queue<E.Effect<unknown>>;
 	protected schedulerRuntime: ManagedRuntime.ManagedRuntime<Scope.Scope, never>;
 	protected activePlugin: SubscriptionRef.SubscriptionRef<TActivatedPlugin>;
