@@ -1,5 +1,5 @@
 export * from "./plugins";
-export * from "./queries";
-export * from "./commands";
+export * from "./tasks";
+export * from "./auth";
 export * from "./oneShotRequest";
 export * from "./corePlugin";

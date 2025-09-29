@@ -36,17 +36,33 @@ export class ActiveApiPlugin extends E.Service<ActiveApiPlugin>()(
 				/**
 				 * IMPORTANT
 				 * 1. Make sure scheduled tasks NEVER use forkScoped,
-				 * otherwise they will never complete
+				 * otherwise they will never complete.
+				 * 2. Do not use FiberSet here, it's api is pretty inflexible
+				 * and creates more problems than it solves for this specific use case.
 				 * */
 				runWithSupervision<A, E, R>(task: E.Effect<A, E, R>) {
 					return E.gen(function* () {
-						const result = yield* task;
+						/**
+						 * 1. This wrapper allows us to catch
+						 * forked tasks and interrupt them when
+						 * our scope is closed.
+						 * 2. This also makes sure that we can run tasks
+						 * concurrently with supervision.
+						 * */
+						const fiber = yield* E.gen(function* () {
+							const fiberOrResult = yield* task;
 
-						if (Fiber.isFiber(result) && Fiber.isRuntimeFiber(result)) {
-							yield* E.addFinalizer(() => Fiber.interruptFork(result));
-						}
+							if (
+								Fiber.isFiber(fiberOrResult) &&
+								Fiber.isRuntimeFiber(fiberOrResult)
+							) {
+								return yield* Fiber.join(fiberOrResult);
+							}
 
-						return result;
+							return fiberOrResult;
+						}).pipe(E.fork);
+
+						yield* E.addFinalizer(() => Fiber.interruptFork(fiber));
 					}).pipe(E.provide(runtime), Scope.extend(scope));
 				},
 			};

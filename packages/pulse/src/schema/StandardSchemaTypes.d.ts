@@ -1,6 +1,6 @@
 import { StandardSchemaV1 } from "@standard-schema/spec";
 
-export interface ISchema<Input, Output>
+export interface ISchema<Input = unknown, Output = unknown>
 	extends StandardSchemaV1<Input, Output> {}
 
 export interface IAnySchema extends StandardSchemaV1<any, any> {}

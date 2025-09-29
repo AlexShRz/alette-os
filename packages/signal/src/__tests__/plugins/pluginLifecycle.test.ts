@@ -6,7 +6,7 @@ import {
 	defineApiPlugin,
 	forActivePlugins,
 } from "../../application";
-import { forActiveThreadRegistries } from "../../application/queries/forActiveThreadRegistries";
+import { forActiveThreadRegistries } from "../../application/tasks/queries/forActiveThreadRegistries";
 import { client } from "../../infrastructure/ApiClient.js";
 
 test("it activates plugins", async () => {
@@ -102,6 +102,21 @@ test("interrupts all running tasks when a plugin is deactivated", async () => {
 					logged.push(1);
 				}),
 			),
+		),
+	);
+	/**
+	 * 1. Make sure to test forked tasks too.
+	 * 2. Keep in mind, that using "forkScoped" will enter a deadlock.
+	 * */
+	core.getScheduler().schedule(
+		E.gen(function* () {
+			yield* E.forever(E.void);
+		}).pipe(
+			E.onInterrupt(() =>
+				E.sync(() => {
+					logged.push(2);
+				}),
+			),
 			E.fork,
 		),
 	);
@@ -110,6 +125,6 @@ test("interrupts all running tasks when a plugin is deactivated", async () => {
 	api.tell(deactivatePlugins(core));
 
 	await vi.waitFor(() => {
-		expect(logged).toEqual([1]);
+		expect(logged).toEqual([1, 2]);
 	});
 });

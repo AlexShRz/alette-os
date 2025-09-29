@@ -39,6 +39,7 @@ export const createTestApi = (...commands: CommandTaskBuilder[]) => {
 
 	return {
 		api,
+		...core.use(),
 		corePlugin: core.plugin,
 		/**
 		 * Make sure we use request types created for

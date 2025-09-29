@@ -50,7 +50,13 @@ export class PluginTaskScheduler {
 			Stream.tap((task) =>
 				E.gen(this, function* () {
 					const plugin = yield* this.getPlugin();
-					return yield* plugin.runWithSupervision(task);
+					/**
+					 * 1. Make sure each task is forked - this
+					 * allows us to run multiple tasks in parallel
+					 * 2. Otherwise, we might enter a deadlock if a long-running parent
+					 * task spawns a child task, etc.
+					 * */
+					yield* plugin.runWithSupervision(task);
 				}),
 			),
 			Stream.runDrain,

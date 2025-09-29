@@ -37,7 +37,7 @@ export class RequestThreadRegistry extends E.Service<RequestThreadRegistry>()(
 				},
 			);
 
-			const self = {
+			return {
 				has(threadId: string) {
 					return RcMap.has(threads.rcMap, threadId);
 				},
@@ -76,8 +76,6 @@ export class RequestThreadRegistry extends E.Service<RequestThreadRegistry>()(
 					return threads.invalidate(threadId);
 				},
 			};
-
-			return self;
 		}),
 	},
 ) {}

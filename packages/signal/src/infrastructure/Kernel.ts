@@ -2,6 +2,7 @@ import * as E from "effect/Effect";
 import * as FiberSet from "effect/FiberSet";
 import * as Scope from "effect/Scope";
 import { PluginRegistry } from "../application/plugins/services/PluginRegistry";
+import { AuthManager } from "../domain/auth/AuthManager";
 import { TransactionManager } from "../domain/execution/services/TransactionManager";
 import { GlobalUrlConfig } from "../domain/preparation/context/url/services/GlobalUrlConfig";
 
@@ -12,6 +13,7 @@ export class Kernel extends E.Service<Kernel>()("Kernel", {
 	 * */
 	dependencies: [
 		PluginRegistry.Default,
+		AuthManager.Default,
 		GlobalUrlConfig.Default,
 		TransactionManager.Default,
 	],
