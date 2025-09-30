@@ -1,3 +1,7 @@
-import { FatalApiError } from "@alette/pulse";
+import { ApiError } from "@alette/pulse";
 
-export class RequestInterruptedError extends FatalApiError {}
+export class RequestInterruptedError extends ApiError {
+	cloneSelf() {
+		return new RequestInterruptedError();
+	}
+}

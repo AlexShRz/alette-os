@@ -2,7 +2,7 @@ import { FatalApiError } from "@alette/pulse";
 
 export class CannotFindCookieConfigError extends FatalApiError {
 	constructor(protected cookieId: string) {
-		super();
+		super("CannotFindCookieConfigError");
 	}
 
 	getCookieId() {

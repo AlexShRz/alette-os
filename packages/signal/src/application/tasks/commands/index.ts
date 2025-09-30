@@ -6,3 +6,4 @@ export * from "./activatePlugins";
 export * from "./deactivatePlugins";
 export * from "./handleError";
 export * from "./setErrorHandler";
+export * from "./setLoggerConfig";

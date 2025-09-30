@@ -6,6 +6,7 @@ import { CommandTaskBuilder } from "../application/plugins/tasks/primitive/Comma
 import { QueryTaskBuilder } from "../application/plugins/tasks/primitive/QueryTaskBuilder";
 import { GlobalContext } from "../domain/context/services/GlobalContext";
 import { ErrorHandler } from "../domain/errors/ErrorHandler";
+import { SystemLogger } from "../domain/logger/SystemLogger";
 import { Kernel } from "./Kernel";
 
 export interface IApiRuntimeGetter {
@@ -31,16 +32,33 @@ export class ApiClient {
 	 * This method can be overridden for testing
 	 * */
 	protected getServices(getRuntime: IApiRuntimeGetter) {
+		const logger = Logger.make(() => {
+			const text = "-- Alette Signal Log --";
+			/**
+			 * 1. White text on black background.
+			 * 2. The color shows in Node.js (jest/vitest) too, not only browsers.
+			 * */
+			console.log(`\x1b[97m\x1b[40m${text}\x1b[0m`);
+		});
+
 		return Layer.mergeAll(
-			Logger.pretty,
-			Kernel.Default.pipe(
-				Layer.provide(
-					Layer.provideMerge(
-						ErrorHandler.Default(getRuntime),
-						GlobalContext.Default,
+			Layer.provideMerge(
+				Layer.provideMerge(
+					Kernel.Default.pipe(
+						Layer.provide(
+							Layer.provideMerge(
+								ErrorHandler.Default(getRuntime),
+								GlobalContext.Default,
+							),
+						),
+						Layer.provide(Layer.scope),
 					),
+					SystemLogger.Default,
 				),
-				Layer.provide(Layer.scope),
+				Logger.replace(
+					Logger.defaultLogger,
+					Logger.zip(logger, Logger.prettyLoggerDefault),
+				),
 			),
 		);
 	}

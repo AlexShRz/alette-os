@@ -82,14 +82,16 @@ export class AuthEntityCredentials extends E.Service<AuthEntityCredentials>()(
 									credentials: validatedCredentials,
 								};
 							} catch (e) {
+								const issues = e instanceof Error ? e.message : "";
+
 								if (authEntityType === "token") {
 									return yield* panic(
-										new TokenCredentialValidationError(newCredentials),
+										new TokenCredentialValidationError(newCredentials, issues),
 									);
 								}
 
 								return yield* panic(
-									new CookieCredentialValidationError(newCredentials),
+									new CookieCredentialValidationError(newCredentials, issues),
 								);
 							}
 						}),

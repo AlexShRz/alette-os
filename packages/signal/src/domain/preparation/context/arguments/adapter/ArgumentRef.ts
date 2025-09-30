@@ -31,8 +31,8 @@ export class ArgumentRef<Arguments = unknown> {
 		try {
 			this.args = validateSchema(this.config.schema, newArgs);
 			return this;
-		} catch {
-			throw new ArgumentValidationError(newArgs);
+		} catch (e) {
+			throw new ArgumentValidationError(newArgs, e);
 		}
 	}
 

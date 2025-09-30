@@ -2,7 +2,7 @@ import { ApiError } from "@alette/pulse";
 
 export class TokenCredentialsNotSetError extends ApiError {
 	constructor() {
-		super();
+		super("TokenCredentialsNotSetError");
 	}
 
 	cloneSelf() {

@@ -22,8 +22,8 @@ export class ArgumentAdapter<Arguments = unknown> {
 	protected validateArguments(args: unknown) {
 		try {
 			return validateSchema(this.getSchema(), args);
-		} catch {
-			throw new ArgumentValidationError(args);
+		} catch (e) {
+			throw new ArgumentValidationError(args, e);
 		}
 	}
 }

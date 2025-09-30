@@ -67,7 +67,14 @@ export abstract class ApiRequest<
 		return self;
 	}
 
-	using(supplier: () => TRequestArguments<Context>) {
+	/**
+	 * 1. Use "Omit" here to prevent further middleware chaining (types only)
+	 * 2. This prevents a situation where people decide to override something
+	 * like output() that changes arg type entirely.
+	 * */
+	using(
+		supplier: () => TRequestArguments<Context>,
+	): Omit<this, "with" | "asFunction"> {
 		/**
 		 * Here we need to CLONE everything WITHOUT
 		 * changing our request thread id.
