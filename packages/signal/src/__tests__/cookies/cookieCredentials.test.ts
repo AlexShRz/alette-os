@@ -5,60 +5,56 @@ import { TokenCredentialValidationError } from "../../domain";
 import { createTestApi } from "../../shared/testUtils";
 
 test("it sets credentials", async () => {
-	const { token } = createTestApi();
-	const tokenValue = "asdasjkdh";
+	const { cookie } = createTestApi();
 	const myCredentials = "234324";
 	const logged: string[] = [];
 
-	const myToken = token()
+	const myCookie = cookie()
 		.credentials(type<string>())
 		.from(async ({ getCredentialsOrThrow }) => {
 			logged.push(await getCredentialsOrThrow());
-			return tokenValue;
 		})
 		.build()
 		.using(myCredentials);
 
-	const value = await myToken.get();
+	await myCookie.load();
 
-	expect(value).toEqual(tokenValue);
 	expect(logged[0]).toEqual(myCredentials);
 });
 
 test("it can access previous credentials before updating them", async () => {
-	const { token } = createTestApi();
-	const tokenValue = "asdasjkdh";
+	const { cookie } = createTestApi();
 	const prevCredentials = "234324";
 	const myCredentials = "askdnasjkdnaskdn";
 	const expected = `${prevCredentials}${myCredentials}`;
 	const logged: string[] = [];
 
-	const myToken = token()
+	const myCookie = cookie()
 		.credentials(type<string>())
 		.from(async ({ getCredentialsOrThrow }) => {
 			logged.push(await getCredentialsOrThrow());
-			return tokenValue;
 		})
 		.build()
 		.using(prevCredentials);
 
-	myToken.using(async ({ previous }) => {
-		if (!previous) {
+	myCookie.using(async () => {
+		const prevCredentials = await myCookie.getCredentials();
+
+		if (!prevCredentials) {
 			return myCredentials;
 		}
 
-		return `${previous}${myCredentials}`;
+		return `${prevCredentials}${myCredentials}`;
 	});
-	const value = await myToken.get();
+	await myCookie.load();
 
 	await vi.waitFor(() => {
-		expect(value).toEqual(tokenValue);
 		expect(logged[0]).toEqual(expected);
 	});
 });
 
 test("it throws a fatal error if credentials do not match schema", async () => {
-	const { api, token } = createTestApi();
+	const { api, cookie } = createTestApi();
 	let failed = false;
 	const myInvalidCredentials = 1312312;
 
@@ -73,11 +69,9 @@ test("it throws a fatal error if credentials do not match schema", async () => {
 		}),
 	);
 
-	token()
+	cookie()
 		.credentials(Schema.standardSchemaV1(Schema.Literal("hellooooo")))
-		.from(async () => {
-			return "asdasd";
-		})
+		.from(async () => {})
 		.build()
 		// @ts-expect-error
 		.using(myInvalidCredentials);
@@ -88,23 +82,21 @@ test("it throws a fatal error if credentials do not match schema", async () => {
 });
 
 test("it can access global context", async () => {
-	const { api, token } = createTestApi();
+	const { api, cookie } = createTestApi();
 	const context = { asdasdnasd: "asdas" };
 	api.tell(setContext(context));
 
 	let caughtContext: typeof context | null = null;
 
-	const myToken = token()
+	const myCookie = cookie()
 		.credentials(type<string>())
-		.from(() => {
-			return "asdads";
-		})
+		.from(() => {})
 		.build()
 		.using(({ context }) => {
 			caughtContext = context as any;
 			return "asda";
 		});
 
-	await myToken.get();
+	await myCookie.load();
 	expect(caughtContext).toEqual(context);
 });

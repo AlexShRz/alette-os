@@ -1,11 +1,11 @@
 import * as E from "effect/Effect";
 import { AuthManager } from "../../../../domain/auth/AuthManager";
 import { queryTask } from "../../../plugins/tasks/primitive/functions";
-import { asTokenTransaction } from "../../utils/asTokenTransaction";
+import { asAuthEntityTransaction } from "../../utils/asAuthEntityTransaction";
 
 export const forTokenValidity = (tokenId: string) =>
 	queryTask(
-		asTokenTransaction(
+		asAuthEntityTransaction(
 			tokenId,
 			E.gen(function* () {
 				const auth = yield* E.serviceOptional(AuthManager);

@@ -1,11 +1,11 @@
 import * as E from "effect/Effect";
 import { AuthManager } from "../../../../domain/auth/AuthManager";
-import { ITokenChangeSubscriber } from "../../../../domain/auth/tokens/StoredTokenSubscribers";
+import { IAuthEntityChangeSubscriber } from "../../../../domain/auth/services/AuthEntitySubscribers";
 import { task } from "../../../plugins/tasks/primitive/functions";
 
 export const unsubscribeFromTokenUpdates = (
 	tokenId: string,
-	listenerReference: ITokenChangeSubscriber,
+	listenerReference: IAuthEntityChangeSubscriber,
 ) =>
 	task(
 		E.gen(function* () {

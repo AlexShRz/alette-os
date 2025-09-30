@@ -1,7 +1,7 @@
 import { IHeaders, ISchema } from "@alette/pulse";
 import { AuthEntityCredentialConfig, TokenConfig } from "../../domain";
 import { TAuthEntityCredentialSupplier } from "../../domain/auth/AuthTypes";
-import { ITokenChangeSubscriber } from "../../domain/auth/tokens/StoredTokenSubscribers";
+import { IAuthEntityChangeSubscriber } from "../../domain/auth/services/AuthEntitySubscribers";
 import {
 	ITokenHeaderConverter,
 	ITokenSupplier,
@@ -17,15 +17,10 @@ import {
 	subscribeToTokenUpdates,
 	unsubscribeFromTokenUpdates,
 } from "../tasks";
-import {
-	forToken,
-	forTokenCredentials,
-	forTokenHeaders,
-	forTokenValidity,
-} from "../tasks";
+import { forToken, forTokenHeaders, forTokenValidity } from "../tasks";
 
 type TTokenCredentialSupplier<Credentials = unknown> = (
-	...params: Parameters<TAuthEntityCredentialSupplier>
+	...params: Parameters<TAuthEntityCredentialSupplier<Credentials>>
 ) => Credentials | Promise<Credentials>;
 
 export type TTokenCredentials<Credentials = unknown> =
@@ -86,14 +81,9 @@ export class Token<
 		return forToken(this.config.id).toPromise(this.scheduler);
 	}
 
-	getCredentials() {
-		return forTokenCredentials<Credentials>(this.config.id).toPromise(
-			this.scheduler,
-		);
-	}
-
 	using(credentialsOrSupplier: TTokenCredentials<Credentials>) {
-		this.credentialSupplier =
+		const self = this as unknown as Token<Credentials, ProvidedHeaders>;
+		self.credentialSupplier =
 			typeof credentialsOrSupplier === "function"
 				? async (...args) =>
 						await (
@@ -101,7 +91,7 @@ export class Token<
 						)(...args)
 				: async () => credentialsOrSupplier;
 
-		setTokenCredentials(this.config.id, this.credentialSupplier).sendTo(
+		setTokenCredentials(self.config.id, self.credentialSupplier as any).sendTo(
 			this.scheduler,
 		);
 		return this;
@@ -134,7 +124,7 @@ export class Token<
 		);
 	}
 
-	onStatus(listener: ITokenChangeSubscriber) {
+	onStatus(listener: IAuthEntityChangeSubscriber) {
 		const { id } = this.config;
 		subscribeToTokenUpdates(id, listener).sendTo(this.scheduler);
 

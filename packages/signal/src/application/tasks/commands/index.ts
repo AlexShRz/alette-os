@@ -1,4 +1,5 @@
 export * from "./tokens";
+export * from "./cookies";
 export * from "./setContext";
 export * from "./setOrigin";
 export * from "./activatePlugins";

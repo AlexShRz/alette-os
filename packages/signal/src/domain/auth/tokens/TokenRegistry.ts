@@ -6,10 +6,10 @@ import * as SynchronizedRef from "effect/SynchronizedRef";
 import { GlobalContext } from "../../context/services/GlobalContext";
 import { ErrorHandler } from "../../errors/ErrorHandler";
 import { orPanic } from "../../errors/utils/orPanic";
-import { AuthEntityCredentials } from "../AuthEntityCredentials";
-import { CannotFindTokenError } from "../errors";
+import { AuthEntityCredentials } from "../services/AuthEntityCredentials";
 import { StoredToken } from "./StoredToken";
 import { TokenConfig } from "./TokenConfig";
+import { CannotFindTokenError } from "./errors";
 
 export class TokenRegistry extends E.Service<TokenRegistry>()("TokenRegistry", {
 	scoped: E.gen(function* () {

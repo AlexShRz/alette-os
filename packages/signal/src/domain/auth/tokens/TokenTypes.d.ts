@@ -19,5 +19,3 @@ export interface ITokenHeaderConverter<Headers extends IHeaders = IHeaders> {
 export interface ITokenSupplier<Credentials = any> {
 	(options: ITokenSupplierOptions<Credentials>): Promise<string> | string;
 }
-
-export type TTokenStatus = "invalid" | "valid";

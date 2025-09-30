@@ -3,18 +3,18 @@ import { AuthManager } from "../../../../domain/auth/AuthManager";
 import { orPanic } from "../../../../domain/errors/utils/orPanic";
 import { queryTask } from "../../../plugins/tasks/primitive/functions";
 
-export const forTokenCredentials = <Credentials = unknown>(tokenId: string) =>
+export const forCookieCredentials = <Credentials = unknown>(cookieId: string) =>
 	queryTask(
 		E.gen(function* () {
 			const auth = yield* E.serviceOptional(AuthManager);
-			const tokens = auth.getTokenRegistry();
-			const token = yield* tokens.get(tokenId);
+			const cookies = auth.getCookieRegistry();
+			const cookie = yield* cookies.get(cookieId);
 
-			if (!token) {
+			if (!cookie) {
 				return null;
 			}
 
-			const credentialManager = token.getCredentials();
+			const credentialManager = cookie.getCredentials();
 			const credentials = yield* credentialManager.get();
 			return credentials as Credentials;
 		}).pipe(orPanic),

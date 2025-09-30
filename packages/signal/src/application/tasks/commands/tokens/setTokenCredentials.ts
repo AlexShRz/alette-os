@@ -2,14 +2,14 @@ import * as E from "effect/Effect";
 import { AuthManager } from "../../../../domain/auth/AuthManager";
 import { TAuthEntityCredentialSupplier } from "../../../../domain/auth/AuthTypes";
 import { task } from "../../../plugins/tasks/primitive/functions";
-import { asTokenTransaction } from "../../utils/asTokenTransaction";
+import { asAuthEntityTransaction } from "../../utils/asAuthEntityTransaction";
 
 export const setTokenCredentials = (
 	tokenId: string,
 	supplier: TAuthEntityCredentialSupplier,
 ) =>
 	task(
-		asTokenTransaction(
+		asAuthEntityTransaction(
 			tokenId,
 			E.gen(function* () {
 				const auth = yield* E.serviceOptional(AuthManager);

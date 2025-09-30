@@ -1,4 +1,3 @@
-import { IHeaders } from "@alette/pulse";
 import * as E from "effect/Effect";
 import * as Runtime from "effect/Runtime";
 import * as SynchronizedRef from "effect/SynchronizedRef";
@@ -10,62 +9,39 @@ import {
 	AuthEntitySubscribers,
 	IAuthEntityChangeSubscriber,
 } from "../services/AuthEntitySubscribers";
-import { ITokenConfig, TokenConfig } from "./TokenConfig";
-import { ITokenHeaderConverter, ITokenSupplier } from "./TokenTypes";
+import { CookieConfig, ICookieConfig } from "./CookieConfig";
+import { ICookieSupplier } from "./CookieTypes";
 
-interface ITokenUpdateResult {
-	value: string;
+interface ICookieUpdateResult {
 	status: TAuthEntityStatus;
 }
 
-type TStoredTokenState = Omit<
-	ITokenConfig,
-	"headerConverter" | "credentials"
-> & {
-	value: string;
+type TStoredCookieState = Omit<ICookieConfig, "credentials"> & {
 	status: TAuthEntityStatus;
-	headerConverter: ITokenHeaderConverter;
 };
 
-export class StoredToken extends E.Service<StoredToken>()("StoredToken", {
+export class StoredCookie extends E.Service<StoredCookie>()("StoredCookie", {
 	dependencies: [
 		AuthEntitySubscribers.Default,
 		AuthEntityScheduledRefresh.Default,
 	],
-	scoped: E.fn(function* (config: TokenConfig) {
+	scoped: E.fn(function* (config: CookieConfig) {
 		const globalContext = yield* GlobalContext;
 		const credentials = yield* AuthEntityCredentials;
 		const subscribers = yield* AuthEntitySubscribers;
-		const tokenRefresher = yield* AuthEntityScheduledRefresh;
+		const cookieRefresher = yield* AuthEntityScheduledRefresh;
 
 		const runtime = yield* E.runtime();
 		const runPromise = Runtime.runPromise(runtime);
 
 		const refreshInterval = config.getRefreshInterval();
-		const state = yield* SynchronizedRef.make<TStoredTokenState>({
+		const state = yield* SynchronizedRef.make<TStoredCookieState>({
 			id: config.getId(),
-			/**
-			 * Our token is always an empty string by default.
-			 * */
-			value: "",
-			/**
-			 * 1. By default, all tokens are invalid.
-			 * 2. This status will trigger automatic token refresh on "token.get()"
-			 * and fill our initial token values.
-			 * */
 			status: "invalid",
 			supplier: config.getSupplier(),
-			headerConverter: config.getHeaderConverter(),
 		});
 
-		/**
-		 * 1. For some reason if try to access
-		 * returned state immediately after update, we get
-		 * outdated data.
-		 * 2. This is why we return void here and force users
-		 * to query state again using "state.get"
-		 * */
-		const refreshToken = E.zipLeft(
+		const refreshCookie = E.zipLeft(
 			E.void,
 			SynchronizedRef.getAndUpdateEffect(state, (currentState) =>
 				E.gen(function* () {
@@ -73,77 +49,60 @@ export class StoredToken extends E.Service<StoredToken>()("StoredToken", {
 						return currentState;
 					}
 
-					return yield* forceRefreshToken(currentState);
+					return yield* forceRefreshCookie(currentState);
 				}),
 			),
 		);
 
-		const forceRefreshToken = (tokenState: TStoredTokenState) =>
+		const forceRefreshCookie = (cookieState: TStoredCookieState) =>
 			E.gen(function* () {
-				const { supplier, value } = tokenState;
+				const { supplier } = cookieState;
 
-				const getNewToken = async () =>
+				const loadNewCookie = async () =>
 					await supplier({
 						context: await globalContext.getPromise(),
 						getCredentials: () => runPromise(credentials.get()),
 						getCredentialsOrThrow: () => runPromise(credentials.getOrThrow()),
-						prevToken: value,
 					});
 
 				const result = yield* E.promise(async () => {
 					await subscribers.runPromise("loading");
 
 					try {
-						const newToken = await getNewToken();
+						await loadNewCookie();
 						return {
-							value: newToken,
 							status: "valid",
-						} satisfies ITokenUpdateResult;
+						} satisfies ICookieUpdateResult;
 					} catch {
 						/**
 						 * If our fn throws, we need to set
-						 * our token status to invalid and keep
-						 * previous token value
+						 * our cookie status to invalid and keep
+						 * previous cookie value
 						 * */
 						return {
-							value,
 							status: "invalid",
-						} satisfies ITokenUpdateResult;
+						} satisfies ICookieUpdateResult;
 					}
 				});
 
 				yield* subscribers.run(result.status);
-				return { ...tokenState, ...result };
+				return { ...cookieState, ...result };
 			});
 
 		/**
-		 * 1. Configure auto token refresh if needed
-		 * 2. Token refresh mustn't care about whether our token is valid -
-		 * sometimes people need to refresh tokens while they are still
+		 * 1. Configure auto cookie refresh if needed
+		 * 2. Cookie refresh mustn't care about whether our cookie is valid -
+		 * sometimes people need to refresh cookies while they are still
 		 * valid to avoid bad UX.
 		 * */
-		tokenRefresher.refreshPeriodically(
+		cookieRefresher.refreshPeriodically(
 			refreshInterval,
 			SynchronizedRef.getAndUpdateEffect(state, (currentState) =>
-				forceRefreshToken(currentState),
+				forceRefreshCookie(currentState),
 			),
 		);
 
 		return {
-			get() {
-				return E.gen(function* () {
-					const { value, status } = yield* state.get;
-
-					if (status === "invalid") {
-						yield* refreshToken;
-						const newState = yield* state.get;
-						return newState.value;
-					}
-
-					return value;
-				});
-			},
-
 			getStatus() {
 				return E.gen(function* () {
 					const { status } = yield* state.get;
@@ -155,7 +114,7 @@ export class StoredToken extends E.Service<StoredToken>()("StoredToken", {
 				return credentials;
 			},
 
-			setSupplier(supplier: ITokenSupplier) {
+			setSupplier(supplier: ICookieSupplier) {
 				return E.zipLeft(
 					E.void,
 					SynchronizedRef.getAndUpdate(state, (currentState) => ({
@@ -166,14 +125,14 @@ export class StoredToken extends E.Service<StoredToken>()("StoredToken", {
 			},
 
 			refresh() {
-				return E.zipLeft(E.void, refreshToken);
+				return E.zipLeft(E.void, refreshCookie);
 			},
 
 			forceRefresh() {
 				return E.zipLeft(
 					E.void,
 					SynchronizedRef.getAndUpdateEffect(state, (currentState) =>
-						forceRefreshToken(currentState),
+						forceRefreshCookie(currentState),
 					),
 				);
 			},
@@ -203,21 +162,6 @@ export class StoredToken extends E.Service<StoredToken>()("StoredToken", {
 
 			unsubscribe(subscriberReference: IAuthEntityChangeSubscriber) {
 				return subscribers.unsubscribe(subscriberReference);
-			},
-
-			toHeaders() {
-				return E.gen(this, function* () {
-					const tokenValue = yield* this.get();
-					const { headerConverter } = yield* state.get;
-					const context = yield* globalContext.get();
-
-					const getHeaders = async () =>
-						await headerConverter({ context, token: tokenValue });
-
-					return yield* E.promise(() => getHeaders()).pipe(
-						E.orElseSucceed(() => ({}) as IHeaders),
-					);
-				});
 			},
 		};
 	}),

@@ -1,14 +1,18 @@
 import { ISchema, validateSchema } from "@alette/pulse";
 import * as E from "effect/Effect";
 import * as SynchronizedRef from "effect/SynchronizedRef";
-import { GlobalContext } from "../context/services/GlobalContext";
-import { panic } from "../errors/utils/panic";
-import { AuthEntityCredentialConfig } from "./AuthEntityCredentialConfig";
-import { TAuthEntityCredentialSupplier, TAuthEntityType } from "./AuthTypes";
+import { GlobalContext } from "../../context/services/GlobalContext";
+import { panic } from "../../errors/utils/panic";
+import { TAuthEntityCredentialSupplier, TAuthEntityType } from "../AuthTypes";
 import {
-	AuthEntityCredentialValidationError,
-	AuthEntityCredentialsNotSetError,
-} from "./errors";
+	CookieCredentialValidationError,
+	CookieCredentialsNotSetError,
+} from "../cookies";
+import {
+	TokenCredentialValidationError,
+	TokenCredentialsNotSetError,
+} from "../tokens";
+import { AuthEntityCredentialConfig } from "./AuthEntityCredentialConfig";
 
 export class AuthEntityCredentials extends E.Service<AuthEntityCredentials>()(
 	"AuthEntityCredentials",
@@ -42,13 +46,15 @@ export class AuthEntityCredentials extends E.Service<AuthEntityCredentials>()(
 					return E.gen(this, function* () {
 						const credentials = yield* this.get();
 
-						if (credentials === null) {
-							return yield* new AuthEntityCredentialsNotSetError(
-								authEntityType,
-							);
+						if (credentials !== null) {
+							return credentials as Credentials;
 						}
 
-						return credentials as Credentials;
+						if (authEntityType === "token") {
+							return yield* new TokenCredentialsNotSetError();
+						}
+
+						return yield* new CookieCredentialsNotSetError();
 					});
 				},
 
@@ -58,6 +64,7 @@ export class AuthEntityCredentials extends E.Service<AuthEntityCredentials>()(
 							const context = yield* globalContext.get();
 							const newCredentials = yield* E.promise(() =>
 								credentialSupplier({
+									previous: currentState.credentials,
 									context,
 								}),
 							);
@@ -75,11 +82,14 @@ export class AuthEntityCredentials extends E.Service<AuthEntityCredentials>()(
 									credentials: validatedCredentials,
 								};
 							} catch (e) {
+								if (authEntityType === "token") {
+									return yield* panic(
+										new TokenCredentialValidationError(newCredentials),
+									);
+								}
+
 								return yield* panic(
-									new AuthEntityCredentialValidationError(
-										authEntityType,
-										newCredentials,
-									),
+									new CookieCredentialValidationError(newCredentials),
 								);
 							}
 						}),

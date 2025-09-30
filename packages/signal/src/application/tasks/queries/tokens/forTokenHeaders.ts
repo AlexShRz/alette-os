@@ -3,13 +3,13 @@ import * as E from "effect/Effect";
 import { AuthManager } from "../../../../domain/auth/AuthManager";
 import { orPanic } from "../../../../domain/errors/utils/orPanic";
 import { queryTask } from "../../../plugins/tasks/primitive/functions";
-import { asTokenTransaction } from "../../utils/asTokenTransaction";
+import { asAuthEntityTransaction } from "../../utils/asAuthEntityTransaction";
 
 export const forTokenHeaders = <Headers extends IHeaders = IHeaders>(
 	tokenId: string,
 ) =>
 	queryTask(
-		asTokenTransaction(
+		asAuthEntityTransaction(
 			tokenId,
 			E.gen(function* () {
 				const auth = yield* E.serviceOptional(AuthManager);

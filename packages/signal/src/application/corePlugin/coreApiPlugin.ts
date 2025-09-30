@@ -1,3 +1,4 @@
+import { CookieBuilder } from "../auth";
 import { TokenBuilder } from "../auth/TokenBuilder";
 import { defineApiPlugin } from "../plugins";
 import { customRequestFactory } from "./custom";
@@ -13,6 +14,7 @@ export const coreApiPlugin = () => {
 		use() {
 			return {
 				token: () => new TokenBuilder(core.getScheduler()),
+				cookie: () => new CookieBuilder(core.getScheduler()),
 				query: queryFactory.belongsTo(core).build().asFunction(),
 				custom: customRequestFactory.belongsTo(core).build().asFunction(),
 			};

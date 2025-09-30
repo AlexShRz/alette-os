@@ -1,23 +1,22 @@
 import * as E from "effect/Effect";
 import { AuthManager } from "../../../../domain/auth/AuthManager";
-import { ITokenSupplier } from "../../../../domain/auth/tokens/TokenTypes";
 import { task } from "../../../plugins/tasks/primitive/functions";
 import { asAuthEntityTransaction } from "../../utils/asAuthEntityTransaction";
 
-export const setTokenSupplier = (tokenId: string, supplier: ITokenSupplier) =>
+export const refreshCookie = (cookieId: string) =>
 	task(
 		asAuthEntityTransaction(
-			tokenId,
+			cookieId,
 			E.gen(function* () {
 				const auth = yield* E.serviceOptional(AuthManager);
-				const tokens = auth.getTokenRegistry();
-				const token = yield* tokens.get(tokenId);
+				const cookies = auth.getCookieRegistry();
+				const cookie = yield* cookies.get(cookieId);
 
-				if (!token) {
+				if (!cookie) {
 					return;
 				}
 
-				yield* token.setSupplier(supplier);
+				yield* cookie.refresh();
 			}),
 		).pipe(E.orDie),
 	);

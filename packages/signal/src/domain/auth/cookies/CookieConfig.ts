@@ -2,32 +2,20 @@ import * as Equal from "effect/Equal";
 import * as Hash from "effect/Hash";
 import { TRecognizedApiDuration } from "../../../shared";
 import { AuthEntityCredentialConfig } from "../services/AuthEntityCredentialConfig";
-import { ITokenHeaderConverter, ITokenSupplier } from "./TokenTypes";
+import { ICookieSupplier } from "./CookieTypes";
 
-export interface ITokenConfig {
+export interface ICookieConfig {
 	id: string;
-	supplier: ITokenSupplier;
+	supplier: ICookieSupplier;
 	credentials: AuthEntityCredentialConfig;
 	refreshEvery?: TRecognizedApiDuration | null;
-	headerConverter?: ITokenHeaderConverter;
 }
 
-export class TokenConfig implements Equal.Equal {
-	protected headerConverter: ITokenHeaderConverter =
-		this.getDefaultHeaderConverter();
-
-	constructor(protected config: ITokenConfig) {
-		if (config.headerConverter) {
-			this.headerConverter = config.headerConverter;
-		}
-	}
+export class CookieConfig implements Equal.Equal {
+	constructor(protected config: ICookieConfig) {}
 
 	getId() {
 		return this.config.id;
-	}
-
-	getHeaderConverter() {
-		return this.headerConverter;
 	}
 
 	getRefreshInterval() {
@@ -42,14 +30,8 @@ export class TokenConfig implements Equal.Equal {
 		return this.config.supplier;
 	}
 
-	protected getDefaultHeaderConverter(): ITokenHeaderConverter {
-		return ({ token }) => ({
-			Authorization: `Bearer ${token}`,
-		});
-	}
-
 	[Equal.symbol](that: Equal.Equal): boolean {
-		if (that instanceof TokenConfig) {
+		if (that instanceof CookieConfig) {
 			return this.config.id === that.getId();
 		}
 

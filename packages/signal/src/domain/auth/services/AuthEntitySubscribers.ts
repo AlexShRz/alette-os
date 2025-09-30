@@ -3,27 +3,27 @@ import * as Runtime from "effect/Runtime";
 import * as SynchronizedRef from "effect/SynchronizedRef";
 import { GlobalContext } from "../../context/services/GlobalContext";
 import { TRequestGlobalContext } from "../../context/typeUtils/RequestIOTypes";
-import { TTokenStatus } from "./TokenTypes";
+import { TAuthEntityStatus } from "../AuthTypes";
 
-export interface ITokenChangeSubscriber {
+export interface IAuthEntityChangeSubscriber {
 	loading?: (options: TRequestGlobalContext) => void | Promise<void>;
 	valid?: (options: TRequestGlobalContext) => void | Promise<void>;
 	invalid?: (options: TRequestGlobalContext) => void | Promise<void>;
 }
 
-export class StoredTokenSubscribers extends E.Service<StoredTokenSubscribers>()(
-	"StoredTokenSubscribers",
+export class AuthEntitySubscribers extends E.Service<AuthEntitySubscribers>()(
+	"AuthEntitySubscribers",
 	{
 		scoped: E.gen(function* () {
 			const globalContext = yield* GlobalContext;
-			const subscribers = yield* SynchronizedRef.make<ITokenChangeSubscriber[]>(
-				[],
-			);
+			const subscribers = yield* SynchronizedRef.make<
+				IAuthEntityChangeSubscriber[]
+			>([]);
 			const runPromise = Runtime.runPromise(yield* E.runtime());
 
 			const runListeners = (
-				subscribers: ITokenChangeSubscriber[],
-				key: keyof ITokenChangeSubscriber,
+				subscribers: IAuthEntityChangeSubscriber[],
+				key: keyof IAuthEntityChangeSubscriber,
 			) =>
 				E.gen(function* () {
 					const filteredSubscribers = subscribers
@@ -42,18 +42,21 @@ export class StoredTokenSubscribers extends E.Service<StoredTokenSubscribers>()(
 				});
 
 			return {
-				run(status: TTokenStatus | "loading") {
+				run(status: TAuthEntityStatus | "loading") {
 					return E.gen(function* () {
 						const currentSubscribers = yield* subscribers.get;
 						return yield* runListeners(currentSubscribers, status);
 					});
 				},
 
-				runPromise(status: TTokenStatus | "loading") {
+				runPromise(status: TAuthEntityStatus | "loading") {
 					return runPromise(this.run(status));
 				},
 
-				subscribe(status: TTokenStatus, subscriber: ITokenChangeSubscriber) {
+				subscribe(
+					status: TAuthEntityStatus,
+					subscriber: IAuthEntityChangeSubscriber,
+				) {
 					return E.zipLeft(
 						E.void,
 						SynchronizedRef.getAndUpdateEffect(
@@ -70,7 +73,7 @@ export class StoredTokenSubscribers extends E.Service<StoredTokenSubscribers>()(
 					);
 				},
 
-				unsubscribe(subscriberReference: ITokenChangeSubscriber) {
+				unsubscribe(subscriberReference: IAuthEntityChangeSubscriber) {
 					return E.zipLeft(
 						E.void,
 						SynchronizedRef.getAndUpdate(subscribers, (currentSubscribers) => {
