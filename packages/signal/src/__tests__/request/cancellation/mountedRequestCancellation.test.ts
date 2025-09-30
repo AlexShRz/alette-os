@@ -60,7 +60,7 @@ test("it cancels requests without overriding their error and success states", as
 		output(type<string>()),
 		throws(MyError),
 		factory(async () => {
-			return await new Promise<string | MyError>((res, reject) => {
+			return await new Promise<string>((res, reject) => {
 				trigger.subscribe({
 					next: (v) => {
 						if (v instanceof MyError) {

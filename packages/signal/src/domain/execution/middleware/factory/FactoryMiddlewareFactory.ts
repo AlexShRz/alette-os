@@ -16,7 +16,10 @@ export interface IRequestRunner<C extends IRequestContext = IRequestContext> {
 		requestContext: TGetAllRequestContext<C> & {
 			url: UrlBuilder<TGetRequestQueryParams<C>>;
 		},
-		utils: { notify: (notification: OneShotRequestNotification) => void },
+		utils: {
+			notify: (notification: OneShotRequestNotification) => void;
+			signal: AbortSignal;
+		},
 	):
 		| Promise<TGetOriginalRequestResponseValue<C>>
 		| TGetOriginalRequestResponseValue<C>;

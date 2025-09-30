@@ -61,15 +61,6 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 						const fullContext = yield* requestContext.getSnapshot();
 						const fullUrl = yield* getFullUrl;
 
-						const runner = async () =>
-							await executor(
-								{
-									...fullContext,
-									url: fullUrl,
-								},
-								{ notify: sendNotification },
-							);
-
 						/**
 						 * IMPORTANT:
 						 * 1. Use runFork to dispatch state events to the bus
@@ -84,7 +75,15 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 									),
 								);
 
-								const response = yield* E.promise(() => runner());
+								const response = yield* E.promise(async (signal) => {
+									return executor(
+										{
+											...fullContext,
+											url: fullUrl,
+										},
+										{ notify: sendNotification, signal },
+									);
+								});
 
 								runFork(
 									context.sendToBus(
