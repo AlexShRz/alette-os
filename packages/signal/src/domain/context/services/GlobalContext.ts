@@ -13,7 +13,7 @@ export class GlobalContext extends E.Service<GlobalContext>()("GlobalContext", {
 				return context.get;
 			},
 
-			getPromise() {
+			getAsPromise() {
 				return runPromise(this.get());
 			},
 

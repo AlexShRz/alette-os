@@ -33,7 +33,7 @@ export class AuthEntitySubscribers extends E.Service<AuthEntitySubscribers>()(
 						E.promise(
 							async () =>
 								await subscriber({
-									context: await globalContext.getPromise(),
+									context: await globalContext.getAsPromise(),
 								}),
 						),
 					);

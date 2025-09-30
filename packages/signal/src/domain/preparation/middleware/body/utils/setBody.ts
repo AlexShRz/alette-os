@@ -13,7 +13,7 @@ export const setBody = (headers: IHeaders = {}) =>
 				headerContext,
 				(requestHeaders) =>
 					E.gen(function* () {
-						requestHeaders.setSystemInjectedHeaders(headers);
+						requestHeaders.addSystemInjectedHeaders(headers);
 						return requestHeaders;
 					}),
 			);

@@ -82,8 +82,7 @@ export class Token<
 	}
 
 	using(credentialsOrSupplier: TTokenCredentials<Credentials>) {
-		const self = this as unknown as Token<Credentials, ProvidedHeaders>;
-		self.credentialSupplier =
+		this.credentialSupplier =
 			typeof credentialsOrSupplier === "function"
 				? async (...args) =>
 						await (
@@ -91,7 +90,7 @@ export class Token<
 						)(...args)
 				: async () => credentialsOrSupplier;
 
-		setTokenCredentials(self.config.id, self.credentialSupplier as any).sendTo(
+		setTokenCredentials(this.config.id, this.credentialSupplier as any).sendTo(
 			this.scheduler,
 		);
 		return this;

@@ -1,4 +1,5 @@
 import * as E from "effect/Effect";
+import * as Fiber from "effect/Fiber";
 import { PluginTaskScheduler } from "../../PluginTaskScheduler";
 
 export abstract class TaskBuilder<Result = void, Errors = never> {
@@ -11,7 +12,21 @@ export abstract class TaskBuilder<Result = void, Errors = never> {
 	toPromise(scheduler: PluginTaskScheduler) {
 		return new Promise<Result>((resolve, reject) => {
 			const configuredTask = this.build().pipe(
-				E.andThen((result) => resolve(result)),
+				E.andThen((result) =>
+					/**
+					 * TODO: Remove joining, introduce a proper
+					 * task scheduling system.
+					 * */
+					E.gen(function* () {
+						if (Fiber.isFiber(result) && Fiber.isRuntimeFiber(result)) {
+							const unwrappedResult = yield* Fiber.join(result);
+							resolve(unwrappedResult as Result);
+							return;
+						}
+
+						resolve(result);
+					}).pipe(E.fork),
+				),
 				E.catchAll((error) => E.sync(() => reject(error))),
 			);
 

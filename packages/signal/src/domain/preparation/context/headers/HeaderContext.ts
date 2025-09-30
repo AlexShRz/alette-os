@@ -18,8 +18,8 @@ export class HeaderContext extends RequestContextPart<IHeaders, {}> {
 		return this.systemInjectedHeaders;
 	}
 
-	setSystemInjectedHeaders(headers: IHeaders) {
-		this.systemInjectedHeaders = headers;
+	addSystemInjectedHeaders(headers: IHeaders) {
+		this.systemInjectedHeaders = { ...this.systemInjectedHeaders, ...headers };
 		return this;
 	}
 

@@ -1,7 +1,7 @@
 import { type } from "@alette/pulse";
 import { Schema } from "effect";
 import { setContext, setErrorHandler } from "../../application";
-import { TokenCredentialValidationError } from "../../domain";
+import { CookieCredentialValidationError } from "../../domain";
 import { createTestApi } from "../../shared/testUtils";
 
 test("it sets credentials", async () => {
@@ -37,14 +37,12 @@ test("it can access previous credentials before updating them", async () => {
 		.build()
 		.using(prevCredentials);
 
-	myCookie.using(async () => {
-		const prevCredentials = await myCookie.getCredentials();
-
-		if (!prevCredentials) {
+	myCookie.using(async ({ previous }) => {
+		if (!previous) {
 			return myCredentials;
 		}
 
-		return `${prevCredentials}${myCredentials}`;
+		return `${previous}${myCredentials}`;
 	});
 	await myCookie.load();
 
@@ -61,7 +59,7 @@ test("it throws a fatal error if credentials do not match schema", async () => {
 	api.tell(
 		setErrorHandler((error) => {
 			if (
-				error instanceof TokenCredentialValidationError &&
+				error instanceof CookieCredentialValidationError &&
 				error.getInvalidCredentials() === myInvalidCredentials
 			) {
 				failed = true;

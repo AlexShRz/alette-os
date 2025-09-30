@@ -18,5 +18,5 @@ export const refreshCookie = (cookieId: string) =>
 
 				yield* cookie.refresh();
 			}),
-		).pipe(E.orDie),
+		).pipe(E.orDie, E.fork),
 	);

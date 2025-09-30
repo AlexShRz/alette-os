@@ -19,5 +19,5 @@ export const forToken = (tokenId: string) =>
 
 				return yield* token.get();
 			}),
-		).pipe(orPanic),
+		).pipe(orPanic, E.fork),
 	);

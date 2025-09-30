@@ -4,6 +4,10 @@ export * from "./execution";
 export * from "./preparation";
 export * from "./lifecycle";
 export * from "./errors";
-export * from "./auth";
 export * from "./categorization";
+/**
+ * "auth" must be placed after "categorization",
+ * to avoid circular references
+ * */
+export * from "./auth";
 export { type } from "@alette/pulse";

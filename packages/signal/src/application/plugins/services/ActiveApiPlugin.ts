@@ -41,28 +41,18 @@ export class ActiveApiPlugin extends E.Service<ActiveApiPlugin>()(
 				 * and creates more problems than it solves for this specific use case.
 				 * */
 				runWithSupervision<A, E, R>(task: E.Effect<A, E, R>) {
+					/**
+					 * TODO: This is garbage, we need a proper
+					 * task scheduling system. Create it later.
+					 * */
 					return E.gen(function* () {
-						/**
-						 * 1. This wrapper allows us to catch
-						 * forked tasks and interrupt them when
-						 * our scope is closed.
-						 * 2. This also makes sure that we can run tasks
-						 * concurrently with supervision.
-						 * */
-						const fiber = yield* E.gen(function* () {
-							const fiberOrResult = yield* task;
+						const result = yield* task;
 
-							if (
-								Fiber.isFiber(fiberOrResult) &&
-								Fiber.isRuntimeFiber(fiberOrResult)
-							) {
-								return yield* Fiber.join(fiberOrResult);
-							}
+						if (Fiber.isFiber(result) && Fiber.isRuntimeFiber(result)) {
+							yield* E.addFinalizer(() => Fiber.interruptFork(result));
+						}
 
-							return fiberOrResult;
-						}).pipe(E.fork);
-
-						yield* E.addFinalizer(() => Fiber.interruptFork(fiber));
+						return result;
 					}).pipe(E.provide(runtime), Scope.extend(scope));
 				},
 			};

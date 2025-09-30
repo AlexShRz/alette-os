@@ -1,17 +1,15 @@
 import { setContext } from "../../application";
 import { createTestApi } from "../../shared/testUtils";
 
-test("it triggers listeners on every token lifecycle event", async () => {
-	const { token } = createTestApi();
+test("it triggers listeners on every cookie lifecycle event", async () => {
+	const { cookie } = createTestApi();
 	const logged: number[] = [];
 
-	const myToken = token()
-		.from(async () => {
-			return "asdsad";
-		})
+	const myCookie = cookie()
+		.from(async () => {})
 		.build();
 
-	myToken.onStatus({
+	myCookie.onStatus({
 		invalid: async () => {
 			logged.push(1);
 		},
@@ -27,29 +25,27 @@ test("it triggers listeners on every token lifecycle event", async () => {
 		expect(logged).toEqual([1]);
 	});
 
-	await myToken.get();
+	await myCookie.load();
 
 	await vi.waitFor(() => {
 		expect(logged).toEqual([1, 2, 3]);
 	});
 
-	myToken.invalidate();
+	myCookie.invalidate();
 	await vi.waitFor(() => {
 		expect(logged).toEqual([1, 2, 3, 1]);
 	});
 });
 
 test("it unsubscribes listeners", async () => {
-	const { token } = createTestApi();
+	const { cookie } = createTestApi();
 	const logged: number[] = [];
 
-	const myToken = token()
-		.from(async () => {
-			return "asdsad";
-		})
+	const myCookie = cookie()
+		.from(async () => {})
 		.build();
 
-	const unsubscribe = myToken.onStatus({
+	const unsubscribe = myCookie.onStatus({
 		invalid: async () => {
 			logged.push(1);
 		},
@@ -66,20 +62,20 @@ test("it unsubscribes listeners", async () => {
 	});
 
 	unsubscribe();
-	await myToken.get();
+	await myCookie.load();
 
 	await vi.waitFor(() => {
 		expect(logged).toEqual([1]);
 	});
 
-	myToken.invalidate();
+	myCookie.invalidate();
 	await vi.waitFor(() => {
 		expect(logged).toEqual([1]);
 	});
 });
 
 test("it allows listeners to access global context", async () => {
-	const { api, token } = createTestApi();
+	const { api, cookie } = createTestApi();
 	const context = { asdasd: "asd" };
 	api.tell(setContext(context));
 
@@ -88,13 +84,11 @@ test("it allows listeners to access global context", async () => {
 	let caughtContext3: typeof context | null = null;
 	const logged: number[] = [];
 
-	const myToken = token()
-		.from(async () => {
-			return "asdsad";
-		})
+	const myCookie = cookie()
+		.from(async () => {})
 		.build();
 
-	myToken.onStatus({
+	myCookie.onStatus({
 		invalid: async ({ context }) => {
 			caughtContext1 = context as any;
 			logged.push(1);
@@ -114,7 +108,7 @@ test("it allows listeners to access global context", async () => {
 		expect(caughtContext1).toEqual(context);
 	});
 
-	await myToken.get();
+	await myCookie.load();
 
 	await vi.waitFor(() => {
 		expect(logged).toEqual([1, 2, 3]);

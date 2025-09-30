@@ -8,5 +8,6 @@ export type TKnownRequestContextKey = (
 	| "url"
 	| "args"
 	| "method"
+	| "miscellaneous"
 ) &
 	(string & {});

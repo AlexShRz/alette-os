@@ -1,4 +1,3 @@
-import { validateHeaders } from "@alette/pulse";
 import * as E from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as SynchronizedRef from "effect/SynchronizedRef";
@@ -36,11 +35,9 @@ export class HeadersMiddleware extends Middleware("HeadersMiddleware", {
 								const newHeaders = yield* E.promise(() => getUpdatedHeaders());
 
 								/**
-								 * Validate headers first
+								 * Make sure we fully override prev headers here
 								 * */
-								const validatedHeaders = validateHeaders(newHeaders);
-
-								adapter.setHeaders(validatedHeaders);
+								adapter.setHeaders(newHeaders);
 								return headerContext;
 							}),
 					).pipe(orPanic);

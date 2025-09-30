@@ -60,7 +60,7 @@ export class StoredCookie extends E.Service<StoredCookie>()("StoredCookie", {
 
 				const loadNewCookie = async () =>
 					await supplier({
-						context: await globalContext.getPromise(),
+						context: await globalContext.getAsPromise(),
 						getCredentials: () => runPromise(credentials.get()),
 						getCredentialsOrThrow: () => runPromise(credentials.getOrThrow()),
 					});

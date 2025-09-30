@@ -1,43 +1,41 @@
 import { createTestApi } from "../../shared/testUtils";
 
-test("it deduplicates requests for token refresh", async () => {
-	const { token } = createTestApi();
-	const tokenValue = "asdasjkdh";
+test("it deduplicates requests for cookie refresh", async () => {
+	const { cookie } = createTestApi();
 	let calledTimes = 0;
 
-	const myToken = token()
+	const myCookie = cookie()
 		.from(async () => {
 			calledTimes++;
-			return tokenValue;
 		})
 		.build();
 
 	await Promise.all([
-		myToken.get(),
-		myToken.get(),
-		myToken.get(),
-		myToken.get(),
-		myToken.get(),
-		myToken.get(),
-		myToken.get(),
-		myToken.get(),
-		myToken.get(),
-		myToken.get(),
-		myToken.get(),
-		myToken.get(),
+		myCookie.load(),
+		myCookie.load(),
+		myCookie.load(),
+		myCookie.load(),
+		myCookie.load(),
+		myCookie.load(),
+		myCookie.load(),
+		myCookie.load(),
+		myCookie.load(),
+		myCookie.load(),
+		myCookie.load(),
+		myCookie.load(),
 	]);
 
-	expect(await myToken.get()).toEqual(tokenValue);
+	await myCookie.load();
 	expect(calledTimes).toEqual(1);
 });
 
-test("it does not block users from getting other tokens", async () => {
-	const { token } = createTestApi();
-	const tokenValue1 = "asdasjkdh";
-	const tokenValue2 = "213123";
+test("it does not block users from getting other cookies", async () => {
+	const { cookie } = createTestApi();
 	let reachedFirst = false;
+	let reachedSecond = false;
+	let reachedThird = false;
 
-	const myToken1 = token()
+	const myCookie1 = cookie()
 		.from(async () => {
 			reachedFirst = true;
 			return new Promise(() => {
@@ -45,23 +43,25 @@ test("it does not block users from getting other tokens", async () => {
 			});
 		})
 		.build();
-	const myToken2 = token()
+	const myCookie2 = cookie()
 		.from(async () => {
-			return tokenValue1;
+			reachedSecond = true;
 		})
 		.build();
-	const myToken3 = token()
+	const myCookie3 = cookie()
 		.from(async () => {
-			return tokenValue2;
+			reachedThird = true;
 		})
 		.build();
 
-	// Start token refresh that never resolves
-	myToken1.get().catch((e) => e);
+	// Start cookie refresh that never resolves
+	myCookie1.load().catch((e) => e);
 	await vi.waitFor(() => {
 		expect(reachedFirst).toBeTruthy();
 	});
 
-	expect(await myToken2.get()).toEqual(tokenValue1);
-	expect(await myToken3.get()).toEqual(tokenValue2);
+	await myCookie2.load();
+	expect(reachedSecond).toBeTruthy();
+	await myCookie3.load();
+	expect(reachedThird).toBeTruthy();
 });

@@ -15,7 +15,7 @@ import {
 	subscribeToCookieUpdates,
 	unsubscribeFromCookieUpdates,
 } from "../tasks";
-import { forCookieCredentials, forCookieValidity } from "../tasks";
+import { forCookieValidity } from "../tasks";
 
 type TCookieCredentialSupplier<Credentials = unknown> = (
 	...params: Parameters<TAuthEntityCredentialSupplier>
@@ -26,10 +26,8 @@ export type TCookieCredentials<Credentials = unknown> =
 	| Credentials;
 
 export class Cookie<Credentials = unknown> {
-	protected credentialSupplier: TAuthEntityCredentialSupplier<
-		unknown,
-		Credentials
-	> | null = null;
+	protected credentialSupplier: TAuthEntityCredentialSupplier<Credentials> | null =
+		null;
 
 	constructor(
 		protected scheduler: PluginTaskScheduler,
@@ -67,12 +65,6 @@ export class Cookie<Credentials = unknown> {
 		return this.config.id;
 	}
 
-	getCredentials() {
-		return forCookieCredentials<Credentials>(this.config.id).toPromise(
-			this.scheduler,
-		);
-	}
-
 	using(credentialsOrSupplier: TCookieCredentials<Credentials>) {
 		this.credentialSupplier =
 			typeof credentialsOrSupplier === "function"
@@ -82,7 +74,7 @@ export class Cookie<Credentials = unknown> {
 						)(...args)
 				: async () => credentialsOrSupplier;
 
-		setCookieCredentials(this.config.id, this.credentialSupplier).sendTo(
+		setCookieCredentials(this.config.id, this.credentialSupplier as any).sendTo(
 			this.scheduler,
 		);
 		return this;

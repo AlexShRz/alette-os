@@ -84,7 +84,7 @@ export class StoredToken extends E.Service<StoredToken>()("StoredToken", {
 
 				const getNewToken = async () =>
 					await supplier({
-						context: await globalContext.getPromise(),
+						context: await globalContext.getAsPromise(),
 						getCredentials: () => runPromise(credentials.get()),
 						getCredentialsOrThrow: () => runPromise(credentials.getOrThrow()),
 						prevToken: value,
