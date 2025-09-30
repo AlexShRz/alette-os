@@ -1,19 +1,33 @@
 import * as E from "effect/Effect";
+import { GlobalContext } from "../../../context/services/GlobalContext";
+import { orPanic } from "../../../errors/utils/orPanic";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
 import { WithRunOnMountCheck } from "../../events/envelope/WithRunOnMountCheck";
 import { RequestMeta } from "../../services/RequestMeta";
 import { RequestMode } from "../../services/RequestMode";
+import { TRunOnMountMiddlewareArgs } from "./RunOnMountMiddlewareFactory";
 
 export class RunOnMountMiddleware extends Middleware("RunOnMountMiddleware", {
 	priority: MiddlewarePriority.BeforeCreation,
 })(
-	(isEnabled = true) =>
+	(isEnabledFlagOrSupplier: TRunOnMountMiddlewareArgs = true) =>
 		({ parent, context }) =>
 			E.gen(function* () {
 				const requestMode = yield* E.serviceOptional(RequestMode);
+				const globalContext = yield* E.serviceOptional(GlobalContext);
 				const meta = yield* E.serviceOptional(RequestMeta);
 				const mountModeMeta = meta.getMountModeMeta();
+
+				const isEnabled = yield* E.promise(async () => {
+					if (typeof isEnabledFlagOrSupplier !== "function") {
+						return isEnabledFlagOrSupplier;
+					}
+
+					return isEnabledFlagOrSupplier({
+						context: await globalContext.getAsPromise(),
+					});
+				}).pipe(orPanic);
 
 				return {
 					...parent,

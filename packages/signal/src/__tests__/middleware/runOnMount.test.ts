@@ -1,3 +1,4 @@
+import { setContext } from "../../application";
 import { factory, input, runOnMount, type } from "../../domain";
 import { createTestApi } from "../../shared/testUtils/createTestApi";
 
@@ -75,5 +76,32 @@ test("it overrides previous middleware of the same type", async () => {
 
 	await vi.waitFor(() => {
 		expect(getState().data).toEqual(value);
+	});
+});
+
+test("it can access global context", async () => {
+	const { api, custom } = createTestApi();
+	const context = { asdasd: "asda" };
+	api.tell(setContext(context));
+
+	const data = "asdasd";
+	let caughtContext: any = null;
+
+	const getData = custom(
+		input(type<string>()),
+		runOnMount(async ({ context }) => {
+			caughtContext = context;
+			return true;
+		}),
+		factory(() => {
+			return data;
+		}),
+	);
+
+	const { getState } = getData.mount();
+
+	await vi.waitFor(() => {
+		expect(getState().data).toEqual(data);
+		expect(caughtContext).toEqual(context);
 	});
 });
