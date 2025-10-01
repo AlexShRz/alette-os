@@ -1,3 +1,4 @@
+import { makeUrl } from "@alette/pulse";
 import { Duration, Layer } from "effect";
 import { vi } from "vitest";
 import { activatePlugins, blueprint, coreApiPlugin } from "../../application";
@@ -40,6 +41,7 @@ export const createTestApi = (...commands: CommandTaskBuilder[]) => {
 	return {
 		api,
 		...core.use(),
+		testUrl: makeUrl("https://example.com"),
 		corePlugin: core.plugin,
 		/**
 		 * Make sure we use request types created for

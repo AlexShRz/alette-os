@@ -1,10 +1,10 @@
-// @ts-nocheck
 import { ClientRequest } from "http";
+import { formDataToBuffer } from "./utils/formDataToBuffer";
 import { XMLHttpRequestEventTarget } from "./xml-http-request-event-target";
 
 export class XMLHttpRequestUpload extends XMLHttpRequestEventTarget {
 	private _contentType: string | null = null;
-	private _body = null;
+	private _body: any = null;
 
 	constructor() {
 		super();
@@ -16,8 +16,40 @@ export class XMLHttpRequestUpload extends XMLHttpRequestEventTarget {
 		this._body = null;
 	}
 
-	_setData(data?: string | Buffer | ArrayBuffer | ArrayBufferView) {
+	async _setData(
+		data?: string | Blob | Buffer | ArrayBuffer | ArrayBufferView | FormData,
+	) {
 		if (data == null) {
+			return;
+		}
+
+		/**
+		 * Simulate automatic browser headers set for form data
+		 * */
+		if (data instanceof FormData) {
+			const { buffer, boundary } = await formDataToBuffer(data);
+			this._contentType = `multipart/form-data; boundary=${boundary}`;
+			this._body = Buffer.from(buffer);
+			return;
+		}
+
+		if (data instanceof Blob) {
+			this._contentType = `application/octet-stream`;
+			this._body = Buffer.from(await data.arrayBuffer());
+			return;
+		}
+
+		if (data instanceof ArrayBuffer || data instanceof Uint8Array) {
+			const body = Buffer.alloc(data.byteLength);
+			const view = new Uint8Array(data);
+			for (let i = 0; i < data.byteLength; i++) {
+				const chunk = view[i];
+				if (chunk) {
+					body[i] = chunk;
+				}
+			}
+			this._contentType = `application/octet-stream`;
+			this._body = body;
 			return;
 		}
 
@@ -28,19 +60,15 @@ export class XMLHttpRequestUpload extends XMLHttpRequestEventTarget {
 			this._body = Buffer.from(data, "utf-8");
 		} else if (Buffer.isBuffer(data)) {
 			this._body = data;
-		} else if (data instanceof ArrayBuffer) {
-			const body = Buffer.alloc(data.byteLength);
-			const view = new Uint8Array(data);
-			for (let i = 0; i < data.byteLength; i++) {
-				body[i] = view[i];
-			}
-			this._body = body;
 		} else if (data.buffer && data.buffer instanceof ArrayBuffer) {
 			const body = Buffer.alloc(data.byteLength);
 			const offset = data.byteOffset;
 			const view = new Uint8Array(data.buffer);
 			for (let i = 0; i < data.byteLength; i++) {
-				body[i] = view[i + offset];
+				const chunk = view[i + offset];
+				if (chunk) {
+					body[i] = chunk;
+				}
 			}
 			this._body = body;
 		} else {
@@ -48,7 +76,10 @@ export class XMLHttpRequestUpload extends XMLHttpRequestEventTarget {
 		}
 	}
 
-	_finalizeHeaders(headers: object, loweredHeaders: object) {
+	_finalizeHeaders(
+		headers: Record<string, string>,
+		loweredHeaders: Record<string, string>,
+	) {
 		if (this._contentType && !loweredHeaders["content-type"]) {
 			headers["Content-Type"] = this._contentType;
 		}

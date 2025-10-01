@@ -32,7 +32,6 @@ test("it throws a fatal error if response does not match schema", async () => {
 
 	const getData = custom(
 		output(MyOutput),
-		// @ts-expect-error
 		factory(() => {
 			return invalidResponse;
 		}),
@@ -73,7 +72,6 @@ test("it throws a fatal error if response does not match schema (with adapter)",
 
 	const getData = custom(
 		output(MyOutput),
-		// @ts-expect-error
 		factory(() => {
 			return invalidResponse;
 		}),

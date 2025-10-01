@@ -23,9 +23,7 @@ export declare namespace UrlPart {
 		| string;
 }
 
-export interface IUrlConstructor<
-	QueryParams extends IQueryParams = IQueryParams,
-> {
+export interface IUrlConstructor<QueryParams extends IQueryParams = any> {
 	(options: {
 		origin: string;
 		port: string;
@@ -38,7 +36,7 @@ export interface IUrlConstructor<
 }
 
 export class UrlBuilder<
-	QueryParams extends IQueryParams = IQueryParams,
+	QueryParams extends IQueryParams = any,
 > extends AbstractBuilder<UrlBuilder<QueryParams>> {
 	protected path = "";
 	protected port = "";
@@ -64,7 +62,7 @@ export class UrlBuilder<
 		const portPart = port ? `:${port}` : "";
 		const pathPart = path || "";
 		const queryString = queryParams.toString();
-		const queryPart = queryString ? `?${queryString}` : "";
+		const queryPart = queryString ? `${queryString}` : "";
 		const hashPart = hash || "";
 
 		return `${protocolPart}//${hostPart}${portPart}${pathPart}${queryPart}${hashPart}`;

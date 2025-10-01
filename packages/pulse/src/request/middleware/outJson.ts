@@ -1,0 +1,13 @@
+import * as E from "effect/Effect";
+import { IRequestMiddleware } from "../RequestTypes";
+import { RequestData } from "../services/RequestData";
+
+export const outJson = (): IRequestMiddleware => (request) =>
+	request.prependOperation(
+		E.gen(function* () {
+			const data = yield* RequestData;
+			data.update({
+				responseType: "json",
+			});
+		}),
+	);

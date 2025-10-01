@@ -1,6 +1,8 @@
-import { RequestWasCancelledError } from "@alette/pulse";
+import { RequestCancelledError, r, request } from "@alette/pulse";
+import { http, delay } from "msw";
 import { factory } from "../../../domain";
 import { createTestApi } from "../../../shared/testUtils";
+import { server } from "../../utils/server";
 
 test("it triggers abort signal during cancellation", async () => {
 	const { custom } = createTestApi();
@@ -32,70 +34,92 @@ test("it triggers abort signal during cancellation", async () => {
 	});
 });
 
-test("it does not broadcast aborted error", async () => {
-	const { custom } = createTestApi();
-	let wasAbortSignalTriggered = false;
+test(
+	"it does not broadcast aborted error",
+	server.boundary(async () => {
+		const { custom, testUrl } = createTestApi();
+		let wasAbortSignalTriggered = false;
 
-	const getData1 = custom(
-		factory(async (_, { signal }) => {
-			return await new Promise((_, reject) => {
-				signal.onabort = () => {
-					wasAbortSignalTriggered = true;
-					reject(new RequestWasCancelledError());
-				};
-			});
-		}),
-	);
+		server.use(
+			http.get(testUrl.build(), async () => {
+				await delay("infinite");
+			}),
+		);
 
-	const { getState, execute, cancel } = getData1.mount();
+		const getData1 = custom(
+			factory(async ({ url }, { signal }) => {
+				try {
+					await request(
+						r.route(url.setOrigin(testUrl.getOrigin())),
+						r.signal(signal),
+					).execute();
+				} catch (e) {
+					if (e instanceof RequestCancelledError) {
+						wasAbortSignalTriggered = true;
+					}
+					throw e;
+				}
+			}),
+		);
 
-	execute();
-	/**
-	 * Wait for the loading state
-	 * */
-	await vi.waitFor(() => {
-		expect(getState().isLoading).toBeTruthy();
-	});
-	cancel();
-	await vi.waitFor(() => {
-		const { error, isLoading, isError } = getState();
+		const { getState, execute, cancel } = getData1.mount();
 
-		expect(wasAbortSignalTriggered).toBeTruthy();
-		expect(error).toEqual(null);
-		expect(isLoading).toEqual(false);
-		expect(isError).toEqual(false);
-	});
-});
+		execute();
+		/**
+		 * Wait for the loading state
+		 * */
+		await vi.waitFor(() => {
+			expect(getState().isLoading).toBeTruthy();
+		});
+		cancel();
+		await vi.waitFor(() => {
+			const { error, isLoading, isError } = getState();
 
-test("it throws cancellation error if custom abort signal is used", async () => {
-	const { custom } = createTestApi();
-	const logged: any[] = [];
-	let factoryReached = false;
+			expect(wasAbortSignalTriggered).toBeTruthy();
+			expect(error).toEqual(null);
+			expect(isLoading).toEqual(false);
+			expect(isError).toEqual(false);
+		});
+	}),
+);
 
-	const abortController = new AbortController();
-	const signal = abortController.signal;
+test(
+	"it throws cancellation error if custom abort signal is used",
+	server.boundary(async () => {
+		const { custom, testUrl } = createTestApi();
+		const logged: any[] = [];
+		let factoryReached = false;
 
-	const getData1 = custom(
-		factory(async () => {
-			return await new Promise((_, reject) => {
+		const abortController = new AbortController();
+		const signal = abortController.signal;
+
+		server.use(
+			http.get(testUrl.build(), async () => {
+				await delay("infinite");
+			}),
+		);
+
+		const getData1 = custom(
+			factory(async ({ url }) => {
 				factoryReached = true;
-				signal.onabort = () => {
-					reject(new RequestWasCancelledError());
-				};
-			});
-		}),
-	);
+				return request(
+					r.route(url.setOrigin(testUrl.getOrigin())),
+					r.signal(signal),
+				).execute();
+			}),
+		);
 
-	getData1.execute().catch((error) => {
-		logged.push(error);
-	});
+		getData1.execute().catch((error) => {
+			logged.push(error);
+		});
 
-	await vi.waitFor(() => {
-		expect(factoryReached).toBeTruthy();
-	});
-	abortController.abort();
+		await vi.waitFor(() => {
+			expect(factoryReached).toBeTruthy();
+		});
+		abortController.abort();
 
-	await vi.waitFor(() => {
-		expect(logged[0]).toBeInstanceOf(RequestWasCancelledError);
-	});
-});
+		await vi.waitFor(() => {
+			expect(logged[0]).toBeInstanceOf(RequestCancelledError);
+		});
+	}),
+);

@@ -1,6 +1,6 @@
 import * as E from "effect/Effect";
 import { THttpStatusCode } from "../../THttpStatusCode";
-import { RequestFailedError, RequestWasCancelledError } from "../../error";
+import { RequestCancelledError, RequestFailedError } from "../../error";
 import { ProgressBroadcaster } from "../services/ProgressBroadcaster";
 import { IFilledRequestData, RequestData } from "../services/RequestData";
 import { configureRequest } from "./configureRequest";
@@ -23,7 +23,7 @@ export class RequestExecutor extends E.Service<RequestExecutor>()(
 
 				return yield* E.async<
 					unknown,
-					RequestFailedError | RequestWasCancelledError
+					RequestCancelledError | RequestFailedError
 				>((resume) => {
 					const { request, execute } = configureRequest({
 						request: new XMLHttpRequest(),
@@ -49,7 +49,7 @@ export class RequestExecutor extends E.Service<RequestExecutor>()(
 					 * Handle abort
 					 * */
 					request.onabort = () => {
-						resume(E.fail(new RequestWasCancelledError()));
+						resume(new RequestCancelledError());
 					};
 
 					/**
@@ -63,28 +63,22 @@ export class RequestExecutor extends E.Service<RequestExecutor>()(
 						}
 
 						resume(
-							E.fail(
-								new RequestFailedError({
-									reason: "Client configuration error.",
-									status: request.status as THttpStatusCode,
-									serverResponse: request.response,
-									headers: parseResponseHeaders(
-										request.getAllResponseHeaders(),
-									),
-								}),
-							),
+							new RequestFailedError({
+								reason: "Client configuration error.",
+								status: request.status as THttpStatusCode,
+								serverResponse: request.response,
+								headers: parseResponseHeaders(request.getAllResponseHeaders()),
+							}),
 						);
 					};
 					request.onerror = () => {
 						resume(
-							E.fail(
-								new RequestFailedError({
-									reason:
-										"Network error. " +
-										"Either you are offline, " +
-										"or the server could not have been reached for other reason.",
-								}),
-							),
+							new RequestFailedError({
+								reason:
+									"Network error. " +
+									"Either you are offline, " +
+									"or the server could not be reached for other reason.",
+							}),
 						);
 					};
 
@@ -94,7 +88,7 @@ export class RequestExecutor extends E.Service<RequestExecutor>()(
 
 			return {
 				run() {
-					return runRequest;
+					return E.either(runRequest);
 				},
 			};
 		}),

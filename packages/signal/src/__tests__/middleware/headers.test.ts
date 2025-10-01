@@ -1,27 +1,49 @@
-import { HeaderValidationError } from "@alette/pulse";
+import { HeaderValidationError, r, request } from "@alette/pulse";
+import { http, HttpResponse } from "msw";
 import { setErrorHandler } from "../../application";
 import { factory, headers } from "../../domain";
 import { createTestApi } from "../../shared/testUtils/createTestApi";
+import { server } from "../utils/server";
 
-test("it sets headers", async () => {
-	const { custom } = createTestApi();
-	const myHeaders = {
-		hey: "there",
-	};
+test(
+	"it sets headers",
+	server.boundary(async () => {
+		const { custom, testUrl } = createTestApi();
+		const myHeaders = {
+			hey: "there",
+		};
 
-	const getData = custom(
-		headers(myHeaders),
-		factory(({ headers }) => {
-			return headers;
-		}),
-	);
+		server.use(
+			http.get(testUrl.build(), ({ request }) => {
+				return HttpResponse.json(Object.fromEntries(request.headers.entries()));
+			}),
+		);
 
-	const result = await getData.execute();
+		const getData = custom(
+			headers(myHeaders),
+			factory(({ headers }) => {
+				return headers;
+			}),
+		);
 
-	await vi.waitFor(() => {
-		expect(result).toStrictEqual(myHeaders);
-	});
-});
+		const result = await getData.execute();
+		const result2 = await getData
+			.with(
+				factory(({ url, headers }) =>
+					request(
+						r.headers(headers),
+						r.route(url.setOrigin(testUrl.getOrigin())),
+					).execute(),
+				),
+			)
+			.execute();
+
+		await vi.waitFor(() => {
+			expect(result).toStrictEqual(myHeaders);
+			expect(result2).toEqual(expect.objectContaining(myHeaders));
+		});
+	}),
+);
 
 test("it can be combined", async () => {
 	const { custom } = createTestApi();

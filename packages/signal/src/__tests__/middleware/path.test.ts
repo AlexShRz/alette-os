@@ -1,25 +1,47 @@
-import { CannotSetPathError } from "@alette/pulse";
+import { CannotSetPathError, r, request } from "@alette/pulse";
+import { http, HttpResponse } from "msw";
 import { setErrorHandler } from "../../application";
 import { path, factory } from "../../domain";
 import { createTestApi } from "../../shared/testUtils/createTestApi";
+import { server } from "../utils/server";
 
-test("it sets path", async () => {
-	const { custom } = createTestApi();
-	const path1 = "/heyyy";
+test(
+	"it sets path",
+	server.boundary(async () => {
+		const { custom, testUrl } = createTestApi();
+		const path1 = "/heyyy";
 
-	const getData = custom(
-		path(path1),
-		factory(({ path, url }) => {
-			return [path, url.getPath()];
-		}),
-	);
+		server.use(
+			http.get(testUrl.setPath(path1).build(), ({ request }) => {
+				return HttpResponse.text(new URL(request.url).pathname);
+			}),
+		);
 
-	const result = await getData.execute();
+		const getData = custom(
+			path(path1),
+			factory(({ path, url }) => {
+				return [path, url.getPath()];
+			}),
+		);
 
-	await vi.waitFor(() => {
-		expect(result).toEqual([path1, path1]);
-	});
-});
+		const result = await getData.execute();
+		const result2 = await getData
+			.with(
+				factory(({ url }) =>
+					request(
+						r.route(url.setOrigin(testUrl.getOrigin())),
+						r.outText(),
+					).execute(),
+				),
+			)
+			.execute();
+
+		await vi.waitFor(() => {
+			expect(result).toEqual([path1, path1]);
+			expect(result2).toEqual(path1);
+		});
+	}),
+);
 
 test("it can compose paths", async () => {
 	const { custom } = createTestApi();

@@ -7,9 +7,10 @@ import { RequestRouteNotProvidedError } from "../errors";
 
 export interface IRequestDataProps {
 	method: THttpMethod;
-	route?: UrlBuilder;
+	route?: UrlBuilder<any>;
 	body?: THttpBody | null;
 	headers?: IHeaders | null;
+	responseType: XMLHttpRequest["responseType"];
 	mode: RequestInit["mode"];
 	signal?: AbortSignal;
 	credentials: RequestInit["credentials"];
@@ -25,6 +26,7 @@ export class RequestData extends E.Service<RequestData>()("RequestData", {
 		let config: IRequestDataProps = {
 			method: "GET",
 			mode: "cors",
+			responseType: "json",
 			credentials: "omit",
 		};
 

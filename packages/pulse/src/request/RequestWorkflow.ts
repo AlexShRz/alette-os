@@ -25,7 +25,7 @@ export class RequestWorkflow implements IRequestPipeline {
 		return self;
 	}
 
-	execute() {
+	async execute() {
 		const configuredRequest = this.collectedMiddleware.reduce(
 			(request, middleware) => middleware(request),
 			new PendingRequest(),
@@ -42,6 +42,12 @@ export class RequestWorkflow implements IRequestPipeline {
 				),
 			);
 
-		return E.runPromise(runRequest);
+		return E.runPromise(runRequest).then((result) => {
+			if (result._tag === "Left") {
+				throw result.left;
+			}
+
+			return result.right;
+		});
 	}
 }

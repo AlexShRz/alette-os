@@ -1,23 +1,46 @@
+import { r, request } from "@alette/pulse";
+import { http, HttpResponse } from "msw";
 import { factory, origin, queryParams } from "../../domain";
 import { createTestApi } from "../../shared/testUtils/createTestApi";
+import { server } from "../utils/server";
 
-test("it sets query params", async () => {
-	const { custom } = createTestApi();
-	const params = { hey: "asdasd" };
+test(
+	"it sets query params",
+	server.boundary(async () => {
+		const { custom, testUrl } = createTestApi();
+		const params = { hey: "asdasd" };
 
-	const getData = custom(
-		queryParams(params),
-		factory(({ queryParams, url }) => {
-			return [queryParams, url.getParams().get()];
-		}),
-	);
+		server.use(
+			http.get(testUrl.build(), async ({ request }) => {
+				const url = new URL(request.url);
+				return HttpResponse.json(
+					Object.fromEntries(url.searchParams.entries()),
+				);
+			}),
+		);
 
-	const result = await getData.execute();
+		const getData = custom(
+			queryParams(params),
+			factory(({ queryParams, url }) => {
+				return [queryParams, url.getParams().get()];
+			}),
+		);
+		const returned2 = await getData
+			.with(
+				factory(({ url }) =>
+					request(r.route(url.setOrigin(testUrl.getOrigin()))).execute(),
+				),
+			)
+			.execute();
 
-	await vi.waitFor(() => {
-		expect(result).toStrictEqual([params, params]);
-	});
-});
+		const result = await getData.execute();
+
+		await vi.waitFor(() => {
+			expect(result).toStrictEqual([params, params]);
+			expect(returned2).toStrictEqual(params);
+		});
+	}),
+);
 
 test("it composes query params", async () => {
 	const { custom } = createTestApi();

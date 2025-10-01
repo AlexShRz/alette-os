@@ -1,6 +1,6 @@
-import { makeUrl, r, request } from "@alette/pulse";
+import { r, request } from "@alette/pulse";
 import { http, HttpResponse } from "msw";
-import { path, factory, input, output, type } from "../domain";
+import { factory, input, output, type } from "../domain";
 import { createTestApi } from "../shared/testUtils/createTestApi";
 import { server } from "./utils/server";
 
@@ -10,22 +10,19 @@ import { server } from "./utils/server";
 test(
 	"it executes requests",
 	server.boundary(async () => {
-		const { custom } = createTestApi();
-		const value = "asdasjkdh";
-
-		const url = "https://example.com/user";
+		const { custom, testUrl } = createTestApi();
+		const value = { res: "asdasjkdh" };
 
 		server.use(
-			http.get(url, () => {
-				return HttpResponse.text(value);
+			http.get(testUrl.build(), () => {
+				return HttpResponse.json(value);
 			}),
 		);
 
 		const getData = custom(
 			input(type<string>()),
 			output(type<string>()),
-			path("/hey"),
-			factory(() => request(r.route(makeUrl(url))).execute()),
+			factory(() => request(r.route(testUrl.clone())).execute()),
 		);
 
 		const response = await getData.execute();

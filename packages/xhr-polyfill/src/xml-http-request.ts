@@ -204,7 +204,8 @@ export class XmlHttpRequest extends XMLHttpRequestEventTarget {
 				return this._sendFile(data);
 			case "http:":
 			case "https:":
-				return this._sendHttp(data);
+				this._sendHttp(data).catch((e) => {});
+				return;
 			default:
 				throw new XmlHttpRequest.NetworkError(
 					`Unsupported protocol ${this._url.protocol}`,
@@ -293,7 +294,9 @@ export class XmlHttpRequest extends XMLHttpRequestEventTarget {
 		throw new Error("Protocol file: not implemented");
 	}
 
-	private _sendHttp(data?: string | Buffer | ArrayBuffer | ArrayBufferView) {
+	private async _sendHttp(
+		data?: string | Buffer | ArrayBuffer | ArrayBufferView,
+	) {
 		if (this._sync) {
 			throw new Error("Synchronous XHR processing not implemented");
 		}
@@ -304,7 +307,7 @@ export class XmlHttpRequest extends XMLHttpRequestEventTarget {
 			data = data || "";
 		}
 
-		this.upload._setData(data);
+		await this.upload._setData(data);
 		this._finalizeHeaders();
 		this._sendHxxpRequest();
 	}
