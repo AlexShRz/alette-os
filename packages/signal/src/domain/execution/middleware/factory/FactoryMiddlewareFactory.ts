@@ -22,7 +22,9 @@ export interface IRequestRunner<C extends IRequestContext = IRequestContext> {
 		},
 	):
 		| Promise<TGetOriginalRequestResponseValue<C>>
-		| TGetOriginalRequestResponseValue<C>;
+		| TGetOriginalRequestResponseValue<C>
+		| Promise<unknown>
+		| unknown;
 }
 
 export class FactoryMiddlewareFactory extends Middleware(

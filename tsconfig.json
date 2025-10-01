@@ -11,6 +11,9 @@
     },
     {
       "path": "./packages/signal"
+    },
+    {
+      "path": "./packages/xhr-polyfill"
     }
   ]
 }

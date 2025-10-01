@@ -1,12 +1,10 @@
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
 import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
-import { TMergeContextAdapters } from "../../../context/typeUtils/TMergeContextAdapters";
 import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
-import { UrlContext } from "../../context/url/UrlContext";
 import { PathMiddleware } from "./PathMiddleware";
 import { IRequestPath, TGetRequestPath } from "./RequestPath";
 import { pathMiddlewareSpecification } from "./pathMiddlewareSpecification";
@@ -48,7 +46,7 @@ export class PathMiddlewareFactory extends Middleware("PathMiddlewareFactory")(
 			return toMiddlewareFactory<
 				Context,
 				IRequestContext<
-					TMergeContextAdapters<Context, UrlContext>,
+					Context["types"],
 					TMergeRecords<Context["value"], IRequestPath<Path>>,
 					Context["settings"],
 					Context["accepts"],

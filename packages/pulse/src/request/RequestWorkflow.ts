@@ -2,7 +2,7 @@ import * as E from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { PendingRequest } from "./PendingRequest";
 import { IRequestMiddleware, IRequestPipeline } from "./RequestTypes";
-import { RequestRunner } from "./runner/RequestRunner";
+import { RequestExecutor } from "./executor/RequestExecutor";
 import { ProgressBroadcaster } from "./services/ProgressBroadcaster";
 import { RequestData } from "./services/RequestData";
 
@@ -20,7 +20,9 @@ export class RequestWorkflow implements IRequestPipeline {
 	}
 
 	clone() {
-		return new RequestWorkflow();
+		const self = new RequestWorkflow();
+		self.collectedMiddleware = [...this.collectedMiddleware];
+		return self;
 	}
 
 	execute() {
@@ -34,7 +36,7 @@ export class RequestWorkflow implements IRequestPipeline {
 			.pipe(
 				E.provide(
 					Layer.provideMerge(
-						RequestRunner.Default,
+						RequestExecutor.Default,
 						Layer.mergeAll(ProgressBroadcaster.Default, RequestData.Default),
 					),
 				),

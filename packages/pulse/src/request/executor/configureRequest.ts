@@ -1,5 +1,5 @@
 import * as P from "effect/Predicate";
-import { IRequestProps } from "./RequestRunner";
+import { IRequestProps } from "./RequestExecutor";
 
 const setHeaders = ({ request, data: { headers } }: IRequestProps) => {
 	Object.entries(headers || {}).forEach(([header, value]) => {
@@ -13,9 +13,9 @@ const setCredentials = ({ request, data: { credentials } }: IRequestProps) => {
 	}
 };
 
-const setBody = ({ request, data: { body } }: IRequestProps) => {
+const sendWithBody = ({ request, data: { body } }: IRequestProps) => {
 	if (body === undefined) {
-		return;
+		return request.send();
 	}
 
 	if (P.isRecord(body)) {
@@ -52,9 +52,13 @@ export const configureRequest = (props: IRequestProps) => {
 
 	setHeaders(props);
 	setCredentials(props);
-	setBody(props);
 	setAbortHandler(props);
 
-	request.open(method, url, true);
-	return props.request;
+	return {
+		request,
+		execute: () => {
+			request.open(method, url, true);
+			sendWithBody(props);
+		},
+	};
 };
