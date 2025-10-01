@@ -1,9 +1,9 @@
+import { ApiRequest } from "../../application/blueprint";
+import { IRequestContext } from "../context/IRequestContext";
 import {
 	IAnyMiddlewareSpecification,
 	IAnyRequestSpecification,
-} from "@alette/pulse";
-import { ApiRequest } from "../../application/blueprint/ApiRequest";
-import { IRequestContext } from "../context/IRequestContext";
+} from "../specification";
 import { RequestMiddleware } from "./RequestMiddleware";
 
 /**

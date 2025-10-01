@@ -1,7 +1,7 @@
 import {
 	IAnyMiddlewareSpecification,
 	RequestSpecification,
-} from "@alette/pulse";
+} from "../../domain";
 import { IRequestContext } from "../../domain/context/IRequestContext";
 import { IMiddlewareSupplierFn } from "../../domain/middleware/IMiddlewareSupplierFn";
 import type { OneShotRequest } from "./OneShotRequest";

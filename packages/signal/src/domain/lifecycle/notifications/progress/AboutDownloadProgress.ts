@@ -1,8 +1,6 @@
+import { IDownloadProgressData } from "@alette/pulse";
 import * as E from "effect/Effect";
-import {
-	DownloadProgressReceived,
-	IDownloadProgressData,
-} from "../../events/DownloadProgressReceived";
+import { DownloadProgressReceived } from "../../events/DownloadProgressReceived";
 import { OneShotRequestNotification } from "../OneShotRequestNotification";
 
 export const aboutDownloadProgress = (data: IDownloadProgressData) =>

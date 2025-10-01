@@ -1,13 +1,11 @@
-import {
-	RequestFailedError,
-	requestCategory,
-	requestSpecification,
-} from "@alette/pulse";
+import { RequestFailedError } from "@alette/pulse";
 import {
 	allRequestMiddleware,
 	baseRequest,
 	origin,
 	reloadable,
+	requestCategory,
+	requestSpecification,
 	runOnMount,
 	throws,
 } from "../../domain";

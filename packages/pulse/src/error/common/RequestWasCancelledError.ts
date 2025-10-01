@@ -2,7 +2,7 @@ import { ApiError } from "./ApiError";
 
 export class RequestWasCancelledError extends ApiError {
 	constructor() {
-		super();
+		super("RequestWasCancelledError");
 	}
 
 	cloneSelf() {

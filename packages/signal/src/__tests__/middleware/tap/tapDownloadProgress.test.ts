@@ -1,3 +1,4 @@
+import { IDownloadProgressData } from "@alette/pulse";
 import { Subject } from "rxjs";
 import { setContext } from "../../../application";
 import {
@@ -6,7 +7,6 @@ import {
 	factory,
 	tapDownloadProgress,
 } from "../../../domain";
-import { IDownloadProgressData } from "../../../domain/lifecycle/events/DownloadProgressReceived";
 import { createTestApi } from "../../../shared/testUtils/createTestApi";
 
 test("it gets notifications about download progress", async () => {

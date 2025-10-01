@@ -258,6 +258,10 @@ export class UrlBuilder<
 		});
 	}
 
+	build() {
+		return this.toString();
+	}
+
 	override toString() {
 		return this.constructUrl({
 			protocol: this.getProtocol(),

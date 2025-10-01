@@ -1,5 +1,8 @@
-import { middlewareCategory, middlewareSpecification } from "@alette/pulse";
 import { mapperMiddleware } from "../../../middleware";
+import {
+	middlewareCategory,
+	middlewareSpecification,
+} from "../../../specification";
 
 export const tapUploadProgressMiddlewareName = middlewareCategory(
 	"tapUploadProgressMiddlewareName",

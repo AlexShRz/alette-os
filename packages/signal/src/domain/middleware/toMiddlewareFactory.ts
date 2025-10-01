@@ -1,10 +1,10 @@
-import {
-	IAnyMiddlewareSpecification,
-	IAnyRequestSpecification,
-} from "@alette/pulse";
-import { VerifyMiddlewareCompatibility } from "@alette/pulse";
 import { ApiRequest } from "../../application/blueprint";
 import { IRequestContext } from "../context/IRequestContext";
+import type {
+	IAnyMiddlewareSpecification,
+	IAnyRequestSpecification,
+	VerifyMiddlewareCompatibility,
+} from "../specification";
 import { RequestMiddleware } from "./RequestMiddleware";
 
 export const toMiddlewareFactory =

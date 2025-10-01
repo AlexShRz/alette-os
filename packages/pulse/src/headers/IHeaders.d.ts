@@ -1,1 +1,1 @@
-export interface IHeaders extends Record<string, string | IHeaders> {}
+export interface IHeaders extends Record<string, string> {}

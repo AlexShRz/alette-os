@@ -1,3 +1,5 @@
+import { IRequestContext } from "../../context/IRequestContext";
 import { method } from "./method";
 
-export const patches = () => method("PATCH");
+export const patches = <C extends IRequestContext>() =>
+	method<C, "PATCH">("PATCH");

@@ -1,10 +1,10 @@
+import { IDownloadProgressData } from "@alette/pulse";
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
 import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
-import { IDownloadProgressData } from "../../events/DownloadProgressReceived";
 import { TapDownloadProgressMiddleware } from "./TapDownloadProgressMiddleware";
 import { tapDownloadProgressMiddlewareSpecification } from "./tapDownloadProgressMiddlewareSpecification";
 

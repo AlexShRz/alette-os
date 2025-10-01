@@ -1,9 +1,9 @@
-import { IAnyRequestSpecification } from "@alette/pulse";
 import { IRequestContext } from "../../../domain/context/IRequestContext";
 import { ReloadableMiddlewareFactory } from "../../../domain/execution/middleware/reloadable/ReloadableMiddlewareFactory";
 import { RunOnMountMiddlewareFactory } from "../../../domain/execution/middleware/runOnMount/RunOnMountMiddlewareFactory";
 import { IMiddlewareSupplierFn } from "../../../domain/middleware/IMiddlewareSupplierFn";
 import { RequestMiddleware } from "../../../domain/middleware/RequestMiddleware";
+import { IAnyRequestSpecification } from "../../../domain/specification";
 import { AbstractBlueprintBuilder } from "../../blueprint/AbstractBlueprintBuilder";
 import { ApiPlugin } from "../../plugins/ApiPlugin";
 import { OneShotRequest } from "../OneShotRequest";

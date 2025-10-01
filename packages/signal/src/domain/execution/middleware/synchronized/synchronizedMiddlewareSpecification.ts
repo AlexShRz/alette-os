@@ -1,5 +1,8 @@
-import { middlewareCategory, middlewareSpecification } from "@alette/pulse";
 import { behaviouralMiddleware } from "../../../middleware";
+import {
+	middlewareCategory,
+	middlewareSpecification,
+} from "../../../specification";
 
 export const synchronizedMiddlewareName = middlewareCategory(
 	"synchronizedMiddlewareName",

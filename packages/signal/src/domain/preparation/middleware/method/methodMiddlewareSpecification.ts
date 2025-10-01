@@ -1,5 +1,8 @@
-import { middlewareCategory, middlewareSpecification } from "@alette/pulse";
 import { creationalMiddleware } from "../../../middleware";
+import {
+	middlewareCategory,
+	middlewareSpecification,
+} from "../../../specification";
 
 export const methodMiddlewareName = middlewareCategory("methodMiddlewareName");
 

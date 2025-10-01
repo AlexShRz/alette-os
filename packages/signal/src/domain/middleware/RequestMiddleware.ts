@@ -2,8 +2,8 @@ import {
 	EventBusListener,
 	EventBusListenerFactory,
 } from "@alette/event-sourcing";
-import { IAnyMiddlewareSpecification } from "@alette/pulse";
 import { IRequestContext } from "../context/IRequestContext";
+import { IAnyMiddlewareSpecification } from "../specification";
 
 export class RequestMiddleware<
 	Context extends IRequestContext = IRequestContext,

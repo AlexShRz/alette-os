@@ -1,4 +1,3 @@
-import { IAnyRequestSpecification } from "@alette/pulse";
 import { v4 as uuid } from "uuid";
 import { IRequestContext } from "../../domain/context/IRequestContext";
 import { TRequestArguments } from "../../domain/context/typeUtils/RequestIOTypes";
@@ -8,6 +7,7 @@ import {
 	IRuntimeMiddlewareSupplierFn,
 } from "../../domain/middleware/IMiddlewareSupplierFn";
 import { RequestMiddleware } from "../../domain/middleware/RequestMiddleware";
+import { IAnyRequestSpecification } from "../../domain/specification";
 import { RequestWatcher } from "../../domain/watchers/RequestWatcher";
 import { ApiPlugin } from "../plugins/ApiPlugin";
 
