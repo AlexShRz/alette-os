@@ -1,8 +1,8 @@
 import { HeaderValidationError, r, request } from "@alette/pulse";
 import { http, HttpResponse } from "msw";
-import { setErrorHandler } from "../../application";
+import { setErrorHandler, setLoggerConfig } from "../../application";
 import { factory, headers } from "../../domain";
-import { createTestApi } from "../../shared/testUtils/createTestApi";
+import { createTestApi } from "../utils/createTestApi";
 import { server } from "../utils/server";
 
 test(
@@ -93,6 +93,7 @@ test.each([
 		let failed = false;
 
 		api.tell(
+			setLoggerConfig((logger) => logger.mute()),
 			setErrorHandler((error) => {
 				if (error instanceof HeaderValidationError) {
 					failed = true;

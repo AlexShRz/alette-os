@@ -1,12 +1,11 @@
 import { ISystemLoggerConfig } from "../../domain/logger/SystemLogger";
-import { isTestEnv } from "../../shared/utils/isTestEnv";
 
 export class LoggerConfigBuilder {
 	protected config: ISystemLoggerConfig = {
 		logError: false,
 		logInfo: false,
 		logDebug: false,
-		logFatal: !isTestEnv(),
+		logFatal: false,
 	};
 
 	mute() {

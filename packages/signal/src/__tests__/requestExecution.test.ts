@@ -1,7 +1,7 @@
 import { r, request } from "@alette/pulse";
 import { http, HttpResponse } from "msw";
 import { factory, input, output, type } from "../domain";
-import { createTestApi } from "../shared/testUtils/createTestApi";
+import { createTestApi } from "./utils/createTestApi";
 import { server } from "./utils/server";
 
 /**

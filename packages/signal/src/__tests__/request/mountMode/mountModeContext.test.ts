@@ -1,5 +1,5 @@
 import { path, factory } from "../../../domain";
-import { createTestApi } from "../../../shared/testUtils/createTestApi";
+import { createTestApi } from "../../utils/createTestApi";
 
 test("it resets request context on next execution", async () => {
 	const { custom } = createTestApi();

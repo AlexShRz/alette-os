@@ -2,7 +2,7 @@ import { RequestFailedError, r, request } from "@alette/pulse";
 import { beforeEach } from "@effect/vitest";
 import { http, HttpResponse } from "msw";
 import { factory, output, retry, type } from "../../../domain";
-import { createTestApi } from "../../../shared/testUtils";
+import { createTestApi } from "../../utils";
 import { server } from "../../utils/server";
 
 beforeEach(() => {

@@ -1,5 +1,9 @@
 import { MethodValidationError, THttpMethod } from "@alette/pulse";
-import { setContext, setErrorHandler } from "../../application";
+import {
+	setContext,
+	setErrorHandler,
+	setLoggerConfig,
+} from "../../application";
 import {
 	path,
 	deletes,
@@ -10,7 +14,7 @@ import {
 	posts,
 	puts,
 } from "../../domain";
-import { createTestApi } from "../../shared/testUtils/createTestApi";
+import { createTestApi } from "../utils/createTestApi";
 
 test.each([
 	["GET" as THttpMethod],
@@ -91,6 +95,7 @@ test("it throws a fatal error if the path is incorrect", async () => {
 	const invalidMethod = "asdasdasd";
 
 	api.tell(
+		setLoggerConfig((logger) => logger.mute()),
 		setErrorHandler((error) => {
 			if (
 				error instanceof MethodValidationError &&

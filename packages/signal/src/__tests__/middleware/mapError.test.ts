@@ -1,5 +1,9 @@
 import { ApiError } from "@alette/pulse";
-import { setContext, setErrorHandler } from "../../application";
+import {
+	setContext,
+	setErrorHandler,
+	setLoggerConfig,
+} from "../../application";
 import {
 	path,
 	InvalidErrorMappingError,
@@ -9,7 +13,7 @@ import {
 	runOnMount,
 	throws,
 } from "../../domain";
-import { createTestApi } from "../../shared/testUtils/createTestApi";
+import { createTestApi } from "../utils/createTestApi";
 
 class MyError extends ApiError {
 	constructor(protected customMessage: string) {
@@ -152,6 +156,7 @@ test("it throws a fatal error if an incorrect error type is returned", async () 
 	class RandomError extends Error {}
 
 	api.tell(
+		setLoggerConfig((logger) => logger.mute()),
 		setErrorHandler((error) => {
 			if (
 				error instanceof InvalidErrorMappingError &&

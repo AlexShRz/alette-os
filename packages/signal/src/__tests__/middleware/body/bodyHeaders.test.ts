@@ -1,5 +1,5 @@
 import { body, factory, headers } from "../../../domain";
-import { createTestApi } from "../../../shared/testUtils/createTestApi";
+import { createTestApi } from "../../utils/createTestApi";
 
 test("it merges body headers with user headers", async () => {
 	const { custom } = createTestApi();

@@ -1,6 +1,6 @@
 import { makeQueryParams } from "@alette/pulse";
 import { path, url, factory, origin, queryParams } from "../../domain";
-import { createTestApi } from "../../shared/testUtils/createTestApi";
+import { createTestApi } from "../utils/createTestApi";
 
 test("it overrides default url constructor", async () => {
 	const { custom } = createTestApi();

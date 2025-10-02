@@ -1,7 +1,11 @@
 import { BodyValidationError } from "@alette/pulse";
-import { setContext, setErrorHandler } from "../../../application";
+import {
+	setContext,
+	setErrorHandler,
+	setLoggerConfig,
+} from "../../../application";
 import { path, body, factory } from "../../../domain";
-import { createTestApi } from "../../../shared/testUtils/createTestApi";
+import { createTestApi } from "../../utils/createTestApi";
 
 test("it overrides previous middleware of the same type", async () => {
 	const { custom } = createTestApi();
@@ -63,6 +67,7 @@ test("it throws a fatal error if set body is incorrect", async () => {
 	const myBody = 1312312;
 
 	api.tell(
+		setLoggerConfig((logger) => logger.mute()),
 		setErrorHandler((error) => {
 			if (
 				error instanceof BodyValidationError &&

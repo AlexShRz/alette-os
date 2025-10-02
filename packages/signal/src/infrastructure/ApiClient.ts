@@ -5,6 +5,7 @@ import * as ManagedRuntime from "effect/ManagedRuntime";
 import { CommandTaskBuilder } from "../application/plugins/tasks/primitive/CommandTaskBuilder";
 import { QueryTaskBuilder } from "../application/plugins/tasks/primitive/QueryTaskBuilder";
 import { GlobalContext } from "../domain/context/services/GlobalContext";
+import { EnvironmentMode } from "../domain/environment/EnvironmentMode";
 import { ErrorHandler } from "../domain/errors/ErrorHandler";
 import { SystemLogger } from "../domain/logger/SystemLogger";
 import { Kernel } from "./Kernel";
@@ -55,9 +56,12 @@ export class ApiClient {
 					),
 					SystemLogger.Default,
 				),
-				Logger.replace(
-					Logger.defaultLogger,
-					Logger.zip(logger, Logger.prettyLoggerDefault),
+				Layer.mergeAll(
+					Logger.replace(
+						Logger.defaultLogger,
+						Logger.zip(logger, Logger.prettyLoggerDefault),
+					),
+					EnvironmentMode.Default,
 				),
 			),
 		);
@@ -83,10 +87,7 @@ export class ApiClient {
 		this.runtime.runSync(
 			E.gen(this, function* () {
 				const kernel = yield* Kernel;
-
-				for (const command of commands) {
-					yield* kernel.runCommand(command.build());
-				}
+				yield* E.all(commands.map((c) => kernel.runCommand(c.build())));
 			}),
 		);
 	}

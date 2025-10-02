@@ -1,4 +1,4 @@
-import { createTestApi } from "../../shared/testUtils";
+import { createTestApi } from "../utils";
 
 test("it deduplicates requests for token refresh", async () => {
 	const { token } = createTestApi();

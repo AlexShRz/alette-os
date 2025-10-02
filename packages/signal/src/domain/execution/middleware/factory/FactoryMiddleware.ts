@@ -1,6 +1,8 @@
 import { IEventBusListener } from "@alette/event-sourcing";
+import { FatalApiError } from "@alette/pulse";
 import * as E from "effect/Effect";
 import * as Runtime from "effect/Runtime";
+import { panic } from "../../../errors/utils/panic";
 import { OneShotRequestNotification } from "../../../lifecycle/notifications/OneShotRequestNotification";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
@@ -93,6 +95,10 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 							}).pipe(
 								E.catchAllDefect(
 									E.fn(function* (e) {
+										if (e instanceof FatalApiError) {
+											return yield* panic(e);
+										}
+
 										runFork(
 											context.sendToBus(
 												yield* attachRequestId(RequestState.Failed(e)),

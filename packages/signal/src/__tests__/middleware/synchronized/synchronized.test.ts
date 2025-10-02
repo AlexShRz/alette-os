@@ -2,7 +2,7 @@ import { ApiError } from "@alette/pulse";
 import { Subject } from "rxjs";
 import { forActiveRequestWorkers } from "../../../application";
 import { factory, reloadable, runOnMount, synchronized } from "../../../domain";
-import { createTestApi } from "../../../shared/testUtils/createTestApi";
+import { createTestApi } from "../../utils/createTestApi";
 
 test("it keeps mounted requests in sync through the whole request lifecycle", async () => {
 	const { custom } = createTestApi();

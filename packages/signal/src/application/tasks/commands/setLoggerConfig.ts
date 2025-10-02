@@ -11,6 +11,6 @@ export const setLoggerConfig = (configurator: ILoggerConfigurator) =>
 	task(
 		E.gen(function* () {
 			const logger = yield* E.serviceOptional(SystemLogger);
-			logger.setConfig(configurator(new LoggerConfigBuilder()).build());
+			yield* logger.setConfig(configurator(new LoggerConfigBuilder()).build());
 		}),
 	);

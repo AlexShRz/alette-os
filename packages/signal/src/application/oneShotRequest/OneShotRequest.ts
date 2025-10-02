@@ -69,6 +69,14 @@ export class OneShotRequest<
 		});
 	}
 
+	/**
+	 * Runs the request in the background,
+	 * returning nothing back to the callee.
+	 * */
+	spawn(args: TRequestArguments<Context> = {}) {
+		this.execute(args).catch((e) => e);
+	}
+
 	mount() {
 		const controller = this.getController("subscription");
 		controller.reload();

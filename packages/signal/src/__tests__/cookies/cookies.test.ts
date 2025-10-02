@@ -1,4 +1,4 @@
-import { createTestApi } from "../../shared/testUtils";
+import { createTestApi } from "../utils";
 
 test("it fetches new cookie when called for the first time", async () => {
 	const { cookie } = createTestApi();

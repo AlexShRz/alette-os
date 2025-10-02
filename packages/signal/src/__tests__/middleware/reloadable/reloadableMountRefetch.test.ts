@@ -1,5 +1,5 @@
 import { factory, input, reloadable, runOnMount, type } from "../../../domain";
-import { createTestApi } from "../../../shared/testUtils/createTestApi";
+import { createTestApi } from "../../utils/createTestApi";
 
 /**
  * 1. First reload acts as a "mount" action, not "refetch"

@@ -7,7 +7,7 @@ import {
 	factory,
 	tapUploadProgress,
 } from "../../../domain";
-import { createTestApi } from "../../../shared/testUtils/createTestApi";
+import { createTestApi } from "../../utils/createTestApi";
 
 test("it gets notifications about upload progress", async () => {
 	const { custom } = createTestApi();

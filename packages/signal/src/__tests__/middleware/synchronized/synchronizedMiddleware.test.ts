@@ -1,6 +1,6 @@
 import { Subject } from "rxjs";
 import { factory, synchronized, tap } from "../../../domain";
-import { createTestApi } from "../../../shared/testUtils";
+import { createTestApi } from "../../utils";
 
 test("it marks single middleware branch as a leader and only executes its middleware", async () => {
 	const { custom } = createTestApi();

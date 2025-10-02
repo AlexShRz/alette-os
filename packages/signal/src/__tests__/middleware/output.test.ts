@@ -1,12 +1,12 @@
 import { Schema } from "effect";
-import { setErrorHandler } from "../../application";
+import { setErrorHandler, setLoggerConfig } from "../../application";
 import {
 	ResponseValidationError,
 	factory,
 	output,
 	responseAdapter,
 } from "../../domain";
-import { createTestApi } from "../../shared/testUtils/createTestApi";
+import { createTestApi } from "../utils/createTestApi";
 
 test("it throws a fatal error if response does not match schema", async () => {
 	const { api, custom } = createTestApi();
@@ -14,6 +14,7 @@ test("it throws a fatal error if response does not match schema", async () => {
 	const invalidResponse = "asdasdas";
 
 	api.tell(
+		setLoggerConfig((logger) => logger.mute()),
 		setErrorHandler((error) => {
 			if (
 				error instanceof ResponseValidationError &&
@@ -50,6 +51,7 @@ test("it throws a fatal error if response does not match schema (with adapter)",
 	const invalidResponse = "asdasdas";
 
 	api.tell(
+		setLoggerConfig((logger) => logger.mute()),
 		setErrorHandler((error) => {
 			if (
 				error instanceof ResponseValidationError &&

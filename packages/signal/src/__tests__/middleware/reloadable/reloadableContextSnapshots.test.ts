@@ -1,5 +1,5 @@
 import { factory, input, reloadable, runOnMount, type } from "../../../domain";
-import { createTestApi } from "../../../shared/testUtils/createTestApi";
+import { createTestApi } from "../../utils/createTestApi";
 
 test("it updates last context snapshot after each reload", async () => {
 	const { custom } = createTestApi();

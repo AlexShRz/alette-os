@@ -1,7 +1,7 @@
 import { ApiError } from "@alette/pulse";
 import { afterAll } from "vitest";
 import { factory, reloadable, retryWhen, runOnMount } from "../../../domain";
-import { createTestApi } from "../../../shared/testUtils";
+import { createTestApi } from "../../utils";
 
 class MyError extends ApiError {
 	cloneSelf() {

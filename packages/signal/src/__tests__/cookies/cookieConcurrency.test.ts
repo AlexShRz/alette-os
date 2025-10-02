@@ -1,4 +1,4 @@
-import { createTestApi } from "../../shared/testUtils";
+import { createTestApi } from "../utils";
 
 test("it deduplicates requests for cookie refresh", async () => {
 	const { cookie } = createTestApi();

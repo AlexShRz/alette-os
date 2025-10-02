@@ -11,7 +11,7 @@ import {
 import { IRequestContext } from "../../../domain/context/IRequestContext";
 import { WithCurrentRequestOverride } from "../../../domain/execution/events/envelope/WithCurrentRequestOverride";
 import { MiddlewarePriority } from "../../../domain/middleware/MiddlewarePriority";
-import { activityLens, createTestApi } from "../../../shared/testUtils";
+import { activityLens, createTestApi } from "../../utils";
 
 beforeEach(() => {
 	vi.useRealTimers();

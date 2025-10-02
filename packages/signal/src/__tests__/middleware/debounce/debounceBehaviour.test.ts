@@ -6,7 +6,7 @@ import {
 	runOnMount,
 	throttle,
 } from "../../../domain";
-import { createTestApi } from "../../../shared/testUtils";
+import { createTestApi } from "../../utils";
 
 beforeEach(() => {
 	vi.useRealTimers();

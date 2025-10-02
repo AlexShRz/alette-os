@@ -6,7 +6,7 @@ import {
 	runOnMount,
 	type,
 } from "../../../domain";
-import { createTestApi } from "../../../shared/testUtils/createTestApi";
+import { createTestApi } from "../../utils/createTestApi";
 
 test("it uses deep equality argument check by default", async () => {
 	const { custom } = createTestApi();

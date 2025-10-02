@@ -1,7 +1,7 @@
 import { ApiError } from "@alette/pulse";
-import { setErrorHandler } from "../../application";
+import { setErrorHandler, setLoggerConfig } from "../../application";
 import { UnknownErrorCaught, factory, throws } from "../../domain";
-import { createTestApi } from "../../shared/testUtils/createTestApi";
+import { createTestApi } from "../utils/createTestApi";
 
 test("it throws a fatal error if the error in unrecognized", async () => {
 	const { api, custom } = createTestApi();
@@ -10,6 +10,7 @@ test("it throws a fatal error if the error in unrecognized", async () => {
 	class RandomError extends Error {}
 
 	api.tell(
+		setLoggerConfig((logger) => logger.mute()),
 		setErrorHandler((error) => {
 			if (
 				error instanceof UnknownErrorCaught &&

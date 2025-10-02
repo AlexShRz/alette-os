@@ -13,7 +13,7 @@ import {
 	throws,
 	type,
 } from "../../../domain";
-import { createTestApi } from "../../../shared/testUtils/createTestApi";
+import { createTestApi } from "../../utils/createTestApi";
 
 class MyError extends ApiError {
 	cloneSelf() {

@@ -1,6 +1,6 @@
 import { expect } from "@effect/vitest";
 import { factory } from "../../../domain";
-import { createTestApi } from "../../../shared/testUtils/createTestApi";
+import { createTestApi } from "../../utils/createTestApi";
 
 test.fails("it does not process new requests after unmount", async () => {
 	const { custom } = createTestApi();

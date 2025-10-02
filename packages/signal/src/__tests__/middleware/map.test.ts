@@ -9,7 +9,7 @@ import {
 	runOnMount,
 	type,
 } from "../../domain";
-import { createTestApi } from "../../shared/testUtils/createTestApi";
+import { createTestApi } from "../utils/createTestApi";
 
 test("it can map response", async () => {
 	const { custom } = createTestApi();

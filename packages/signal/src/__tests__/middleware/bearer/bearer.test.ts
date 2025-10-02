@@ -1,7 +1,7 @@
 import { RequestFailedError } from "@alette/pulse";
 import { setContext } from "../../../application";
 import { bearer, factory, retry } from "../../../domain";
-import { createTestApi } from "../../../shared/testUtils";
+import { createTestApi } from "../../utils";
 
 test("it replaces middleware of the same type", async () => {
 	const { custom, cookie, token } = createTestApi();

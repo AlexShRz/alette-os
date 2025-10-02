@@ -6,7 +6,7 @@ import {
 	runOnMount,
 	tapTrigger,
 } from "../../../domain";
-import { createTestApi } from "../../../shared/testUtils/createTestApi";
+import { createTestApi } from "../../utils/createTestApi";
 
 test("it is triggered on request execution attempt", async () => {
 	const { custom } = createTestApi();

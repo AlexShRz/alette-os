@@ -5,7 +5,7 @@ import { forActiveRequestWorkers } from "../../../application";
 import { factory, throws } from "../../../domain";
 import { RequestState } from "../../../domain/execution/events/request/RequestState";
 import { IOneShotRequestState } from "../../../domain/execution/state/IOneShotRequestState";
-import { createTestApi } from "../../../shared/testUtils/createTestApi";
+import { createTestApi } from "../../utils/createTestApi";
 
 test("it keeps request worker alive until the subscription is disposed of", async () => {
 	const { api, custom } = createTestApi();

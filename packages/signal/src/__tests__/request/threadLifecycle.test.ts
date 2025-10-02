@@ -6,7 +6,7 @@ import {
 } from "../../application";
 import { CommandTaskBuilder } from "../../application/plugins/tasks/primitive/CommandTaskBuilder";
 import { path, factory } from "../../domain";
-import { createTestApi } from "../../shared/testUtils/createTestApi";
+import { createTestApi } from "../utils/createTestApi";
 
 const setUp = async (...commands: CommandTaskBuilder[]) => {
 	const { api, custom } = createTestApi(...commands);

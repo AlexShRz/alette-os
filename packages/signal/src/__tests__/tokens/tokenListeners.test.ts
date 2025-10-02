@@ -1,5 +1,5 @@
 import { setContext } from "../../application";
-import { createTestApi } from "../../shared/testUtils";
+import { createTestApi } from "../utils";
 
 test("it triggers listeners on every token lifecycle event", async () => {
 	const { token } = createTestApi();

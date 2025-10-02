@@ -6,7 +6,7 @@ import { customRequestSpec } from "../../application/corePlugin/custom";
 import { CommandTaskBuilder } from "../../application/plugins/tasks/primitive/CommandTaskBuilder";
 import { origin, reloadable, runOnMount } from "../../domain";
 import { ApiClient, IApiRuntimeGetter } from "../../infrastructure/ApiClient";
-import { TRecognizedApiDuration } from "../types";
+import { TRecognizedApiDuration } from "../../shared/types";
 
 class TestApiWithTestContext extends ApiClient {
 	getApiRuntime() {

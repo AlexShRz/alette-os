@@ -1,5 +1,5 @@
 import { factory, input, type } from "../../domain";
-import { createTestApi } from "../../shared/testUtils/createTestApi";
+import { createTestApi } from "../utils/createTestApi";
 
 test("it uses bound setting provider if no settings were provided manually (oneShot + mount mode)", async () => {
 	const { custom } = createTestApi();

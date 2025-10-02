@@ -19,7 +19,7 @@ export class ErrorHandler extends E.Service<ErrorHandler>()("ErrorHandler", {
 		getApiRuntime: () => ManagedRuntime.ManagedRuntime<any, any>,
 	) {
 		const globalContext = yield* GlobalContext;
-		const log = yield* SystemLogger;
+		const logger = yield* SystemLogger;
 		let reporter: IErrorHandlerFn = () => {};
 
 		return {
@@ -30,9 +30,10 @@ export class ErrorHandler extends E.Service<ErrorHandler>()("ErrorHandler", {
 
 			handle<T extends THandleableError>(error: T) {
 				return E.gen(function* () {
-					const context = yield* globalContext.get();
 					const runHandler = async () =>
-						await reporter(error, { context: context });
+						await reporter(error, {
+							context: await globalContext.getAsPromise(),
+						});
 
 					yield* E.promise(() => runHandler());
 
@@ -40,7 +41,7 @@ export class ErrorHandler extends E.Service<ErrorHandler>()("ErrorHandler", {
 					 * If our error is fatal, shutdown the api
 					 * */
 					if (error instanceof FatalApiError) {
-						log.fatal(error.toString());
+						logger.logFatal(error.toString());
 						yield* getApiRuntime().disposeEffect.pipe(E.forkDaemon);
 					}
 				});

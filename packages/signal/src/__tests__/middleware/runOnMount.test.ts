@@ -1,6 +1,6 @@
 import { setContext } from "../../application";
 import { factory, input, runOnMount, type } from "../../domain";
-import { createTestApi } from "../../shared/testUtils/createTestApi";
+import { createTestApi } from "../utils/createTestApi";
 
 test("it automatically starts requests in mount mode if run on mount is activated", async () => {
 	const { custom } = createTestApi();

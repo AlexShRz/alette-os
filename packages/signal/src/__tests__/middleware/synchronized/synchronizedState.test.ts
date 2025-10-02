@@ -2,7 +2,7 @@ import { ApiError } from "@alette/pulse";
 import { Subject } from "rxjs";
 import { forActiveRequestWorkers } from "../../../application";
 import { factory, reloadable, runOnMount, synchronized } from "../../../domain";
-import { createTestApi } from "../../../shared/testUtils/createTestApi";
+import { createTestApi } from "../../utils/createTestApi";
 
 test("it synchronizes loading state between requests", async () => {
 	const { api, custom } = createTestApi();

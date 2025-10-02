@@ -1,5 +1,5 @@
 import { setContext } from "../../application";
-import { createTestApi } from "../../shared/testUtils";
+import { createTestApi } from "../utils";
 
 test("it converts token to headers", async () => {
 	const { token } = createTestApi();

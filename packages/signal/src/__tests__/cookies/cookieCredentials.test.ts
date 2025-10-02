@@ -1,8 +1,12 @@
 import { type } from "@alette/pulse";
 import { Schema } from "effect";
-import { setContext, setErrorHandler } from "../../application";
+import {
+	setContext,
+	setErrorHandler,
+	setLoggerConfig,
+} from "../../application";
 import { CookieCredentialValidationError } from "../../domain";
-import { createTestApi } from "../../shared/testUtils";
+import { createTestApi } from "../utils";
 
 test("it sets credentials", async () => {
 	const { cookie } = createTestApi();
@@ -57,6 +61,7 @@ test("it throws a fatal error if credentials do not match schema", async () => {
 	const myInvalidCredentials = 1312312;
 
 	api.tell(
+		setLoggerConfig((logger) => logger.mute()),
 		setErrorHandler((error) => {
 			if (
 				error instanceof CookieCredentialValidationError &&

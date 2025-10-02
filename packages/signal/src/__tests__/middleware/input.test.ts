@@ -1,12 +1,12 @@
 import { Schema } from "effect";
-import { setErrorHandler } from "../../application";
+import { setErrorHandler, setLoggerConfig } from "../../application";
 import {
 	ArgumentValidationError,
 	argumentAdapter,
 	factory,
 	input,
 } from "../../domain";
-import { createTestApi } from "../../shared/testUtils/createTestApi";
+import { createTestApi } from "../utils/createTestApi";
 
 test("it throws a fatal error if arguments do not match schema", async () => {
 	const { api, custom } = createTestApi();
@@ -14,6 +14,7 @@ test("it throws a fatal error if arguments do not match schema", async () => {
 	const invalidArgs = "asdasdas";
 
 	api.tell(
+		setLoggerConfig((logger) => logger.mute()),
 		setErrorHandler((error) => {
 			if (
 				error instanceof ArgumentValidationError &&
@@ -51,6 +52,7 @@ test("it throws a fatal error if arguments do not match schema (with argument ad
 	const invalidArgs = "asdasdas";
 
 	api.tell(
+		setLoggerConfig((logger) => logger.mute()),
 		setErrorHandler((error) => {
 			if (
 				error instanceof ArgumentValidationError &&

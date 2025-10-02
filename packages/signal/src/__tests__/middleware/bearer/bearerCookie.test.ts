@@ -1,7 +1,7 @@
 import { RequestFailedError, r, request } from "@alette/pulse";
 import { http, HttpResponse } from "msw";
 import { bearer, factory } from "../../../domain";
-import { createTestApi } from "../../../shared/testUtils";
+import { createTestApi } from "../../utils";
 import { server } from "../../utils/server";
 
 test("it loads cookie during request", async () => {

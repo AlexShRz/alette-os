@@ -1,5 +1,5 @@
 import { beforeEach } from "@effect/vitest";
-import { createTestApi } from "../../shared/testUtils";
+import { createTestApi } from "../utils";
 
 beforeEach(() => {
 	vi.useRealTimers();

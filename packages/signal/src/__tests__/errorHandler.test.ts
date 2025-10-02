@@ -1,8 +1,13 @@
 import { FatalApiError } from "@alette/pulse";
-import { handleError, setContext, setErrorHandler } from "../application";
+import {
+	handleError,
+	setContext,
+	setErrorHandler,
+	setLoggerConfig,
+} from "../application";
 import { factory } from "../domain";
 import { RequestInterruptedError } from "../shared/error/RequestInterruptedError";
-import { createTestApi } from "../shared/testUtils/createTestApi";
+import { createTestApi } from "./utils/createTestApi";
 
 test("it shuts down the system after receiving first fatal exception", async () => {
 	const { api, custom } = createTestApi();
@@ -13,6 +18,7 @@ test("it shuts down the system after receiving first fatal exception", async () 
 	class MyError extends FatalApiError {}
 
 	api.tell(
+		setLoggerConfig((logger) => logger.mute()),
 		setErrorHandler((error) => {
 			if (error instanceof MyError) {
 				loggedError = true;
@@ -58,6 +64,7 @@ test("it can access global context", async () => {
 	class MyError extends FatalApiError {}
 
 	api.tell(
+		setLoggerConfig((log) => log.mute()),
 		setContext(context),
 		setErrorHandler((_, { context }) => {
 			caughtContext = context as any;
