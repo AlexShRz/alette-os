@@ -1,26 +1,41 @@
-import { CannotSetOriginError } from "@alette/pulse";
+import { CannotSetOriginError, r, request } from "@alette/pulse";
+import { http, HttpResponse } from "msw";
 import { setErrorHandler, setOrigin } from "../../application";
 import { factory, origin } from "../../domain";
 import { createTestApi } from "../../shared/testUtils/createTestApi";
+import { server } from "../utils/server";
 
-test("it uses globally set origin if nothing was provided", async () => {
-	const { api, custom } = createTestApi();
-	const value = "https://www.wikipedia.org";
-	api.tell(setOrigin(value));
+test(
+	"it uses globally set origin if nothing was provided",
+	server.boundary(async () => {
+		const { api, custom, testUrl } = createTestApi();
+		const value = testUrl.getOrigin();
+		api.tell(setOrigin(value));
 
-	const getData = custom(
-		origin(),
-		factory(({ origin, url }) => {
-			return [origin, url.getOrigin()];
-		}),
-	);
+		server.use(
+			http.get(testUrl.build(), async ({ request }) => {
+				return HttpResponse.text(new URL(request.url).origin);
+			}),
+		);
 
-	const result = await getData.execute();
+		const getData = custom(
+			origin(),
+			factory(({ origin, url }) => {
+				return [origin, url.getOrigin()];
+			}),
+		);
 
-	await vi.waitFor(() => {
-		expect(result).toEqual([value, value]);
-	});
-});
+		const result = await getData.execute();
+		const result2 = await getData
+			.with(factory(({ url }) => request(r.route(url), r.outText()).execute()))
+			.execute();
+
+		await vi.waitFor(() => {
+			expect(result).toEqual([value, value]);
+			expect(result2).toEqual(value);
+		});
+	}),
+);
 
 test("it can compose origins", async () => {
 	const { api, custom } = createTestApi();

@@ -25,6 +25,10 @@ export class ProgressBroadcaster extends E.Service<ProgressBroadcaster>()(
 
 			return {
 				notifyAboutUploadProgress(event: ProgressEvent) {
+					if (!uploadProgressSubscribers.length) {
+						return;
+					}
+
 					const { lengthComputable, loaded, total } = event;
 					const data: IUploadProgressData = {
 						progress: lengthComputable ? getProgress(event) : null,
@@ -36,6 +40,10 @@ export class ProgressBroadcaster extends E.Service<ProgressBroadcaster>()(
 				},
 
 				notifyAboutDownloadProgress(event: ProgressEvent) {
+					if (!downloadProgressSubscribers.length) {
+						return;
+					}
+
 					const { lengthComputable, loaded, total } = event;
 					const data: IDownloadProgressData = {
 						progress: lengthComputable ? getProgress(event) : null,

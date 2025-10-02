@@ -1,10 +1,8 @@
 import * as E from "effect/Effect";
-import { THttpStatusCode } from "../../THttpStatusCode";
 import { RequestCancelledError, RequestFailedError } from "../../error";
 import { ProgressBroadcaster } from "../services/ProgressBroadcaster";
 import { IFilledRequestData, RequestData } from "../services/RequestData";
 import { configureRequest } from "./configureRequest";
-import { parseResponseHeaders } from "./utils/parseResponseHeaders";
 
 export interface IRequestProps {
 	request: XMLHttpRequest;
@@ -25,13 +23,14 @@ export class RequestExecutor extends E.Service<RequestExecutor>()(
 					unknown,
 					RequestCancelledError | RequestFailedError
 				>((resume) => {
-					const { request, execute } = configureRequest({
-						request: new XMLHttpRequest(),
-						data: props,
-					});
+					const { request, isSuccess, getCommonErrorData, execute } =
+						configureRequest({
+							request: new XMLHttpRequest(),
+							data: props,
+						});
 
 					request.onreadystatechange = () => {
-						if (request.readyState === 4) {
+						if (request.readyState === request.DONE && isSuccess()) {
 							resume(E.succeed(request.response));
 						}
 					};
@@ -56,18 +55,14 @@ export class RequestExecutor extends E.Service<RequestExecutor>()(
 					 * Handle errors
 					 * */
 					request.onload = () => {
-						const isSuccess = request.status >= 200 && request.status < 300;
-
-						if (isSuccess) {
+						if (isSuccess()) {
 							return;
 						}
 
 						resume(
 							new RequestFailedError({
 								reason: "Client configuration error.",
-								status: request.status as THttpStatusCode,
-								serverResponse: request.response,
-								headers: parseResponseHeaders(request.getAllResponseHeaders()),
+								...getCommonErrorData(),
 							}),
 						);
 					};
@@ -78,6 +73,7 @@ export class RequestExecutor extends E.Service<RequestExecutor>()(
 									"Network error. " +
 									"Either you are offline, " +
 									"or the server could not be reached for other reason.",
+								...getCommonErrorData(),
 							}),
 						);
 					};

@@ -7,6 +7,7 @@ import { outJson } from "./outJson";
 import { outText } from "./outText";
 import { route } from "./route";
 import { signal } from "./signal";
+import { withCookies } from "./withCookies";
 
 export const r = {
 	body,
@@ -18,4 +19,5 @@ export const r = {
 	onDownloadProgress,
 	route,
 	signal,
+	withCookies,
 };

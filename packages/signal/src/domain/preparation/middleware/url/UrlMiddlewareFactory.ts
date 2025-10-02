@@ -1,11 +1,9 @@
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
 import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
-import { TMergeContextAdapters } from "../../../context/typeUtils/TMergeContextAdapters";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
-import { UrlContext } from "../../context/url/UrlContext";
 import { TGetRequestOrigin } from "../origin/RequestOrigin";
 import { TGetRequestPath } from "../path/RequestPath";
 import { TGetRequestQueryParams } from "../queryParams/RequestQueryParams";
@@ -51,13 +49,7 @@ export class UrlMiddlewareFactory extends Middleware("UrlMiddlewareFactory")(
 		) => {
 			return toMiddlewareFactory<
 				Context,
-				IRequestContext<
-					TMergeContextAdapters<Context, UrlContext>,
-					Context["value"],
-					Context["settings"],
-					Context["accepts"],
-					Context["acceptsMounted"]
-				>,
+				Context,
 				typeof urlMiddlewareSpecification
 			>(
 				() =>

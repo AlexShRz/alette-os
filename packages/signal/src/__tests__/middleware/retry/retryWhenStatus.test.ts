@@ -1,7 +1,9 @@
-import { RequestFailedError, THttpStatusCode } from "@alette/pulse";
+import { RequestFailedError, r, request } from "@alette/pulse";
 import { beforeEach } from "@effect/vitest";
+import { http, HttpResponse } from "msw";
 import { factory, output, retry, type } from "../../../domain";
 import { createTestApi } from "../../../shared/testUtils";
+import { server } from "../../utils/server";
 
 beforeEach(() => {
 	vi.useRealTimers();
@@ -33,31 +35,36 @@ test("it skips status related logic if the error does not contain statuses", asy
 	expect(enteredTimes).toEqual(3);
 });
 
+/**
+ * Do not use 3xx statuses here. XHR marks them as network errors and
+ * does not process them properly - triggering onerror and returning status=0
+ * */
 test.each([
 	[400, true],
 	[500, true],
-	[302, true],
+	[401, true],
 	[403, false],
 ])(
 	"it retries requests only if their errors contain statuses from the list",
-	async (status, shouldBeRetried) => {
-		const { custom } = createTestApi();
+	server.boundary(async (status, shouldBeRetried) => {
+		const { custom, testUrl } = createTestApi();
 		let enteredTimes = 0;
+
+		server.use(
+			http.get(testUrl.build(), () => {
+				return HttpResponse.json(null, { status });
+			}),
+		);
 
 		const getData = custom(
 			output(type<string>()),
-			factory(() => {
+			factory(({ url }) => {
 				enteredTimes++;
-				/**
-				 * Use errors recognized by retry() here
-				 * */
-				throw new RequestFailedError({
-					status: status as THttpStatusCode,
-				});
+				return request(r.route(url.setOrigin(testUrl.getOrigin()))).execute();
 			}),
 			retry({
 				times: 2,
-				whenStatus: [400, 500, 302],
+				whenStatus: [400, 500, 401],
 			}),
 		);
 
@@ -70,35 +77,40 @@ test.each([
 		} else {
 			expect(enteredTimes).toEqual(1);
 		}
-	},
+	}),
 );
 
+/**
+ * Do not use 3xx statuses here. XHR marks them as network errors and
+ * does not process them properly - triggering onerror and returning status=0
+ * */
 test.each([
 	[400, true],
 	[500, true],
-	[302, true],
+	[401, true],
 	[403, false],
 ])(
 	"it overrides ‘unless status’ configuration",
-	async (status, shouldBeRetried) => {
-		const { custom } = createTestApi();
+	server.boundary(async (status, shouldBeRetried) => {
+		const { custom, testUrl } = createTestApi();
 		let enteredTimes = 0;
+
+		server.use(
+			http.get(testUrl.build(), () => {
+				return HttpResponse.json(null, { status });
+			}),
+		);
 
 		const getData = custom(
 			output(type<string>()),
-			factory(() => {
+			factory(({ url }) => {
 				enteredTimes++;
-				/**
-				 * Use errors recognized by retry() here
-				 * */
-				throw new RequestFailedError({
-					status: status as THttpStatusCode,
-				});
+				return request(r.route(url.setOrigin(testUrl.getOrigin()))).execute();
 			}),
 			retry({
 				times: 2,
-				whenStatus: [400, 500, 302],
-				unlessStatus: [400, 500, 302],
+				whenStatus: [400, 500, 401],
+				unlessStatus: [400, 500, 401],
 			}),
 		);
 
@@ -111,5 +123,5 @@ test.each([
 		} else {
 			expect(enteredTimes).toEqual(1);
 		}
-	},
+	}),
 );

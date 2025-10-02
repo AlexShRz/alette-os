@@ -1,6 +1,8 @@
-import { RequestFailedError } from "@alette/pulse";
+import { RequestFailedError, r, request } from "@alette/pulse";
+import { http, HttpResponse } from "msw";
 import { bearer, factory } from "../../../domain";
 import { createTestApi } from "../../../shared/testUtils";
+import { server } from "../../utils/server";
 
 test("it loads cookie during request", async () => {
 	const { custom, cookie } = createTestApi();
@@ -52,24 +54,53 @@ test("it marks cookie as invalid if the request fails with unauthenticated statu
 	expect(await myCookie.isValid()).toBeFalsy();
 });
 
-test("it instructs requests to include credentials when a cookie is passed ", async () => {
-	const { custom, cookie } = createTestApi();
+test(
+	"it instructs requests to include credentials when a cookie is passed ",
+	server.boundary(async () => {
+		const { custom, cookie, testUrl } = createTestApi();
 
-	const myCookie = cookie()
-		.from(() => {})
-		.build();
+		server.use(
+			http.get(testUrl.build(), async ({ request }) => {
+				return HttpResponse.json({
+					credentials: request.credentials,
+				});
+			}),
+		);
 
-	const getData = custom(
-		bearer(myCookie),
-		factory(({ credentials }) => {
-			return { credentials };
-		}),
-	);
+		const myCookie = cookie()
+			.from(() => {})
+			.build();
 
-	const res = await getData.execute();
-	expect(await myCookie.isValid()).toBeTruthy();
+		const getData = custom(
+			bearer(myCookie),
+			factory(({ credentials }) => {
+				return { credentials };
+			}),
+		);
 
-	expect(res).toEqual({
-		credentials: `include`,
-	});
-});
+		const res = await getData.execute();
+		expect(await myCookie.isValid()).toBeTruthy();
+		expect(res).toEqual({
+			credentials: "include",
+		});
+
+		const res2 = await getData
+			.with(
+				factory(({ credentials, url }) =>
+					request(
+						r.route(url.setOrigin(testUrl.getOrigin())),
+						r.withCookies(credentials === "include"),
+					).execute(),
+				),
+			)
+			.execute();
+
+		/**
+		 * XHR sets "credentials" to "same-origin" automatically,
+		 * we cannot change that.
+		 * */
+		expect(res2).toEqual({
+			credentials: "same-origin",
+		});
+	}),
+);

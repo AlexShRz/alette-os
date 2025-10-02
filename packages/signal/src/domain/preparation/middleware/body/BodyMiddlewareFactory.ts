@@ -2,12 +2,10 @@ import { THttpBody } from "@alette/pulse";
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
 import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
-import { TMergeContextAdapters } from "../../../context/typeUtils/TMergeContextAdapters";
 import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
-import { BodyContext } from "../../context/body/BodyContext";
 import { TRequestBody } from "../../context/body/RequestBody";
 import { TGetRequestHeaders } from "../../context/headers/RequestHeaders";
 import { BodyMiddleware } from "./BodyMiddleware";
@@ -45,7 +43,7 @@ export class BodyMiddlewareFactory extends Middleware("BodyMiddlewareFactory")(
 			return toMiddlewareFactory<
 				Context,
 				IRequestContext<
-					TMergeContextAdapters<Context, BodyContext>,
+					Context["types"],
 					TMergeRecords<
 						Context["value"],
 						TRequestBody<Context, NewBody, TGetRequestHeaders<Context>>

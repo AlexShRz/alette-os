@@ -1,4 +1,6 @@
+import { THttpStatusCode } from "../../THttpStatusCode";
 import { IRequestProps } from "./RequestExecutor";
+import { parseResponseHeaders } from "./utils/parseResponseHeaders";
 
 const setHeaders = ({ request, data: { headers } }: IRequestProps) => {
 	Object.entries(headers || {}).forEach(([header, value]) => {
@@ -72,8 +74,18 @@ export const configureRequest = (props: IRequestProps) => {
 	setCredentials(props);
 	setAbortHandler(props);
 
+	const isSuccess = () => request.status >= 200 && request.status < 300;
+
+	const getCommonErrorData = () => ({
+		status: request.status as THttpStatusCode,
+		serverResponse: request.response,
+		headers: parseResponseHeaders(request.getAllResponseHeaders()),
+	});
+
 	return {
 		request,
+		isSuccess,
+		getCommonErrorData,
 		execute: () => {
 			sendWithBody(props);
 		},

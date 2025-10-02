@@ -1,6 +1,8 @@
-import { RequestFailedError } from "@alette/pulse";
+import { RequestFailedError, r, request } from "@alette/pulse";
+import { http, HttpResponse } from "msw";
 import { bearer, factory, headers } from "../../../domain";
 import { createTestApi } from "../../../shared/testUtils";
+import { server } from "../../utils/server";
 
 test("it marks token as invalid if the request fails with unauthenticated status", async () => {
 	const { custom, token } = createTestApi();
@@ -29,29 +31,56 @@ test("it marks token as invalid if the request fails with unauthenticated status
 	expect(await myToken.isValid()).toBeFalsy();
 });
 
-test("it converts token to headers", async () => {
-	const { custom, token } = createTestApi();
+test(
+	"it converts token to headers",
+	server.boundary(async () => {
+		const { custom, token, testUrl } = createTestApi();
+		const tokenValue = "asd";
+		const expectedHeaders = {
+			Authorization: `Bearer ${tokenValue}`,
+		};
 
-	const myToken = token()
-		.from(() => "asd")
-		.build();
+		server.use(
+			http.get(testUrl.build(), async ({ request }) => {
+				return HttpResponse.json(Object.fromEntries(request.headers.entries()));
+			}),
+		);
 
-	const getData = custom(
-		bearer(myToken),
-		factory(({ headers }) => {
-			return headers;
-		}),
-	);
+		const myToken = token()
+			.from(() => tokenValue)
+			.build();
 
-	const res = await getData.execute();
+		const getData = custom(
+			bearer(myToken),
+			factory(({ headers }) => {
+				return headers;
+			}),
+		);
 
-	expect(await myToken.isValid()).toBeTruthy();
+		const res = await getData.execute();
+		expect(await myToken.isValid()).toBeTruthy();
+		expect(res).toEqual(expectedHeaders);
 
-	const tokenValue = await myToken.get();
-	expect(res).toEqual({
-		Authorization: `Bearer ${tokenValue}`,
-	});
-});
+		const obtainedToken = await myToken.get();
+		expect(obtainedToken).toEqual(tokenValue);
+
+		const res2 = await getData
+			.with(
+				factory(({ headers, url }) => {
+					return request(
+						r.route(url.setOrigin(testUrl.getOrigin())),
+						r.headers(headers),
+					).execute();
+				}),
+			)
+			.execute();
+		expect(res2).toEqual(
+			expect.objectContaining({
+				authorization: expectedHeaders["Authorization"],
+			}),
+		);
+	}),
+);
 
 test("it does not override prev headers when converted to headers", async () => {
 	const { custom, token } = createTestApi();
