@@ -1,11 +1,9 @@
-// @ts-ignore
-import { getXMLWithPolyfill } from "@alette/xhr-polyfill";
-import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
-import { server } from "./src/__tests__/utils/server";
+import { setUpApiTestEnv } from "@alette/signal-test-utils";
+import { afterAll, afterEach, beforeAll } from "vitest";
+import { server } from "./src/__tests__/utils";
+
+setUpApiTestEnv();
 
 beforeAll(() => server.listen());
-beforeEach(() => {
-	globalThis.XMLHttpRequest = getXMLWithPolyfill() as any;
-});
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());

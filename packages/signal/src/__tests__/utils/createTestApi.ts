@@ -40,6 +40,7 @@ export const createTestApi = (...commands: CommandTaskBuilder[]) => {
 
 	return {
 		api,
+		core,
 		...core.use(),
 		testUrl: makeUrl("https://example.com"),
 		corePlugin: core.plugin,

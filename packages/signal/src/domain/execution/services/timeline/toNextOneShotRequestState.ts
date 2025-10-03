@@ -1,4 +1,4 @@
-import { RequestInterruptedError } from "../../../../shared/error/RequestInterruptedError";
+import { RequestInterruptedError } from "@alette/pulse";
 import { IRequestContext } from "../../../context/IRequestContext";
 import { ApplyRequestState } from "../../events/request/ApplyRequestState";
 import { RequestState } from "../../events/request/RequestState";

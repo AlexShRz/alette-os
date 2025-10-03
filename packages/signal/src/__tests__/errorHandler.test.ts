@@ -1,4 +1,5 @@
 import { FatalApiError } from "@alette/pulse";
+import { RequestInterruptedError } from "@alette/pulse";
 import {
 	handleError,
 	setContext,
@@ -6,7 +7,6 @@ import {
 	setLoggerConfig,
 } from "../application";
 import { factory } from "../domain";
-import { RequestInterruptedError } from "../shared/error/RequestInterruptedError";
 import { createTestApi } from "./utils/createTestApi";
 
 test("it shuts down the system after receiving first fatal exception", async () => {

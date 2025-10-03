@@ -1,4 +1,4 @@
-import { ApiError } from "@alette/pulse";
+import { ApiError } from "./ApiError";
 
 export class RequestInterruptedError extends ApiError {
 	cloneSelf() {

@@ -17,13 +17,13 @@ import {
 	NetworkError,
 	SecurityError,
 	SyntaxError,
-} from "./errors";
-import { ProgressEvent } from "./progress-event";
+} from "./errors.js";
+import { ProgressEvent } from "./progress-event.js";
 import {
 	ProgressEventListener,
 	XMLHttpRequestEventTarget,
-} from "./xml-http-request-event-target";
-import { XMLHttpRequestUpload } from "./xml-http-request-upload";
+} from "./xml-http-request-event-target.js";
+import { XMLHttpRequestUpload } from "./xml-http-request-upload.js";
 
 export interface XMLHttpRequestOptions {
 	anon?: boolean;

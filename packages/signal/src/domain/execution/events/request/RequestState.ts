@@ -1,5 +1,5 @@
 import { ApiError, type } from "@alette/pulse";
-import { RequestInterruptedError } from "../../../../shared/error/RequestInterruptedError";
+import { RequestInterruptedError } from "@alette/pulse";
 import { IRequestContext } from "../../../context/IRequestContext";
 import {
 	TRequestError,

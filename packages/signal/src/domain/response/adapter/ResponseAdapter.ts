@@ -1,7 +1,7 @@
 import { ISchema, validateSchema } from "@alette/pulse";
 import { IResponseValueDeserializer } from "./ResponseAdapterBuilder";
 import { ResponseRef } from "./ResponseRef";
-import { ResponseValidationError } from "./errors/ResponseValidationError";
+import { ResponseValidationError } from "./errors";
 
 export class ResponseAdapter<Value = unknown> {
 	constructor(

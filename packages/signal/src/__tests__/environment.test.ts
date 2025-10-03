@@ -11,7 +11,7 @@ import { client } from "../infrastructure/ApiClient";
 test.each([
 	/**
 	 * "test" mode should be enabled by default because
-	 * we are in test mode
+	 * we are using vitest here
 	 * */
 	["test" as TApiEnvironmentMode, setTestMode(), true],
 	["production" as TApiEnvironmentMode, setProductionMode(), true],

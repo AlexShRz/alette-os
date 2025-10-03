@@ -1,2 +1,3 @@
 export * from "./coreApiPlugin";
-export { queryCategory } from "./query";
+export { queryCategory, QUERY_RETRY_STATUSES } from "./query";
+export { mutationCategory } from "./mutation";

@@ -1,7 +1,7 @@
+import { RequestInterruptedError } from "@alette/pulse";
 import { expect } from "@effect/vitest";
 import { deactivatePlugins } from "../../application";
 import { factory, input, type } from "../../domain";
-import { RequestInterruptedError } from "../../shared/error/RequestInterruptedError";
 import { createTestApi } from "../utils/createTestApi";
 
 test("it overrides previous request when a new request command is received", async () => {

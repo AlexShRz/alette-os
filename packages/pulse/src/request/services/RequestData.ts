@@ -7,7 +7,7 @@ import { RequestRouteNotProvidedError } from "../errors";
 
 export interface IRequestDataProps {
 	method: THttpMethod;
-	route?: UrlBuilder<any>;
+	route?: UrlBuilder;
 	body?: THttpBody | null;
 	headers?: IHeaders | null;
 	responseType: XMLHttpRequest["responseType"];

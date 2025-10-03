@@ -47,9 +47,11 @@ export class BearerMiddlewareFactory extends Middleware(
 					Context["types"],
 					TMergeRecords<
 						Context["value"],
-						AuthEntityType extends Token
-							? TBearerTokenHeaders<Context, AuthEntityType>
-							: { credentials: "include" }
+						AuthEntityType extends false
+							? { credentials: false }
+							: AuthEntityType extends Token
+								? TBearerTokenHeaders<Context, AuthEntityType>
+								: { credentials: "include" }
 					>,
 					Context["settings"],
 					Context["accepts"],

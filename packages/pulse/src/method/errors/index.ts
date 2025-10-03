@@ -1,1 +1,1 @@
-export * from "./MethodValidationError";
+export * from "./HttpMethodValidationError";

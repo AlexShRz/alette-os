@@ -1,4 +1,4 @@
-import { MethodValidationError, THttpMethod } from "@alette/pulse";
+import { HttpMethodValidationError, THttpMethod } from "@alette/pulse";
 import {
 	setContext,
 	setErrorHandler,
@@ -98,7 +98,7 @@ test("it throws a fatal error if the path is incorrect", async () => {
 		setLoggerConfig((logger) => logger.mute()),
 		setErrorHandler((error) => {
 			if (
-				error instanceof MethodValidationError &&
+				error instanceof HttpMethodValidationError &&
 				error.getInvalidMethod() === invalidMethod
 			) {
 				failed = true;

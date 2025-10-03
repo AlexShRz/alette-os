@@ -1,5 +1,5 @@
 import { THttpMethod } from "./HttpMethod";
-import { MethodValidationError } from "./errors";
+import { HttpMethodValidationError } from "./errors";
 
 export const validateHttpMethod = (method: unknown) => {
 	const isString = typeof method === "string";
@@ -14,7 +14,7 @@ export const validateHttpMethod = (method: unknown) => {
 	];
 
 	if (!isString || !allowed.includes(method as THttpMethod)) {
-		throw new MethodValidationError(method);
+		throw new HttpMethodValidationError(method);
 	}
 
 	return method as THttpMethod;

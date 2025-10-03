@@ -1,7 +1,6 @@
 export * from "./environment";
 export * from "./specification";
 export * from "./context";
-export * from "./response";
 export * from "./execution";
 export * from "./preparation";
 export * from "./lifecycle";
@@ -12,4 +11,6 @@ export * from "./categorization";
  * to avoid circular references
  * */
 export * from "./auth";
+export * from "./requestConfigPredicate";
 export { type } from "@alette/pulse";
+export * from "./response";

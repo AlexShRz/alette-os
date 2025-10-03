@@ -11,12 +11,6 @@ export class PrepareRequestWorkerArguments extends Context.Tag(
 )<
 	PrepareRequestWorkerArguments,
 	{
-		/**
-		 * 1. Used for tying controller scope
-		 * to plugin scope using addFinalizer. This makes
-		 * sure that the moment our plugin is deactivated, all
-		 * controllers are disposed of.
-		 * */
 		plugin: ApiPlugin;
 		/**
 		 * 1. The thread that's going to supervise

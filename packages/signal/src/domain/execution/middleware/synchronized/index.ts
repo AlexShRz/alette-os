@@ -1,2 +1,2 @@
 export * from "./synchronized";
-export { sharedMiddlewareName } from "./synchronizedMiddlewareSpecification";
+export { synchronizedMiddlewareName } from "./synchronizedMiddlewareSpecification";

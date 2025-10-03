@@ -125,9 +125,9 @@ importers:
         specifier: ^11.1.0
         version: 11.1.0
     devDependencies:
-      '@alette/xhr-polyfill':
+      '@alette/signal-test-utils':
         specifier: workspace:*
-        version: link:../xhr-polyfill
+        version: link:../signal-test-utils
       '@effect/vitest':
         specifier: ^0.24.1
         version: 0.24.1(effect@3.17.8)(vitest@3.2.4(@types/node@18.16.9)(@vitest/ui@3.2.4)(jiti@2.4.2)(jsdom@22.1.0)(msw@2.11.3(@types/node@18.16.9)(typescript@5.8.3))(yaml@2.8.0))
@@ -143,6 +143,16 @@ importers:
       ts-toolbelt:
         specifier: 6.13.11
         version: 6.13.11
+
+  packages/signal-test-utils:
+    dependencies:
+      cookiejar:
+        specifier: ^2.1.4
+        version: 2.1.4
+    devDependencies:
+      '@types/cookiejar':
+        specifier: ^2.1.5
+        version: 2.1.5
 
   packages/xhr-polyfill:
     dependencies:

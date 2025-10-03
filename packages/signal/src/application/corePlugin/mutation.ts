@@ -1,39 +1,33 @@
-import { THttpStatusCode, r, request } from "@alette/pulse";
+import { HttpMethodValidationError, r, request } from "@alette/pulse";
 import {
 	aboutDownloadProgress,
 	aboutUploadProgress,
 	allRequestMiddleware,
 	baseRequest,
-	bodyMiddlewareName,
 	factory,
 	factoryMiddlewareName,
-	gets,
+	hasBody,
 	hasCredentials,
 	hasHeaders,
-	methodMiddlewareName,
 	origin,
+	posts,
 	reloadable,
 	requestCategory,
-	requestSpecification,
-	retry,
 	runOnMount,
 } from "../../domain";
+import { requestSpecification } from "../../domain/specification";
 import { blueprint } from "../oneShotRequest";
 import { withRecognizedErrors } from "./sharedMiddleware";
 
-export const queryCategory = requestCategory("baseQuery");
+export const mutationCategory = requestCategory("baseMutation");
 
-export const QUERY_RETRY_STATUSES: THttpStatusCode[] = [
-	408, 409, 425, 429, 500, 502, 503, 504,
-];
-
-const querySpec = requestSpecification()
-	.categorizedAs(baseRequest, queryCategory)
+export const mutationRequestSpec = requestSpecification()
+	.categorizedAs(baseRequest, mutationCategory)
 	.accepts(...allRequestMiddleware)
-	.prohibits(methodMiddlewareName, factoryMiddlewareName, bodyMiddlewareName)
+	.prohibits(factoryMiddlewareName)
 	.build();
 
-export const queryFactory = blueprint()
+export const mutationFactory = blueprint()
 	.specification(
 		requestSpecification()
 			.accepts(...allRequestMiddleware, factoryMiddlewareName)
@@ -41,11 +35,15 @@ export const queryFactory = blueprint()
 	)
 	.use(
 		origin(),
-		runOnMount(),
+		runOnMount(false),
 		reloadable(),
-		gets(),
+		posts(),
 		factory((config, { signal, notify }) => {
 			const { url, method } = config;
+
+			if ((method as string) === "GET") {
+				throw new HttpMethodValidationError(method);
+			}
 
 			let base = request(
 				r.route(url),
@@ -64,12 +62,12 @@ export const queryFactory = blueprint()
 				base = base.with(r.withCookies());
 			}
 
+			if (hasBody(config)) {
+				base = base.with(r.body(config.body));
+			}
+
 			return base.execute();
 		}),
 		withRecognizedErrors(),
-		retry({
-			times: 1,
-			whenStatus: QUERY_RETRY_STATUSES,
-		}),
 	)
-	.specification(querySpec);
+	.specification(mutationRequestSpec);

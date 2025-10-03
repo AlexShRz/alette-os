@@ -61,7 +61,6 @@ export class RequestExecutor extends E.Service<RequestExecutor>()(
 
 						resume(
 							new RequestFailedError({
-								reason: "Client configuration error.",
 								...getCommonErrorData(),
 							}),
 						);
