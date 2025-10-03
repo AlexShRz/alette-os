@@ -1,5 +1,5 @@
 import * as SubscriptionRef from "effect/SubscriptionRef";
-import { IRequestContext } from "../../../domain/context/IRequestContext";
+import { IRequestContext } from "../../../domain";
 import { TRequestResponse } from "../../../domain/context/typeUtils/RequestIOTypes";
 import { ApplyRequestState } from "../../../domain/execution/events/request/ApplyRequestState";
 import { IOneShotRequestState } from "../../../domain/execution/state/IOneShotRequestState";

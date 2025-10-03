@@ -16,7 +16,7 @@ export namespace IOneShotRequestState {
 		isSuccess: boolean;
 		isError: boolean;
 		data: ResponseRef<TRequestResponse<C>> | null;
-		error: TRequestError<C> | RequestInterruptedError | null;
+		error: TRequestError<C> | null;
 	};
 
 	type AnyUnwrapped<C extends IRequestContext = IRequestContext> = {
@@ -28,7 +28,7 @@ export namespace IOneShotRequestState {
 		 * Unwrapped must not contain response refs
 		 * */
 		data: TRequestResponse<C> | null;
-		error: TRequestError<C> | RequestInterruptedError | null;
+		error: TRequestError<C> | null;
 	};
 
 	interface Default {

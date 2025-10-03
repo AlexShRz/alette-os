@@ -12,5 +12,5 @@ export * from "./categorization";
  * */
 export * from "./auth";
 export * from "./requestConfigPredicate";
-export { type } from "@alette/pulse";
+export { type, makeUrl, makeQueryParams } from "@alette/pulse";
 export * from "./response";

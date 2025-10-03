@@ -93,4 +93,6 @@ export abstract class ApiRequest<
 		self.settingSupplier = this.settingSupplier;
 		return self;
 	}
+
+	abstract control(): any;
 }

@@ -3,3 +3,4 @@ export * from "./tasks";
 export * from "./auth";
 export * from "./corePlugin";
 export * from "./oneShotRequest";
+export type * from "./RequestInstanceTypes";
