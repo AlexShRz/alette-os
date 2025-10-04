@@ -1,7 +1,7 @@
 import { IHeaders } from "@alette/pulse";
 import { http, HttpResponse } from "msw";
 import { setOrigin } from "../../../application";
-import { body, headers, output, type } from "../../../domain";
+import { as, body, headers, output } from "../../../domain";
 import { createTestApi, server } from "../../utils";
 
 test(
@@ -21,10 +21,7 @@ test(
 			}),
 		);
 
-		const getData = mutation(
-			output(type<IHeaders>()),
-			headers(expectedHeaders),
-		);
+		const getData = mutation(output(as<IHeaders>()), headers(expectedHeaders));
 
 		const res = await getData.execute();
 
@@ -51,7 +48,7 @@ test(
 			}),
 		);
 
-		const getData = mutation(output(type<IHeaders>()), body(myBody));
+		const getData = mutation(output(as<IHeaders>()), body(myBody));
 		const res = await getData.execute();
 
 		await vi.waitFor(() => {

@@ -1,4 +1,4 @@
-import { ISchema, type } from "@alette/pulse";
+import { ISchema, as } from "@alette/pulse";
 import * as Equal from "effect/Equal";
 import * as Hash from "effect/Hash";
 
@@ -15,7 +15,7 @@ export class AuthEntityCredentialConfig implements Equal.Equal {
 	}
 
 	getSchema() {
-		return this.config.credentialSchema || type<unknown>();
+		return this.config.credentialSchema || as<unknown>();
 	}
 
 	[Equal.symbol](that: Equal.Equal): boolean {

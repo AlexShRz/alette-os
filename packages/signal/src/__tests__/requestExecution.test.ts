@@ -1,6 +1,6 @@
 import { r, request } from "@alette/pulse";
 import { http, HttpResponse } from "msw";
-import { factory, input, output, type } from "../domain";
+import { as, factory, input, output } from "../domain";
 import { createTestApi } from "./utils/createTestApi";
 import { server } from "./utils/server";
 
@@ -20,8 +20,8 @@ test(
 		);
 
 		const getData = custom(
-			input(type<string>()),
-			output(type<string>()),
+			input(as<string>()),
+			output(as<string>()),
 			factory(() => request(r.route(testUrl.clone())).execute()),
 		);
 

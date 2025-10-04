@@ -1,4 +1,4 @@
-import { factory, input, type } from "../../domain";
+import { as, factory, input } from "../../domain";
 import { createTestApi } from "../utils/createTestApi";
 
 test("it uses bound setting provider if no settings were provided manually (oneShot + mount mode)", async () => {
@@ -6,7 +6,7 @@ test("it uses bound setting provider if no settings were provided manually (oneS
 	const bound = "asdasdaasd";
 
 	const getData = custom(
-		input(type<string>()),
+		input(as<string>()),
 		factory(({ args }) => {
 			return args;
 		}),
@@ -29,7 +29,7 @@ test("it overrides default setting provider with settings provided manually (one
 	const manual = "xcsds";
 
 	const getData = custom(
-		input(type<string>()),
+		input(as<string>()),
 		factory(({ args }) => {
 			return args;
 		}),

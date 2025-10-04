@@ -1,4 +1,4 @@
-import { ApiError, type } from "@alette/pulse";
+import { ApiError, as } from "@alette/pulse";
 import { RequestInterruptedError } from "@alette/pulse";
 import { IRequestContext } from "../../../context/IRequestContext";
 import {
@@ -72,7 +72,7 @@ export class RequestState {
 			value instanceof ResponseRef
 				? value
 				: responseAdapter()
-						.schema(type<TRequestResponse<C>>())
+						.schema(as<TRequestResponse<C>>())
 						.build()
 						.from(value);
 

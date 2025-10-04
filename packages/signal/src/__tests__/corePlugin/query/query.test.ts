@@ -1,7 +1,7 @@
 import { IHeaders } from "@alette/pulse";
 import { http, HttpResponse, delay } from "msw";
 import { setOrigin } from "../../../application";
-import { bearer, headers, output, type } from "../../../domain";
+import { as, bearer, headers, output } from "../../../domain";
 import { createTestApi, server } from "../../utils";
 
 test(
@@ -21,7 +21,7 @@ test(
 			}),
 		);
 
-		const getData = query(output(type<IHeaders>()), headers(expectedHeaders));
+		const getData = query(output(as<IHeaders>()), headers(expectedHeaders));
 
 		const res = await getData.execute();
 
@@ -49,7 +49,7 @@ test(
 		);
 
 		const res = await query(
-			output(type<boolean>()),
+			output(as<boolean>()),
 			bearer(authCookie),
 		).execute();
 
@@ -74,7 +74,7 @@ test(
 			}),
 		);
 
-		const getData = query(output(type<unknown>()));
+		const getData = query(output(as<unknown>()));
 
 		const { getState } = getData.mount();
 
@@ -100,7 +100,7 @@ test(
 			}),
 		);
 
-		const getData = query(output(type<IHeaders>()));
+		const getData = query(output(as<IHeaders>()));
 
 		const { getState, cancel } = getData.mount();
 

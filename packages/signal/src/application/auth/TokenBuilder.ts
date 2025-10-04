@@ -1,4 +1,4 @@
-import { IHeaders, ISchema, type } from "@alette/pulse";
+import { IHeaders, ISchema, as } from "@alette/pulse";
 import { v4 as uuid } from "uuid";
 import {
 	ITokenHeaderConverter,
@@ -16,7 +16,7 @@ export class TokenBuilder<
 > {
 	protected id = uuid();
 	protected tokenSupplier: ITokenSupplier<Credentials> | null = null;
-	protected credentialSchema = type<Credentials>();
+	protected credentialSchema = as<Credentials>();
 	protected tokenToHeaderConverter: ITokenHeaderConverter<ProvidedHeaders> =
 		this.getDefaultHeaderConverter();
 	protected refreshInterval: TRecognizedApiDuration | null = null;

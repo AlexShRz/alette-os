@@ -1,12 +1,12 @@
 import { vi } from "vitest";
 import { setContext } from "../../../application";
 import {
+	as,
 	debounce,
 	factory,
 	input,
 	reloadable,
 	runOnMount,
-	type,
 } from "../../../domain";
 import { IRequestContext } from "../../../domain/context/IRequestContext";
 import { WithCurrentRequestOverride } from "../../../domain/execution/events/envelope/WithCurrentRequestOverride";
@@ -65,7 +65,7 @@ test("it uses last known setting supplier to execute the request", async () => {
 	let reachedFactory = 0;
 
 	const getData = custom(
-		input(type<string>()),
+		input(as<string>()),
 		runOnMount(false),
 		reloadable(() => true),
 		debounce(() => {

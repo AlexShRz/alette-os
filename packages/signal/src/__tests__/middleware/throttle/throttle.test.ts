@@ -1,12 +1,12 @@
 import { vi } from "vitest";
 import { setContext } from "../../../application";
 import {
+	as,
 	factory,
 	input,
 	reloadable,
 	runOnMount,
 	throttle,
-	type,
 } from "../../../domain";
 import { IRequestContext } from "../../../domain/context/IRequestContext";
 import { WithCurrentRequestOverride } from "../../../domain/execution/events/envelope/WithCurrentRequestOverride";
@@ -31,7 +31,7 @@ test("it captures first request command and executes it, while cancelling all th
 	let reachedFactory = 0;
 
 	const getData = custom(
-		input(type<string>()),
+		input(as<string>()),
 		runOnMount(false),
 		reloadable(() => true),
 		throttle(() => {

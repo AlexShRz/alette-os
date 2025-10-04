@@ -1,10 +1,10 @@
 import {
 	argumentAdapter,
+	as,
 	factory,
 	input,
 	reloadable,
 	runOnMount,
-	type,
 } from "../../../domain";
 import { createTestApi } from "../../utils/createTestApi";
 
@@ -25,7 +25,7 @@ test("it uses deep equality argument check by default", async () => {
 	let ranTimes = 0;
 
 	const getData = custom(
-		input(type<typeof value1>()),
+		input(as<typeof value1>()),
 		runOnMount(),
 		reloadable(),
 		factory(({ args }) => {
@@ -56,7 +56,7 @@ test("it switches to custom arg adapter equality check if provided", async () =>
 	const value2 = "ssssshjbjbj";
 
 	const MyArgs = argumentAdapter()
-		.schema(type<string>())
+		.schema(as<string>())
 		.whenCompared(() => {
 			const canPass = ranEqualityCheckTimes > 1;
 			ranEqualityCheckTimes++;
@@ -119,7 +119,7 @@ test("it can apply custom equality checks", async () => {
 	let enteredMiddlewareTimes = 0;
 
 	const getData = custom(
-		input(type<typeof value1>()),
+		input(as<typeof value1>()),
 		runOnMount(),
 		reloadable(({ prev, current }) => {
 			enteredMiddlewareTimes++;

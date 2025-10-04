@@ -1,4 +1,4 @@
-import { ISchema, type, validateSchema } from "@alette/pulse";
+import { ISchema, as, validateSchema } from "@alette/pulse";
 import { v4 as uuid } from "uuid";
 import {
 	IResponseValue,
@@ -96,7 +96,7 @@ export class ResponseRef<Value> {
 		} catch {
 			return new ResponseRef(newResponseValue, {
 				...this.config,
-				schema: type<NewValue>() as any,
+				schema: as<NewValue>() as any,
 			}) as any;
 		}
 	}

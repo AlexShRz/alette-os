@@ -1,6 +1,6 @@
 import { ApiError } from "@alette/pulse";
 import { Subject } from "rxjs";
-import { factory, output, throws, type } from "../../../domain";
+import { as, factory, output, throws } from "../../../domain";
 import { createTestApi } from "../../utils/createTestApi";
 
 test("it can cancel running requests without throwing an error", async () => {
@@ -57,7 +57,7 @@ test("it cancels requests without overriding their error and success states", as
 	}
 
 	const getData1 = custom(
-		output(type<string>()),
+		output(as<string>()),
 		throws(MyError),
 		factory(async () => {
 			return await new Promise<string>((res, reject) => {

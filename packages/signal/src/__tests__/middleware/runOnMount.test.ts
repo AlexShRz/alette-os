@@ -1,5 +1,5 @@
 import { setContext } from "../../application";
-import { factory, input, runOnMount, type } from "../../domain";
+import { as, factory, input, runOnMount } from "../../domain";
 import { createTestApi } from "../utils/createTestApi";
 
 test("it automatically starts requests in mount mode if run on mount is activated", async () => {
@@ -7,7 +7,7 @@ test("it automatically starts requests in mount mode if run on mount is activate
 	const value = "asdasdaasd";
 
 	const getData = custom(
-		input(type<string>()),
+		input(as<string>()),
 		runOnMount(),
 		factory(() => {
 			return value;
@@ -28,7 +28,7 @@ test.fails(
 		const value = "asdasdaasd";
 
 		const getData = custom(
-			input(type<string>()),
+			input(as<string>()),
 			runOnMount(false),
 			factory(() => {
 				return value;
@@ -48,7 +48,7 @@ test("it disables run on mount check during one shot requests", async () => {
 	const value = "asdasdaasd";
 
 	const getData = custom(
-		input(type<string>()),
+		input(as<string>()),
 		runOnMount(),
 		factory(() => {
 			return value;
@@ -64,7 +64,7 @@ test("it overrides previous middleware of the same type", async () => {
 	const value = "asdasdaasd";
 
 	const getData = custom(
-		input(type<string>()),
+		input(as<string>()),
 		runOnMount(false),
 		runOnMount(),
 		factory(() => {
@@ -88,7 +88,7 @@ test("it can access global context", async () => {
 	let caughtContext: any = null;
 
 	const getData = custom(
-		input(type<string>()),
+		input(as<string>()),
 		runOnMount(async ({ context }) => {
 			caughtContext = context;
 			return true;

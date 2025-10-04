@@ -1,4 +1,4 @@
-import { factory, input, reloadable, runOnMount, type } from "../../../domain";
+import { as, factory, input, reloadable, runOnMount } from "../../../domain";
 import { createTestApi } from "../../utils/createTestApi";
 
 /**
@@ -12,7 +12,7 @@ test("it does not run checks on first reload if run on mount is enabled", async 
 	const value = "asdasd";
 
 	const getData = custom(
-		input(type<typeof value>()),
+		input(as<typeof value>()),
 		runOnMount(),
 		reloadable(() => {
 			enteredMiddlewareTimes++;
@@ -57,7 +57,7 @@ test("it runs checks on first reload if run on mount is disabled", async () => {
 	const value = "asda";
 
 	const getData = custom(
-		input(type<typeof value>()),
+		input(as<typeof value>()),
 		runOnMount(false),
 		reloadable(() => {
 			enteredMiddlewareTimes++;

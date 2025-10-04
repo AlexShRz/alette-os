@@ -1,7 +1,7 @@
 import { RequestInterruptedError } from "@alette/pulse";
 import { expect } from "@effect/vitest";
 import { deactivatePlugins } from "../../application";
-import { factory, input, type } from "../../domain";
+import { as, factory, input } from "../../domain";
 import { createTestApi } from "../utils/createTestApi";
 
 test("it overrides previous request when a new request command is received", async () => {
@@ -11,7 +11,7 @@ test("it overrides previous request when a new request command is received", asy
 	let ran = 0;
 
 	const getData1 = custom(
-		input(type<string>()),
+		input(as<string>()),
 		factory(async ({ args }) => {
 			ran++;
 

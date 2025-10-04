@@ -1,4 +1,4 @@
-import { ApiError, type } from "@alette/pulse";
+import { ApiError, as } from "@alette/pulse";
 import { beforeEach } from "@effect/vitest";
 import { factory, output, retry } from "../../../domain";
 import { createTestApi } from "../../utils";
@@ -18,7 +18,7 @@ test("it uses last backoff value as a timeout if retry limit exceeds the amount 
 	let enteredTimes = 0;
 
 	const getData = custom(
-		output(type<string>()),
+		output(as<string>()),
 		factory(() => {
 			enteredTimes++;
 			throw new MyError();
@@ -64,7 +64,7 @@ test("it syncs current backoff value with current retry attempt", async () => {
 	let enteredTimes = 0;
 
 	const getData = custom(
-		output(type<string>()),
+		output(as<string>()),
 		factory(() => {
 			enteredTimes++;
 			throw new MyError();
@@ -122,7 +122,7 @@ test.each([[[]], [undefined]])(
 		let enteredTimes = 0;
 
 		const getData = custom(
-			output(type<string>()),
+			output(as<string>()),
 			factory(() => {
 				enteredTimes++;
 				throw new MyError();

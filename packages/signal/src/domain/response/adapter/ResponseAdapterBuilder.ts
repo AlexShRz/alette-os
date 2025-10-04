@@ -1,4 +1,4 @@
-import { ISchema, type, validateSchema } from "@alette/pulse";
+import { ISchema, as, validateSchema } from "@alette/pulse";
 import { ResponseAdapter } from "./ResponseAdapter";
 import { ResponseRef } from "./ResponseRef";
 
@@ -22,7 +22,7 @@ export interface IResponseValue<V> {
 export const responseAdapter = () => new ResponseAdapterBuilder();
 
 export class ResponseAdapterBuilder<ResponseValue> {
-	protected valueSchema = type() as ISchema<unknown, ResponseValue>;
+	protected valueSchema = as() as ISchema<unknown, ResponseValue>;
 	protected valueSerializer: IResponseValueSerializer<ResponseValue> = (
 		value: ResponseValue,
 	) => JSON.stringify(value);

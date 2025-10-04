@@ -1,7 +1,7 @@
 import { THttpStatusCode } from "@alette/pulse";
 import { http, HttpResponse } from "msw";
 import { QUERY_RETRY_STATUSES, setOrigin } from "../../../application";
-import { output, type } from "../../../domain";
+import { as, output } from "../../../domain";
 import { createTestApi, server } from "../../utils";
 
 test.each([QUERY_RETRY_STATUSES[0] as THttpStatusCode])(
@@ -20,7 +20,7 @@ test.each([QUERY_RETRY_STATUSES[0] as THttpStatusCode])(
 			}),
 		);
 
-		const getData = query(output(type<null>()));
+		const getData = query(output(as<null>()));
 
 		getData.spawn();
 
@@ -46,7 +46,7 @@ test.each([...QUERY_RETRY_STATUSES.map((c) => [c])])(
 			}),
 		);
 
-		const getData = query(output(type<null>()));
+		const getData = query(output(as<null>()));
 
 		getData.spawn();
 
@@ -72,7 +72,7 @@ test.each([401])(
 			}),
 		);
 
-		const getData = query(output(type<null>()));
+		const getData = query(output(as<null>()));
 
 		getData.spawn();
 

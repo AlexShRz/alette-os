@@ -1,4 +1,4 @@
-import { factory, input, reloadable, runOnMount, type } from "../../../domain";
+import { as, factory, input, reloadable, runOnMount } from "../../../domain";
 import { createTestApi } from "../../utils/createTestApi";
 
 test("it updates last context snapshot after each reload", async () => {
@@ -10,7 +10,7 @@ test("it updates last context snapshot after each reload", async () => {
 	let ranTimes = 0;
 
 	const getData = custom(
-		input(type<string>()),
+		input(as<string>()),
 		runOnMount(false),
 		reloadable(({ prev }) => {
 			last = prev?.args || null;
@@ -66,7 +66,7 @@ test("it saves context snapshot for next comparison only if the predicate succee
 	let ranTimes = 0;
 
 	const getData = custom(
-		input(type<string>()),
+		input(as<string>()),
 		runOnMount(false),
 		reloadable(({ prev }) => {
 			last = prev?.args || null;

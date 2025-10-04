@@ -1,6 +1,6 @@
 import { http, HttpResponse } from "msw";
 import { setOrigin } from "../../../application";
-import { output, type } from "../../../domain";
+import { as, output } from "../../../domain";
 import { createTestApi, server } from "../../utils";
 
 test(
@@ -19,7 +19,7 @@ test(
 			}),
 		);
 
-		const getData = mutation(output(type<null>()));
+		const getData = mutation(output(as<null>()));
 
 		getData.spawn();
 

@@ -3,17 +3,17 @@ import {
 	ArgumentCloningError,
 	ArgumentValidationError,
 	argumentAdapter,
-	type,
+	as,
 } from "../../../domain";
 
 test("it compares equality", async () => {
 	const obj = { hii: { there: false } };
 
 	// Uses default deep equality
-	const MyArgs1 = argumentAdapter().schema(type<typeof obj>()).build();
+	const MyArgs1 = argumentAdapter().schema(as<typeof obj>()).build();
 	// Uses custom equality
 	const MyArgs2 = argumentAdapter()
-		.schema(type<typeof obj>())
+		.schema(as<typeof obj>())
 		.whenCompared((that) => {
 			return !!that && that.hii.there;
 		})
@@ -36,9 +36,9 @@ test("it clones arguments", () => {
 	const obj1 = { hii: { hii: "asdasdas" } };
 	const obj2 = { hii: { hii: "sss" } };
 
-	const MyArgs1 = argumentAdapter().schema(type<typeof obj1>()).build();
+	const MyArgs1 = argumentAdapter().schema(as<typeof obj1>()).build();
 	const MyArgs2 = argumentAdapter()
-		.schema(type<typeof obj1>())
+		.schema(as<typeof obj1>())
 		.whenCloned(() => {
 			return obj2;
 		})
@@ -56,7 +56,7 @@ test("it throws an error if default clone algorithm cannot clone arguments", () 
 	 * */
 	const obj = { sadasd: { hii: () => {}, sss: new Test() } };
 
-	const MyArgs = argumentAdapter().schema(type<typeof obj>()).build();
+	const MyArgs = argumentAdapter().schema(as<typeof obj>()).build();
 
 	expect(() => MyArgs.from(obj).clone()).toThrowError(ArgumentCloningError);
 });
@@ -65,7 +65,7 @@ test("it can override set arguments", () => {
 	const obj1 = { hii: "3424234" };
 	const obj2 = { hii: "333333333333" };
 
-	const MyArgs = argumentAdapter().schema(type<typeof obj1>()).build();
+	const MyArgs = argumentAdapter().schema(as<typeof obj1>()).build();
 	const args = MyArgs.from(obj1);
 
 	expect(args.get()).toStrictEqual(obj1);

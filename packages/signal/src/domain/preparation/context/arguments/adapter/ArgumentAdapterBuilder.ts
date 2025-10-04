@@ -1,4 +1,4 @@
-import { ISchema, type } from "@alette/pulse";
+import { ISchema, as } from "@alette/pulse";
 import isEqual from "fast-deep-equal";
 import { ArgumentAdapter } from "./ArgumentAdapter";
 import { ArgumentRef } from "./ArgumentRef";
@@ -15,7 +15,7 @@ export interface IArgumentCloner<V> {
 export const argumentAdapter = () => new ArgumentAdapterBuilder();
 
 export class ArgumentAdapterBuilder<Arguments> {
-	protected argSchema = type() as ISchema<unknown, Arguments>;
+	protected argSchema = as() as ISchema<unknown, Arguments>;
 	protected argComparator: IArgumentComparator<Arguments> = (next, current) =>
 		isEqual(next, current);
 	protected argCloner: IArgumentCloner<Arguments> = (args) => {

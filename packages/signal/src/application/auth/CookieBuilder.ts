@@ -1,4 +1,4 @@
-import { ISchema, type } from "@alette/pulse";
+import { ISchema, as } from "@alette/pulse";
 import { v4 as uuid } from "uuid";
 import { ICookieSupplier } from "../../domain/auth/cookies/CookieTypes";
 import { TRecognizedApiDuration } from "../../shared";
@@ -8,7 +8,7 @@ import { Cookie } from "./Cookie";
 export class CookieBuilder<Credentials = unknown> {
 	protected id = uuid();
 	protected cookieSupplier: ICookieSupplier<Credentials> | null = null;
-	protected credentialSchema = type<Credentials>();
+	protected credentialSchema = as<Credentials>();
 	protected refreshInterval: TRecognizedApiDuration | null = null;
 
 	constructor(protected scheduler: PluginTaskScheduler) {}

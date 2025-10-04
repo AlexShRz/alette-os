@@ -1,13 +1,13 @@
 import { setContext } from "../../application";
 import {
 	path,
+	as,
 	factory,
 	map,
 	output,
 	reloadable,
 	responseAdapter,
 	runOnMount,
-	type,
 } from "../../domain";
 import { createTestApi } from "../utils/createTestApi";
 
@@ -18,7 +18,7 @@ test("it can map response", async () => {
 	const expected = `${myResponse}${suffix}`;
 
 	const getData = custom(
-		output(type<string>()),
+		output(as<string>()),
 		runOnMount(false),
 		reloadable(() => true),
 		factory(() => {
@@ -49,7 +49,7 @@ test("it can be composed", async () => {
 	const expected = `${myResponse}${suffix1}${suffix2}${suffix3}`;
 
 	const getData = custom(
-		output(type<string>()),
+		output(as<string>()),
 		runOnMount(false),
 		reloadable(() => true),
 		factory(() => {
@@ -79,7 +79,7 @@ test("it can map response to different format", async () => {
 	const expected = { res: myResponse };
 
 	const getData = custom(
-		output(type<string>()),
+		output(as<string>()),
 		runOnMount(false),
 		reloadable(() => true),
 		factory(() => {
@@ -139,11 +139,11 @@ test("it allows users to map response into response adapters", async () => {
 	const expected = { hey: myResponse };
 
 	const MyResponseRecord = responseAdapter()
-		.schema(type<{ hey: string }>())
+		.schema(as<{ hey: string }>())
 		.build();
 
 	const getData = custom(
-		output(type<string>()),
+		output(as<string>()),
 		runOnMount(false),
 		reloadable(() => true),
 		factory(() => {

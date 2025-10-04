@@ -1,4 +1,4 @@
-import { factory, input, reloadable, runOnMount, type } from "../../../domain";
+import { as, factory, input, reloadable, runOnMount } from "../../../domain";
 import { createTestApi } from "../../utils/createTestApi";
 
 test("it disables the check during one shot requests", async () => {
@@ -12,7 +12,7 @@ test("it disables the check during one shot requests", async () => {
 	};
 
 	const getData = custom(
-		input(type<typeof value>()),
+		input(as<typeof value>()),
 		runOnMount(),
 		reloadable(() => {
 			enteredMiddlewareTimes++;
@@ -48,7 +48,7 @@ test("it overrides previous middleware of the same type", async () => {
 	let ranTimes = 0;
 
 	const getData = custom(
-		input(type<typeof value1>()),
+		input(as<typeof value1>()),
 		runOnMount(),
 		reloadable(() => false),
 		reloadable(),

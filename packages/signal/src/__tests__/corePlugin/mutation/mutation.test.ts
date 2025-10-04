@@ -1,7 +1,7 @@
 import { IHeaders } from "@alette/pulse";
 import { http, HttpResponse, delay } from "msw";
 import { setOrigin } from "../../../application";
-import { bearer, output, type } from "../../../domain";
+import { as, bearer, output } from "../../../domain";
 import { createTestApi, server } from "../../utils";
 
 test(
@@ -22,7 +22,7 @@ test(
 		);
 
 		const res = await mutation(
-			output(type<boolean>()),
+			output(as<boolean>()),
 			bearer(authCookie),
 		).execute();
 
@@ -47,7 +47,7 @@ test.fails(
 			}),
 		);
 
-		const getData = mutation(output(type<unknown>()));
+		const getData = mutation(output(as<unknown>()));
 
 		const { getState } = getData.mount();
 
@@ -73,7 +73,7 @@ test(
 			}),
 		);
 
-		const getData = mutation(output(type<IHeaders>()));
+		const getData = mutation(output(as<IHeaders>()));
 
 		const { getState, execute, cancel } = getData.mount();
 		execute();

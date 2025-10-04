@@ -1,4 +1,4 @@
-import { ApiError, type } from "@alette/pulse";
+import { ApiError, as } from "@alette/pulse";
 import { factory, output, retry, retryWhen } from "../../../domain";
 import { createTestApi } from "../../utils";
 
@@ -13,7 +13,7 @@ test("it retries requests using the specified retry limit", async () => {
 	let enteredTimes = 0;
 
 	const getData = custom(
-		output(type<string>()),
+		output(as<string>()),
 		factory(() => {
 			enteredTimes++;
 			throw new MyError();
@@ -35,7 +35,7 @@ test("it retries request once if retry limit is not specified", async () => {
 	let enteredFactory = 0;
 
 	const getData = custom(
-		output(type<string>()),
+		output(as<string>()),
 		factory(() => {
 			enteredFactory++;
 			throw new MyError();
@@ -55,7 +55,7 @@ test("it allows users to disable retries", async () => {
 	let enteredFactory = 0;
 
 	const getData = custom(
-		output(type<string>()),
+		output(as<string>()),
 		factory(() => {
 			enteredFactory++;
 			throw new MyError();
@@ -74,7 +74,7 @@ test("it overrides middleware of the same type", async () => {
 	let enteredFactory = 0;
 
 	const getData = custom(
-		output(type<string>()),
+		output(as<string>()),
 		factory(() => {
 			enteredFactory++;
 			throw new MyError();
@@ -97,7 +97,7 @@ test("it overrides 'retryWhen' middleware", async () => {
 	let enteredRetryWhen = false;
 
 	const getData = custom(
-		output(type<string>()),
+		output(as<string>()),
 		factory(() => {
 			enteredFactory++;
 			throw new MyError();

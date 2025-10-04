@@ -2,6 +2,7 @@ import { ApiError } from "@alette/pulse";
 import { setContext } from "../../../application";
 import {
 	path,
+	as,
 	body,
 	factory,
 	mapError,
@@ -11,7 +12,6 @@ import {
 	retryWhen,
 	runOnMount,
 	throws,
-	type,
 } from "../../../domain";
 import { createTestApi } from "../../utils/createTestApi";
 
@@ -33,7 +33,7 @@ test("it retries requests", async () => {
 	let triedTimes = 0;
 
 	const getData = custom(
-		output(type<string>()),
+		output(as<string>()),
 		factory(() => {
 			if (!triedTimes) {
 				triedTimes++;
@@ -58,7 +58,7 @@ test("it counts retry attempts", async () => {
 	let triedTimesFromMiddleware = 0;
 
 	const getData = custom(
-		output(type<string>()),
+		output(as<string>()),
 		factory(() => {
 			if (triedTimes < 3) {
 				triedTimes++;
@@ -88,7 +88,7 @@ test("it can access context of a previously failed request", async () => {
 	let triedTimes = 0;
 
 	const getData = custom(
-		output(type<string>()),
+		output(as<string>()),
 		path(() => {
 			switch (triedTimes) {
 				case 2:
@@ -165,7 +165,7 @@ test("it is not affected by error mapping", async () => {
 	let caughtError: MyError | null = null;
 
 	const getData = custom(
-		output(type<string>()),
+		output(as<string>()),
 		factory(() => {
 			if (!triedTimes) {
 				triedTimes++;
@@ -192,7 +192,7 @@ test("it allows users to disable retries per request", async () => {
 	let enteredRetry = 0;
 
 	const getData = custom(
-		output(type<string>()),
+		output(as<string>()),
 		factory(() => {
 			throw new MyError();
 		}),
@@ -213,7 +213,7 @@ test("it allows users to disable retries per request (mount mode)", async () => 
 	let enteredRetry = 0;
 
 	const getData = custom(
-		output(type<string>()),
+		output(as<string>()),
 		runOnMount(false),
 		reloadable(() => true),
 		factory(() => {
@@ -247,7 +247,7 @@ test("it overrides middleware of the same type", async () => {
 	let reachedPrevious = false;
 
 	const getData = custom(
-		output(type<string>()),
+		output(as<string>()),
 		factory(() => {
 			if (!triedTimes) {
 				triedTimes++;
@@ -275,7 +275,7 @@ test("it overrides 'retry()' middleware", async () => {
 	let enteredTimes = 0;
 
 	const getData = custom(
-		output(type<string>()),
+		output(as<string>()),
 		factory(() => {
 			enteredTimes++;
 			throw new MyError();

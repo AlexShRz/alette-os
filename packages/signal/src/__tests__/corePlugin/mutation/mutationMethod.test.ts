@@ -10,7 +10,7 @@ import {
 	setLoggerConfig,
 	setOrigin,
 } from "../../../application";
-import { gets, method, output, type } from "../../../domain";
+import { as, gets, method, output } from "../../../domain";
 import { createTestApi, server } from "../../utils";
 
 test(
@@ -28,7 +28,7 @@ test(
 			}),
 		);
 
-		const getData = mutation(output(type<IHeaders>()));
+		const getData = mutation(output(as<IHeaders>()));
 		const res = await getData.execute();
 
 		await vi.waitFor(() => {
@@ -56,7 +56,7 @@ test("it does not allow to use GET method for mutations", async () => {
 
 	const { mutation } = core.use();
 
-	const getData = mutation(output(type<IHeaders>()), gets());
+	const getData = mutation(output(as<IHeaders>()), gets());
 
 	await expect(() => getData.execute()).rejects.toThrowError(
 		RequestInterruptedError,
@@ -110,7 +110,7 @@ test.each([
 			);
 		}
 
-		const getData = mutation(output(type<IHeaders>()), method(passedMethod));
+		const getData = mutation(output(as<IHeaders>()), method(passedMethod));
 		const res = await getData.execute();
 
 		await vi.waitFor(() => {

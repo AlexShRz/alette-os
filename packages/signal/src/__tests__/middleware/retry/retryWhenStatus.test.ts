@@ -1,7 +1,7 @@
 import { RequestFailedError, r, request } from "@alette/pulse";
 import { beforeEach } from "@effect/vitest";
 import { http, HttpResponse } from "msw";
-import { factory, output, retry, type } from "../../../domain";
+import { as, factory, output, retry } from "../../../domain";
 import { createTestApi } from "../../utils";
 import { server } from "../../utils/server";
 
@@ -14,7 +14,7 @@ test("it skips status related logic if the error does not contain statuses", asy
 	let enteredTimes = 0;
 
 	const getData = custom(
-		output(type<string>()),
+		output(as<string>()),
 		factory(() => {
 			enteredTimes++;
 			/**
@@ -57,7 +57,7 @@ test.each([
 		);
 
 		const getData = custom(
-			output(type<string>()),
+			output(as<string>()),
 			factory(({ url }) => {
 				enteredTimes++;
 				return request(r.route(url.setOrigin(testUrl.getOrigin()))).execute();
@@ -102,7 +102,7 @@ test.each([
 		);
 
 		const getData = custom(
-			output(type<string>()),
+			output(as<string>()),
 			factory(({ url }) => {
 				enteredTimes++;
 				return request(r.route(url.setOrigin(testUrl.getOrigin()))).execute();

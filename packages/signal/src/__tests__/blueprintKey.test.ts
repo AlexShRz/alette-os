@@ -1,5 +1,5 @@
 import { r, request } from "@alette/pulse";
-import { factory, input, output, type } from "../domain";
+import { as, factory, input, output } from "../domain";
 import { createTestApi } from "./utils";
 import { boundary } from "./utils/server";
 
@@ -21,14 +21,14 @@ test(
 		const { custom, testUrl } = createTestApi();
 
 		const getData = custom(
-			input(type<string>()),
-			output(type<string>()),
+			input(as<string>()),
+			output(as<string>()),
 			factory(() => request(r.route(testUrl.clone())).execute()),
 		);
 
 		const key1 = getData.clone().getKey();
 		const key2 = getData.using(() => ({ args: "asd" })).getKey();
-		const key3 = getData.with(output(type<string>())).getKey();
+		const key3 = getData.with(output(as<string>())).getKey();
 
 		expect(key1).toEqual(key2);
 		expect(key1).toEqual(key3);

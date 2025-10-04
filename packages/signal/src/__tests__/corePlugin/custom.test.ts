@@ -1,6 +1,6 @@
 import { http, HttpResponse } from "msw";
 import { setOrigin } from "../../application";
-import { factory, output, type } from "../../domain";
+import { as, factory, output } from "../../domain";
 import { createTestApi, server } from "../utils";
 
 test(
@@ -30,8 +30,8 @@ test(
 			}),
 		);
 
-		const myQuery = query(output(type<typeof queryResponse>()));
-		const myMutation = mutation(output(type<typeof mutationResponse>()));
+		const myQuery = query(output(as<typeof queryResponse>()));
+		const myMutation = mutation(output(as<typeof mutationResponse>()));
 
 		const res = await custom(
 			factory(async () => {

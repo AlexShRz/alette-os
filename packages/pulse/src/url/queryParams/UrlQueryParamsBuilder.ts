@@ -1,6 +1,6 @@
 import { StandardSchemaV1 } from "@standard-schema/spec";
 import queryString from "query-string";
-import { type, validateSchema } from "../../schema";
+import { as, validateSchema } from "../../schema";
 import { AbstractBuilder } from "../../utils/AbstractBuilder";
 import { IQueryParams } from "./IQueryParams";
 import { CannotSetQueryParamsError } from "./error/CannotSetQueryParamsError";
@@ -12,7 +12,7 @@ export type PossibleParamSupplier<
 export class UrlQueryParamsBuilder<
 	Params extends IQueryParams = IQueryParams,
 > extends AbstractBuilder<UrlQueryParamsBuilder<Params>> {
-	protected paramSchema = type<Params>();
+	protected paramSchema = as<Params>();
 	protected storedParams = {} as Params;
 	protected converter: (params: Readonly<Params>) => string = (params) => {
 		const hasParams = !!Object.keys(params).length;

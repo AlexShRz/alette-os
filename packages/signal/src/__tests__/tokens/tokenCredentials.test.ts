@@ -1,4 +1,4 @@
-import { type } from "@alette/pulse";
+import { as } from "@alette/pulse";
 import { Schema } from "effect";
 import {
 	setContext,
@@ -15,7 +15,7 @@ test("it sets credentials", async () => {
 	const logged: string[] = [];
 
 	const myToken = token()
-		.credentials(type<string>())
+		.credentials(as<string>())
 		.from(async ({ getCredentialsOrThrow }) => {
 			logged.push(await getCredentialsOrThrow());
 			return tokenValue;
@@ -38,7 +38,7 @@ test("it can access previous credentials before updating them", async () => {
 	const logged: string[] = [];
 
 	const myToken = token()
-		.credentials(type<string>())
+		.credentials(as<string>())
 		.from(async ({ getCredentialsOrThrow }) => {
 			logged.push(await getCredentialsOrThrow());
 			return tokenValue;
@@ -100,7 +100,7 @@ test("it can access global context", async () => {
 	let caughtContext: typeof context | null = null;
 
 	const myToken = token()
-		.credentials(type<string>())
+		.credentials(as<string>())
 		.from(() => {
 			return "asdads";
 		})
