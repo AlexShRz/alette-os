@@ -18,8 +18,8 @@ export type TQueryParamsMiddlewareArgs<
 	C extends IRequestContext = IRequestContext,
 > =
 	| ((
-			prevPath: TGetRequestQueryParams<C>,
 			context: TGetAllRequestContext<C>,
+			prevParams: TGetRequestQueryParams<C>,
 	  ) => NextQueryParams | Promise<NextQueryParams>)
 	| NextQueryParams;
 

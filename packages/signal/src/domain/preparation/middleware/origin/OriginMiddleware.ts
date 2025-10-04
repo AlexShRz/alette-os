@@ -35,7 +35,7 @@ export class OriginMiddleware extends Middleware("OriginMiddleware", {
 
 							const getUpdatedPath = P.isFunction(originSupplier)
 								? async () =>
-										await originSupplier(state.getOrigin(), contextSnapshot)
+										await originSupplier(contextSnapshot, state.getOrigin())
 								: async () => originSupplier;
 
 							const newOrigin = yield* E.promise(() => getUpdatedPath());

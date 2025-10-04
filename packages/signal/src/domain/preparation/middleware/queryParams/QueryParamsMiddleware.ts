@@ -29,8 +29,8 @@ export class QueryParamsMiddleware extends Middleware("QueryParamsMiddleware", {
 							const getUpdatedQueryParams = P.isFunction(queryParamSupplier)
 								? async () =>
 										await queryParamSupplier(
-											state.getParams().get(),
 											contextSnapshot,
+											state.getParams().get(),
 										)
 								: async () => queryParamSupplier;
 							const updatedParams = yield* E.promise(() =>

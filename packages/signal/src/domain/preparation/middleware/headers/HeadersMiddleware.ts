@@ -30,7 +30,7 @@ export class HeadersMiddleware extends Middleware("HeadersMiddleware", {
 
 								const getUpdatedHeaders = P.isFunction(headerSupplier)
 									? async () =>
-											await headerSupplier(prevHeaders, contextSnapshot)
+											await headerSupplier(contextSnapshot, prevHeaders)
 									: async () => headerSupplier;
 								const newHeaders = yield* E.promise(() => getUpdatedHeaders());
 

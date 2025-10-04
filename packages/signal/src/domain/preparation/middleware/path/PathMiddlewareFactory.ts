@@ -16,8 +16,8 @@ export type TPathMiddlewareArgs<
 	C extends IRequestContext = IRequestContext,
 > =
 	| ((
-			prevPath: TGetRequestPath<C>,
 			context: TGetAllRequestContext<C>,
+			prevPath: TGetRequestPath<C>,
 	  ) => NextPath | Promise<NextPath>)
 	| NextPath;
 

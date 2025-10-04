@@ -14,8 +14,8 @@ export type TOriginMiddlewareArgs<
 	C extends IRequestContext = IRequestContext,
 > =
 	| ((
-			prevPath: TGetRequestOrigin<C>,
 			context: TGetAllRequestContext<C>,
+			prevPath: TGetRequestOrigin<C>,
 	  ) => NewOrigin | Promise<NewOrigin>)
 	| NewOrigin;
 

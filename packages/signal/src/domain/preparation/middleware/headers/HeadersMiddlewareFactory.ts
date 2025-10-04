@@ -18,8 +18,8 @@ export type THeaderSupplier<
 	C extends IRequestContext = IRequestContext,
 > =
 	| ((
-			headers: TGetRequestHeaders<C>,
 			requestContext: TGetAllRequestContext<C>,
+			prevHeaders: TGetRequestHeaders<C>,
 	  ) => Headers | Promise<Headers>)
 	| Headers;
 

@@ -52,10 +52,10 @@ test("it can compose paths", async () => {
 
 	const getData = custom(
 		path(path1),
-		path((prev) => {
+		path((_, prev) => {
 			return `${prev}${path2}`;
 		}),
-		path((prev) => {
+		path((_, prev) => {
 			return `${prev}${path2}`;
 		}),
 		factory(({ path, url }) => {
@@ -78,10 +78,10 @@ test("it can override path set by upstream middleware", async () => {
 
 	const getData = custom(
 		path(path1),
-		path((prev) => {
+		path((_, prev) => {
 			return `${prev}${path2}`;
 		}),
-		path((prev) => {
+		path((_, prev) => {
 			return `${prev}${path2}`;
 		}),
 		path(path3),

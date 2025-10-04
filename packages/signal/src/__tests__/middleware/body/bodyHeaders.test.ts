@@ -18,7 +18,7 @@ test("it merges body headers with user headers", async () => {
 	const getData = custom(
 		body(myBody),
 		headers(userHeaders1),
-		headers((prev) => ({ ...prev, ...userHeaders2 })),
+		headers((_, prev) => ({ ...prev, ...userHeaders2 })),
 		factory(({ body, headers }) => {
 			returned = [body, headers];
 			return true;

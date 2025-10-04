@@ -28,7 +28,7 @@ export class PathMiddleware extends Middleware("PathMiddleware", {
 
 							const getUpdatedPath = P.isFunction(pathSupplier)
 								? async () =>
-										await pathSupplier(state.getPath(), contextSnapshot)
+										await pathSupplier(contextSnapshot, state.getPath())
 								: async () => pathSupplier;
 							const updatedPath = yield* E.promise(() => getUpdatedPath());
 

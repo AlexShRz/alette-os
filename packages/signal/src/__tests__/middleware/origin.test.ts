@@ -48,9 +48,9 @@ test("it can compose origins", async () => {
 
 	const getData = custom(
 		origin(),
-		origin((prev) => prev.replace("wikipedia", "url1")),
-		origin((prev) => prev.replace("url1", "url2")),
-		origin((prev) => prev.replace("url2", "url3")),
+		origin((_, prev) => prev.replace("wikipedia", "url1")),
+		origin((_, prev) => prev.replace("url1", "url2")),
+		origin((_, prev) => prev.replace("url2", "url3")),
 		factory(({ origin, url }) => {
 			return [origin, url.getOrigin()];
 		}),
@@ -72,9 +72,9 @@ test("it can override origin set by upstream middleware", async () => {
 
 	const getData = custom(
 		origin(),
-		origin((prev) => prev.replace("wikipedia", "url1")),
-		origin((prev) => prev.replace("url1", "url2")),
-		origin((prev) => prev.replace("url2", "url3")),
+		origin((_, prev) => prev.replace("wikipedia", "url1")),
+		origin((_, prev) => prev.replace("url1", "url2")),
+		origin((_, prev) => prev.replace("url2", "url3")),
 		origin(myOrigin2),
 		factory(({ origin, url }) => {
 			return [origin, url.getOrigin()];

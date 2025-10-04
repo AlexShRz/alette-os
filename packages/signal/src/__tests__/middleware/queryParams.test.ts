@@ -57,10 +57,10 @@ test("it composes query params", async () => {
 	};
 
 	const getData = custom(
-		queryParams(async (prev) => ({ ...prev, ...params1 })),
-		queryParams((prev) => ({ ...prev, ...params2 })),
-		queryParams(async (prev) => ({ ...prev, ...params3 })),
-		queryParams((prev) => ({ ...prev, ...params4 })),
+		queryParams(async (_, prev) => ({ ...prev, ...params1 })),
+		queryParams((_, prev) => ({ ...prev, ...params2 })),
+		queryParams(async (_, prev) => ({ ...prev, ...params3 })),
+		queryParams((_, prev) => ({ ...prev, ...params4 })),
 		factory(({ queryParams, url }) => {
 			return [queryParams, url.getParams().get()];
 		}),
@@ -85,10 +85,10 @@ test("it can override query params set by upstream middleware", async () => {
 	};
 
 	const getData = custom(
-		queryParams(async (prev) => ({ ...prev, ...params1 })),
-		queryParams((prev) => ({ ...prev, ...params2 })),
-		queryParams(async (prev) => ({ ...prev, ...params3 })),
-		queryParams((prev) => ({ ...prev, ...params4 })),
+		queryParams(async (_, prev) => ({ ...prev, ...params1 })),
+		queryParams((_, prev) => ({ ...prev, ...params2 })),
+		queryParams(async (_, prev) => ({ ...prev, ...params3 })),
+		queryParams((_, prev) => ({ ...prev, ...params4 })),
 		queryParams(expected),
 		factory(({ queryParams, url }) => {
 			return [queryParams, url.getParams().get()];

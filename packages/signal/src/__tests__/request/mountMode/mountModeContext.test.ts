@@ -7,7 +7,7 @@ test("it resets request context on next execution", async () => {
 	const loggedPaths: string[] = [];
 
 	const getData1 = custom(
-		path((prev) => {
+		path((_, prev) => {
 			/**
 			 * Prev path should always be an empty string - ""
 			 * */
