@@ -19,6 +19,11 @@ export abstract class ApiRequest<
 	RequestSpec extends IAnyRequestSpecification = IAnyRequestSpecification,
 > {
 	/**
+	 * IMPORTANT:
+	 * See blueprint key tests.
+	 * */
+	protected blueprintKey = uuid();
+	/**
 	 * 1. Helps us figure out where to route the request
 	 * 2. Each request is routed to a specified request thread
 	 * using its worker id.
@@ -40,6 +45,14 @@ export abstract class ApiRequest<
 		protected plugin: ApiPlugin,
 		protected defaultMiddleware: RequestMiddleware[],
 	) {}
+
+	getKey() {
+		return this.blueprintKey;
+	}
+
+	getSettingSupplier() {
+		return this.settingSupplier;
+	}
 
 	protected getAllMiddlewareInjectors() {
 		return [...this.defaultMiddleware, ...this.middlewareInjectors];
@@ -91,6 +104,11 @@ export abstract class ApiRequest<
 		const self = this._clone();
 		self.middlewareInjectors = [...this.middlewareInjectors];
 		self.settingSupplier = this.settingSupplier;
+		/**
+		 * IMPORTANT - copy blueprint key without
+		 * any changes.
+		 * */
+		self.blueprintKey = this.blueprintKey;
 		return self;
 	}
 

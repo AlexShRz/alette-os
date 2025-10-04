@@ -1,6 +1,18 @@
-import { beforeEach } from "vitest";
-import { api } from "./__tests__/testApi";
+import "@testing-library/jest-dom/vitest";
+import { setUpApiTestEnv } from "@alette/signal-test-utils";
+import { afterAll, afterEach, beforeAll, vi } from "vitest";
+import { api } from "./src/__tests__/utils/api";
+import { server } from "./src/__tests__/utils/server";
 
-beforeEach(() => {
+setUpApiTestEnv();
+afterEach(() => {
 	api.reset();
 });
+
+afterEach(() => {
+	vi.useRealTimers();
+});
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());

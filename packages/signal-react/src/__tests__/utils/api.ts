@@ -6,7 +6,7 @@ import {
 	setOrigin,
 } from "@alette/signal";
 
-export const testUrl = makeUrl("http://localhost:8080");
+export const testUrl = makeUrl("https://example.com");
 
 export const core = coreApiPlugin();
 

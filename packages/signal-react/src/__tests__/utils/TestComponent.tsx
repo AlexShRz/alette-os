@@ -1,12 +1,21 @@
+import { tapUnmount } from "@alette/signal";
 import React from "react";
-import { useApi } from "../useApi";
+import { useApi } from "../../useApi";
 import { getData } from "./getData";
 
 export interface IComponentProps {
 	provided: string;
+	possibleData?: string[];
+	onNewDataSelect?: (data: string) => void;
+	onRequestUnmount?: () => void;
 }
 
-export const TestComponent: React.FC<IComponentProps> = ({ provided }) => {
+export const TestComponent: React.FC<IComponentProps> = ({
+	provided,
+	possibleData,
+	onNewDataSelect,
+	onRequestUnmount,
+}) => {
 	const {
 		isUninitialized,
 		isError,
@@ -17,14 +26,37 @@ export const TestComponent: React.FC<IComponentProps> = ({ provided }) => {
 		execute,
 		cancel,
 		unmount,
-	} = useApi(() => getData.using(() => ({ args: provided })));
+	} = useApi(
+		getData
+			.with(
+				tapUnmount(() => {
+					onRequestUnmount && onRequestUnmount();
+				}),
+			)
+			.using(() => ({ args: provided })),
+		[provided],
+	);
 
 	if (isUninitialized) {
-		return <p>Uninitialized</p>;
+		return <p data-testid="uninitialized">Uninitialized</p>;
 	}
 
 	return (
 		<div>
+			<div data-testid="provided-data">{provided}</div>
+			{(possibleData || []).map((data, i) => {
+				return (
+					<button
+						key={`${data}-${i}`}
+						data-testid={`to-${data}`}
+						onClick={() => {
+							onNewDataSelect && onNewDataSelect(data);
+						}}
+					>
+						Switch to new data
+					</button>
+				);
+			})}
 			<button data-testid="unmount" onClick={() => unmount()}>
 				Unmount
 			</button>
@@ -40,7 +72,13 @@ export const TestComponent: React.FC<IComponentProps> = ({ provided }) => {
 				</div>
 			)}
 			{data && <div data-testid="data">{data}</div>}
-			<button data-testid="execute" onClick={() => execute()}>
+			<button data-testid="reload">Execute</button>
+			<button
+				data-testid="execute"
+				onClick={() => {
+					execute();
+				}}
+			>
 				Execute
 			</button>
 		</div>

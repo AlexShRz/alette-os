@@ -4,6 +4,7 @@
     "baseUrl": ".",
     "composite": true,
     "declarationMap": true,
+    "jsx": "react",
     "emitDeclarationOnly": true,
     "importHelpers": true,
     "isolatedModules": true,

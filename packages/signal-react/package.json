@@ -1,0 +1,39 @@
+{
+	"name": "@alette/signal-react",
+	"version": "0.0.1",
+	"type": "module",
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"sideEffects": false,
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"development": "./src/index.ts",
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
+		}
+	},
+	"files": ["dist", "!**/*.tsbuildinfo"],
+	"dependencies": {
+		"@alette/signal": "workspace:*",
+		"@alette/pulse": "workspace:*"
+	},
+	"peerDependencies": {
+		"react": "^18 || ^19"
+	},
+	"devDependencies": {
+		"@alette/signal-test-utils": "workspace:*",
+		"@testing-library/dom": "^10.4.1",
+		"@testing-library/jest-dom": "^6.9.1",
+		"@testing-library/react": "^16.3.0",
+		"@testing-library/user-event": "^14.6.1",
+		"@types/react": "^19.0.1",
+		"@uidotdev/usehooks": "^2.4.1",
+		"@vitejs/plugin-react": "^5.0.4",
+		"happy-dom": "13.7.6",
+		"msw": "^2.11.3",
+		"rxjs": "^7.8.2"
+	}
+}
