@@ -5,6 +5,7 @@ import {
 	factoryMiddlewareName,
 	origin,
 	reloadable,
+	retry,
 	runOnMount,
 	throws,
 } from "../../domain";
@@ -25,4 +26,8 @@ export const customRequestFactory = blueprint()
 		reloadable(),
 		withRecognizedErrors(),
 		throws(RequestAbortedError),
+		retry({
+			times: 1,
+			whenStatus: [401],
+		}),
 	);

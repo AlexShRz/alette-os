@@ -1,7 +1,9 @@
+import { r, request } from "@alette/pulse";
 import { http, HttpResponse } from "msw";
 import { setOrigin } from "../../application";
 import { as, factory, output } from "../../domain";
 import { createTestApi, server } from "../utils";
+import { boundary } from "../utils/server";
 
 test(
 	"it can combine data from multiple requests",
@@ -47,6 +49,35 @@ test(
 
 		await vi.waitFor(() => {
 			expect(res).toEqual(expectedCustomResponse);
+		});
+	}),
+);
+
+test(
+	"it retries errors with 401 status code",
+	boundary(async () => {
+		const { api, testUrl, core } = createTestApi();
+		api.tell(setOrigin(testUrl.getOrigin()));
+		let enteredTimes = 0;
+
+		const { custom } = core.use();
+
+		server.use(
+			http.post(testUrl.build(), async () => {
+				enteredTimes++;
+				throw HttpResponse.json(null, { status: 401 });
+			}),
+		);
+
+		const getData = custom(
+			output(as<null>()),
+			factory(({ url }) => request(r.route(url), r.method("POST")).execute()),
+		);
+
+		getData.spawn();
+
+		await vi.waitFor(() => {
+			expect(enteredTimes).toEqual(2);
 		});
 	}),
 );

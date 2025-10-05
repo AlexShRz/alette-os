@@ -13,6 +13,7 @@ import {
 	posts,
 	reloadable,
 	requestCategory,
+	retry,
 	runOnMount,
 } from "../../domain";
 import { requestSpecification } from "../../domain/specification";
@@ -69,5 +70,9 @@ export const mutationFactory = blueprint()
 			return base.execute();
 		}),
 		withRecognizedErrors(),
+		retry({
+			times: 1,
+			whenStatus: [401],
+		}),
 	)
 	.specification(mutationRequestSpec);

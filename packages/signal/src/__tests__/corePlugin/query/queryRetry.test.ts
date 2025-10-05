@@ -56,7 +56,33 @@ test.each([...QUERY_RETRY_STATUSES.map((c) => [c])])(
 	}),
 );
 
-test.each([401])(
+test(
+	"it retries errors with 401 status code",
+	server.boundary(async () => {
+		const { api, testUrl, core } = createTestApi();
+		api.tell(setOrigin(testUrl.getOrigin()));
+		let enteredTimes = 0;
+
+		const { query } = core.use();
+
+		server.use(
+			http.get(testUrl.build(), async () => {
+				enteredTimes++;
+				throw HttpResponse.json(null, { status: 401 });
+			}),
+		);
+
+		const getData = query(output(as<null>()));
+
+		getData.spawn();
+
+		await vi.waitFor(() => {
+			expect(enteredTimes).toEqual(2);
+		});
+	}),
+);
+
+test.each([403])(
 	"it does not retry request on unknown statuses",
 	server.boundary(async (status) => {
 		const { api, testUrl, core } = createTestApi();
