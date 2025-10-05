@@ -1,7 +1,7 @@
 import { ApiError } from "@alette/pulse";
 import { Subject } from "rxjs";
-import { as, factory, output, throws } from "../../../domain";
-import { createTestApi } from "../../utils/createTestApi";
+import { as, factory, output, throws } from "../../domain";
+import { createTestApi } from "../utils/createTestApi";
 
 test("it can cancel running requests without throwing an error", async () => {
 	const { custom } = createTestApi();

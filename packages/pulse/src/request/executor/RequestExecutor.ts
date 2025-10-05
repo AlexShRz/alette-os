@@ -1,5 +1,5 @@
 import * as E from "effect/Effect";
-import { RequestCancelledError, RequestFailedError } from "../../error";
+import { RequestAbortedError, RequestFailedError } from "../../error";
 import { ProgressBroadcaster } from "../services/ProgressBroadcaster";
 import { IFilledRequestData, RequestData } from "../services/RequestData";
 import { configureRequest } from "./configureRequest";
@@ -21,7 +21,7 @@ export class RequestExecutor extends E.Service<RequestExecutor>()(
 
 				return yield* E.async<
 					unknown,
-					RequestCancelledError | RequestFailedError
+					RequestAbortedError | RequestFailedError
 				>((resume) => {
 					const { request, isSuccess, getCommonErrorData, execute } =
 						configureRequest({
@@ -48,7 +48,7 @@ export class RequestExecutor extends E.Service<RequestExecutor>()(
 					 * Handle abort
 					 * */
 					request.onabort = () => {
-						resume(new RequestCancelledError());
+						resume(new RequestAbortedError());
 					};
 
 					/**

@@ -1,3 +1,4 @@
+import { RequestAbortedError } from "@alette/pulse";
 import {
 	allRequestMiddleware,
 	baseRequest,
@@ -5,6 +6,7 @@ import {
 	origin,
 	reloadable,
 	runOnMount,
+	throws,
 } from "../../domain";
 import { requestSpecification } from "../../domain/specification";
 import { blueprint } from "../oneShotRequest";
@@ -17,4 +19,10 @@ export const customRequestSpec = requestSpecification()
 
 export const customRequestFactory = blueprint()
 	.specification(customRequestSpec)
-	.use(origin(), runOnMount(false), reloadable(), withRecognizedErrors());
+	.use(
+		origin(),
+		runOnMount(false),
+		reloadable(),
+		withRecognizedErrors(),
+		throws(RequestAbortedError),
+	);

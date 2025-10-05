@@ -1,4 +1,4 @@
-import { RequestFailedError } from "@alette/pulse";
+import { RequestAbortedError, RequestFailedError } from "@alette/pulse";
 import * as Duration from "effect/Duration";
 import { IRequestContext } from "../../../context/IRequestContext";
 import { retryWhen } from "../retryWhen";
@@ -37,6 +37,10 @@ export function retry<C extends IRequestContext>(
 	};
 
 	return retryWhen<C>(({ attempt, error }) => {
+		if (error instanceof RequestAbortedError) {
+			return false;
+		}
+
 		if (!(error instanceof RequestFailedError)) {
 			return canRetry(attempt);
 		}

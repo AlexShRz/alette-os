@@ -77,15 +77,16 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 									),
 								);
 
-								const response = yield* E.promise(async (signal) => {
-									return executor(
-										{
-											...fullContext,
-											url: fullUrl,
-										},
-										{ notify: sendNotification, signal },
-									);
-								});
+								const response = yield* E.promise(
+									async (signal) =>
+										await executor(
+											{
+												...fullContext,
+												url: fullUrl,
+											},
+											{ notify: sendNotification, signal },
+										),
+								);
 
 								runFork(
 									context.sendToBus(
@@ -176,14 +177,17 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 								return yield* E.zipRight(event.cancel(), context.next(event));
 							}
 
-							if (event instanceof CancelRequest) {
+							if (
+								event instanceof CancelRequest &&
+								(yield* requestRunner.isRunning())
+							) {
 								yield* requestRunner.interrupt();
 								runFork(
 									context.sendToBus(
 										yield* attachRequestId(RequestState.Cancelled()),
 									),
 								);
-								return yield* context.next(event);
+								return yield* E.zipRight(event.complete(), context.next(event));
 							}
 
 							return yield* context.next(event);

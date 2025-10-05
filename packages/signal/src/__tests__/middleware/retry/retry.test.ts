@@ -1,4 +1,4 @@
-import { ApiError, as } from "@alette/pulse";
+import { ApiError, RequestAbortedError, as } from "@alette/pulse";
 import { factory, output, retry, retryWhen } from "../../../domain";
 import { createTestApi } from "../../utils";
 
@@ -114,4 +114,23 @@ test("it overrides 'retryWhen' middleware", async () => {
 	await expect(() => getData.execute()).rejects.toBeTruthy();
 	expect(enteredFactory).toEqual(2);
 	expect(enteredRetryWhen).toBeFalsy();
+});
+
+test("it does not react to request abortion errors", async () => {
+	const { custom } = createTestApi();
+	let enteredFactory = 0;
+
+	const getData = custom(
+		output(as<string>()),
+		factory(() => {
+			enteredFactory++;
+			throw new RequestAbortedError();
+		}),
+		retry({
+			times: 5,
+		}),
+	);
+
+	await expect(() => getData.execute()).rejects.toBeTruthy();
+	expect(enteredFactory).toEqual(1);
 });

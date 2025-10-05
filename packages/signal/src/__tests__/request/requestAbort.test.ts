@@ -1,8 +1,8 @@
-import { RequestCancelledError, r, request } from "@alette/pulse";
+import { RequestAbortedError, r, request } from "@alette/pulse";
 import { http, delay } from "msw";
-import { factory } from "../../../domain";
-import { createTestApi } from "../../utils";
-import { server } from "../../utils/server";
+import { factory } from "../../domain";
+import { createTestApi } from "../utils";
+import { server } from "../utils/server";
 
 test("it triggers abort signal during cancellation", async () => {
 	const { custom } = createTestApi();
@@ -54,7 +54,7 @@ test(
 						r.signal(signal),
 					).execute();
 				} catch (e) {
-					if (e instanceof RequestCancelledError) {
+					if (e instanceof RequestAbortedError) {
 						wasAbortSignalTriggered = true;
 					}
 					throw e;
@@ -84,7 +84,7 @@ test(
 );
 
 test(
-	"it throws cancellation error if custom abort signal is used",
+	"it throws request abort error if custom abort signal is used",
 	server.boundary(async () => {
 		const { custom, testUrl } = createTestApi();
 		const logged: any[] = [];
@@ -119,7 +119,7 @@ test(
 		abortController.abort();
 
 		await vi.waitFor(() => {
-			expect(logged[0]).toBeInstanceOf(RequestCancelledError);
+			expect(logged[0]).toBeInstanceOf(RequestAbortedError);
 		});
 	}),
 );

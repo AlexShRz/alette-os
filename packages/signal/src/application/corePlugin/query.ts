@@ -17,6 +17,7 @@ import {
 	requestSpecification,
 	retry,
 	runOnMount,
+	tapUploadProgressMiddlewareName,
 } from "../../domain";
 import { blueprint } from "../oneShotRequest";
 import { withRecognizedErrors } from "./sharedMiddleware";
@@ -30,7 +31,12 @@ export const QUERY_RETRY_STATUSES: THttpStatusCode[] = [
 const querySpec = requestSpecification()
 	.categorizedAs(baseRequest, queryCategory)
 	.accepts(...allRequestMiddleware)
-	.prohibits(methodMiddlewareName, factoryMiddlewareName, bodyMiddlewareName)
+	.prohibits(
+		methodMiddlewareName,
+		factoryMiddlewareName,
+		bodyMiddlewareName,
+		tapUploadProgressMiddlewareName,
+	)
 	.build();
 
 export const queryFactory = blueprint()
