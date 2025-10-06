@@ -1,4 +1,4 @@
-import { tapUnmount } from "@alette/signal";
+import { tapMount, tapUnmount } from "@alette/signal";
 import React from "react";
 import { useApi } from "../../useApi";
 import { getData } from "./getData";
@@ -7,6 +7,7 @@ export interface IComponentProps {
 	provided: string;
 	possibleData?: string[];
 	onNewDataSelect?: (data: string) => void;
+	onRequestMount?: () => void;
 	onRequestUnmount?: () => void;
 }
 
@@ -14,6 +15,7 @@ export const TestComponent: React.FC<IComponentProps> = ({
 	provided,
 	possibleData,
 	onNewDataSelect,
+	onRequestMount,
 	onRequestUnmount,
 }) => {
 	const {
@@ -29,6 +31,9 @@ export const TestComponent: React.FC<IComponentProps> = ({
 	} = useApi(
 		getData
 			.with(
+				tapMount(() => {
+					onRequestMount && onRequestMount();
+				}),
 				tapUnmount(() => {
 					onRequestUnmount && onRequestUnmount();
 				}),

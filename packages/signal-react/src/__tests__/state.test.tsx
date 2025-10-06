@@ -130,6 +130,33 @@ test(
 );
 
 test(
+	"it registers request mount",
+	boundary(async () => {
+		const uiData = "123";
+		let wasMounted = false;
+
+		server.use(
+			http.get(testUrl.build(), async () => {
+				return HttpResponse.json(uiData);
+			}),
+		);
+
+		render(
+			<TestComponent
+				provided={uiData}
+				onRequestMount={() => {
+					wasMounted = true;
+				}}
+			/>,
+		);
+
+		await waitFor(() => {
+			expect(wasMounted).toBeTruthy();
+		});
+	}),
+);
+
+test(
 	"it unmounts the request together with the component",
 	boundary(async () => {
 		const uiData = "123";

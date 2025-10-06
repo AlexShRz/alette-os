@@ -19,11 +19,9 @@ export class TapMiddleware extends Middleware("TapMiddleware", {
 					E.gen(function* () {
 						const requestContext = yield* sessionContext.getSnapshot();
 
-						yield* E.promise(() => {
-							const configured = async () =>
-								await tapSuccessFn(response, requestContext);
-							return configured();
-						});
+						yield* E.promise(
+							async () => await tapSuccessFn(response, requestContext),
+						);
 					}).pipe(E.forkIn(scope));
 
 				return {

@@ -1,11 +1,14 @@
 import * as E from "effect/Effect";
+import * as Runtime from "effect/Runtime";
 import { GlobalContext } from "../../../context/services/GlobalContext";
 import { orPanic } from "../../../errors/utils/orPanic";
+import { RequestWasMounted } from "../../../lifecycle/events/RequestWasMounted";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
 import { WithRunOnMountCheck } from "../../events/envelope/WithRunOnMountCheck";
 import { RequestMeta } from "../../services/RequestMeta";
 import { RequestMode } from "../../services/RequestMode";
+import { attachRequestId } from "../../utils/attachRequestId";
 import { TRunOnMountMiddlewareArgs } from "./RunOnMountMiddlewareFactory";
 
 export class RunOnMountMiddleware extends Middleware("RunOnMountMiddleware", {
@@ -18,6 +21,7 @@ export class RunOnMountMiddleware extends Middleware("RunOnMountMiddleware", {
 				const globalContext = yield* E.serviceOptional(GlobalContext);
 				const meta = yield* E.serviceOptional(RequestMeta);
 				const mountModeMeta = meta.getMountModeMeta();
+				const runFork = Runtime.runFork(yield* E.runtime());
 
 				const isEnabled = yield* E.promise(async () => {
 					if (typeof isEnabledFlagOrSupplier !== "function") {
@@ -69,6 +73,16 @@ export class RunOnMountMiddleware extends Middleware("RunOnMountMiddleware", {
 							}
 
 							yield* mountModeMeta.markRequestAsMounted();
+							/**
+							 * 1. Notify middleware about request mount
+							 * 2. This should be executed only for mounted requests,
+							 * not one shot ones.
+							 * */
+							runFork(
+								context.sendToBus(
+									yield* attachRequestId(new RequestWasMounted()),
+								),
+							);
 
 							/**
 							 * In disabled mode we do not run mounted requests,
