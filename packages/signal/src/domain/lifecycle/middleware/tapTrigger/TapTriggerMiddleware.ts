@@ -1,12 +1,12 @@
 import * as E from "effect/Effect";
 import { GlobalContext } from "../../../context/services/GlobalContext";
-import { RunRequest } from "../../../execution/events/request/RunRequest";
+import { WithCurrentRequestOverride } from "../../../execution/events/envelope/WithCurrentRequestOverride";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
 import { TTapTriggerArgs } from "./TapTriggerMiddlewareFactory";
 
 export class TapTriggerMiddleware extends Middleware("TapTriggerMiddleware", {
-	priority: MiddlewarePriority.BeforeExecution,
+	priority: MiddlewarePriority.BeforeCreation,
 })(
 	(tapFn: TTapTriggerArgs) =>
 		({ parent, context }) =>
@@ -26,11 +26,9 @@ export class TapTriggerMiddleware extends Middleware("TapTriggerMiddleware", {
 					...parent,
 					send(event) {
 						return E.gen(this, function* () {
-							if (!(event instanceof RunRequest)) {
-								return yield* context.next(event);
+							if (event instanceof WithCurrentRequestOverride) {
+								yield* runTap;
 							}
-
-							yield* runTap;
 
 							return yield* context.next(event);
 						});
