@@ -11,12 +11,14 @@ export class TapCancelMiddleware extends Middleware("TapCancelMiddleware", {
 	(tapCancelFn: TTapCancelArgs) =>
 		({ parent, context }) =>
 			E.gen(function* () {
+				const scope = yield* E.scope;
 				const sessionContext = yield* E.serviceOptional(RequestSessionContext);
 
-				const runTapCancel = E.fn(function* () {
-					const requestContext = yield* sessionContext.getSnapshot();
-					yield* E.promise(async () => await tapCancelFn(requestContext));
-				});
+				const runTapCancel = () =>
+					E.gen(function* () {
+						const requestContext = yield* sessionContext.getSnapshot();
+						yield* E.promise(async () => await tapCancelFn(requestContext));
+					}).pipe(E.forkIn(scope));
 
 				return {
 					...parent,

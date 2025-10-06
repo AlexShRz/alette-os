@@ -11,6 +11,7 @@ export class TapTriggerMiddleware extends Middleware("TapTriggerMiddleware", {
 	(tapFn: TTapTriggerArgs) =>
 		({ parent, context }) =>
 			E.gen(function* () {
+				const scope = yield* E.scope;
 				const globalContext = yield* E.serviceOptional(GlobalContext);
 
 				const runTap = E.gen(function* () {
@@ -20,7 +21,7 @@ export class TapTriggerMiddleware extends Middleware("TapTriggerMiddleware", {
 							await tapFn({ context: obtainedContext });
 						return configured();
 					});
-				});
+				}).pipe(E.forkIn(scope));
 
 				return {
 					...parent,

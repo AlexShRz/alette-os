@@ -12,6 +12,7 @@ export class TapLoadingMiddleware extends Middleware("TapLoadingMiddleware", {
 	(tapLoadingFn: TTapLoadingArgs) =>
 		({ parent, context }) =>
 			E.gen(function* () {
+				const scope = yield* E.scope;
 				const sessionContext = yield* E.serviceOptional(RequestSessionContext);
 
 				const runTapLoading = E.gen(function* () {
@@ -21,7 +22,7 @@ export class TapLoadingMiddleware extends Middleware("TapLoadingMiddleware", {
 						const configured = async () => await tapLoadingFn(requestContext);
 						return configured();
 					});
-				});
+				}).pipe(E.forkIn(scope));
 
 				return {
 					...parent,

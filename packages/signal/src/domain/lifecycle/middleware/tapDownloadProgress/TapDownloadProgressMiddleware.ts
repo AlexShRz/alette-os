@@ -14,6 +14,7 @@ export class TapDownloadProgressMiddleware extends Middleware(
 	(tapDownloadProgressFn: TTapDownloadProgressArgs) =>
 		({ parent, context }) =>
 			E.gen(function* () {
+				const scope = yield* E.scope;
 				const sessionContext = yield* E.serviceOptional(RequestSessionContext);
 
 				const runDownloadProgressTap = (event: DownloadProgressReceived) =>
@@ -26,7 +27,7 @@ export class TapDownloadProgressMiddleware extends Middleware(
 								await tapDownloadProgressFn(progressData, requestContext);
 							return configured();
 						});
-					});
+					}).pipe(E.forkIn(scope));
 
 				return {
 					...parent,

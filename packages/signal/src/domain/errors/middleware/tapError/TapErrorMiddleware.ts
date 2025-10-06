@@ -13,6 +13,7 @@ export class TapErrorMiddleware extends Middleware("TapErrorMiddleware", {
 	(tapErrorFn: TTapErrorArgs) =>
 		({ parent, context }) =>
 			E.gen(function* () {
+				const scope = yield* E.scope;
 				const sessionContext = yield* E.serviceOptional(RequestSessionContext);
 
 				const runTap = (error: ApiError) =>
@@ -24,7 +25,7 @@ export class TapErrorMiddleware extends Middleware("TapErrorMiddleware", {
 								await tapErrorFn(error, requestContext);
 							return configured();
 						});
-					});
+					}).pipe(E.forkIn(scope));
 
 				return {
 					...parent,
