@@ -124,6 +124,16 @@ await boundQuery.execute({
     args: { hey: 'Not Alette Signal?' }
 })
 ```
+:::danger
+`.using()` method clones the original request blueprint
+together with its middleware and returns a new one with bound settings.
+It does not return a reference to `myQuery()` back.
+
+You can validate this by running a js object reference check:
+```ts
+myQuery === boundQuery // returns false
+```
+:::
 
 :::warning
 1. When `.using()` is called, it prevents 
@@ -155,7 +165,7 @@ const myQuery2 = myQuery.with(
 ```
 
 ::: danger
-The `.with()` request blueprint method clones the original request configuration
+The `.with()` request blueprint method clones the original request blueprint
 together with its middleware and returns a new one.
 It does not return a reference to `myQuery()` back, meaning
 `myQuery()` and `myQuery2()` are 2 **completely different requests**.

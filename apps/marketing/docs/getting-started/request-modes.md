@@ -3,7 +3,7 @@ Alette Signal has 2 request modes - **"One shot"** and **"Mounted"**.
 
 ## "One shot" request mode
 **The "one shot" request mode** is a mode where your request is executed once, and every
-used middleware is shutdown the moment request result is available.
+used middleware is shutdown.
 This mode is activated when you call the `.execute()`
 method on request blueprints:
 ```ts
@@ -20,8 +20,8 @@ resolves with a response or rejects with an error.
 
 ### "Spawn" request mode
 **The "spawn" request mode** is a version of the "one shot" request mode where
-a request is executed without returning anything back.
-This mode is used primarily if we are only interested in request side effects.
+a request is executed in the background.
+This mode is used for running request just for its side effects while ignoring the result.
 
 You can execute requests in the "spawn" mode by calling the `.spawn()`
 method on request blueprints:
@@ -35,7 +35,7 @@ myQuery.spawn({
 
 ## "Mounted" request mode
 **The "mounted" request mode** is a mode where your request blueprint acts as 
-a "worker" that can accept multiple requests, 
+a "worker" that can process multiple requests, 
 while keeping its middleware and their state alive.
 
 This mode is activated when you call the `.mount()`
@@ -69,8 +69,7 @@ state back to the previous one, while cancelling in-flight request
 using [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) internally.
 :::
 :::warning
-Request cancellation is different from request abortion - cancellation does 
-not throw errors, while abortion does (more on this later).
+Request cancellation does not throw errors.
 :::
 
 To subscribe to request state changes, use `when()`:
@@ -102,7 +101,7 @@ execute({ args: { hey: 'Alette Signal' } })
 ```
 
 :::info
-1. There is no limit to the amount of subscribers you can add with `when()`.
+1. There is no limit to the amount of subscribers you add with `when()`.
 Every subscriber is executed sequentially one after the other when
 new request state is available.
 2. Every subscriber is unsubscribed automatically when `unmount()` is called.
@@ -125,8 +124,8 @@ const {
 } = getState()
 ```
 :::tip
-"Peeking" is especially useful when you are testing requests. For example, here's how 
-to wait on the `error` request state in `vitest`:
+"Peeking" is especially useful when you are testing requests. For example, here is how 
+to wait for the `error` request state in `vitest`:
 ```ts
 test('it fails', async () => {
     // ...
@@ -135,7 +134,7 @@ test('it fails', async () => {
     execute({ args: { hey: 'Alette Signal' } })
 
     await vi.waitFor(() => {
-        expect(getState().data).toBeInstanceOf(MyError)
+        expect(getState().error).toBeInstanceOf(MyError)
     })
 })
 ```
@@ -149,8 +148,12 @@ execute({ args: { hey: 'Alette Signal' } })
 // After some time
 reload()
 ```
+:::info
+`reload()` is called automatically when the `.mount()` method is called with 
+`runOnMount()` middleware provided.
+:::
 :::danger
 1. The `reload()` function expects arguments to be ready the moment it is called. If they are not available
-and the `input()` middleware is present, the whole system will fail with a fatal error.
+and the `input()` middleware is present, the whole system will fail with a fatal `ArgumentValidationError`.
 2. To avoid this, [bind your request settings using the `.using()` method.](configuring-requests/#request-setting-supplier) 
 :::

@@ -24,6 +24,13 @@ export default defineConfig({
           { text: 'Request modes', link: '/docs/getting-started/request-modes' },
           { text: 'Request middleware', link: '/docs/getting-started/request-middleware' },
         ]
+      },
+      {
+        text: 'Middleware Reference',
+        collapsed: true,
+        items: [
+          { text: 'How to read middleware reference', link: '/docs/middleware-reference/how-to' },
+        ]
       }
     ],
 
