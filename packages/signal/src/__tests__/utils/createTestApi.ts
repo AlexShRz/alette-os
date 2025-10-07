@@ -53,6 +53,6 @@ export const createTestApi = (...commands: CommandTaskBuilder[]) => {
 			.use(origin(), runOnMount(false), reloadable())
 			.belongsTo(core.plugin)
 			.build()
-			.asFunction(),
+			.toFactory(),
 	};
 };

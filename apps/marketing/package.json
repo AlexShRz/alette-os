@@ -1,0 +1,20 @@
+{
+	"name": "@alette/marketing",
+	"version": "0.0.1",
+	"private": true,
+	"devDependencies": {
+		"@alette/pulse": "workspace:*",
+		"@alette/signal": "workspace:*",
+		"@alette/signal-react": "workspace:*",
+		"@alette/signal-test-utils": "workspace:*",
+		"@reduxjs/toolkit": "^2.9.0",
+		"react": "^19.2.0",
+		"vitepress": "2.0.0-alpha.12",
+		"zod": "^4.1.12"
+	},
+	"scripts": {
+		"docs:dev": "vitepress dev",
+		"docs:build": "vitepress build",
+		"docs:preview": "vitepress preview"
+	}
+}

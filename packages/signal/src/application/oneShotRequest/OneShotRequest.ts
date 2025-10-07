@@ -27,7 +27,7 @@ export class OneShotRequest<
 		}).setSettingSupplier(this.settingSupplier);
 	}
 
-	asFunction() {
+	toFactory() {
 		return this.with.bind(this);
 	}
 

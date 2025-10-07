@@ -87,7 +87,7 @@ export abstract class ApiRequest<
 	 * */
 	using(
 		supplier: () => TRequestArguments<Context>,
-	): Omit<this, "with" | "asFunction"> {
+	): Omit<this, "with" | "toFactory"> {
 		/**
 		 * Here we need to CLONE everything WITHOUT
 		 * changing our request thread id.

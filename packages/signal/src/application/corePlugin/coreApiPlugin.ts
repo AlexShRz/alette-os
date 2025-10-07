@@ -16,9 +16,9 @@ export const coreApiPlugin = () => {
 			return {
 				token: () => new TokenBuilder(core.getScheduler()),
 				cookie: () => new CookieBuilder(core.getScheduler()),
-				query: queryFactory.belongsTo(core).build().asFunction(),
-				mutation: mutationFactory.belongsTo(core).build().asFunction(),
-				custom: customRequestFactory.belongsTo(core).build().asFunction(),
+				query: queryFactory.belongsTo(core).build().toFactory(),
+				mutation: mutationFactory.belongsTo(core).build().toFactory(),
+				custom: customRequestFactory.belongsTo(core).build().toFactory(),
 			};
 		},
 	};
