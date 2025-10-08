@@ -30,6 +30,14 @@ export default defineConfig({
         ]
       },
       {
+        text: 'Request behaviour',
+        collapsed: false,
+        items: [
+          { text: 'Request lifecycle', link: '/docs/request-behaviour/request-lifecycle' },
+          { text: 'Request state', link: '/docs/request-behaviour/request-state' },
+        ]
+      },
+      {
         text: 'Middleware Reference',
         collapsed: true,
         items: [

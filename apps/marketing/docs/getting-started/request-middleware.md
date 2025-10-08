@@ -80,7 +80,7 @@ Middleware sorting by priority is reflected in blueprint TypeScript types.
 :::tip
 1. If you are not sure about the middleware order of your request blueprint,
 always look at its TypeScript types.
-2. Most middleware can expose previously set config data,
+2. Most middleware can expose previously set request data,
 allowing you to verify its type:
 ```ts
 const query1 = myQuery.with(

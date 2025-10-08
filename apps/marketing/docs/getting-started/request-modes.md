@@ -83,7 +83,6 @@ const unsubscribe = when(({
   isError,
   data,
   error,
-  /*...*/ 
 }) => {
     if (isSuccess && data) {
         console.log({ data });
@@ -124,7 +123,7 @@ const {
 } = getState()
 ```
 :::tip
-"Peeking" is especially useful when you are testing requests. For example, here is how 
+"Peeking" can be used for request testing. For example, here is how 
 to wait for the `error` request state in `vitest`:
 ```ts
 test('it fails', async () => {

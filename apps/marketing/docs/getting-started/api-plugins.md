@@ -6,7 +6,7 @@ before exposing them for you to use.
 ## Api plugin activation
 To activate api plugins, use `activatePlugins()` [api instruction](./api-configuration/#api-client-instruction):
 ```ts
-import { client, activatePlugins } from "@alette/signal";
+import { client, activatePlugins, coreApiPlugin } from "@alette/signal";
 
 const core = coreApiPlugin();
 

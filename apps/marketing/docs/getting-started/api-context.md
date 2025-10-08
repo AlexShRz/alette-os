@@ -49,18 +49,18 @@ To change api context use `.tell()`:
 api.tell(setContext({ hey: 'Not Alette Signal?' }))
 ```
 :::danger
-Api context set via `.tell()` will wiped after 
+Api context set via `.tell()` will be wiped after 
 [api client reset](api-configuration/#resetting-api-client).
 :::
 
-You can also set api context with a function passed to `setContext()`:
+You can also set api context using a function passed to `setContext()`:
 ```ts
 setContext(() => ({ hey: 'Alette Signal' }))
 // or
 setContext(async () => ({ hey: 'Alette Signal' }))
 ```
 
-:::info4
+:::info
 Alette Signal waits for async `setContext()` 
 to finish before running requests.
 :::
@@ -88,8 +88,8 @@ export const getPosts = query(
 ```
 
 ## Direct value access
-**Direct value access** is an antipattern where you reference values
-inside your api code without passing them through api context.
+**Direct value access** is an antipattern where you access global values
+directly inside your api code without passing them through api context.
 
 You can see how your code becomes untestable:
 ```ts
@@ -151,5 +151,5 @@ test('it uses context name as a query parameter', async () => {
 ```
 
 ## Did you know?
-In more technical terms, Alette Signal api context is a
+Alette Signal api context is a
     [Dependency Injection](https://stackify.com/dependency-injection/) mechanism.
