@@ -44,7 +44,7 @@ const unsubscribe = when(({
 [mounted requests](../getting-started/request-modes.md#mounted-request-mode).
 :::
 
-To unsubscribe manually, call `unsubscribe()`:
+To unsubscribe from request state changes, call `unsubscribe()`:
 ```ts
 const { when } = query.mount()
 
