@@ -35,6 +35,27 @@ test("it is triggered on request execution attempt", async () => {
 	});
 });
 
+test("it is triggered for one shot requests", async () => {
+	const { custom } = createTestApi();
+	const logger: number[] = [];
+
+	const getData = custom(
+		runOnMount(false),
+		reloadable(() => true),
+		factory(() => {
+			return true;
+		}),
+		tapTrigger(() => {
+			logger.push(1);
+		}),
+	);
+
+	getData.spawn();
+	await vi.waitFor(() => {
+		expect(logger).toStrictEqual([1]);
+	});
+});
+
 test("it is not triggered on reload", async () => {
 	const { custom } = createTestApi();
 	const logger: number[] = [];
