@@ -21,7 +21,7 @@ resolves with a response or rejects with an error.
 ### "Spawn" request mode
 **The "spawn" request mode** is a version of the "one shot" request mode where
 a request is executed in the background.
-This mode is used for running request just for its side effects while ignoring the result.
+This mode is used for running a request just for its side effects while ignoring the result.
 
 You can execute requests in the "spawn" mode by calling the `.spawn()`
 method on request blueprints:

@@ -5,7 +5,7 @@ import {
 	setOrigin,
 } from "@alette/signal";
 
-export const core = coreApiPlugin();
+const core = coreApiPlugin();
 
 export const api = client(
 	setOrigin("https://example.com"),

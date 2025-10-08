@@ -1,16 +1,16 @@
 # Request middleware
-**A request middleware** in Alette Signal is a function, that instructs
+**A request middleware** in Alette Signal is a function that instructs
 the core system on how to react to request lifecycle stages.
 
 ## Middleware categories
 Alette Signal has 5 middleware categories:
-1. `Creation` - prepare request data before execution - body, path, query
+1. `Creation` - middleware preparing request data before execution - body, path, query
 params, etc., are all configured here. For example, `input()` and `output()` are 
 creational middleware.
-2. `Behaviour` - modify _how_ requests are going to be executed. 
-3. `Execution` - execute requests by calling REST API endpoints, etc.
-4. `Transformation` - transform request response and errors.
-5. `Inspection` - hook into request lifecycle and perform
+2. `Behaviour` - middleware that modify _how_ requests are going to be executed. 
+3. `Execution` - middleware that execute requests by calling REST API endpoints, etc.
+4. `Transformation` - middleware transforming request response and errors.
+5. `Inspection` - middleware hooking into request lifecycle and performing
 side effects without modifying response and errors.
 
 :::tip
@@ -113,6 +113,36 @@ const query1 = myQuery.with(
 const response = await query1.execute({ args: 'hey' })
 ```
 
+Middleware composition also works across blueprints:
+```ts
+const query1 = myQuery.with(
+    output(as<string>()),
+    path('/alette'),
+    map((response) => `${response}/map1`),
+)
+
+const query2 = query1.with(
+    map((response) => `${response}/map2`),
+)
+
+const query3 = query2.with(
+    map((response) => `${response}/map3`),
+)
+
+// The "response1" type will be "${string}/map1"
+const response1 = await query1.execute({ args: 'hey' })
+// The "response2" type will be "${string}/map1/map2"
+const response2 = await query2.execute({ args: 'hey' })
+// The "response3" type will be "${string}/map1/map2/map3"
+const response3 = await query3.execute({ args: 'hey' })
+```
+:::tip
+Notice how `query1`, `query2` and `query3` are executed independently
+of each other, each with their own middleware list. Even through `query3`
+uses `query2` as a foundation, they never collide with one another. This is 
+achieved via [Alette Signal request behaviour reuse](configuring-requests/#reusing-request-behaviour).
+:::
+
 ## Middleware cascading
 **Middleware cascading** is a middleware behaviour that overrides previous 
 request config data set by other middleware. 
@@ -155,6 +185,9 @@ const query2 = query1.with(
     headers((_, prevHeaders) => ({ ...prevHeaders, 'header2': 'hello' })),
 )
 
+// The request will be executed with
+// { 'header1': 'hi' } object as headers.
+await query1.execute({ args: 'hey' })
 // The request will be executed with
 // { 'header1': 'hi', 'header2': 'hello' } object as headers.
 await query2.execute({ args: 'hey' })

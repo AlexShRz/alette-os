@@ -1,11 +1,12 @@
 # Configuring requests
 Configuring requests in Alette Signal is done by providing middleware
-to request blueprints. **A request blueprint** is an object that 
-stores request middleware and configuration before sending them 
-to the Alette Signal "core" system for execution.
+to request blueprints. 
 
-**You can think of request blueprints as a set of instructions** 
-defined by you and executed by the Alette Signal core system the moment they are received.
+**A request blueprint** is an object that 
+stores request middleware and configuration before sending them 
+to the Alette Signal "core" system for execution. **You can think of request blueprints 
+as a set of instructions** defined by you and executed by the Alette Signal core 
+system the moment they are received.
 
 **Request blueprints never execute requests themselves** - they delegate 
 execution to the system. When a request is finished, the system sends the result back and your
@@ -29,6 +30,9 @@ request behaviours by composing middleware.
 Under the hood Alette Signal makes no differentiation between `query()`, `mutation()` and `custom()`.
 The system treats them as middleware "black boxes", nothing more. The same is true for any blueprints
 plugin authors may define.
+:::
+::: danger
+A plugin must [be activated](./api-plugins.md#api-plugin-activation) for its request blueprints to work. 
 :::
 
 ## Defining request behaviour
@@ -109,7 +113,7 @@ const boundQuery = myQuery.using(() => ({
 }))
 ```
 
-Now we can the query as is:
+Now we can execute the query as is:
 ```ts
 // Each invocation is using the same request settings
 // { args: { hey: 'Alette Signal' } }
