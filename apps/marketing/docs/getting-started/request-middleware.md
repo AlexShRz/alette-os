@@ -145,7 +145,7 @@ achieved via [Alette Signal request behaviour reuse](configuring-requests/#reusi
 
 ## Middleware cascading
 **Middleware cascading** is a middleware behaviour that overrides previous 
-request config data set by other middleware. 
+request data set by other middleware. 
 
 You can see this behaviour when adding multiple `headers()` middleware:
 ```ts
@@ -161,7 +161,7 @@ await query1.execute({ args: 'hey' })
 ```
 
 To preserve data provided by previous cascading middleware, you can pass
-a callback as an argument and merge everything manually:
+a callback as an argument and merge request data manually:
 ```ts
 const query1 = myQuery.with(
     output(as<string>()),
@@ -174,7 +174,7 @@ const query1 = myQuery.with(
 await query1.execute({ args: 'hey' })
 ```
 
-Manual merging also works across blueprints: 
+Manual request data merging also works across blueprints: 
 ```ts
 const query1 = myQuery.with(
     output(as<string>()),

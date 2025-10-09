@@ -15,6 +15,7 @@ import {
 	requestCategory,
 	retry,
 	runOnMount,
+	throwsMiddlewareName,
 } from "../../domain";
 import { requestSpecification } from "../../domain/specification";
 import { blueprint } from "../oneShotRequest";
@@ -25,7 +26,7 @@ export const mutationCategory = requestCategory("baseMutation");
 export const mutationRequestSpec = requestSpecification()
 	.categorizedAs(baseRequest, mutationCategory)
 	.accepts(...allRequestMiddleware)
-	.prohibits(factoryMiddlewareName)
+	.prohibits(factoryMiddlewareName, throwsMiddlewareName)
 	.build();
 
 export const mutationFactory = blueprint()

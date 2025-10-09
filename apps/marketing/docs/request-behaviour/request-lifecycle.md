@@ -4,13 +4,13 @@ can inspect and manipulate.
 
 ## Request execution stages
 There are 7 request execution stages:
-1. [Mounted](#mounted-request-execution-stage)
-2. [Unmounted](#the-unmounted-stage)
-3. [Triggered](#the-triggered-stage)
-4. [Cancelled](#the-cancelled-stage)
-5. [Loading](#the-loading-stage)
-6. [Succeeded](#the-succeeded-stage)
-7. [Failed](#the-failed-stage)
+1. [Mounted](#mounted-request-execution-stage).
+2. [Unmounted](#the-unmounted-stage).
+3. [Triggered](#the-triggered-stage).
+4. [Cancelled](#the-cancelled-stage).
+5. [Loading](#the-loading-stage).
+6. [Succeeded](#the-succeeded-stage).
+7. [Failed](#the-failed-stage).
 
 ## The "Mounted" stage
 **The "mounted" request execution stage** is activated
@@ -112,6 +112,9 @@ query
     .mount()
 ```
 
+:::info
+`tapTrigger()` is not affected by `debounce()` and `throttle()` middleware.
+:::
 :::warning
 `tapTrigger()` and other middleware invoked during the "triggered" request execution stage
 cannot access request data.

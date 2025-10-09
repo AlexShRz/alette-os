@@ -1,5 +1,5 @@
 # Request state
-**Request state** in Alette Signal is an object describing
+**Request state** in Alette Signal is a record describing
 the current [request execution stage](request-lifecycle.md).
 
 ## Accessing request state

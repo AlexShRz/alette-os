@@ -18,6 +18,7 @@ import {
 	retry,
 	runOnMount,
 	tapUploadProgressMiddlewareName,
+	throwsMiddlewareName,
 } from "../../domain";
 import { blueprint } from "../oneShotRequest";
 import { withRecognizedErrors } from "./sharedMiddleware";
@@ -35,6 +36,7 @@ const querySpec = requestSpecification()
 		methodMiddlewareName,
 		factoryMiddlewareName,
 		bodyMiddlewareName,
+		throwsMiddlewareName,
 		tapUploadProgressMiddlewareName,
 	)
 	.build();

@@ -16,7 +16,7 @@ export default defineConfig({
 
     sidebar: [
       {
-        text: 'Getting Started',
+        text: 'Getting started',
         collapsed: false,
         items: [
           { text: 'Why Alette Signal', link: '/docs/getting-started/why-signal' },
@@ -35,10 +35,13 @@ export default defineConfig({
         items: [
           { text: 'Request lifecycle', link: '/docs/request-behaviour/request-lifecycle' },
           { text: 'Request state', link: '/docs/request-behaviour/request-state' },
+          { text: 'Query', link: '/docs/request-behaviour/query' },
+          { text: 'Mutation', link: '/docs/request-behaviour/mutation' },
+          { text: 'Custom', link: '/docs/request-behaviour/custom' },
         ]
       },
       {
-        text: 'Middleware Reference',
+        text: 'Middleware reference',
         collapsed: true,
         items: [
           { text: 'How to read middleware reference', link: '/docs/middleware-reference/how-to' },

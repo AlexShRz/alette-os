@@ -119,7 +119,6 @@ const {
     isError,
     data,
     error,
-    /*...*/
 } = getState()
 ```
 :::tip
