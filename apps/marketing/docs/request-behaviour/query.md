@@ -197,6 +197,33 @@ cancel()
 Request cancellation does not throw errors.
 :::
 
+## Query abortion
+To abort an in-flight query request, call the `.abort()` method 
+on the [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) 
+passed to the `abortedBy()` middleware:
+```ts
+const abortController = new AbortController();
+
+// ...
+
+const {
+  /* ... */
+} = useApi(
+    getPostsForSelect
+		.with(abortedBy(abortController))
+		.using(() => ({
+			args: { status }
+		})),
+    [status]
+);
+
+// Later...
+abortController.abort()
+```
+:::danger
+Request abortion throws a `RequestAbortedError`.
+:::
+
 ## Query limitations
 1. [Cannot send request body](https://www.baeldung.com/cs/http-get-with-body).
 2. Cannot track body upload progress using the `tapUploadProgress()` middleware.

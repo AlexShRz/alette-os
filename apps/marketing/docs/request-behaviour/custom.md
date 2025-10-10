@@ -281,7 +281,84 @@ Notifications are prefixed with "about" for differentiation from
 [api questions](../getting-started/api-configuration.md#api-client-question).
 :::
 
-## Cancelling "custom" requests
+## Request factory supervision
+**Request factory supervision** refers to the ability of request factories to propagate
+cancellation or abortion to child requests.
+
+To enable request factory supervision, pass the provided [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)
+to child requests using the `abortedBy()` middleware:
+```ts
+factory(async (_, { signal }) => {
+    const response1 = getData1.with(abortedBy(signal)).execute(); 
+    const response2 = getData2.with(abortedBy(signal)).execute(); 
+
+    return {
+        ...response1,
+        ...response2,
+	}
+})
+```
+
+## Request factory cancellation
+To cancel request factory execution, use `cancel()`:
+```ts
+const getCombinedData = custom(
+    factory(async (_, { signal }) => {
+        const response1 = getData1.with(abortedBy(signal)).execute();
+        const response2 = getData2.with(abortedBy(signal)).execute();
+
+        return {
+            ...response1,
+            ...response2,
+        }
+    })
+)
+
+const { cancel } = getCombinedData.mount()
+	
+// Later...
+cancel()
+```
+:::warning
+Request factory cancellation does not throw errors.
+:::
+:::danger
+If your request factory is modifying data on the server, its cancellation might
+result in [false positive mutation cancellation](mutation.md#fixing-false-positive-cancellations).
+:::
+
+## Request factory abortion
+To abort a request factory, call the `.abort()` method
+on the [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController)
+passed to the `abortedBy()` middleware:
+```ts
+const abortController = new AbortController();
+
+const getCombinedData = custom(
+    abortedBy(abortController),
+    factory(async (_, { signal }) => {
+        const response1 = getData1.with(abortedBy(signal)).execute();
+        const response2 = getData2.with(abortedBy(signal)).execute();
+
+        return {
+            ...response1,
+            ...response2,
+        }
+    })
+)
+
+getCombinedData.execute()
+	
+// Later...
+abortController.abort()
+```
+:::danger
+Request factory abortion throws a `RequestAbortedError`.
+:::
+:::danger
+If your request factory is modifying data on the server, its abortion might
+result in [false positive mutation cancellation](mutation.md#mutation-abortion).
+:::
 
 ## Limitations of "custom"
 The custom request blueprint has no limitations.

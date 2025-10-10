@@ -406,6 +406,41 @@ Reverting a mutation after cancellation is called **"compensation"**.
 can result in a "false positive" mutation cancellation.
 :::
 
+## Mutation abortion
+To abort an in-flight mutation request, call the `.abort()` method
+on the [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController)
+passed to the `abortedBy()` middleware:
+```ts
+const abortController = new AbortController();
+
+// ...
+
+scheduleEmail
+   .with(abortedBy(abortController))
+   .using(() => ({ args: { topic } }))
+
+// Later...
+abortController.abort()
+```
+:::danger
+Request abortion throws a `RequestAbortedError`.
+:::
+:::danger
+Request abortion can result in [false positive mutation cancellation](#fixing-false-positive-cancellations).
+To avoid this, revert the mutation using the `tapAbort()` middleware:
+```ts
+scheduleEmail
+    .with(
+        abortedBy(abortController),
+        tapAbort(async ({ args: { id: emailId } }) => {
+            await cancelScheduledEmail.execute({ args: emailId });
+            console.log("Mutation was safely aborted.")
+        })
+    )
+    .using(() => ({ args: { topic } }))
+```
+:::
+
 ## Mutation limitations
 1. Cannot use the `GET` HTTP method to execute requests.
 2. Cannot implement custom request execution logic using the `factory()` middleware.

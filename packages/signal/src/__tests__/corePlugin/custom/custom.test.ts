@@ -1,9 +1,9 @@
 import { r, request } from "@alette/pulse";
 import { http, HttpResponse } from "msw";
-import { setOrigin } from "../../application";
-import { as, factory, output } from "../../domain";
-import { createTestApi, server } from "../utils";
-import { boundary } from "../utils/server";
+import { setOrigin } from "../../../application";
+import { as, factory, output } from "../../../domain";
+import { createTestApi, server } from "../../utils";
+import { boundary } from "../../utils/server";
 
 test(
 	"it can combine data from multiple requests",

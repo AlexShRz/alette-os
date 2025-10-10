@@ -79,15 +79,14 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 									),
 								);
 
-								const response = yield* E.promise(
-									async (signal) =>
-										await executor(
-											{
-												...fullContext,
-												url: fullUrl,
-											},
-											{ notify: sendNotification, signal },
-										),
+								const response = yield* E.promise(async (signal) =>
+									executor(
+										{
+											...fullContext,
+											url: fullUrl,
+										},
+										{ notify: sendNotification, signal },
+									),
 								);
 
 								runFork(
@@ -98,6 +97,10 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 							}).pipe(
 								E.catchAllDefect(
 									E.fn(function* (e) {
+										if (!(yield* requestRunner.isRunning())) {
+											return;
+										}
+
 										if (e instanceof FatalApiError) {
 											return yield* panic(e);
 										}

@@ -3,14 +3,15 @@
 can inspect and manipulate. 
 
 ## Request execution stages
-There are 7 request execution stages:
+There are 8 request execution stages:
 1. [Mounted](#mounted-request-execution-stage).
 2. [Unmounted](#the-unmounted-stage).
 3. [Triggered](#the-triggered-stage).
 4. [Cancelled](#the-cancelled-stage).
-5. [Loading](#the-loading-stage).
-6. [Succeeded](#the-succeeded-stage).
-7. [Failed](#the-failed-stage).
+5. [Aborted](#the-aborted-stage).
+6. [Loading](#the-loading-stage).
+7. [Succeeded](#the-succeeded-stage).
+8. [Failed](#the-failed-stage).
 
 ## The "Mounted" stage
 **The "mounted" request execution stage** is activated
@@ -149,6 +150,39 @@ query
 ```
 :::warning
 `tapCancel()` is not triggered if there is no request in-flight.
+:::
+
+## The "Aborted" stage
+**The "aborted" request execution stage** is activated when a request
+is aborted using the 
+[AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController)
+provided to the `abortedBy()` middleware:
+```ts
+const abortController = new AbortController();
+
+const pendingRequest = query
+    .with(
+       abortedBy(abortController)
+    )    
+    .execute();
+
+// After some time
+abortController.abort()
+```
+
+To run side effects during the "aborted" stage use the `tapAbort()`
+middleware:
+```ts
+query
+    .with(
+        tapAbort(({ args, path, context }) => {
+            console.log(`The request was manually aborted:`, { args })
+        })
+    )
+    .mount()
+```
+:::warning
+`tapAbort()` is not triggered if there is no request in-flight.
 :::
 
 ## The "Loading" stage

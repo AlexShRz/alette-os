@@ -4,7 +4,6 @@ import { TSessionEvent } from "../../../domain/execution/events/SessionEvent";
 import { WithCurrentRequestOverride } from "../../../domain/execution/events/envelope/WithCurrentRequestOverride";
 import { WithReloadableCheck } from "../../../domain/execution/events/envelope/WithReloadableCheck";
 import { WithRunOnMountCheck } from "../../../domain/execution/events/envelope/WithRunOnMountCheck";
-import { AbortRequest } from "../../../domain/execution/events/request/AbortRequest";
 import { CancelRequest } from "../../../domain/execution/events/request/CancelRequest";
 import { RunRequest } from "../../../domain/execution/events/request/RunRequest";
 import { RequestController } from "../../blueprint/controller/RequestController";
@@ -96,10 +95,6 @@ export class OneShotRequestController<
 		}
 
 		return new WithReloadableCheck(event).setRequestId();
-	}
-
-	abort() {
-		this.dispatch(new AbortRequest());
 	}
 
 	protected cancelRequest() {
