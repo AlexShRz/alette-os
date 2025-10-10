@@ -1,6 +1,7 @@
 import { IRequestContext } from "../../domain/context/IRequestContext";
 import {
 	TRequestArguments,
+	TRequestError,
 	TRequestResponse,
 } from "../../domain/context/typeUtils/RequestIOTypes";
 import { TRequestMode } from "../../domain/execution/services/RequestMode";
@@ -9,6 +10,7 @@ import { RequestSpecification } from "../../domain/specification";
 import { ApiRequest } from "../blueprint/ApiRequest";
 import { IOneShotRequestWithMiddleware } from "./IOneShotRequestWithMiddleware";
 import { OneShotRequestController } from "./controller/OneShotRequestController";
+import { IFutureResponse, futureResponse } from "./futureResponse";
 
 export class OneShotRequest<
 		PrevContext extends IRequestContext = IRequestContext,
@@ -41,32 +43,39 @@ export class OneShotRequest<
 		return new OneShotRequest(this.plugin, [...this.defaultMiddleware]) as this;
 	}
 
-	async execute(args: TRequestArguments<Context> = {}) {
+	execute(
+		args: TRequestArguments<Context> = {},
+	): IFutureResponse<TRequestResponse<Context>> {
 		const controller = this.getController("oneShot");
 		const { execute } = controller.getHandlers();
 		execute(args);
 
-		return new Promise<TRequestResponse<Context>>((resolve, reject) => {
-			const unsubscribe = controller.subscribe(
-				({ isSuccess, isError, error, data }) => {
-					if (isSuccess || isError) {
-						unsubscribe();
-					}
+		return futureResponse<TRequestResponse<Context>, TRequestError<Context>>(
+			(resolve, reject) => {
+				const unsubscribe = controller.subscribe(
+					({ isSuccess, isError, error, data }) => {
+						if (isSuccess || isError) {
+							unsubscribe();
+						}
 
-					if (isSuccess) {
-						resolve(data);
-						return;
-					}
+						if (isSuccess) {
+							resolve(data);
+							return;
+						}
 
-					if (isError) {
-						reject(error);
-						return;
-					}
-				},
-			);
-		}).finally(() => {
+						if (isError) {
+							reject(error);
+							return;
+						}
+					},
+				);
+			},
+			() => {
+				controller.abort();
+			},
+		).finally(() => {
 			controller.dispose();
-		});
+		}) as any;
 	}
 
 	/**

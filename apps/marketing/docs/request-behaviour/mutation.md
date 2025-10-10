@@ -5,14 +5,14 @@ provided by the "core" plugin and is preconfigured for sending `POST`, `PUT`, `P
 ## Preconfigured mutation behaviour
 1. Uses the `POST` HTTP method by default to send a request to the server.
 2. Is not executed on mount by default.
-3. Retries the request _once_ on failure if the returned error
+3. Retries the request _once_ if the thrown error
    contains the `401` HTTP status.
 4. Throws a `RequestFailedError` if the response returned from the server does not have a `2xx` HTTP status.
 5. Throws a `HttpMethodValidationError` if a mutation request was attempted with the `GET` HTTP method provided.
 
 :::warning
 Mutations are designed for modifying data on your backend.
-If you want to get server data without side effects on your backend, use [query](./query.md).
+If you want to get server data without modifying it on the backend, use [query](./query.md).
 :::
 
 ## Using mutation blueprint
@@ -177,7 +177,7 @@ The `body()` middleware accepts 7 body types:
 7. `Uint8Array`.
 
 ## Body headers
-The `body()` middleware sets request headers automatically based on passed body type. There are 7
+The `body()` middleware sets request headers automatically based on the passed body type. There are 7
 variations of automatically injected request headers:
 1. For objects convertable to `JSON`:
 ```ts
@@ -230,7 +230,7 @@ mutation(
 ```
 
 :::warning
-User provided headers and body headers are merged if there is no collision:
+User provided headers and body headers are _merged_ if there is no collision:
 ```ts
 mutation(
     // Sets { "Content-Type": "application/json;charset=UTF-8" } 
@@ -288,6 +288,38 @@ mutation(
     }),
 )
 ```
+
+## Mutation mounted execution
+To enable mutation execution on mount, use the `runOnMount()` middleware:
+```ts
+cancelScheduledEmail.with(
+    runOnMount()
+);
+```
+
+:::tip
+One example of a mounted mutation is email confirmation. When users 
+visit the "email confirmed" screen from their mail client, a request
+confirming their email validity is sent:
+```tsx
+export const autoMarkEmailAsConfirmed = mutation(
+    input(as<number>()),
+    runOnMount()
+)
+
+// Somewhere in "EmailConfirmed" component:
+const userId = /* ... */
+
+useApi(
+    autoMarkEmailAsConfirmed.using(() => ({ args: userId })),
+    [userId]
+)
+```
+:::
+:::tip
+`runOnMount()` also works with [custom requests](custom.md).
+:::
+
 
 ## File upload
 To upload files to your backend, use `FormData` together with the `body()` middleware:
@@ -352,7 +384,7 @@ Mutation `cancel()` has 2 possible outcomes:
 
 ### Fixing false positive cancellations
 To fix a false positive mutation cancellation, use the `tapCancel()` middleware to
-send a request back to your server that reverts the mutation:
+send a request back to the server that reverts the mutation:
 ```ts
 scheduleEmail
     .with(
@@ -367,7 +399,7 @@ scheduleEmail
 cancel()
 ```
 :::info
-Reverting a mutation manually after cancellation is called **"mutation compensation"**.
+Reverting a mutation after cancellation is called **"compensation"**.
 :::
 :::danger
 **Always revert mutations manually after cancellation** - `cancel()` by itself

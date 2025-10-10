@@ -1,8 +1,8 @@
 import { RequestAbortedError, r, request } from "@alette/pulse";
 import { http, delay } from "msw";
-import { factory } from "../../domain";
-import { createTestApi } from "../utils";
-import { server } from "../utils/server";
+import { factory } from "../../../domain";
+import { createTestApi } from "../../utils";
+import { server } from "../../utils/server";
 
 test("it triggers abort signal during cancellation", async () => {
 	const { custom } = createTestApi();

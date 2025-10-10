@@ -3,7 +3,7 @@
 layout: home
 
 hero:
-  text: "Delightful data fetching for your Front-End"
+  text: "Delightful data fetching for every Front-End"
   tagline: My great project tagline
   actions:
     - theme: brand

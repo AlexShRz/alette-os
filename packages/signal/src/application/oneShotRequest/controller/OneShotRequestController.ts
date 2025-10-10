@@ -1,10 +1,11 @@
 import { IRequestContext } from "../../../domain/context/IRequestContext";
 import { TMountedRequestArguments } from "../../../domain/context/typeUtils/RequestIOTypes";
-import { CancelRequest } from "../../../domain/execution/events/CancelRequest";
 import { TSessionEvent } from "../../../domain/execution/events/SessionEvent";
 import { WithCurrentRequestOverride } from "../../../domain/execution/events/envelope/WithCurrentRequestOverride";
 import { WithReloadableCheck } from "../../../domain/execution/events/envelope/WithReloadableCheck";
 import { WithRunOnMountCheck } from "../../../domain/execution/events/envelope/WithRunOnMountCheck";
+import { AbortRequest } from "../../../domain/execution/events/request/AbortRequest";
+import { CancelRequest } from "../../../domain/execution/events/request/CancelRequest";
 import { RunRequest } from "../../../domain/execution/events/request/RunRequest";
 import { RequestController } from "../../blueprint/controller/RequestController";
 import { ApiPlugin } from "../../plugins/ApiPlugin";
@@ -74,10 +75,6 @@ export class OneShotRequestController<
 		this.plugin.getScheduler().schedule(this.worker.dispatch(event));
 	}
 
-	protected cancelRequest() {
-		this.dispatch(new CancelRequest());
-	}
-
 	protected executeRequest(
 		settings: TMountedRequestArguments<Context> = {} as TMountedRequestArguments<Context>,
 	) {
@@ -99,6 +96,14 @@ export class OneShotRequestController<
 		}
 
 		return new WithReloadableCheck(event).setRequestId();
+	}
+
+	abort() {
+		this.dispatch(new AbortRequest());
+	}
+
+	protected cancelRequest() {
+		this.dispatch(new CancelRequest());
 	}
 
 	reload() {

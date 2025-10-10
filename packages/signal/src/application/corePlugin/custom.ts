@@ -2,6 +2,7 @@ import { RequestAbortedError } from "@alette/pulse";
 import {
 	allRequestMiddleware,
 	baseRequest,
+	factory,
 	factoryMiddlewareName,
 	origin,
 	reloadable,
@@ -26,6 +27,11 @@ export const customRequestFactory = blueprint()
 		reloadable(),
 		withRecognizedErrors(),
 		throws(RequestAbortedError),
+		factory(() => {
+			throw new Error(
+				'[Custom request blueprint] - the "factory()" middleware was not provided.',
+			);
+		}),
 		retry({
 			times: 1,
 			whenStatus: [401],

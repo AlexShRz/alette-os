@@ -12,5 +12,12 @@ export * from "./categorization";
  * */
 export * from "./auth";
 export * from "./requestConfigPredicate";
-export { as, makeUrl, makeQueryParams } from "@alette/pulse";
+export {
+	as,
+	makeUrl,
+	makeQueryParams,
+	RequestFailedError,
+	RequestInterruptedError,
+	RequestAbortedError,
+} from "@alette/pulse";
 export * from "./response";

@@ -147,6 +147,9 @@ query
     )
     .mount()
 ```
+:::warning
+`tapCancel()` is not triggered if there is no request in-flight.
+:::
 
 ## The "Loading" stage
 **The "loading" request execution stage** is activated when

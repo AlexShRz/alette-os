@@ -1,15 +1,17 @@
 import { IEventBusListener } from "@alette/event-sourcing";
-import { FatalApiError } from "@alette/pulse";
+import { FatalApiError, RequestAbortedError } from "@alette/pulse";
 import * as E from "effect/Effect";
 import * as Runtime from "effect/Runtime";
+import { orPanic } from "../../../errors/utils/orPanic";
 import { panic } from "../../../errors/utils/panic";
 import { OneShotRequestNotification } from "../../../lifecycle/notifications/OneShotRequestNotification";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
 import { UrlContext } from "../../../preparation/context/url/UrlContext";
-import { CancelRequest } from "../../events/CancelRequest";
 import { WithCurrentRequestOverride } from "../../events/envelope/WithCurrentRequestOverride";
+import { AbortRequest } from "../../events/request/AbortRequest";
 import { AutoRunRequest } from "../../events/request/AutoRunRequest";
+import { CancelRequest } from "../../events/request/CancelRequest";
 import { RequestState } from "../../events/request/RequestState";
 import { RunRequest } from "../../events/request/RunRequest";
 import { RequestRunner } from "../../services/RequestRunner";
@@ -178,6 +180,21 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 							}
 
 							if (
+								event instanceof AbortRequest &&
+								(yield* requestRunner.isRunning())
+							) {
+								yield* requestRunner.interrupt();
+								runFork(
+									context.sendToBus(
+										yield* attachRequestId(
+											RequestState.Failed(new RequestAbortedError()),
+										),
+									),
+								);
+								return yield* E.zipRight(event.complete(), context.next(event));
+							}
+
+							if (
 								event instanceof CancelRequest &&
 								(yield* requestRunner.isRunning())
 							) {
@@ -194,5 +211,5 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 						});
 					},
 				} satisfies IEventBusListener;
-			}).pipe(E.orDie),
+			}).pipe(orPanic),
 ) {}

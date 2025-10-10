@@ -1,34 +1,36 @@
 import * as E from "effect/Effect";
-import { CancelRequest } from "../../../execution/events/request/CancelRequest";
+import { AbortRequest } from "../../../execution/events/request/AbortRequest";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
-import { TTapCancelArgs } from "./TapCancelMiddlewareFactory";
+import { TTapAbortArgs } from "./TapAbortMiddlewareFactory";
 
-export class TapCancelMiddleware extends Middleware("TapCancelMiddleware", {
+export class TapAbortMiddleware extends Middleware("TapAbortMiddleware", {
 	priority: MiddlewarePriority.BeforeExecution,
 })(
-	(tapCancelFn: TTapCancelArgs) =>
+	(tapAbortMiddleware: TTapAbortArgs) =>
 		({ parent, context }) =>
 			E.gen(function* () {
 				const scope = yield* E.scope;
 				const sessionContext = yield* E.serviceOptional(RequestSessionContext);
 
-				const runTapCancel = () =>
+				const runTapAbort = () =>
 					E.gen(function* () {
 						const requestContext = yield* sessionContext.getSnapshot();
-						yield* E.promise(async () => await tapCancelFn(requestContext));
+						yield* E.promise(
+							async () => await tapAbortMiddleware(requestContext),
+						);
 					}).pipe(E.forkIn(scope));
 
 				return {
 					...parent,
 					send(event) {
 						return E.gen(this, function* () {
-							if (!(event instanceof CancelRequest)) {
+							if (!(event instanceof AbortRequest)) {
 								return yield* context.next(event);
 							}
 
-							return yield* context.next(event.onComplete(runTapCancel));
+							return yield* context.next(event.onComplete(runTapAbort));
 						});
 					},
 				};

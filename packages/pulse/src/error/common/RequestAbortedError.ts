@@ -2,7 +2,7 @@ import { ApiError } from "./ApiError";
 
 export class RequestAbortedError extends ApiError {
 	constructor() {
-		super("RequestAbortedError");
+		super("\nRequestAbortedError" + `\nThe request was aborted.`);
 	}
 
 	cloneSelf() {
