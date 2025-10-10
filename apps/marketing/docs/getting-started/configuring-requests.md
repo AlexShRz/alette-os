@@ -97,21 +97,38 @@ await myQuery.execute(
 Request settings are typed and dynamic based on what middleware are present
 in your request blueprint.
 
-### Request setting supplier
-**Request setting supplier** is a function that "binds"
-request settings to request blueprints using the `.using()` method.
+### Request setting binding
+**Request setting binding** is a technique allowing request blueprints
+to reuse the same request settings for every request.
 
-:::tip
-You can think of the `.using()` method as a variation of native JS `.bind()`.
-:::
-
-Let's bind the `{ args: ... }` settings required by the `input()` middleware 
-to our blueprint:
+To bind request settings to request blueprints use the `.using()` method:
 ```ts
 const boundQuery = myQuery.using(() => ({
     args: { hey: 'Alette Signal' }
 }))
 ```
+:::info
+The function passed to the `.using()` method is invoked on each 
+request execution allowing the request to keep its settings up-to-date:
+```ts
+let name = "Alette Signal 1"
+
+const boundQuery = myQuery.using(() => ({
+    args: { hey: name }
+}))
+
+// Will use "Alette Signal 1"
+await boundQuery.execute();
+
+name = "Alette Signal 2"
+
+// Will use "Alette Signal 2"
+await boundQuery.execute();
+```
+:::
+:::tip
+You can think of the `.using()` method as a variation of native JS `.bind()`.
+:::
 
 Now we can execute the query as is:
 ```ts

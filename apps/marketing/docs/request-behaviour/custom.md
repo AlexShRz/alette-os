@@ -52,6 +52,11 @@ export const sendSMS = custom(
 await sendSMS.execute({ args: 'Hello Alette Signal' })
 ```
 
+## Using "custom" with UI frameworks
+To use the "custom" request blueprint with UI frameworks,
+refer to the Alette Signal framework integration guides:
+1. [React integration guide](../integrations/react-integration.md).
+
 ## Request factory
 **A request factory** in Alette Signal is a function that returns arbitrary data and is
 passed to the `factory()` middleware.
@@ -89,7 +94,7 @@ custom(
 :::
 
 ### Accessing request data
-To access request data from a request factory, [destructure 
+To access request data inside a request factory, [destructure 
 its first argument](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring):
 ```ts
 custom(
@@ -133,7 +138,7 @@ const getFullGreeting = custom(
 const greeting = await getFullGreeting.execute()
 ```
 :::danger
-The [Standard Schema](https://standardschema.dev/) you pass to the `output()` middleware must represent the 
+The [Standard Schema](https://standardschema.dev/) passed to the `output()` middleware must represent the 
 final combined response. Otherwise, the whole system will fail with 
 a fatal `ResponseValidationError`.
 :::

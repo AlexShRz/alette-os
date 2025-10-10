@@ -74,102 +74,18 @@ await getPostsForSelect.execute({ search: 'Alette Signal' })
 await searchPosts.execute({ search: 'Alette Signal' })
 ```
 
-## Using query with React
-To use the query request blueprint with React 
-[install Alette Signal React adapter](../getting-started/installation.md#usage-with-react).
-
-To query data inside a React component use the `useApi()` hook:
-```tsx
-import React from 'react';
-import { useQuery } from "@alette/signal-react";
-import { getPostsForSelect, PostStatus } from '../api/posts';
-import * as z from 'zod';
-
-type SelectComponentProps = {
-    status: z.infer<typeof PostStatus>
-}
-
-export const SelectComponent: React.FC<SelectComponentProps> = ({
-    status 
-}) => {
-    const {
-        isUninitialized,
-        isLoading,
-        isSuccess,
-        isError,
-        data,
-        error,
-        execute,
-        cancel,
-    } = useApi(
-        getPostsForSelect.using(() => ({ 
-            args: { status }
-        })), 
-        [status]
-    );
-    
-    return (
-        <div>
-            <input 
-                onChange={({ target: { value } }) => {
-                    execute({ args: { search: value } })
-                }} 
-            />
-            <ul>
-                {isLoading && (
-                    <li>Loading posts...</li>
-                )}
-                {data && data.map(({ value, label }) => (
-                    <li key={value}>{label}</li>
-                ))}
-            </ul>
-        </div>
-    )
-}
-```
-:::info
-`useApi()` [mounts the request](../getting-started/request-modes.md#mounted-request-mode) automatically.
-:::
-:::danger
-`useApi()` mounts the request and initialized its middleware _once_.
-:::
-:::tip
-`useApi()` refreshes 
-[bound request settings](../getting-started/configuring-requests.md#request-setting-supplier)
-when the dependency array values change:
-```ts
-const {
-  /* ... */ 
-} = useApi(
-    getPostsForSelect.using(() => ({ 
-        // Will be refreshed automatically
-        args: { status }
-    })),
-    // If the "status" prop of the SelectComponent changes, Alette Signal 
-    // will refresh bound request settings automatically.
-    [status]
-);
-```
-:::
+## Using query with UI frameworks
+To use the query request blueprint with UI frameworks, 
+refer to the Alette Signal framework integration guides:
+1. [React integration guide](../integrations/react-integration.md).
 
 ## Disabling mounted execution
-To disable [preconfigured mounted query execution](#preconfigured-query-behaviour),
+To disable [query execution on mount](#preconfigured-query-behaviour),
 use the `runOnMount()` middleware:
 ```ts
-import { runOnMount } from '@alette/signal';
-
-// ...
-
-const {
-  execute
-} = useApi(
-    getPostsForSelect
-        .with(runOnMount(false))
-        .using(() => ({
-            args: { status }
-        })),
-    [status]
-);
+const { execute } = getPostsForSelect
+	.with(runOnMount(false))
+	.mount()
 
 // Later...
 execute()
@@ -181,14 +97,7 @@ A query that is not executed on mount is called **"lazy"**.
 ## Query cancellation
 To cancel an in-flight query request, use `cancel()`:
 ```ts
-const {
-  cancel
-} = useApi(
-    getPostsForSelect.using(() => ({
-        args: { status }
-    })),
-    [status]
-);
+const { cancel } = getPostsForSelect.mount()
 
 // Later...
 cancel()
@@ -204,18 +113,9 @@ passed to the `abortedBy()` middleware:
 ```ts
 const abortController = new AbortController();
 
-// ...
-
-const {
-  /* ... */
-} = useApi(
-    getPostsForSelect
-		.with(abortedBy(abortController))
-		.using(() => ({
-			args: { status }
-		})),
-    [status]
-);
+getPostsForSelect
+	.with(abortedBy(abortController))
+	.execute();
 
 // Later...
 abortController.abort()

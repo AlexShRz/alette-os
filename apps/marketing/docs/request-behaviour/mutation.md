@@ -67,84 +67,10 @@ const scheduledEmailId = await scheduleEmail.execute()
 await cancelScheduledEmail.execute({ args: scheduledEmailId })
 ```
 
-## Using mutation with React
-To use the mutation request blueprint with React,
-[install Alette Signal React adapter](../getting-started/installation.md#usage-with-react).
-
-To send a mutation request inside a React component, use the `useApi()` hook:
-```tsx
-import React, { useState, useRef } from 'react';
-import { useQuery } from "@alette/signal-react";
-import { scheduleEmail } from '../api/email';
-import * as z from 'zod';
-import { v4 as uuid } from 'uuid';
-
-type EmailEditorProps = {
-    topic: string
-}
-
-export const EmailEditor: React.FC<SelectComponentProps> = ({
-    topic
-}) => {
-    const emailId = useRef(uuid())
-    const [emailMessage, setEmailMessage] = useState("How are things?");
-    const {
-        isUninitialized,
-        isLoading,
-        isSuccess,
-        isError,
-        data,
-        error,
-        execute,
-        cancel,
-    } = useApi(
-        scheduleEmail.using(() => ({
-            args: { topic }
-        })),
-        [topic]
-    );
-
-    return (
-        <div>
-            <button
-                onClick={() => {
-                    execute({ args: {
-                            id: emailId.current,
-                            message: emailMessage
-                        }})
-                }}
-            >
-                Send
-            </button>
-            {/* ... */}
-        </div>
-    )
-}
-```
-:::info
-`useApi()` [mounts the request](../getting-started/request-modes.md#mounted-request-mode) automatically.
-:::
-:::danger
-`useApi()` mounts the request and initialized its middleware _once_.
-:::
-:::tip
-`useApi()` refreshes
-[bound request settings](../getting-started/configuring-requests.md#request-setting-supplier)
-when the dependency array values change:
-```ts
-const {
-    /* ... */
-} = useApi(
-    scheduleEmail.using(() => ({
-        // Will be refreshed automatically
-        args: { topic }
-    })),
-    // If the "topic" prop of the EmailEditor changes, Alette Signal 
-    // will refresh bound request settings automatically.
-    [topic]
-);
-```
-:::
+## Using mutation with UI frameworks
+To use the mutation request blueprint with UI frameworks,
+refer to the Alette Signal framework integration guides:
+1. [React integration guide](../integrations/react-integration.md).
 
 ## Sending body
 To send a request body, use the `body()` middleware:
@@ -307,7 +233,7 @@ export const autoMarkEmailAsConfirmed = mutation(
     runOnMount()
 )
 
-// Somewhere in "EmailConfirmed" component:
+// Somewhere in the "EmailConfirmed" React component:
 const userId = /* ... */
 
 useApi(
@@ -357,14 +283,8 @@ uploadFiles.with(
 ## Mutation cancellation
 To cancel an in-flight mutation request, use `cancel()`:
 ```ts
-const {
-    cancel
-} = useApi(
-    scheduleEmail.using(() => ({
-        args: { topic }
-    })),
-    [topic]
-);
+const { execute, cancel } = scheduleEmail.mount()
+execute()
 
 // Later...
 cancel()

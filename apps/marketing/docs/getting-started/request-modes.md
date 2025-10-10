@@ -50,12 +50,14 @@ with them. Otherwise, middleware and their state will
 be kept in memory indefinitely.
 :::
 
+### Sending requests
 To send a request, call `execute()`:
 ```ts
 const { getState, execute, when, cancel, reload, unmount } = myQuery.mount()
 execute({ args: { hey: 'Alette Signal' } })
 ```
 
+### Cancelling requests
 To cancel an in-flight request, call `cancel()`:
 ```ts
 const { getState, execute, when, cancel, reload, unmount } = myQuery.mount()
@@ -72,6 +74,7 @@ using [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
 Request cancellation does not throw errors.
 :::
 
+### Subscribing to changes
 To subscribe to request state changes, use `when()`:
 ```ts
 const { getState, execute, when, cancel, reload, unmount } = myQuery.mount()
@@ -106,6 +109,7 @@ new request state is available.
 2. Every subscriber is unsubscribed automatically when `unmount()` is called.
 :::
 
+### State peeking
 To "peek" at the current request state use `getState()`:
 ```ts
 const { getState, execute, when, cancel, reload, unmount } = myQuery.mount()
@@ -138,6 +142,7 @@ test('it fails', async () => {
 ```
 :::
 
+### Request reloading
 To execute a mounted request again with the 
 same arguments, call `reload()`:
 ```ts
@@ -153,5 +158,6 @@ reload()
 :::danger
 1. The `reload()` function expects arguments to be ready the moment it is called. If they are not available
 and the `input()` middleware is present, the whole system will fail with a fatal `ArgumentValidationError`.
-2. To avoid this, [bind your request settings using the `.using()` method.](configuring-requests/#request-setting-supplier) 
+2. To avoid this, [bind request settings](configuring-requests/#request-setting-binding) 
+using the `.using()` method. 
 :::
