@@ -1,7 +1,7 @@
 import { IRequestContext } from "../../domain/context/IRequestContext";
 import {
-	TRequestArguments,
 	TRequestResponse,
+	TRequestSettings,
 } from "../../domain/context/typeUtils/RequestIOTypes";
 import { TRequestMode } from "../../domain/execution/services/RequestMode";
 import { IMiddlewareSupplierFn } from "../../domain/middleware/IMiddlewareSupplierFn";
@@ -41,10 +41,10 @@ export class OneShotRequest<
 		return new OneShotRequest(this.plugin, [...this.defaultMiddleware]) as this;
 	}
 
-	async execute(args: TRequestArguments<Context> = {}) {
+	async execute(settings: TRequestSettings<Context> = {}) {
 		const controller = this.getController("oneShot");
 		const { execute } = controller.getHandlers();
-		execute(args);
+		execute(settings);
 
 		return new Promise<TRequestResponse<Context>>((resolve, reject) => {
 			const unsubscribe = controller.subscribe(
@@ -73,7 +73,7 @@ export class OneShotRequest<
 	 * Runs the request in the background,
 	 * returning nothing back to the callee.
 	 * */
-	spawn(args: TRequestArguments<Context> = {}) {
+	spawn(args: TRequestSettings<Context> = {}) {
 		this.execute(args).catch((e) => e);
 	}
 

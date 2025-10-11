@@ -2,6 +2,8 @@
 Configuring requests in Alette Signal is done by providing middleware
 to request blueprints. 
 
+## Request blueprint
+
 **A request blueprint** is an object that 
 stores request middleware and configuration before sending them 
 to the Alette Signal "core" system for execution. **You can think of request blueprints 

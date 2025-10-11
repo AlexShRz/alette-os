@@ -1,6 +1,6 @@
 import { v4 as uuid } from "uuid";
 import { IRequestContext } from "../../../domain/context/IRequestContext";
-import { TRequestArguments } from "../../../domain/context/typeUtils/RequestIOTypes";
+import { TRequestSettings } from "../../../domain/context/typeUtils/RequestIOTypes";
 import { IRequestSessionSettingSupplier } from "../../../domain/execution/services/RequestSessionContext";
 import { ApiPlugin } from "../../plugins/ApiPlugin";
 import { RequestControllerState } from "./RequestControllerState";
@@ -18,7 +18,7 @@ export abstract class RequestController<
 		return this.id;
 	}
 
-	protected getSettingSupplier(settings: TRequestArguments<Context> = {}) {
+	protected getSettingSupplier(settings: TRequestSettings<Context> = {}) {
 		return !Object.keys(settings).length && this.settingSupplier
 			? this.settingSupplier
 			: () => settings;

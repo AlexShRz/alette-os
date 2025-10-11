@@ -142,6 +142,27 @@ test('it fails', async () => {
 ```
 :::
 
+### Used request settings
+To get used request settings, use `getState().settings`:
+```ts
+const { getState } = myQuery.mount()
+
+// "settings1" is null here
+const settings1 = getState().settings
+
+execute({ args: { hey: 'Alette Signal' } })
+
+// ...wait for the request to finish
+
+// "settings2" is "{ args: { hey: 'Alette Signal' } }" here
+const settings2 = getState().settings;
+```
+:::danger
+The `settings` property of the state returned from `getState()` is `null`
+before request execution. The `settings` property is updated each time
+the request finishes successfully or fails.
+:::
+
 ### Request reloading
 To execute a mounted request again with the 
 same arguments, call `reload()`:

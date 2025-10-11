@@ -1,5 +1,5 @@
 import { IRequestContext } from "../../../domain/context/IRequestContext";
-import { TMountedRequestArguments } from "../../../domain/context/typeUtils/RequestIOTypes";
+import { TMountedRequestSettings } from "../../../domain/context/typeUtils/RequestIOTypes";
 import { TSessionEvent } from "../../../domain/execution/events/SessionEvent";
 import { WithCurrentRequestOverride } from "../../../domain/execution/events/envelope/WithCurrentRequestOverride";
 import { WithReloadableCheck } from "../../../domain/execution/events/envelope/WithReloadableCheck";
@@ -75,7 +75,7 @@ export class OneShotRequestController<
 	}
 
 	protected executeRequest(
-		settings: TMountedRequestArguments<Context> = {} as TMountedRequestArguments<Context>,
+		settings: TMountedRequestSettings<Context> = {} as TMountedRequestSettings<Context>,
 	) {
 		if (!this.wasMounted) {
 			this.wasMounted = true;

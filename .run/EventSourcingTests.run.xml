@@ -4,7 +4,7 @@
     <node-interpreter value="project" />
     <vitest-package value="$PROJECT_DIR$/node_modules/vitest" />
     <working-dir value="$PROJECT_DIR$/packages/event-sourcing" />
-    <vitest-options value="--run" />
+    <vitest-options value="--run --typecheck" />
     <envs />
     <scope-kind value="DIRECTORY" />
     <test-directory value="$PROJECT_DIR$/packages/event-sourcing/src/__tests__" />

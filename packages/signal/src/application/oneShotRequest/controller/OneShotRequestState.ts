@@ -30,6 +30,7 @@ export class OneShotRequestState<
 					isError: false,
 					data: null,
 					error: null,
+					settings: null,
 				} as State),
 			);
 	}

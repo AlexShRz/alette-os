@@ -89,17 +89,20 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 									),
 								);
 
+								const getSettings = yield* requestContext.getSettingSupplier();
+
 								runFork(
 									context.sendToBus(
-										yield* attachRequestId(RequestState.Succeeded(response)),
+										yield* attachRequestId(
+											RequestState.Succeeded(response, getSettings()),
+										),
 									),
 								);
 							}).pipe(
 								E.catchAllDefect(
 									E.fn(function* (e) {
-										if (!(yield* requestRunner.isRunning())) {
-											return;
-										}
+										const getSettings =
+											yield* requestContext.getSettingSupplier();
 
 										if (e instanceof FatalApiError) {
 											return yield* panic(e);
@@ -107,7 +110,9 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 
 										runFork(
 											context.sendToBus(
-												yield* attachRequestId(RequestState.Failed(e)),
+												yield* attachRequestId(
+													RequestState.Failed(e, getSettings()),
+												),
 											),
 										);
 									}),
@@ -187,10 +192,15 @@ export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 								(yield* requestRunner.isRunning())
 							) {
 								yield* requestRunner.interrupt();
+								const getSettings = yield* requestContext.getSettingSupplier();
+
 								runFork(
 									context.sendToBus(
 										yield* attachRequestId(
-											RequestState.Failed(new RequestAbortedError()),
+											RequestState.Failed(
+												new RequestAbortedError(),
+												getSettings(),
+											),
 										),
 									),
 								);

@@ -62,7 +62,18 @@ export default defineConfig({
 				],
 			},
 			{
+				text: "Paginated data",
+				collapsed: false,
+				items: [
+					{
+						text: "Pagination",
+						link: "/docs/paginated-data/pagination",
+					},
+				],
+			},
+			{
 				text: "Integrations",
+				collapsed: false,
 				items: [
 					{
 						text: "React integration",

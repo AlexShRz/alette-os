@@ -48,6 +48,7 @@ export class ApplyRequestState<
 			...state,
 			data: state.data?.clone() ?? null,
 			error: (state.error as ApiError | null)?.clone() ?? null,
+			settings: structuredClone(state.settings),
 		});
 		return self as this;
 	}

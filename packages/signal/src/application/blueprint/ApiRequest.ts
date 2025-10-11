@@ -1,6 +1,6 @@
 import { v4 as uuid } from "uuid";
 import { IRequestContext } from "../../domain/context/IRequestContext";
-import { TRequestArguments } from "../../domain/context/typeUtils/RequestIOTypes";
+import { TRequestSettings } from "../../domain/context/typeUtils/RequestIOTypes";
 import { IRequestSessionSettingSupplier } from "../../domain/execution/services/RequestSessionContext";
 import {
 	IMiddlewareSupplierFn,
@@ -86,7 +86,7 @@ export abstract class ApiRequest<
 	 * like output() that changes arg type entirely.
 	 * */
 	using(
-		supplier: () => TRequestArguments<Context>,
+		supplier: () => TRequestSettings<Context>,
 	): Omit<this, "with" | "toFactory"> {
 		/**
 		 * Here we need to CLONE everything WITHOUT

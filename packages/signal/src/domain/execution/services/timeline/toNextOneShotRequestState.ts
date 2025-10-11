@@ -1,13 +1,16 @@
 import { RequestInterruptedError } from "@alette/pulse";
-import { IRequestContext } from "../../../context/IRequestContext";
+import { IRequestContext } from "../../../context";
 import { ApplyRequestState } from "../../events/request/ApplyRequestState";
 import { RequestState } from "../../events/request/RequestState";
 import { IOneShotRequestState } from "../../state/IOneShotRequestState";
 
-export const toNextOneShotRequestState = <T extends ApplyRequestState | null>(
-	lastEvent: T,
-	event: ApplyRequestState,
-) => {
+export const toNextOneShotRequestState = <T extends ApplyRequestState | null>({
+	lastEvent,
+	event,
+}: {
+	lastEvent: T;
+	event: ApplyRequestState;
+}) => {
 	if (!(event instanceof ApplyRequestState)) {
 		return lastEvent;
 	}
@@ -20,6 +23,7 @@ export const toNextOneShotRequestState = <T extends ApplyRequestState | null>(
 			isUninitialized: true,
 			data: null,
 			error: null,
+			settings: null,
 		}),
 	};
 
@@ -69,7 +73,7 @@ export const toNextOneShotRequestState = <T extends ApplyRequestState | null>(
 	}
 
 	if (RequestState.isSuccess(event)) {
-		const { data } = event.getState();
+		const { data, settings } = event.getState();
 
 		return new ApplyRequestState<IRequestContext, IOneShotRequestState.Success>(
 			{
@@ -80,11 +84,14 @@ export const toNextOneShotRequestState = <T extends ApplyRequestState | null>(
 				isUninitialized: false,
 				data: data!,
 				error: null,
+				settings,
 			},
 		);
 	}
 
 	if (RequestState.isFailure(event)) {
+		const { settings } = event.getState();
+
 		return new ApplyRequestState<IRequestContext, IOneShotRequestState.Failure>(
 			{
 				...defaultState,
@@ -94,6 +101,7 @@ export const toNextOneShotRequestState = <T extends ApplyRequestState | null>(
 				isError: true,
 				data: null,
 				error: event.getError(),
+				settings,
 			},
 		);
 	}

@@ -100,7 +100,10 @@ export class RequestStateTimeline extends Context.Tag("RequestStateTimeline")<
 					SubscriptionRef.getAndUpdateEffect(
 						lastStateEvent,
 						E.fn(function* (lastEvent) {
-							const nextEvent = toNextOneShotRequestState(lastEvent, event);
+							const nextEvent = toNextOneShotRequestState({
+								lastEvent,
+								event,
+							});
 
 							if (!nextEvent) {
 								return lastEvent;

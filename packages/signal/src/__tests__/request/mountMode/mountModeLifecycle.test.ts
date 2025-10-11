@@ -234,7 +234,7 @@ test("it returns full state snapshots on every request state update", async () =
 	trigger.next(value);
 	await vi.waitFor(async () => {
 		expect(lastSnapshot).toStrictEqual(
-			RequestState.Succeeded(value).getUnwrappedState(),
+			RequestState.Succeeded(value, {}).getUnwrappedState(),
 		);
 	});
 	request1.unmount();
@@ -258,8 +258,10 @@ test("it returns full state snapshots on every request state update", async () =
 		const { error, ...dataWithoutError } = lastSnapshot ?? {};
 		expect(error instanceof MyError).toBeTruthy();
 
-		const { error: e, ...expectedDataWithoutError } =
-			RequestState.Failed(error).getUnwrappedState();
+		const { error: e, ...expectedDataWithoutError } = RequestState.Failed(
+			error,
+			{},
+		).getUnwrappedState();
 
 		expect(dataWithoutError).toStrictEqual(expectedDataWithoutError);
 	});

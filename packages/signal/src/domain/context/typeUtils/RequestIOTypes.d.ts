@@ -2,9 +2,10 @@ import { IGlobalContext } from "../IGlobalContext";
 import { IRequestContext } from "../IRequestContext";
 import { TMergeRecords } from "./TMergeRecords";
 
-export type TRequestArguments<C extends IRequestContext> = C["accepts"];
+export type TRequestSettings<C extends IRequestContext = IRequestContext> =
+	C["accepts"];
 
-export type TMountedRequestArguments<C extends IRequestContext> =
+export type TMountedRequestSettings<C extends IRequestContext> =
 	C["acceptsMounted"];
 
 export type TRequestResponse<C extends IRequestContext> =

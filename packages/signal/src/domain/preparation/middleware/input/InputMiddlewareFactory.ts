@@ -10,8 +10,6 @@ import { ArgumentAdapter } from "../../context/arguments/adapter/ArgumentAdapter
 import { InputMiddleware } from "./InputMiddleware";
 import { inputMiddlewareSpecification } from "./inputMiddlewareSpecification";
 
-type Spec = typeof inputMiddlewareSpecification;
-
 export type TInputMiddlewareArgValue<Arguments = unknown> =
 	| ISchema<unknown, Arguments>
 	| ArgumentAdapter<Arguments>;
@@ -46,16 +44,10 @@ export class InputMiddlewareFactory extends Middleware(
 					Context["types"],
 					Context["value"],
 					TMergeRecords<Context["settings"], IRequestArguments<ArgType>>,
-					TMergeRecords<
-						Context["accepts"],
-						Partial<IRequestArguments<ArgType>>
-					>,
-					TMergeRecords<
-						Context["acceptsMounted"],
-						Partial<IRequestArguments<ArgType>>
-					>
+					TMergeRecords<Context["accepts"], IRequestArguments<ArgType>>,
+					TMergeRecords<Context["acceptsMounted"], IRequestArguments<ArgType>>
 				>,
-				Spec
+				typeof inputMiddlewareSpecification
 			>(
 				() =>
 					new InputMiddlewareFactory(

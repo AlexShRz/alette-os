@@ -4,6 +4,7 @@ import { IRequestContext } from "../../../context/IRequestContext";
 import {
 	TRequestError,
 	TRequestResponse,
+	TRequestSettings,
 } from "../../../context/typeUtils/RequestIOTypes";
 import { responseAdapter } from "../../../response";
 import { ResponseRef } from "../../../response/adapter/ResponseRef";
@@ -43,7 +44,7 @@ export class RequestState {
 		return state.isError && state.error instanceof RequestInterruptedError;
 	}
 
-	static Uninitialized(requestId: string) {
+	static Uninitialized() {
 		return new ApplyRequestState<any, IOneShotRequestState.Uninitialized>({
 			isLoading: true,
 			isSuccess: false,
@@ -51,6 +52,7 @@ export class RequestState {
 			isError: false,
 			data: null,
 			error: null,
+			settings: null,
 		});
 	}
 
@@ -62,11 +64,13 @@ export class RequestState {
 			isError: false,
 			data: null,
 			error: null,
+			settings: null,
 		});
 	}
 
 	static Succeeded<C extends IRequestContext>(
 		value: ResponseRef<TRequestResponse<C>> | TRequestResponse<C>,
+		usedSettings: TRequestSettings<C>,
 	) {
 		const defaultAdapter =
 			value instanceof ResponseRef
@@ -83,10 +87,14 @@ export class RequestState {
 			isError: false,
 			data: defaultAdapter,
 			error: null,
+			settings: usedSettings,
 		});
 	}
 
-	static Failed<C extends IRequestContext>(error: TRequestError<C>) {
+	static Failed<C extends IRequestContext>(
+		error: TRequestError<C>,
+		usedSettings: TRequestSettings<C>,
+	) {
 		return new ApplyRequestState<C, IOneShotRequestState.Failure<C>>({
 			isLoading: false,
 			isSuccess: false,
@@ -94,6 +102,7 @@ export class RequestState {
 			isError: true,
 			data: null,
 			error,
+			settings: usedSettings,
 		});
 	}
 
@@ -105,6 +114,7 @@ export class RequestState {
 			isError: true,
 			data: null,
 			error: new RequestInterruptedError(),
+			settings: null,
 		});
 	}
 
@@ -116,6 +126,7 @@ export class RequestState {
 			isError: false,
 			data: null,
 			error: null,
+			settings: null,
 		} satisfies IOneShotRequestState.Cancelled);
 	}
 }

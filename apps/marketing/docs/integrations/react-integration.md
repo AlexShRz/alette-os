@@ -30,6 +30,7 @@ const Component = () => {
         isError,
         data,
         error,
+		settings,
         execute,
         cancel,
     } = useApi(getPosts);
@@ -149,6 +150,26 @@ const Component = ({ name, value, id }) => {
 }
 ```
 :::
+
+## Used request settings
+To get [used requests settings](../getting-started/request-modes.md#used-request-settings),
+use the exposed `settings` property:
+```tsx
+const Component = ({ name }) => {
+    const { settings } = useApi(
+        getPosts.using(() => ({
+			args: name
+		}))
+		[name]
+	);
+    
+	return (
+        <p>
+            Last used name is {settings?.args.name || name}
+		</p>
+	)
+}
+```
 
 ## Did you know?
 Alette Signal React integration implementation is **35 lines total**, excluding comments.

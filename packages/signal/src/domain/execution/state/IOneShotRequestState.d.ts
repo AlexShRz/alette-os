@@ -1,14 +1,12 @@
 import { RequestInterruptedError } from "@alette/pulse";
-import { IRequestContext } from "../../context/IRequestContext";
+import { IRequestContext } from "../../context";
 import {
 	TRequestError,
 	TRequestResponse,
+	TRequestSettings,
 } from "../../context/typeUtils/RequestIOTypes";
 import { ResponseRef } from "../../response/adapter/ResponseRef";
 
-/**
- * 1. "Stale-while-revalidate" type variations are not represented in the type itself.
- * */
 export namespace IOneShotRequestState {
 	type Any<C extends IRequestContext = IRequestContext> = {
 		isLoading: boolean;
@@ -17,6 +15,7 @@ export namespace IOneShotRequestState {
 		isError: boolean;
 		data: ResponseRef<TRequestResponse<C>> | null;
 		error: TRequestError<C> | null;
+		settings: TRequestSettings<C> | null;
 	};
 
 	type AnyUnwrapped<C extends IRequestContext = IRequestContext> = {
@@ -29,6 +28,7 @@ export namespace IOneShotRequestState {
 		 * */
 		data: TRequestResponse<C> | null;
 		error: TRequestError<C> | null;
+		settings: TRequestSettings<C> | null;
 	};
 
 	interface Default {
@@ -38,6 +38,7 @@ export namespace IOneShotRequestState {
 		isError: false;
 		data: null;
 		error: null;
+		settings: null;
 	}
 
 	interface Uninitialized extends Any {
@@ -52,12 +53,14 @@ export namespace IOneShotRequestState {
 		extends Any<C> {
 		isSuccess: true;
 		data: ResponseRef<TRequestResponse<C>>;
+		settings: TRequestSettings<C>;
 	}
 
 	interface Failure<C extends IRequestContext = IRequestContext>
 		extends Any<C> {
 		isError: true;
 		error: TRequestError<C>;
+		settings: TRequestSettings<C>;
 	}
 
 	interface Cancelled extends Any {}
