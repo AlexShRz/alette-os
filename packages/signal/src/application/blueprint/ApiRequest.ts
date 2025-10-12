@@ -1,7 +1,7 @@
 import { v4 as uuid } from "uuid";
 import { IRequestContext } from "../../domain/context/IRequestContext";
 import { TRequestSettings } from "../../domain/context/typeUtils/RequestIOTypes";
-import { IRequestSessionSettingSupplier } from "../../domain/execution/services/RequestSessionContext";
+import { IRequestSettingSupplier } from "../../domain/execution/services/RequestSessionContext";
 import {
 	IMiddlewareSupplierFn,
 	IRuntimeMiddlewareSupplierFn,
@@ -32,7 +32,7 @@ export abstract class ApiRequest<
 	/**
 	 * Provides default request settings "filled from using(...)"
 	 * */
-	protected settingSupplier: IRequestSessionSettingSupplier = () => ({});
+	protected settingSupplier: IRequestSettingSupplier<Context> = () => ({});
 	/**
 	 * 1. Holds middleware and watchers.
 	 * 2. Because we hold ONLY layers here, our middleware/watchers

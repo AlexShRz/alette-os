@@ -15,6 +15,7 @@ const {
     isError,
     data,
     error,
+    settings    
 } = getState()
 ```
 :::warning
@@ -35,6 +36,7 @@ const unsubscribe = when(({
   isError,
   data,
   error,
+  settings
 }) => {
     // react to changes here
 });
@@ -84,6 +86,7 @@ request that has not been started yet:
     isError: false;
     data: null;
     error: null;
+    settings: null;
 }
 ```
 2. **The "loading" request state combination** represents an
@@ -96,6 +99,7 @@ request that has not been started yet:
     isError: false;
     data: null;
     error: null;
+    settings: null;
 }
 ```
 3. **The "error" request state combination** represents a
@@ -108,6 +112,7 @@ request that has been finished with a recoverable error:
     isError: true;
     data: null;
     error: [Your_Error_Type];
+    settings: [Used_Request_Settings];
 }
 ```
 4. **The "success" request state combination** represents a
@@ -120,6 +125,7 @@ request that has been finished with a recoverable error:
     isError: false;
     data: [Your_Response_Type];
     error: null;
+    settings: [Used_Request_Settings];
 }
 ```
 5. **The "failed-and-restarting" request state combination** represents a
@@ -132,6 +138,7 @@ request that has been finished with a recoverable error:
     isError: true;
     data: null;
     error: [Your_Error_Type];
+    settings: [Used_Request_Settings];
 }
 ```
 6. **The "succeeded-and-restarting" request state combination** represents a
@@ -144,6 +151,7 @@ request that has been finished with a recoverable error:
     isError: false;
     data: [Your_Response_Type];
     error: null;
+    settings: [Used_Request_Settings];
 }
 ```
 :::info

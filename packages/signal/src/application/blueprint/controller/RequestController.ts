@@ -1,7 +1,7 @@
 import { v4 as uuid } from "uuid";
 import { IRequestContext } from "../../../domain/context/IRequestContext";
 import { TRequestSettings } from "../../../domain/context/typeUtils/RequestIOTypes";
-import { IRequestSessionSettingSupplier } from "../../../domain/execution/services/RequestSessionContext";
+import { IRequestSettingSupplier } from "../../../domain/execution/services/RequestSessionContext";
 import { ApiPlugin } from "../../plugins/ApiPlugin";
 import { RequestControllerState } from "./RequestControllerState";
 
@@ -10,7 +10,7 @@ export abstract class RequestController<
 	State = unknown,
 > {
 	protected id = uuid();
-	protected settingSupplier: IRequestSessionSettingSupplier | undefined;
+	protected settingSupplier: IRequestSettingSupplier | undefined;
 
 	protected constructor(protected plugin: ApiPlugin) {}
 
@@ -34,7 +34,7 @@ export abstract class RequestController<
 		...params: Parameters<RequestControllerState<State>["subscribe"]>
 	): () => void;
 
-	setSettingSupplier(supplier: IRequestSessionSettingSupplier) {
+	setSettingSupplier(supplier: IRequestSettingSupplier) {
 		this.settingSupplier = supplier;
 		return this;
 	}

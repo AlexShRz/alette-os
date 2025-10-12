@@ -1,9 +1,9 @@
 # Pagination
 **Pagination** is a technique consisting of splitting large responses into chunks.
 
-## Pagination chunk
-**A pagination chunk** is a piece of arbitrary data returned from the server.
-A pagination chunk can represent a Post, a PDF, a subset of notifications, etc.
+## Response chunk
+**A response chunk** in pagination is a piece of arbitrary data returned from the server.
+A response chunk can represent a Post, a PDF, a subset of notifications, etc.
 
 ## Pagination parameters
 **Pagination parameters** are arguments controlling
@@ -101,7 +101,9 @@ const { getState, execute } = getPosts
 
 execute()
 
-// Returns "null" or "{ args: { page: 5, perPage: 25, sortBy: 'desc' } }"
+// Wait for the request to finish...
+
+// Returns "{ args: { page: 5, perPage: 25, sortBy: 'desc' } }"
 const usedArgs = getState().settings
 ```
 :::tip

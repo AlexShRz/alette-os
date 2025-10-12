@@ -22,9 +22,9 @@ Plugin authors can define as many blueprints as needed, and preconfigure their
 behaviour using built-in middleware.
 
 Alette Signal core plugin gives you 3 preconfigured request blueprints:
-1. `query()` - preconfigured for `GET` HTTP requests
-2. `mutation()` - preconfigured for `POST`, `PATCH`, `DELETE` and `PUT` HTTP requests
-3. `custom()` - made for "do it yourself" request types. 
+1. [Query](../request-behaviour/query.md) - preconfigured for `GET` HTTP requests
+2. [Mutation](../request-behaviour/mutation.md) - preconfigured for `POST`, `PATCH`, `DELETE` and `PUT` HTTP requests
+3. [Custom](../request-behaviour/custom.md) - made for "do it yourself" request types. 
 Here you can execute dependent requests and combine their results, or take create custom
 request behaviours by composing middleware.
 

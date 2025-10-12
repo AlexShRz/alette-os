@@ -69,6 +69,22 @@ export default defineConfig({
 						text: "Pagination",
 						link: "/docs/paginated-data/pagination",
 					},
+					{
+						text: "Cursor pagination",
+						link: "/docs/paginated-data/cursor-pagination",
+					},
+					{
+						text: "Single-direction cursor pagination",
+						link: "/docs/paginated-data/single-direction-cursor",
+					},
+					{
+						text: "Bi-directional cursor pagination",
+						link: "/docs/paginated-data/bi-directional-cursor",
+					},
+					{
+						text: "Infinite scroll",
+						link: "/docs/paginated-data/infinite-scroll",
+					},
 				],
 			},
 			{

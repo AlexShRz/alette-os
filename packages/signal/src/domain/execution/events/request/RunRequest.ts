@@ -1,7 +1,7 @@
 import * as E from "effect/Effect";
 import { RequestSession } from "../../services/RequestSession";
 import {
-	IRequestSessionSettingSupplier,
+	IRequestSettingSupplier,
 	RequestSessionContext,
 } from "../../services/RequestSessionContext";
 import { RequestSessionEvent } from "../RequestSessionEvent";
@@ -17,9 +17,7 @@ export class RunRequest extends RequestSessionEvent {
 	protected contextProvider: E.Effect<void, never, never> = E.void;
 	protected afterContextExecutor: E.Effect<void, never, never> = E.void;
 
-	constructor(
-		protected settingSupplier: IRequestSessionSettingSupplier = () => ({}),
-	) {
+	constructor(protected settingSupplier: IRequestSettingSupplier = () => ({})) {
 		super();
 		this.onComplete(() => this.provideRequestContext());
 	}

@@ -1,8 +1,10 @@
 import * as E from "effect/Effect";
 import * as SynchronizedRef from "effect/SynchronizedRef";
+import { IRequestContext } from "../../context";
 import { RequestContextPart } from "../../context/RequestContextPart";
 import { TKnownRequestContextKey } from "../../context/TKnownRequestContextKey";
 import { GlobalContext } from "../../context/services/GlobalContext";
+import { TRequestSettings } from "../../context/typeUtils/RequestIOTypes";
 
 interface IAllContext
 	extends Record<
@@ -10,8 +12,10 @@ interface IAllContext
 		SynchronizedRef.SynchronizedRef<RequestContextPart<any, any>>
 	> {}
 
-export interface IRequestSessionSettingSupplier {
-	(): Record<string, unknown>;
+export interface IRequestSettingSupplier<
+	Context extends IRequestContext = IRequestContext,
+> {
+	(): TRequestSettings<Context>;
 }
 
 export class RequestSessionContext extends E.Service<RequestSessionContext>()(
@@ -21,7 +25,7 @@ export class RequestSessionContext extends E.Service<RequestSessionContext>()(
 			const globalContext = yield* GlobalContext;
 			const context = yield* SynchronizedRef.make({} as IAllContext);
 			const settingSupplierHolder =
-				yield* SynchronizedRef.make<IRequestSessionSettingSupplier>(() => ({}));
+				yield* SynchronizedRef.make<IRequestSettingSupplier>(() => ({}));
 
 			const getSessionContextWithoutGlobalContext = E.fn(function* (
 				allContext: IAllContext,
@@ -107,7 +111,7 @@ export class RequestSessionContext extends E.Service<RequestSessionContext>()(
 					).pipe(E.andThen(() => this.getOrThrow<T>(key)));
 				},
 
-				setSettingSupplier(supplier: IRequestSessionSettingSupplier) {
+				setSettingSupplier(supplier: IRequestSettingSupplier) {
 					return SynchronizedRef.getAndUpdate(
 						settingSupplierHolder,
 						() => supplier,
