@@ -84,6 +84,20 @@ export default defineConfig({
 				],
 			},
 			{
+				text: "Error system",
+				collapsed: false,
+				items: [
+					{
+						text: "Error types",
+						link: "/docs/error-system/error-types",
+					},
+					{
+						text: "Error handling",
+						link: "/docs/error-system/error-handling",
+					},
+				],
+			},
+			{
 				text: "Paginated data",
 				collapsed: true,
 				items: [

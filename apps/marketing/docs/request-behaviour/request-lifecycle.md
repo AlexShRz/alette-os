@@ -114,7 +114,9 @@ query
 ```
 
 :::info
-`tapTrigger()` is not affected by `debounce()` and `throttle()` middleware.
+`tapTrigger()` is not affected by [debouncing](../behaviour-control/request-debouncing.md)
+and
+[throttling](../behaviour-control/request-throttling.md).
 :::
 :::warning
 `tapTrigger()` and other middleware invoked during the "triggered" request execution stage
@@ -232,3 +234,7 @@ query
     )
     .mount()
 ```
+:::tip
+To understand how to handle errors, refer to the
+[Alette Signal error handling guide](../error-system/error-handling.md).
+:::

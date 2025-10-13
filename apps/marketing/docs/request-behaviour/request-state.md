@@ -115,6 +115,10 @@ request that has been finished with a recoverable error:
     settings: [Used_Request_Settings];
 }
 ```
+:::tip
+To understand how to handle errors, refer to the
+[Alette Signal error handling guide](../error-system/error-handling.md).
+:::
 4. **The "success" request state combination** represents a
    request that has been finished with a successful response:
 ```ts

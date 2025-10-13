@@ -93,7 +93,7 @@ let myNumber = 5;
 const getData = custom(
     input(as<number>()),
     runOnMount(false),
-    reloadable(({ prev, current }) => {
+    reloadable(({ prev, current }, { context }) => {
         if (!prev) {
             return true;
 		}
@@ -129,7 +129,9 @@ reload()
 The `reloadable()` middleware can accept async **predicate functions**:
 ```ts
 custom(
-    reloadable(async ({ prev, current }) => true)
+    reloadable(
+        async ({ prev, current }, { context }) => true
+    )
 )
 ```
 :::

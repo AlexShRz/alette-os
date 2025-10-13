@@ -174,7 +174,7 @@ reload()
 ```
 :::tip
 To learn how to control request reloading, see
-[request reloading control guide](../behaviour-control/request-reloading.md).
+[request reloading guide](../behaviour-control/request-reloading.md).
 :::
 :::danger
 1. The `reload()` function expects arguments to be ready the moment it is called. If they are not available

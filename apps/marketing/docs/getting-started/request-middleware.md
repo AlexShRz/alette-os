@@ -51,7 +51,6 @@ with `retryWhen()` and `mapError()` middleware:
 ```ts
 const query1 = myQuery.with(
     input(as<string>()),
-    throws(RequestFailedError),
     mapError((error) => new MyCustomError()),
     // The "error" property inside "retryWhen()" is
     // always of "RequestFailedError" type, not "MyCustomError".
@@ -67,7 +66,6 @@ your configuration, their order will be reversed before initialization:
 // After 
 myQuery.with(
     input(as<string>()),
-    throws(RequestFailedError),
     retryWhen(async ({ error }) => {
         return true;
     }),
