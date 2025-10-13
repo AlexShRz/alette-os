@@ -62,8 +62,30 @@ export default defineConfig({
 				],
 			},
 			{
-				text: "Paginated data",
+				text: "Behaviour control",
 				collapsed: false,
+				items: [
+					{
+						text: "Request reloading",
+						link: "/docs/behaviour-control/request-reloading",
+					},
+					{
+						text: "Request debouncing",
+						link: "/docs/behaviour-control/request-debouncing",
+					},
+					{
+						text: "Request throttling",
+						link: "/docs/behaviour-control/request-throttling",
+					},
+					{
+						text: "Request retrying",
+						link: "/docs/behaviour-control/request-retrying",
+					},
+				],
+			},
+			{
+				text: "Paginated data",
+				collapsed: true,
 				items: [
 					{
 						text: "Pagination",
@@ -99,11 +121,11 @@ export default defineConfig({
 			},
 			{
 				text: "Middleware reference",
-				collapsed: true,
+				collapsed: false,
 				items: [
 					{
-						text: "How to read middleware reference",
-						link: "/docs/middleware-reference/how-to",
+						text: "Middleware overview",
+						link: "/docs/middleware-reference/middleware-overview",
 					},
 				],
 			},

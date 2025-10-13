@@ -159,7 +159,7 @@ const settings2 = getState().settings;
 ```
 :::danger
 The `settings` property of the state returned from `getState()` is `null`
-before request execution. The `settings` property is updated each time
+before first request execution. The `settings` property is updated each time
 the request finishes successfully or fails.
 :::
 
@@ -172,9 +172,9 @@ execute({ args: { hey: 'Alette Signal' } })
 // After some time
 reload()
 ```
-:::info
-`reload()` is called automatically when the `.mount()` method is called with 
-`runOnMount()` middleware provided.
+:::tip
+To learn how to control request reloading, see
+[request reloading control guide](../behaviour-control/request-reloading.md).
 :::
 :::danger
 1. The `reload()` function expects arguments to be ready the moment it is called. If they are not available

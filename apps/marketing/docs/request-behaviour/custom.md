@@ -294,8 +294,8 @@ To enable request factory supervision, pass the provided [AbortSignal](https://d
 to child requests using the `abortedBy()` middleware:
 ```ts
 factory(async (_, { signal }) => {
-    const response1 = getData1.with(abortedBy(signal)).execute(); 
-    const response2 = getData2.with(abortedBy(signal)).execute(); 
+    const response1 = await getData1.with(abortedBy(signal)).execute(); 
+    const response2 = await getData2.with(abortedBy(signal)).execute(); 
 
     return {
         ...response1,
@@ -309,8 +309,8 @@ To cancel request factory execution, use `cancel()`:
 ```ts
 const getCombinedData = custom(
     factory(async (_, { signal }) => {
-        const response1 = getData1.with(abortedBy(signal)).execute();
-        const response2 = getData2.with(abortedBy(signal)).execute();
+        const response1 = await getData1.with(abortedBy(signal)).execute();
+        const response2 = await getData2.with(abortedBy(signal)).execute();
 
         return {
             ...response1,
@@ -342,8 +342,8 @@ const abortController = new AbortController();
 const getCombinedData = custom(
     abortedBy(abortController),
     factory(async (_, { signal }) => {
-        const response1 = getData1.with(abortedBy(signal)).execute();
-        const response2 = getData2.with(abortedBy(signal)).execute();
+        const response1 = await getData1.with(abortedBy(signal)).execute();
+        const response2 = await getData2.with(abortedBy(signal)).execute();
 
         return {
             ...response1,

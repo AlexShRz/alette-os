@@ -14,7 +14,7 @@ creational middleware.
 side effects without modifying response and errors.
 
 :::tip
-For full middleware list consult [Alette Signal middleware reference](../middleware-reference/how-to).
+For full middleware list consult [Alette Signal middleware reference](../middleware-reference/middleware-overview).
 :::
 
 ## Middleware organization
