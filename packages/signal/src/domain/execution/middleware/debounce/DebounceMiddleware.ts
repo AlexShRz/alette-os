@@ -6,11 +6,14 @@ import { GlobalContext } from "../../../context/services/GlobalContext";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
 import { WithCurrentRequestOverride } from "../../events/envelope/WithCurrentRequestOverride";
+import { WithReloadableCheck } from "../../events/envelope/WithReloadableCheck";
 import { RequestMode } from "../../services/RequestMode";
 import { TDebounceMiddlewareDurationSupplier } from "./DebounceMiddlewareFactory";
 
+type TDebouncedEvent = WithCurrentRequestOverride | WithReloadableCheck;
+
 export class DebounceMiddleware extends Middleware("DebounceMiddleware", {
-	priority: MiddlewarePriority.Interception,
+	priority: MiddlewarePriority.RateLimit,
 })(
 	(durationProvider: TDebounceMiddlewareDurationSupplier) =>
 		({ parent, context }) =>
@@ -47,42 +50,49 @@ export class DebounceMiddleware extends Middleware("DebounceMiddleware", {
 				 * not allow us to adjust time in tests if our managed runtimes are nested.
 				 * */
 				let scheduledDelivery: number | null = null;
-				const scheduleDelivery = (event: WithCurrentRequestOverride) =>
+				const scheduleDelivery = (event: TDebouncedEvent) =>
 					setTimeout(() => {
 						runFork(context.sendToBus(event));
 					}, durationInMillis);
+
+				const debounceEvent = (event: TDebouncedEvent) =>
+					E.gen(function* () {
+						const wrappedEvent = event.getWrappedEvent();
+						const userSuppliedSettings = wrappedEvent.getSettingSupplier()();
+
+						if (
+							P.hasProperty(userSuppliedSettings, "skipDebounce") &&
+							userSuppliedSettings.skipDebounce === true
+						) {
+							return yield* context.next(event);
+						}
+
+						if (scheduledDelivery) {
+							clearTimeout(scheduledDelivery);
+						}
+						scheduledDelivery = scheduleDelivery(
+							event.clone(),
+						) as unknown as number;
+
+						return yield* E.zipRight(event.cancel(), context.next(event));
+					});
 
 				return {
 					...parent,
 					send(event) {
 						return E.gen(this, function* () {
 							/**
-							 * 1. We need to look for "run request" events sent by the user, not
-							 * just raw "run request" events.
-							 * 2. For example, it makes no sense to debounce retry run request
-							 * events sent by the system, etc.
+							 * We do not debounce
+							 * first reloads when mounted reload is active.
 							 * */
-							if (!(event instanceof WithCurrentRequestOverride)) {
-								return yield* context.next(event);
-							}
-
-							const wrappedEvent = event.getWrappedEvent();
-							const userSuppliedSettings = wrappedEvent.getSettingSupplier()();
 							if (
-								P.hasProperty(userSuppliedSettings, "skipDebounce") &&
-								userSuppliedSettings.skipDebounce === true
+								event instanceof WithCurrentRequestOverride ||
+								event instanceof WithReloadableCheck
 							) {
-								return yield* context.next(event);
+								return yield* debounceEvent(event);
 							}
 
-							if (scheduledDelivery) {
-								clearTimeout(scheduledDelivery);
-							}
-							scheduledDelivery = scheduleDelivery(
-								event.clone(),
-							) as unknown as number;
-
-							return yield* E.zipRight(event.cancel(), context.next(event));
+							return yield* context.next(event);
 						});
 					},
 				};

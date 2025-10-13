@@ -35,6 +35,44 @@ test("it does not throttle run on mount behaviour", async () => {
 	});
 });
 
+/**
+ * 1. Imagine we keep receiving new "search" property
+ * from a React input component placed "above" the current component.
+ * 2. This will trigger a reload that needs to be throttled.
+ * */
+test("it throttles request reloading", async () => {
+	const { api, custom } = createTestApi();
+	const returnValue = "asdasdasdas";
+	let reloadableCalled = 0;
+
+	const getData = custom(
+		runOnMount(false),
+		throttle(() => {
+			return "10 seconds";
+		}),
+		reloadable(() => {
+			reloadableCalled++;
+			return true;
+		}),
+		factory(() => {
+			return returnValue;
+		}),
+	);
+
+	vi.useFakeTimers();
+	const { reload } = getData.mount();
+	reload();
+	reload();
+	reload();
+	reload();
+
+	await api.timeTravel("15 seconds");
+
+	await vi.waitFor(async () => {
+		expect(reloadableCalled).toEqual(1);
+	});
+});
+
 test("it allows users to skip throttle", async () => {
 	const { custom } = createTestApi();
 	const returnValue = "asdasdasdas";

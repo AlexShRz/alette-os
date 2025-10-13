@@ -27,11 +27,48 @@ test("it does not debounce run on mount behaviour", async () => {
 		}),
 	);
 
-	vi.useFakeTimers();
 	const { getState } = getData.mount();
 
 	await vi.waitFor(async () => {
 		expect(getState().data).toEqual(returnValue);
+	});
+});
+
+/**
+ * 1. Imagine we keep receiving new "search" property
+ * from a React input component placed "above" the current component.
+ * 2. This will trigger a reload that needs to be debounced.
+ * */
+test("it debounces request reloading", async () => {
+	const { api, custom } = createTestApi();
+	const returnValue = "asdasdasdas";
+	let reloadableCalled = 0;
+
+	const getData = custom(
+		runOnMount(false),
+		debounce(() => {
+			return "10 seconds";
+		}),
+		reloadable(() => {
+			reloadableCalled++;
+			return true;
+		}),
+		factory(() => {
+			return returnValue;
+		}),
+	);
+
+	vi.useFakeTimers();
+	const { reload } = getData.mount();
+	reload();
+	reload();
+	reload();
+	reload();
+
+	await api.timeTravel("15 seconds");
+
+	await vi.waitFor(async () => {
+		expect(reloadableCalled).toEqual(1);
 	});
 });
 

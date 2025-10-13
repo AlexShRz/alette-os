@@ -6,7 +6,7 @@ import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
 import { TTapTriggerArgs } from "./TapTriggerMiddlewareFactory";
 
 export class TapTriggerMiddleware extends Middleware("TapTriggerMiddleware", {
-	priority: MiddlewarePriority.BeforeCreation,
+	priority: MiddlewarePriority.OutOfBounds,
 })(
 	(tapFn: TTapTriggerArgs) =>
 		({ parent, context }) =>

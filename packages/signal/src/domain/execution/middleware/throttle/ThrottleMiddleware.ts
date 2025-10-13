@@ -6,12 +6,15 @@ import { GlobalContext } from "../../../context/services/GlobalContext";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
 import { WithCurrentRequestOverride } from "../../events/envelope/WithCurrentRequestOverride";
+import { WithReloadableCheck } from "../../events/envelope/WithReloadableCheck";
 import { RequestMode } from "../../services/RequestMode";
 import { TThrottleMiddlewareDurationSupplier } from "./ThrottleMiddlewareFactory";
 
+type TThrottledEvent = WithCurrentRequestOverride | WithReloadableCheck;
+
 // TODO: All leading/trailing throttle later
 export class ThrottleMiddleware extends Middleware("DebounceMiddleware", {
-	priority: MiddlewarePriority.Interception,
+	priority: MiddlewarePriority.RateLimit,
 })(
 	(durationProvider: TThrottleMiddlewareDurationSupplier) =>
 		({ parent, context }) =>
@@ -58,42 +61,48 @@ export class ThrottleMiddleware extends Middleware("DebounceMiddleware", {
 						runFork(task);
 					}, durationInMillis);
 
+				const throttleEvent = (event: TThrottledEvent) =>
+					E.gen(function* () {
+						/**
+						 * If throttle is in progress, cancel
+						 * other "run request" events
+						 * */
+						if (throttledDelivery) {
+							return yield* E.zipRight(event.cancel(), context.next(event));
+						}
+
+						const wrappedEvent = event.getWrappedEvent();
+						const userSuppliedSettings = wrappedEvent.getSettingSupplier()();
+						if (
+							P.hasProperty(userSuppliedSettings, "skipThrottle") &&
+							userSuppliedSettings.skipThrottle === true
+						) {
+							return yield* context.next(event);
+						}
+
+						throttledDelivery = throttleDelivery(
+							event.clone(),
+						) as unknown as number;
+
+						return yield* E.zipRight(event.cancel(), context.next(event));
+					});
+
 				return {
 					...parent,
 					send(event) {
 						return E.gen(this, function* () {
 							/**
-							 * 1. We need to look for "run request" events sent by the user, not
-							 * just raw "run request" events.
-							 * 2. For example, it makes no sense to debounce retry run request
-							 * events sent by the system, etc.
+							 * We do not throttle
+							 * first reloads when mounted reload is active.
 							 * */
-							if (!(event instanceof WithCurrentRequestOverride)) {
-								return yield* context.next(event);
-							}
-
-							/**
-							 * If throttle is in progress, cancel
-							 * other "run request" events
-							 * */
-							if (throttledDelivery) {
-								return yield* E.zipRight(event.cancel(), context.next(event));
-							}
-
-							const wrappedEvent = event.getWrappedEvent();
-							const userSuppliedSettings = wrappedEvent.getSettingSupplier()();
 							if (
-								P.hasProperty(userSuppliedSettings, "skipThrottle") &&
-								userSuppliedSettings.skipThrottle === true
+								event instanceof WithCurrentRequestOverride ||
+								event instanceof WithReloadableCheck
 							) {
-								return yield* context.next(event);
+								return yield* throttleEvent(event);
 							}
 
-							throttledDelivery = throttleDelivery(
-								event.clone(),
-							) as unknown as number;
-
-							return yield* E.zipRight(event.cancel(), context.next(event));
+							return yield* context.next(event);
 						});
 					},
 				};
