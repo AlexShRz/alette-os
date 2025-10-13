@@ -1,6 +1,12 @@
 import { ApiError } from "@alette/pulse";
 import { afterAll } from "vitest";
-import { factory, reloadable, retryWhen, runOnMount } from "../../../domain";
+import {
+	factory,
+	reloadable,
+	retryWhen,
+	runOnMount,
+	throws,
+} from "../../../domain";
 import { createTestApi } from "../../utils";
 
 class MyError extends ApiError {
@@ -22,6 +28,7 @@ test("it does not allow retry request command to override current request", asyn
 	vi.useFakeTimers();
 
 	const getData = custom(
+		throws(MyError),
 		runOnMount(false),
 		reloadable(() => true),
 		factory(() => {

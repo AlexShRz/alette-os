@@ -1,7 +1,13 @@
 import { ApiError } from "@alette/pulse";
 import { Subject } from "rxjs";
 import { forActiveRequestWorkers } from "../../../application";
-import { factory, reloadable, runOnMount, synchronized } from "../../../domain";
+import {
+	factory,
+	reloadable,
+	runOnMount,
+	synchronized,
+	throws,
+} from "../../../domain";
 import { createTestApi } from "../../utils/createTestApi";
 
 test("it synchronizes loading state between requests", async () => {
@@ -62,6 +68,7 @@ test("it synchronizes error state between requests", async () => {
 
 	const getData = custom(
 		synchronized(),
+		throws(MyError),
 		runOnMount(false),
 		reloadable(() => true),
 		factory(async () => {

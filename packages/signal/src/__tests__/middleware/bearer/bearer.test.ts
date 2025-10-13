@@ -1,6 +1,6 @@
 import { RequestFailedError } from "@alette/pulse";
 import { setContext } from "../../../application";
-import { bearer, factory, retry } from "../../../domain";
+import { bearer, factory, retry, throws } from "../../../domain";
 import { createTestApi } from "../../utils";
 
 test("it replaces middleware of the same type", async () => {
@@ -49,6 +49,7 @@ test("it works together with retry", async () => {
 
 	const getData = custom(
 		bearer(myCookie),
+		throws(RequestFailedError),
 		factory(() => {
 			if (!triedTimes) {
 				triedTimes++;

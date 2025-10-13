@@ -34,6 +34,7 @@ test("it retries requests", async () => {
 
 	const getData = custom(
 		output(as<string>()),
+		throws(MyError),
 		factory(() => {
 			if (!triedTimes) {
 				triedTimes++;
@@ -59,6 +60,7 @@ test("it counts retry attempts", async () => {
 
 	const getData = custom(
 		output(as<string>()),
+		throws(MyError),
 		factory(() => {
 			if (triedTimes < 3) {
 				triedTimes++;
@@ -89,6 +91,7 @@ test("it can access context of a previously failed request", async () => {
 
 	const getData = custom(
 		output(as<string>()),
+		throws(MyError),
 		path(() => {
 			switch (triedTimes) {
 				case 2:
@@ -131,6 +134,7 @@ test("it can access request props and context", async () => {
 
 	const getData = custom(
 		path(pathValue),
+		throws(MyError),
 		body(async ({ context, path }) => {
 			caughtContext = context as any;
 			caughtPath = path;
@@ -193,6 +197,7 @@ test("it allows users to disable retries per request", async () => {
 
 	const getData = custom(
 		output(as<string>()),
+		throws(MyError),
 		factory(() => {
 			throw new MyError();
 		}),
@@ -214,6 +219,7 @@ test("it allows users to disable retries per request (mount mode)", async () => 
 
 	const getData = custom(
 		output(as<string>()),
+		throws(MyError),
 		runOnMount(false),
 		reloadable(() => true),
 		factory(() => {
@@ -248,6 +254,7 @@ test("it overrides middleware of the same type", async () => {
 
 	const getData = custom(
 		output(as<string>()),
+		throws(MyError),
 		factory(() => {
 			if (!triedTimes) {
 				triedTimes++;
@@ -276,6 +283,7 @@ test("it overrides 'retry()' middleware", async () => {
 
 	const getData = custom(
 		output(as<string>()),
+		throws(MyError),
 		factory(() => {
 			enteredTimes++;
 			throw new MyError();

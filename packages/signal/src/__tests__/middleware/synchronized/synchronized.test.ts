@@ -1,7 +1,13 @@
 import { ApiError } from "@alette/pulse";
 import { Subject } from "rxjs";
 import { forActiveRequestWorkers } from "../../../application";
-import { factory, reloadable, runOnMount, synchronized } from "../../../domain";
+import {
+	factory,
+	reloadable,
+	runOnMount,
+	synchronized,
+	throws,
+} from "../../../domain";
 import { createTestApi } from "../../utils/createTestApi";
 
 test("it keeps mounted requests in sync through the whole request lifecycle", async () => {
@@ -17,6 +23,7 @@ test("it keeps mounted requests in sync through the whole request lifecycle", as
 
 	const getData = custom(
 		synchronized(),
+		throws(MyError),
 		runOnMount(false),
 		reloadable(() => true),
 		factory(async () => {

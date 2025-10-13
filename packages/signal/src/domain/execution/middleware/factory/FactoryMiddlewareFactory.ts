@@ -2,6 +2,7 @@ import { UrlBuilder } from "@alette/pulse";
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
 import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
+import { ThrowsMiddleware } from "../../../errors/middleware/throws/ThrowsMiddleware";
 import { OneShotRequestNotification } from "../../../lifecycle/notifications/OneShotRequestNotification";
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
@@ -37,9 +38,19 @@ export class FactoryMiddlewareFactory extends Middleware(
 					...parent,
 					send(event) {
 						return E.gen(this, function* () {
-							if (event instanceof AggregateRequestMiddleware) {
-								event.replaceMiddleware([FactoryMiddleware], [getMiddleware()]);
+							if (!(event instanceof AggregateRequestMiddleware)) {
+								return yield* context.next(event);
 							}
+
+							const hasThrowsMiddleware = event
+								.getMiddleware()
+								.some((middleware) => middleware instanceof ThrowsMiddleware);
+
+							const injectedMiddleware = hasThrowsMiddleware
+								? [getMiddleware()]
+								: [getMiddleware(), new ThrowsMiddleware([])];
+
+							event.replaceMiddleware([FactoryMiddleware], injectedMiddleware);
 
 							return yield* context.next(event);
 						});

@@ -1,6 +1,6 @@
 import { RequestFailedError, r, request } from "@alette/pulse";
 import { http, HttpResponse } from "msw";
-import { bearer, factory } from "../../../domain";
+import { bearer, factory, throws } from "../../../domain";
 import { createTestApi } from "../../utils";
 import { server } from "../../utils/server";
 
@@ -40,6 +40,7 @@ test("it marks cookie as invalid if the request fails with unauthenticated statu
 
 	const getData = custom(
 		bearer(myCookie),
+		throws(RequestFailedError),
 		factory(() => {
 			throw new RequestFailedError({
 				status: 401,

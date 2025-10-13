@@ -1,6 +1,6 @@
 import { RequestAbortedError, r, request } from "@alette/pulse";
 import { http, delay } from "msw";
-import { factory } from "../../../domain";
+import { factory, throws } from "../../../domain";
 import { createTestApi } from "../../utils";
 import { server } from "../../utils/server";
 
@@ -100,6 +100,7 @@ test(
 		);
 
 		const getData1 = custom(
+			throws(RequestAbortedError),
 			factory(async ({ url }) => {
 				factoryReached = true;
 				return request(

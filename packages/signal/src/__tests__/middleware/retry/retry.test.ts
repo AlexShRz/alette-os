@@ -1,5 +1,5 @@
 import { ApiError, RequestAbortedError, as } from "@alette/pulse";
-import { factory, output, retry, retryWhen } from "../../../domain";
+import { factory, output, retry, retryWhen, throws } from "../../../domain";
 import { createTestApi } from "../../utils";
 
 class MyError extends ApiError {
@@ -14,6 +14,7 @@ test("it retries requests using the specified retry limit", async () => {
 
 	const getData = custom(
 		output(as<string>()),
+		throws(MyError),
 		factory(() => {
 			enteredTimes++;
 			throw new MyError();
@@ -36,6 +37,7 @@ test("it retries request once if retry limit is not specified", async () => {
 
 	const getData = custom(
 		output(as<string>()),
+		throws(MyError),
 		factory(() => {
 			enteredFactory++;
 			throw new MyError();
@@ -56,6 +58,7 @@ test("it allows users to disable retries", async () => {
 
 	const getData = custom(
 		output(as<string>()),
+		throws(MyError),
 		factory(() => {
 			enteredFactory++;
 			throw new MyError();
@@ -75,6 +78,7 @@ test("it overrides middleware of the same type", async () => {
 
 	const getData = custom(
 		output(as<string>()),
+		throws(MyError),
 		factory(() => {
 			enteredFactory++;
 			throw new MyError();
@@ -98,6 +102,7 @@ test("it overrides 'retryWhen' middleware", async () => {
 
 	const getData = custom(
 		output(as<string>()),
+		throws(MyError),
 		factory(() => {
 			enteredFactory++;
 			throw new MyError();
@@ -122,6 +127,7 @@ test("it does not react to request abortion errors", async () => {
 
 	const getData = custom(
 		output(as<string>()),
+		throws(RequestAbortedError),
 		factory(() => {
 			enteredFactory++;
 			throw new RequestAbortedError();

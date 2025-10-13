@@ -1,6 +1,6 @@
 import { RequestFailedError, r, request } from "@alette/pulse";
 import { http, HttpResponse } from "msw";
-import { bearer, factory, headers } from "../../../domain";
+import { bearer, factory, headers, throws } from "../../../domain";
 import { createTestApi } from "../../utils";
 import { server } from "../../utils/server";
 
@@ -17,6 +17,7 @@ test("it marks token as invalid if the request fails with unauthenticated status
 
 	const getData = custom(
 		bearer(myToken),
+		throws(RequestFailedError),
 		factory(() => {
 			throw new RequestFailedError({
 				status: 401,
