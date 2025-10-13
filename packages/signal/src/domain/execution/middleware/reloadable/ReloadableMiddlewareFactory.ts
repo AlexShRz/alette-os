@@ -20,7 +20,7 @@ export interface IReloadableMiddlewareCheck<
 			current: TRequestSettings<C>;
 		},
 		reqContext: { context: IGlobalContext },
-	): boolean;
+	): boolean | Promise<boolean>;
 }
 
 export class ReloadableMiddlewareFactory extends Middleware(

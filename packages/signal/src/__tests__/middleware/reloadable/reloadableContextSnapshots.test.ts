@@ -12,7 +12,7 @@ test("it updates last context snapshot after each reload", async () => {
 	const getData = custom(
 		input(as<string>()),
 		runOnMount(false),
-		reloadable(({ prev }) => {
+		reloadable(async ({ prev }) => {
 			last = prev?.args || null;
 			return true;
 		}),

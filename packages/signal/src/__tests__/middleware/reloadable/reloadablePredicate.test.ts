@@ -121,7 +121,7 @@ test("it can apply custom equality checks", async () => {
 	const getData = custom(
 		input(as<typeof value1>()),
 		runOnMount(),
-		reloadable(({ prev, current }) => {
+		reloadable(async ({ prev, current }) => {
 			enteredMiddlewareTimes++;
 			if (!prev) {
 				return true;

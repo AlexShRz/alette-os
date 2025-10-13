@@ -106,15 +106,15 @@ export class ReloadableMiddleware extends Middleware("ReloadableMiddleware", {
 							 * 2. If our arguments are not equal, the request can be reloaded
 							 * */
 							const isReloadable = predicate
-								? E.gen(function* () {
-										return predicate(
+								? E.promise(async () =>
+										predicate(
 											{
 												prev: obtainedPrevContext,
 												current: currentRequestSettings,
 											},
-											{ context: yield* globalContext.get() },
-										);
-									})
+											{ context: await globalContext.getAsPromise() },
+										),
+									)
 								: doArgumentsDiffer(
 										obtainedPrevContext,
 										currentRequestSettings,
