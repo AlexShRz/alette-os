@@ -1,5 +1,6 @@
 import { Subject } from "rxjs";
-import { factory, reloadable, runOnMount, synchronized } from "../../../domain";
+import { factory, reloadable, runOnMount } from "../../../domain";
+import { synchronized } from "../../../domain/execution/middleware/synchronized";
 import { createTestApi } from "../../utils/createTestApi";
 
 test("it does not synchronize one shot requests", async () => {

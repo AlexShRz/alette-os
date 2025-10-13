@@ -1,13 +1,8 @@
 import { ApiError } from "@alette/pulse";
 import { Subject } from "rxjs";
 import { forActiveRequestWorkers } from "../../../application";
-import {
-	factory,
-	reloadable,
-	runOnMount,
-	synchronized,
-	throws,
-} from "../../../domain";
+import { factory, reloadable, runOnMount, throws } from "../../../domain";
+import { synchronized } from "../../../domain/execution/middleware/synchronized";
 import { createTestApi } from "../../utils/createTestApi";
 
 test("it synchronizes loading state between requests", async () => {
