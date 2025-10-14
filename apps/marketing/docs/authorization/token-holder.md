@@ -8,6 +8,7 @@ while managing their lifecycle.
 acting as a JWT or OAuth token and a value acting as a refresh token to the token holder:
 ```ts
 async ({
+    id,
 	prevToken,
 	refreshToken,
 	context,
