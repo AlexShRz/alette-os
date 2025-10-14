@@ -10,7 +10,7 @@ export class MiscellaneousContext extends RequestContextPart<
 		super(data, {});
 	}
 
-	addEntries(newData: IMiscellaneousRequestContext) {
+	merge(newData: IMiscellaneousRequestContext) {
 		this.state = { ...this.state, ...newData };
 		return this;
 	}

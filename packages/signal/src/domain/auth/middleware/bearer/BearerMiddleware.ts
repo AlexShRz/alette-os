@@ -51,7 +51,7 @@ export class BearerMiddleware extends Middleware("BearerMiddleware", {
 						miscContext,
 						(miscContext) =>
 							E.gen(function* () {
-								miscContext.addEntries({
+								miscContext.merge({
 									credentials: "include",
 								});
 								return miscContext;
