@@ -144,3 +144,38 @@ test("it allows token supplier override", async () => {
 
 	expect(await myToken.get()).toEqual(tokenValue);
 });
+
+/**
+ * Useful if we want to store some
+ * data in api context. The id
+ * can be used to identify data tied to a
+ * specific token.
+ * */
+test("it exposes static token id", async () => {
+	const { token } = createTestApi();
+	let triggered = 0;
+	let logged1: string | null = null;
+	let logged2: string | null = null;
+
+	const myToken = token()
+		.from(async ({ id }) => {
+			if (!triggered) {
+				logged1 = id;
+			} else {
+				logged2 = id;
+			}
+
+			triggered++;
+			return "";
+		})
+		.build();
+
+	await myToken.get();
+	expect(triggered).toEqual(1);
+
+	myToken.refresh();
+	await vi.waitFor(() => {
+		expect(triggered).toEqual(2);
+		expect(logged1).toEqual(logged2);
+	});
+});

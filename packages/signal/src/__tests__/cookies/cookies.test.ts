@@ -134,3 +134,37 @@ test("it allows cookie supplier override", async () => {
 	await myCookie.load();
 	expect(triggered).toEqual(1);
 });
+
+/**
+ * Useful if we want to store some
+ * data in api context. The id
+ * can be used to identify data tied to a
+ * specific cookie.
+ * */
+test("it exposes static cookie id", async () => {
+	const { cookie } = createTestApi();
+	let triggered = 0;
+	let logged1: string | null = null;
+	let logged2: string | null = null;
+
+	const myCookie = cookie()
+		.from(async ({ id }) => {
+			if (!triggered) {
+				logged1 = id;
+			} else {
+				logged2 = id;
+			}
+
+			triggered++;
+		})
+		.build();
+
+	await myCookie.load();
+	expect(triggered).toEqual(1);
+
+	myCookie.refresh();
+	await vi.waitFor(() => {
+		expect(triggered).toEqual(2);
+		expect(logged1).toEqual(logged2);
+	});
+});

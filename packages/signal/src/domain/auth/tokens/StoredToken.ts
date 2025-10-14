@@ -80,10 +80,11 @@ export class StoredToken extends E.Service<StoredToken>()("StoredToken", {
 
 		const forceRefreshToken = (tokenState: TStoredTokenState) =>
 			E.gen(function* () {
-				const { supplier, value } = tokenState;
+				const { id, supplier, value } = tokenState;
 
 				const getNewToken = async () =>
 					await supplier({
+						id,
 						context: await globalContext.getAsPromise(),
 						getCredentials: () => runPromise(credentials.get()),
 						getCredentialsOrThrow: () => runPromise(credentials.getOrThrow()),
