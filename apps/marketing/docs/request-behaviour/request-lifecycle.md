@@ -1,5 +1,5 @@
 # Request lifecycle
-**Request lifecycle** in Alette Signal is a collection of request execution stages you 
+**Request lifecycle** in Alette Signal is a collection of **request execution stages** you 
 can inspect and manipulate. 
 
 ## Request execution stages

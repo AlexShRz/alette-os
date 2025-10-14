@@ -8,7 +8,7 @@ hero:
   actions:
     - theme: brand
       text: Get started
-      link: /docs/getting-started/why-signal
+      link: /docs/overview/why-signal
 
 features:
   - title: Feature A

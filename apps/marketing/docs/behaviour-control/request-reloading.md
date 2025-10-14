@@ -3,28 +3,6 @@
 allowing request blueprints to react to external changes by re-requesting the previously obtained data
 from the server.
 
-## How does reloading work?
-1. The `reload()` function of a mounted request blueprint is called.
-2. If the `.using()` method is configured, the
-[bound request settings function](../getting-started/configuring-requests.md#request-setting-binding)
-is called, retrieving up-to-date request settings.
-3. If the `reload()` function was called for the first time with the [mounted reloading](#mounted-reloading) enabled,
-**the `reloadable()` check is skipped and the server endpoint is called**.
-4. If a **predicate function** was not provided to the `reloadable()` middleware,
-and the `input()` middleware is absent, the server endpoint is called.
-5. If a **predicate function** was provided to the `reloadable()` middleware, 
-the predicate function is called:
-   1. If the predicate function returns `true`, the server endpoint is called.
-   2. If the predicate function returns `false`, the reloading is cancelled.
-6. If the `reloadable()` middleware has no arguments, and the `input()` middleware
-is present, a deep equality argument check is performed:
-   1. If the arguments are different, the server endpoint is called.
-   2. If the arguments are identical, the reloading is cancelled.
-
-:::info
-**A predicate function** is a function that returns `true` or `false`.
-:::
-
 ## Mounted reloading
 **Mounted reloading** is a mounted request behaviour, allowing 
 request blueprints to request data from the server by automatically calling the `reload()` function 
@@ -73,7 +51,7 @@ when(({ isLoading }) => {
 
 ## Predicate-based mounted reload
 To enable predicate-based mounted reload,
-pass a **predicate function** to the `runOnMount()` middleware:
+pass a [predicate function](#how-does-reloading-work) to the `runOnMount()` middleware:
 ```ts
 const getData = custom(
     runOnMount(({ context }) => true),
@@ -134,4 +112,26 @@ custom(
     )
 )
 ```
+:::
+
+## How does reloading work?
+1. The `reload()` function of a mounted request blueprint is called.
+2. If the `.using()` method is configured, the
+   [bound request settings function](../getting-started/configuring-requests.md#request-setting-binding)
+   is called, retrieving up-to-date request settings.
+3. If the `reload()` function was called for the first time with the [mounted reloading](#mounted-reloading) enabled,
+   **the `reloadable()` check is skipped and the server endpoint is called**.
+4. If a **predicate function** was not provided to the `reloadable()` middleware,
+   and the `input()` middleware is absent, the server endpoint is called.
+5. If a **predicate function** was provided to the `reloadable()` middleware,
+   the predicate function is called:
+   1. If the predicate function returns `true`, the server endpoint is called.
+   2. If the predicate function returns `false`, the reloading is cancelled.
+6. If the `reloadable()` middleware has no arguments, and the `input()` middleware
+   is present, a deep equality argument check is performed:
+   1. If the arguments are different, the server endpoint is called.
+   2. If the arguments are identical, the reloading is cancelled.
+
+:::info
+**A predicate function** is a function that returns `true` or `false`.
 :::

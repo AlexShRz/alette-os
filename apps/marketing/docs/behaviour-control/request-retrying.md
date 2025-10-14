@@ -3,12 +3,7 @@
 [request blueprints](../getting-started/configuring-requests.md#request-blueprint)
 to rerun the failing request with identical
 [request settings](../getting-started/configuring-requests.md#request-settings) 
-if a **retry condition** is met.
-
-## Retry condition
-**A retry condition** is a function taking information about the failed
-request and returning `true` to allow for the request retry, or `false`
-to prohibit the request from being retried. 
+when a **retry condition** is met.
 
 ## Retrying requests
 To retry a request, pass the `retry()` middleware to the request blueprint:
@@ -23,7 +18,7 @@ const deletePost = mutation(
 While a request is being retried, no errors are thrown.
 :::
 :::warning
-When a request is being retried, [debouncing](./request-debouncing.md)
+While a request is being retried, [debouncing](./request-debouncing.md)
 and
 [throttling](./request-throttling.md) are ignored.
 :::
@@ -105,6 +100,20 @@ const deletePost = mutation(
 await deletePost.execute()
 ```
 
+## Retry condition
+**A retry condition** is a function taking information about the failed
+request and returning `true` to allow for the request retry, or `false`
+to prohibit the request from being retried:
+```ts
+async ({ error, attempt }, { args: postId, path }) => {
+    if (error.getStatus() === 429) {
+        return true;
+    }
+
+    return postId === 5;
+}
+```
+
 ## Custom retry
 To create a custom retry, pass a [retry condition](#retry-condition) to the `retryWhen` middleware:
 ```ts
@@ -114,7 +123,7 @@ import { wait, retryWhen, input, path } from '@alette/signal';
 const deletePost = mutation(
     input(as<number>()),
     path('/posts'),
-    retryWhen(async ({ error, attempt }, { args: postId, path, context }) => {
+    retryWhen(async ({ error, attempt }, { args: postId, path }) => {
         if (error.getStatus() === 429) {
             await wait("5 seconds");
             return true;
@@ -126,11 +135,11 @@ const deletePost = mutation(
 
 await deletePost.execute({ args: 3 })
 ```
-:::tip
-To add a delay between retries inside a `retryWhen()` retry condition, use 
+
+To add a delay between retries inside a `retryWhen()` retry condition, use
 the `wait()` function provided by Alette Signal:
 ```ts
-import { wait } from '@alette/signal';
+import { wait, /* ... */ } from '@alette/signal';
 
 retryWhen(async ({ attempt }) => {
     if (attempt === 0) {
@@ -145,7 +154,7 @@ retryWhen(async ({ attempt }) => {
     return true;
 })
 ```
-:::
+
 :::tip
 Request data is available as a second argument of the `retryWhen()` retry 
 condition:
@@ -156,7 +165,7 @@ retryWhen(async (_, { args: postId, path, context }) => {
 ```
 :::
 :::warning
-When a request is being retried, [debouncing](./request-debouncing.md)
+While a request is being retried, [debouncing](./request-debouncing.md)
 and
 [throttling](./request-throttling.md) are ignored.
 :::

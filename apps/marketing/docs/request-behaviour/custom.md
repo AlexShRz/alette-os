@@ -185,71 +185,9 @@ const createNewReaderUser = custom(
     })
 );
 ```
-
-:::danger
-An error thrown without registering it using the `throws()` middleware 
-will cause the whole system to fail with a fatal `UnknownErrorCaught` error.
-```ts
-factory(() => {
-   throw new Error('Will crash the whole system.')
-})
-```
-:::
-:::danger
-All thrown recoverable errors must extend Alette Signal `ApiError` abstract class:
-```ts
-import { ApiError } from '@alette/signal';
-
-export class CannotCreateUserError extends ApiError {
-   constructor(protected reason = 'unknown') {
-      super();
-   }
-
-   protected cloneSelf() {
-      return new CannotCreateUserError(this.reason)
-   }
-}
-```
-:::
-
-Now your error type can be seen in middleware like `mapError()` or `retryWhen()`:
-```ts twoslash
-const createNewReaderUser = custom(
-    /* ... */
-    throws(CannotCreateUserError),
-    factory(async () => {
-        // Later...
-        throw new CannotCreateUserError('The user already exists.')
-    }),
-    // The "error" property in retryWhen() and mapError() is now of 
-    // the "CannotCreateUserError | RequestFailedError" type
-    retryWhen((error) => {
-        return true;
-    }),
-    mapError((error) => error)
-);
-```
 :::tip
-The `throws()` middleware can accept multiple error types at once:
-```ts
-custom(
-    throws(
-        MyError1,
-        MyError2,
-    )
-)
-```
-:::
-:::warning
-The `throws()` middleware are combined:
-```ts
-custom(
-    throws(MyError1),
-    throws(MyError2),
-    // The "error" argument is now of the "MyError1 | MyError2" type.    
-    mapError((error) => error)
-)
-```
+To learn more about error processing, refer 
+to [Alette Signal error handling guide](../error-system/error-handling.md).
 :::
 
 ## Notification receiver

@@ -16,13 +16,19 @@ export default defineConfig({
 
 		sidebar: [
 			{
-				text: "Getting started",
+				text: "Overview",
 				collapsed: false,
 				items: [
 					{
 						text: "Why Alette Signal",
-						link: "/docs/getting-started/why-signal",
+						link: "/docs/overview/why-signal",
 					},
+				],
+			},
+			{
+				text: "Getting started",
+				collapsed: false,
+				items: [
 					{ text: "Installation", link: "/docs/getting-started/installation" },
 					{
 						text: "Configuring requests",
@@ -98,6 +104,24 @@ export default defineConfig({
 				],
 			},
 			{
+				text: "Authorization",
+				collapsed: false,
+				items: [
+					{
+						text: "Access control",
+						link: "/docs/authorization/access-control",
+					},
+					{
+						text: "Token holder",
+						link: "/docs/authorization/token-holder",
+					},
+					{
+						text: "Cookie holder",
+						link: "/docs/authorization/cookie-holder",
+					},
+				],
+			},
+			{
 				text: "Paginated data",
 				collapsed: true,
 				items: [
@@ -135,7 +159,7 @@ export default defineConfig({
 			},
 			{
 				text: "Middleware reference",
-				collapsed: false,
+				collapsed: true,
 				items: [
 					{
 						text: "Middleware overview",

@@ -73,11 +73,11 @@ api.reset()
 :::danger 
 1. Only instructions passed to `client()` will be reapplied.
 Api instructions passed to the `.tell()` method will be ignored.
-2. During `.reset()` all running requests are interrupted.
+2. During `.reset()` all in-flight requests are interrupted.
 :::
 
 :::tip
-You can use `.reset()` to wipe api state after each test:
+The `.reset()` method can be used to wipe api state after each test:
 ```ts
 // vitest.setup.ts
 import { api } from './src/api/base'; // import your configured api

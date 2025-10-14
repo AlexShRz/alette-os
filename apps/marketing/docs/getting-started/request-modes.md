@@ -5,7 +5,7 @@ Alette Signal has 2 request modes - **"One shot"** and **"Mounted"**.
 **The "one shot" request mode** is a mode where your request is executed once, and every
 used middleware is shutdown.
 This mode is activated when you call the `.execute()`
-method on request blueprints:
+method on [request blueprints](configuring-requests.md#request-blueprint):
 ```ts
 const response = await myQuery.execute({ 
     args: { hey: 'Alette Signal' } 
@@ -34,8 +34,8 @@ myQuery.spawn({
 ```
 
 ## "Mounted" request mode
-**The "mounted" request mode** is a mode where your request blueprint acts as 
-a "worker" that can process multiple requests, 
+**The "mounted" request mode** is a mode where a [request blueprint](configuring-requests.md#request-blueprint)
+acts as a "worker" that can process multiple requests, 
 while keeping its middleware and their state alive.
 
 This mode is activated when you call the `.mount()`
@@ -174,7 +174,7 @@ reload()
 ```
 :::tip
 To learn how to control request reloading, see
-[request reloading guide](../behaviour-control/request-reloading.md).
+[Alette Signal request reloading guide](../behaviour-control/request-reloading.md).
 :::
 :::danger
 1. The `reload()` function expects arguments to be ready the moment it is called. If they are not available

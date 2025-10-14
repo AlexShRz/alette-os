@@ -1,10 +1,10 @@
 # Error handling
-Error handling in Alette Signal is performed by handling errors 
+Error handling in Alette Signal is performed by handling [fatal, recoverable and unknown errors](error-types.md) 
 either [locally](#local-error-handling) or [globally](#global-error-handling).
 
 ## Local error handling
-To handle errors locally, extract the error from a [mounted request](../getting-started/request-modes.md#mounted-request-mode)
-using `getState()`, or by subscribing to errors using `when()`:
+To handle errors locally for [mounted requests](../getting-started/request-modes.md#mounted-request-mode),
+extract the error using `getState().error`, or by subscribing to the request state using `when()`:
 ```ts
 const deletePost = mutation(/* ... */)
 
@@ -18,6 +18,8 @@ when(({ isError, error }) => {
 
 execute()
 
+// Or
+
 // After request failure...
 const { isError, error } = getState()
 
@@ -25,17 +27,8 @@ if (isError && error) {
     console.log('Failed with an error:', { error })
 }
 ```
-:::tip
-To understand what request state combination represents failure, refer to the 
-[request state combination](../request-behaviour/request-state.md#analyzing-request-state) 
-documentation.
-:::
-:::tip
-To understand how to retry errors, refer to the
-[Alette Signal error retrying guide](../behaviour-control/request-retrying.md).
-:::
 
-To handle errors for [one shot requests](../getting-started/request-modes.md#one-shot-request-mode),
+To handle errors locally for [one shot requests](../getting-started/request-modes.md#one-shot-request-mode),
 wrap the request in `try/catch`:
 ```ts
 try {
@@ -46,6 +39,16 @@ try {
 	}
 }
 ```
+
+:::tip
+To understand what request state combination represents failure, refer to the 
+[request state combination](../request-behaviour/request-state.md#analyzing-request-state) 
+documentation.
+:::
+:::tip
+To understand how to retry errors, refer to the
+[Alette Signal error retrying guide](../behaviour-control/request-retrying.md).
+:::
 
 ## Global error handling
 To handle errors globally in Alette Signal, set a global error handler 
@@ -119,15 +122,14 @@ api.tell(
     handleError(new MyError())
 )
 ```
-:::tip
-Sending [fatal errors](error-types.md#fatal-errors) manually to the global error handler
-does not crash the system.
+:::danger
+1. Sending [fatal errors](error-types.md#fatal-errors) manually to the global error handler
+**will crash the system**.
+2. [Recoverable errors](error-types.md#recoverable-errors)
+   are not sent to the global error handler automatically.  
 :::
+
 :::warning
 Manual error sending is used **mostly** for testing -
 avoid using `handleError()` in production code.
-:::
-:::danger
-[Recoverable errors](error-types.md#recoverable-errors)
-are not sent to the global error handler automatically.  
 :::

@@ -77,7 +77,7 @@ to avoid [value vs reference issues](https://www.freecodecamp.org/news/javascrip
 :::
 
 ## Unknown errors
-**An unknown error** in Alette Signal is an error not registered with the `throws()` middleware. Unknown 
+**An unknown error** in Alette Signal is an error not registered using the `throws()` middleware. Unknown 
 errors are not seen in types and treated as [fatal errors](#fatal-errors):
 ```ts
 class MyError extends ApiError {
@@ -118,6 +118,17 @@ myRequest.spawn()
 ```
 :::info
 The `throws()` middleware can accept only [recoverable errors](#recoverable-errors).
+:::
+:::tip
+The `throws()` middleware can accept multiple error types at once:
+```ts
+custom(
+    throws(
+        MyError1,
+        MyError2,
+    )
+)
+```
 :::
 :::tip
 The `throws()` middleware are combined:
