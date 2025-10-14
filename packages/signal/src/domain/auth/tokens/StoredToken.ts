@@ -4,6 +4,7 @@ import * as P from "effect/Predicate";
 import * as Runtime from "effect/Runtime";
 import * as SynchronizedRef from "effect/SynchronizedRef";
 import { GlobalContext } from "../../context/services/GlobalContext";
+import { panic } from "../../errors/utils/panic";
 import { TAuthEntityStatus } from "../AuthTypes";
 import { AuthEntityCredentials } from "../services/AuthEntityCredentials";
 import { AuthEntityScheduledRefresh } from "../services/AuthEntityScheduledRefresh";
@@ -13,6 +14,10 @@ import {
 } from "../services/AuthEntitySubscribers";
 import { ITokenConfig, TokenConfig } from "./TokenConfig";
 import { ITokenHeaderConverter, ITokenSupplier } from "./TokenTypes";
+import {
+	RefreshTokenTypeValidationError,
+	TokenTypeValidationError,
+} from "./errors";
 
 interface ITokenUpdateResult {
 	value: string;
@@ -82,6 +87,24 @@ export class StoredToken extends E.Service<StoredToken>()("StoredToken", {
 			),
 		);
 
+		const assertTokenValue = (token: unknown) =>
+			runPromise(
+				E.gen(function* () {
+					if (!P.isString(token)) {
+						yield* panic(new TokenTypeValidationError(token));
+					}
+				}),
+			);
+
+		const assertRefreshTokenValue = (token: unknown) =>
+			runPromise(
+				E.gen(function* () {
+					if (!P.isString(token)) {
+						yield* panic(new RefreshTokenTypeValidationError(token));
+					}
+				}),
+			);
+
 		const forceRefreshToken = (tokenState: TStoredTokenState) =>
 			E.gen(function* () {
 				const { id, supplier, refreshToken, value } = tokenState;
@@ -101,21 +124,31 @@ export class StoredToken extends E.Service<StoredToken>()("StoredToken", {
 
 					try {
 						const newTokenData = await getNewToken();
+						const commonTokenData = {
+							status: "valid" as TAuthEntityStatus,
+						};
+
+						if (!P.isRecord(newTokenData)) {
+							await assertTokenValue(newTokenData);
+
+							return {
+								value: newTokenData,
+								/**
+								 * If only a string is returned,
+								 * reset our old refresh token
+								 * */
+								refreshToken: null,
+								...commonTokenData,
+							} satisfies ITokenUpdateResult;
+						}
+
+						await assertTokenValue(newTokenData.token);
+						await assertRefreshTokenValue(newTokenData.refreshToken);
+
 						return {
-							...(P.isString(newTokenData)
-								? {
-										value: newTokenData,
-										/**
-										 * If only a string is returned,
-										 * reset our old refresh token
-										 * */
-										refreshToken: null,
-									}
-								: {
-										value: newTokenData.token,
-										refreshToken: newTokenData.refreshToken,
-									}),
-							status: "valid",
+							value: newTokenData.token,
+							refreshToken: newTokenData.refreshToken,
+							...commonTokenData,
 						} satisfies ITokenUpdateResult;
 					} catch {
 						/**
