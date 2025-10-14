@@ -1,5 +1,6 @@
 import { IHeaders } from "@alette/pulse";
 import * as E from "effect/Effect";
+import * as P from "effect/Predicate";
 import * as Runtime from "effect/Runtime";
 import * as SynchronizedRef from "effect/SynchronizedRef";
 import { GlobalContext } from "../../context/services/GlobalContext";
@@ -15,6 +16,7 @@ import { ITokenHeaderConverter, ITokenSupplier } from "./TokenTypes";
 
 interface ITokenUpdateResult {
 	value: string;
+	refreshToken: null | string;
 	status: TAuthEntityStatus;
 }
 
@@ -22,7 +24,8 @@ type TStoredTokenState = Omit<
 	ITokenConfig,
 	"headerConverter" | "credentials"
 > & {
-	value: string;
+	value: ITokenUpdateResult["value"];
+	refreshToken: ITokenUpdateResult["refreshToken"];
 	status: TAuthEntityStatus;
 	headerConverter: ITokenHeaderConverter;
 };
@@ -48,6 +51,7 @@ export class StoredToken extends E.Service<StoredToken>()("StoredToken", {
 			 * Our token is always an empty string by default.
 			 * */
 			value: "",
+			refreshToken: null,
 			/**
 			 * 1. By default, all tokens are invalid.
 			 * 2. This status will trigger automatic token refresh on "token.get()"
@@ -80,34 +84,48 @@ export class StoredToken extends E.Service<StoredToken>()("StoredToken", {
 
 		const forceRefreshToken = (tokenState: TStoredTokenState) =>
 			E.gen(function* () {
-				const { id, supplier, value } = tokenState;
+				const { id, supplier, refreshToken, value } = tokenState;
 
 				const getNewToken = async () =>
 					await supplier({
 						id,
+						prevToken: value,
+						refreshToken,
 						context: await globalContext.getAsPromise(),
 						getCredentials: () => runPromise(credentials.get()),
 						getCredentialsOrThrow: () => runPromise(credentials.getOrThrow()),
-						prevToken: value,
 					});
 
 				const result = yield* E.promise(async () => {
 					await subscribers.runPromise("loading");
 
 					try {
-						const newToken = await getNewToken();
+						const newTokenData = await getNewToken();
 						return {
-							value: newToken,
+							...(P.isString(newTokenData)
+								? {
+										value: newTokenData,
+										/**
+										 * If only a string is returned,
+										 * reset our old refresh token
+										 * */
+										refreshToken: null,
+									}
+								: {
+										value: newTokenData.token,
+										refreshToken: newTokenData.refreshToken,
+									}),
 							status: "valid",
 						} satisfies ITokenUpdateResult;
 					} catch {
 						/**
 						 * If our fn throws, we need to set
-						 * our token status to invalid and keep
-						 * previous token value
+						 * our token status to invalid and reset
+						 * our refreshToken.
 						 * */
 						return {
 							value,
+							refreshToken: null,
 							status: "invalid",
 						} satisfies ITokenUpdateResult;
 					}
