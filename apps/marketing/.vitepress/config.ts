@@ -23,6 +23,10 @@ export default defineConfig({
 						text: "Why Alette Signal",
 						link: "/docs/overview/why-signal",
 					},
+					{
+						text: "Comparison",
+						link: "/docs/overview/comparison",
+					},
 				],
 			},
 			{

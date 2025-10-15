@@ -1,13 +1,14 @@
+/// <reference types='vitest' />
 import * as path from "path";
 import react from "@vitejs/plugin-react";
-/// <reference types='vitest' />
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 
-export default defineConfig(() => ({
+export default defineConfig({
 	root: __dirname,
 	cacheDir: "../../node_modules/.vite/packages/signal-react",
 	plugins: [
+		// @ts-ignore
 		react(),
 		dts({
 			entryRoot: "src",
@@ -47,4 +48,4 @@ export default defineConfig(() => ({
 			provider: "v8" as const,
 		},
 	},
-}));
+});
