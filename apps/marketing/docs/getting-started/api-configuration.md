@@ -77,7 +77,7 @@ Api instructions passed to the `.tell()` method will be ignored.
 :::
 
 :::tip
-The `.reset()` method can be used to wipe api state after each test:
+1. The `.reset()` method can be used to wipe api state after each test:
 ```ts
 // vitest.setup.ts
 import { api } from './src/api/base'; // import your configured api
@@ -86,4 +86,5 @@ afterEach(() => {
     api.reset()
 })
 ```
+2. To learn more about api testing, refer to the [Alette Signal testing guide](../testing/environment-requirements.md).
 :::

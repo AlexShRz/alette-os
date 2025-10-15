@@ -126,7 +126,7 @@ const {
 } = getState()
 ```
 :::tip
-"Peeking" can be used for request testing. For example, here is how 
+1. "Peeking" can be used for request testing. For example, here is how 
 to wait for the `error` request state in `vitest`:
 ```ts
 test('it fails', async () => {
@@ -140,6 +140,8 @@ test('it fails', async () => {
     })
 })
 ```
+2. To learn more about api testing, refer to 
+the [Alette Signal testing guide](../testing/environment-requirements.md).
 :::
 
 ### Used request settings

@@ -162,6 +162,16 @@ export default defineConfig({
 				],
 			},
 			{
+				text: "Testing",
+				collapsed: true,
+				items: [
+					{
+						text: "Environment requirements",
+						link: "/docs/testing/environment-requirements",
+					},
+				],
+			},
+			{
 				text: "Middleware reference",
 				collapsed: true,
 				items: [
