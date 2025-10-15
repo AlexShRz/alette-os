@@ -65,6 +65,7 @@ export default defineConfig({
 					{ text: "Query", link: "/docs/request-behaviour/query" },
 					{ text: "Mutation", link: "/docs/request-behaviour/mutation" },
 					{ text: "Custom", link: "/docs/request-behaviour/custom" },
+					{ text: "Caching", link: "/docs/request-behaviour/caching" },
 				],
 			},
 			{
