@@ -116,8 +116,12 @@ export default defineConfig({
 						link: "/docs/authorization/token-holder",
 					},
 					{
-						text: "Cookie holder",
-						link: "/docs/authorization/cookie-holder",
+						text: "Cookie handler",
+						link: "/docs/authorization/cookie-handler",
+					},
+					{
+						text: "Request authorization",
+						link: "/docs/authorization/request-authorization",
 					},
 				],
 			},

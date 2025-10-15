@@ -7,7 +7,7 @@ data from 3rd party SDKs.
 1. Has no default HTTP method set.
 2. Is not executed on mount by default.
 3. Retries the request _once_ if the thrown error
-   is an instance of `RequestFailedError` with the `401` HTTP status.
+   is an instance of `RequestFailedError` with the `401` or `419` HTTP status code.
 
 :::warning
 Custom requests are designed to be configured manually. 

@@ -45,6 +45,7 @@ export type THttpStatusCode =
 	| 416
 	| 417
 	| 418
+	| 419
 	| 421
 	| 422
 	| 423

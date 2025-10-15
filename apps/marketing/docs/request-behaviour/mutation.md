@@ -6,7 +6,7 @@ provided by the "core" plugin and is preconfigured for sending `POST`, `PUT`, `P
 1. Uses the `POST` HTTP method by default to send a request to the server.
 2. Is not executed on mount by default.
 3. Retries the request _once_ if the thrown error
-   contains the `401` HTTP status.
+   contains `401` or `419` HTTP status code.
 4. Throws a `RequestFailedError` if the response returned from the server does not have a `2xx` HTTP status.
 5. Throws a `HttpMethodValidationError` if a mutation request was attempted with the `GET` HTTP method provided.
 

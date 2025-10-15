@@ -1,6 +1,6 @@
 # Token holder
-**A token holder** in Alette Signal is an [access control](access-control.md) utility storing a value 
-acting as a [JWT or OAuth token](access-control.md#identifying-data-types) and a value acting as a refresh token,
+**A token holder** in Alette Signal is an [access control](access-control.md) helper, storing a value 
+acting as a JWT or OAuth token and a value acting as a refresh token,
 while managing their lifecycle.
 
 ## Token provider
@@ -23,11 +23,11 @@ async ({
 }
 ```
 :::tip
-Token providers can return a token value without a refresh token:
+Token providers can omit refresh tokens:
 ```ts
 async () => {
-	const token = await getSimpleToken.execute();
-	return token;
+    const { accessToken, refreshToken } = await getToken.execute();
+	return accessToken;
 }
 ```
 :::
@@ -98,7 +98,7 @@ the `RefreshTokenTypeValidationError` [fatal error](../error-system/error-types.
 :::
 
 :::tip
-The initial token provider can be overridden later:
+The initial token provider can be overridden:
 ```ts
 export const thirdPartyToken = token()
 	.from(() => {
@@ -344,20 +344,22 @@ const tokenValue = 'hey';
 const jwtToken = token()
 	.from(() => tokenValue)
 	.whenConvertedToHeaders(({ token, context }) => ({
-		'X-Custom-Auth-Token': 'hello',
-        Authorization: `Bearer ${token}`
+        'X-XSRF-TOKEN': token
 	}))
 	.build();
 
 /**
 * authHeaders -
 * { 
-* 	Authorization: `Bearer ${tokenValue}`,
-* 	'X-Custom-Auth-Token': 'hello' 
+* 	'X-XSRF-TOKEN': 'hey' 
 * },
 * */
 const authHeaders = await jwtToken.toHeaders()
 ```
+:::info
+Alette Signal automatically [obtains tokens](#obtaining-tokens) 
+being converted into headers. 
+:::
 
 ## Token obtaining algorithm
 **Alette Signal token obtaining algorithm has 6 steps**:

@@ -7,7 +7,7 @@ provided by the "core" plugin and is preconfigured for sending `GET` HTTP reques
 2. Uses the `runOnMount()` middleware to start request execution immediately when the 
 [request is mounted](../getting-started/request-modes.md#mounted-request-mode).
 3. Retries the request _once_ if the thrown error
-contains these HTTP statuses: `401`, `408`, `409`, `425`, `429`, `500`, `502`, `503`, `504`.
+contains these HTTP statuses: `401`, `408`, `409`, `419`, `425`, `429`, `500`, `502`, `503`, `504`.
 4. Throws a `RequestFailedError` if the response returned from the server does not have a `2xx` HTTP status.
 
 :::warning

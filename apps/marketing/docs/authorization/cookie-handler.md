@@ -1,5 +1,5 @@
 # Cookie handler
-**A cookie handler** in Alette Signal is an [access control](access-control.md) utility, managing
+**A cookie handler** in Alette Signal is an [access control](access-control.md) helper, managing
 cookie lifecycle and cookie exchange between the browser and the server.
 
 ## Cookie setter
