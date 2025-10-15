@@ -183,3 +183,21 @@ const deleteDraftPost = deletePost.with(
 )
 ```
 :::
+
+## Disabling retrying
+To disable retrying per request, set the `skipRetry` request
+setting to `true`:
+```ts
+const deletePost = mutation(
+    retryWhen(() => true)
+);
+
+// Won't be retried
+await deletePost.execute({ skipRetry: true });
+// Will be retried
+await deletePost.execute();
+```
+:::tip
+The `skipRetry` request setting works with both 
+`retry()` and `retryWhen()` middleware.
+:::
