@@ -1,4 +1,4 @@
-import { r, request } from "@alette/pulse";
+import { THttpStatusCode, r, request } from "@alette/pulse";
 import { http, HttpResponse } from "msw";
 import { setOrigin } from "../../../application";
 import { as, factory, output } from "../../../domain";
@@ -53,9 +53,9 @@ test(
 	}),
 );
 
-test(
-	"it retries errors with 401 status code",
-	boundary(async () => {
+test.each([[401 as THttpStatusCode], [419 as THttpStatusCode]])(
+	"it retries errors with %s status code",
+	boundary(async (errorStatus) => {
 		const { api, testUrl, core } = createTestApi();
 		api.tell(setOrigin(testUrl.getOrigin()));
 		let enteredTimes = 0;
@@ -65,7 +65,7 @@ test(
 		server.use(
 			http.post(testUrl.build(), async () => {
 				enteredTimes++;
-				throw HttpResponse.json(null, { status: 401 });
+				throw HttpResponse.json(null, { status: errorStatus });
 			}),
 		);
 

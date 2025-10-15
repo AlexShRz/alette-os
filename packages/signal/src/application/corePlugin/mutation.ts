@@ -73,7 +73,7 @@ export const mutationFactory = blueprint()
 		withRecognizedErrors(),
 		retry({
 			times: 1,
-			whenStatus: [401],
+			whenStatus: [401, 419],
 		}),
 	)
 	.specification(mutationRequestSpec);

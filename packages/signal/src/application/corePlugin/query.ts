@@ -26,7 +26,7 @@ import { withRecognizedErrors } from "./sharedMiddleware";
 export const queryCategory = requestCategory("baseQuery");
 
 export const QUERY_RETRY_STATUSES: THttpStatusCode[] = [
-	401, 408, 409, 425, 429, 500, 502, 503, 504,
+	401, 408, 409, 419, 425, 429, 500, 502, 503, 504,
 ];
 
 const querySpec = requestSpecification()

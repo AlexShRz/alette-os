@@ -1,4 +1,4 @@
-import { RequestFailedError } from "@alette/pulse";
+import { RequestFailedError, THttpStatusCode } from "@alette/pulse";
 import { setContext } from "../../../application";
 import { bearer, factory, retry, throws } from "../../../domain";
 import { createTestApi } from "../../utils";
@@ -34,52 +34,55 @@ test("it replaces middleware of the same type", async () => {
 	expect(reachedToken).toBeTruthy();
 });
 
-test("it works together with retry", async () => {
-	const { custom, cookie } = createTestApi();
-	let triedTimes = 0;
-	let loadedCookie = 0;
-	const responseValue = "asdasdasd";
+test.each([[401 as THttpStatusCode], [419 as THttpStatusCode]])(
+	"it works together with retry and %s status code",
+	async (errorStatus) => {
+		const { custom, cookie } = createTestApi();
+		let triedTimes = 0;
+		let loadedCookie = 0;
+		const responseValue = "asdasdasd";
 
-	const myCookie = cookie()
-		.from(() => {
-			loadedCookie++;
-		})
-		.build();
-	expect(await myCookie.isValid()).toBeFalsy();
+		const myCookie = cookie()
+			.from(() => {
+				loadedCookie++;
+			})
+			.build();
+		expect(await myCookie.isValid()).toBeFalsy();
 
-	const getData = custom(
-		bearer(myCookie),
-		throws(RequestFailedError),
-		factory(() => {
-			if (!triedTimes) {
+		const getData = custom(
+			bearer(myCookie),
+			throws(RequestFailedError),
+			factory(() => {
+				if (!triedTimes) {
+					triedTimes++;
+					throw new RequestFailedError({
+						status: errorStatus,
+					});
+				}
+
 				triedTimes++;
-				throw new RequestFailedError({
-					status: 401,
-				});
-			}
+				return responseValue;
+			}),
+			retry({
+				whenStatus: [errorStatus],
+			}),
+		);
 
-			triedTimes++;
-			return responseValue;
-		}),
-		retry({
-			whenStatus: [401],
-		}),
-	);
-
-	const res = await getData.execute();
-	expect(res).toEqual(responseValue);
-	expect(triedTimes).toEqual(2);
-	/**
-	 * Cookie load MUST be called twice:
-	 * 1. During first request attempt we just load it.
-	 * 2. When our request fails, the failure event must
-	 * reach bearer() before retry() to allow for
-	 * cookie invalidation.
-	 * 3. Next, our cookie is loaded again and the
-	 * request is retried
-	 * */
-	expect(loadedCookie).toEqual(2);
-});
+		const res = await getData.execute();
+		expect(res).toEqual(responseValue);
+		expect(triedTimes).toEqual(2);
+		/**
+		 * Cookie load MUST be called twice:
+		 * 1. During first request attempt we just load it.
+		 * 2. When our request fails, the failure event must
+		 * reach bearer() before retry() to allow for
+		 * cookie invalidation.
+		 * 3. Next, our cookie is loaded again and the
+		 * request is retried
+		 * */
+		expect(loadedCookie).toEqual(2);
+	},
+);
 
 test("it can access global context", async () => {
 	const { api, custom, cookie } = createTestApi();

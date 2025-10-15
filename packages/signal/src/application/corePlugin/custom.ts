@@ -31,6 +31,6 @@ export const customRequestFactory = blueprint()
 		}),
 		retry({
 			times: 1,
-			whenStatus: [401],
+			whenStatus: [401, 419],
 		}),
 	);

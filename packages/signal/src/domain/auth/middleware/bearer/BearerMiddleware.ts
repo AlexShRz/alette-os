@@ -65,7 +65,9 @@ export class BearerMiddleware extends Middleware("BearerMiddleware", {
 							return;
 						}
 
-						if (error.getStatus() === 401) {
+						const authStatus = error.getStatus();
+
+						if (authStatus === 401 || authStatus === 419) {
 							authEntity.invalidate();
 						}
 					});
