@@ -164,6 +164,16 @@ export default defineConfig({
 						text: "React integration",
 						link: "/docs/integrations/react-integration",
 					},
+					{
+						text: "State managers",
+						collapsed: false,
+						items: [
+							{
+								text: "Redux integration",
+								link: "/docs/integrations/state-managers/redux-integration",
+							},
+						],
+					},
 				],
 			},
 			{

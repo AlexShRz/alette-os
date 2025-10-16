@@ -1,2 +1,2 @@
 # Comparison
-This page is work in progress.
+Coming soon.

@@ -19,3 +19,8 @@ yarn add @alette/signal@latest
 To use Alette Signal with UI frameworks,
 refer to the framework integration guides:
 1. [React integration guide](../integrations/react-integration.md).
+
+## Usage with state managers
+To use Alette Signal with a state manager,
+refer to the state manager integration guides:
+1. [Redux integration guide](../integrations/state-managers/redux-integration.md).
