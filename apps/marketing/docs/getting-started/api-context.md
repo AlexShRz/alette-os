@@ -29,7 +29,7 @@ export const getPosts = query(
 
 :::danger
 1. Overriding `IGlobalContext` does not set the actual context value - 
-the `context` property inside your middleware stays `undefined` at runtime. 
+the `context` property inside middleware stays `undefined` at runtime. 
 2. To avoid this, use `setContext()` instruction to [set api context value](#setting-api-context).
 :::
 
@@ -53,7 +53,7 @@ Api context set via `.tell()` will be wiped after
 [api client reset](api-configuration/#resetting-api-client).
 :::
 
-You can also set api context using a function passed to `setContext()`:
+The api context can also be set by passing a function to `setContext()`:
 ```ts
 setContext(() => ({ hey: 'Alette Signal' }))
 // or
@@ -88,10 +88,10 @@ export const getPosts = query(
 ```
 
 ## Direct value access
-**Direct value access** is an antipattern where you access global values
-directly inside your api code without passing them through api context.
+**Direct value access** is an antipattern where global values are accessed
+directly inside api code without passing them through api context.
 
-You can see how your code becomes untestable:
+**Direct value access** makes code untestable:
 ```ts
 // ./src/context/index.ts
 export const myContext = {
@@ -112,7 +112,7 @@ export const getPosts = query(
 )
 ```
 
-To avoid this, _always_ pass values your api depends on 
+To avoid this, _always_ pass values the api depends on 
 through the api context:
 ```ts
 // ./src/context/index.ts
@@ -133,7 +133,7 @@ export const getPosts = query(
 )
 ```
 
-Now your context values can be easily mocked in tests via `setContext()`:
+Now, context values can be mocked in tests via `setContext()`:
 ```ts
 // ...
 

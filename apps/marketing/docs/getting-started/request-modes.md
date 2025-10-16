@@ -2,10 +2,10 @@
 Alette Signal has 2 request modes - **"One shot"** and **"Mounted"**. 
 
 ## "One shot" request mode
-**The "one shot" request mode** is a mode where your request is executed once, and every
+**The "one shot" request mode** is a mode where a request is executed once, and every
 used middleware is shutdown.
-This mode is activated when you call the `.execute()`
-method on [request blueprints](configuring-requests.md#request-blueprint):
+This mode is activated when the `.execute()`
+method on [request blueprints](configuring-requests.md#request-blueprint) is called:
 ```ts
 const response = await myQuery.execute({ 
     args: { hey: 'Alette Signal' } 
@@ -20,11 +20,10 @@ resolves with a response or rejects with an error.
 
 ### "Spawn" request mode
 **The "spawn" request mode** is a version of the "one shot" request mode where
-a request is executed in the background.
-This mode is used for running a request just for its side effects while ignoring the result.
+the request is executed in the background.
+This mode is used for running request side effects while ignoring request result.
 
-You can execute requests in the "spawn" mode by calling the `.spawn()`
-method on request blueprints:
+The "spawn" mode is activated when the `.spawn()` request blueprint method is called:
 ```ts
 // Executed in the background
 // returns void
@@ -34,12 +33,12 @@ myQuery.spawn({
 ```
 
 ## "Mounted" request mode
-**The "mounted" request mode** is a mode where a [request blueprint](configuring-requests.md#request-blueprint)
-acts as a "worker" that can process multiple requests, 
-while keeping its middleware and their state alive.
+**The "mounted" request mode** is a mode where [request blueprints](configuring-requests.md#request-blueprint)
+act as "workers" processing multiple requests, 
+while keeping their middleware and their state alive.
 
-This mode is activated when you call the `.mount()`
-method on request blueprints:
+This mode is activated when the `.mount()`
+request blueprints method is called:
 ```ts
 const { execute, when, cancel, reload, unmount } = myQuery.mount()
 ```
@@ -103,14 +102,14 @@ execute({ args: { hey: 'Alette Signal' } })
 ```
 
 :::info
-1. There is no limit to the amount of subscribers you add with `when()`.
+1. There is no limit to the amount of subscribers added with `when()`.
 Every subscriber is executed sequentially one after the other when
 new request state is available.
 2. Every subscriber is unsubscribed automatically when `unmount()` is called.
 :::
 
 ### State peeking
-To "peek" at the current request state use `getState()`:
+To "peek" at the current [request state](../request-behaviour/request-state.md) use `getState()`:
 ```ts
 const { getState, execute, when, cancel, reload, unmount } = myQuery.mount()
 

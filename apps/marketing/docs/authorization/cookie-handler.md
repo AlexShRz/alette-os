@@ -39,7 +39,7 @@ async ({
 	getCredentials,
 	getCredentialsOrThrow,
 }) => {
-    const { email, password } = getCredentialsOrThrow();
+    const { email, password } = await getCredentialsOrThrow();
 	await refreshAuthCookie.execute({ 
 		args: { email, password } 
     });
@@ -121,7 +121,7 @@ const authCookie = cookie()
 		getCredentials,
 		getCredentialsOrThrow, 
     }) => {
-        const { email, password } = getCredentialsOrThrow();
+        const { email, password } = await getCredentialsOrThrow();
         await refreshAuthCookie.execute({ args: { email, password } })
 	})
 	.build();

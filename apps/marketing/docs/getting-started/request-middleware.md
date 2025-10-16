@@ -21,7 +21,7 @@ For full middleware list consult [Alette Signal middleware reference](../middlew
 **Middleware organization** refers to middleware ability to automatically modify and 
 sort other middleware before they are initialized.
 
-You can see this behaviour when you add 2 `input()` middleware 
+This behaviour can be seen when adding 2 `input()` middleware 
 to the same request:
 ```ts
 const query1 = myQuery.with(
@@ -43,10 +43,9 @@ middleware from the chain. This is also true for other middleware like `output()
 
 ## Middleware priority
 **Middleware priority** refers to middleware order in 
-request blueprint middleware lists. 
+request blueprint configuration. 
 
-You can see this behaviour
-with `retryWhen()` and `mapError()` middleware:
+This behaviour can be seen with the `retryWhen()` and `mapError()` middleware:
 
 ```ts
 const query1 = myQuery.with(
@@ -60,8 +59,7 @@ const query1 = myQuery.with(
 )
 ```
 
-Even though `mapError()` is placed before `retryWhen()` in
-your configuration, their order will be reversed before initialization:
+Even though `mapError()` is placed before `retryWhen()`, their order will be reversed before initialization:
 ```ts
 // After 
 myQuery.with(
@@ -76,10 +74,10 @@ myQuery.with(
 Middleware sorting by priority is reflected in blueprint TypeScript types.
 :::
 :::tip
-1. If you are not sure about the middleware order of your request blueprint,
+1. If you are not sure about the middleware order of a request blueprint,
 always look at its TypeScript types.
-2. Most middleware can expose previously set request data,
-allowing you to verify its type:
+2. Most middleware expose previously set request data,
+allowing for type verification:
 ```ts
 const query1 = myQuery.with(
     path('/alette'),
@@ -93,7 +91,7 @@ const query1 = myQuery.with(
 :::
 
 ## Middleware composition
-**Middleware composition** is a feature of Alette Signal that allows same type middleware
+**Middleware composition** is a feature of Alette Signal allowing same type middleware
 chaining in request blueprints. 
 
 Let's compose multiple `map()` middleware to transform our 
@@ -138,14 +136,14 @@ const response3 = await query3.execute({ args: 'hey' })
 Notice how `query1`, `query2` and `query3` are executed independently
 of each other, each with their own middleware list. Even through `query3`
 uses `query2` as a foundation, they never collide with one another. This is 
-achieved via [Alette Signal request behaviour reuse](configuring-requests/#reusing-request-behaviour).
+achieved via [Alette Signal request behaviour inheritance](configuring-requests#request-behaviour-inheritance).
 :::
 
 ## Middleware cascading
 **Middleware cascading** is a middleware behaviour that overrides previous 
 request data set by other middleware. 
 
-You can see this behaviour when adding multiple `headers()` middleware:
+This behaviour can be seen when adding multiple `headers()` middleware:
 ```ts
 const query1 = myQuery.with(
     output(as<string>()),
@@ -158,8 +156,8 @@ const query1 = myQuery.with(
 await query1.execute({ args: 'hey' })
 ```
 
-To preserve data provided by previous cascading middleware, you can pass
-a callback as an argument and merge request data manually:
+To preserve the data provided by previous cascading middleware, pass
+a callback as an argument to merge request data manually:
 ```ts
 const query1 = myQuery.with(
     output(as<string>()),

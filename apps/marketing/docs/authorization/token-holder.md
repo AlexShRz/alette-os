@@ -42,7 +42,7 @@ async ({
 	getCredentials,
 	getCredentialsOrThrow,
 }) => {
-    const { email, password } = getCredentialsOrThrow();
+    const { email, password } = await getCredentialsOrThrow();
 	const { accessToken, refreshToken } = await getToken.execute({ 
 		args: { email, password } 
     });
@@ -147,11 +147,11 @@ const jwtToken = token()
 		email: z.string(),
 		password: z.string()
 	}))
-	.from(({ 
+	.from(async ({ 
 		getCredentials,
 		getCredentialsOrThrow, 
     }) => {
-        const { email, password } = getCredentialsOrThrow();
+        const { email, password } = await getCredentialsOrThrow();
         return getToken.execute({ args: { email, password } })
 	})
 	.build();

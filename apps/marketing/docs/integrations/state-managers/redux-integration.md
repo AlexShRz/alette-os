@@ -41,7 +41,7 @@ is enough for most use cases.
 :::
 
 ## Dispatching actions
-To dispatch a Redux action, extract `dispatch()` from the api context and call it
+To dispatch a Redux action, extract the `dispatch()` function from the api context and call it
 with an action:
 ```ts
 import { showNotification } from '../store/notifications/actions';

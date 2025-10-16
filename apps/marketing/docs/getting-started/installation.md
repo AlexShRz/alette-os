@@ -15,6 +15,16 @@ yarn add @alette/signal@latest
 ```
 :::
 
+:::info
+Requirements:
+1. TypeScript 5.4 or newer.
+2. Environment supporting [structuredClone](https://developer.mozilla.org/en-US/docs/Web/API/Window/structuredClone). 
+WebWorkers support `structuredClone()` out of the box, while a polyfill is needed for old browsers.
+
+Recommendations:
+1. Use [Biome](https://biomejs.dev/) instead of Eslint for linting and formatting due to speed.
+:::
+
 ## Usage with UI frameworks
 To use Alette Signal with UI frameworks,
 refer to the framework integration guides:
