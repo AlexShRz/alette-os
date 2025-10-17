@@ -1,3 +1,3 @@
-# Pulse
+# Alette Pulse
 
 Alette Signal core.
