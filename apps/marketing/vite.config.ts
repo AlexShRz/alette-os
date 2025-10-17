@@ -1,7 +1,7 @@
 /// <reference types='vitest' />
 import { defineConfig } from "vite";
 
-export default defineConfig(() => ({
+export default defineConfig({
 	root: __dirname,
 	cacheDir: "../../node_modules/.vite/apps/marketing",
 	server: {
@@ -12,7 +12,6 @@ export default defineConfig(() => ({
 		port: 4300,
 		host: "localhost",
 	},
-	plugins: [],
 	build: {
 		outDir: "./dist",
 		emptyOutDir: true,
@@ -32,4 +31,4 @@ export default defineConfig(() => ({
 			provider: "v8" as const,
 		},
 	},
-}));
+});

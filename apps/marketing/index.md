@@ -1,21 +1,19 @@
 ---
-# https://vitepress.dev/reference/default-theme-home-page
 layout: home
+title: Welcome
 
 hero:
-  text: "Delightful data fetching for every Front-End"
-  tagline: My great project tagline
+  name: Alette Signal
+  text: Delightful data fetching for every Front-End
+  tagline: Fetch data for projects of any complexity, without hating yourself in the process.
   actions:
     - theme: brand
-      text: Get started
-      link: /docs/overview/why-signal
-
-features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+      text: Get Started
+      link: /docs/getting-started/installation
+    - theme: alt
+      text: Convince me
+      link: /docs/overview/why-alette-signal
+    - theme: alt
+      text: Check partnership options
+      link: /docs/partnership
 ---
-

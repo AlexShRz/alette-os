@@ -1,17 +1,41 @@
 import { defineConfig } from "vitepress";
+import tailwindcss from "@tailwindcss/vite";
+import {
+	groupIconMdPlugin,
+	groupIconVitePlugin,
+} from "vitepress-plugin-group-icons";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-	title: "Alette Signal",
+	title: 'Alette Signal',
+	markdown: {
+		config(md) {
+			md.use(groupIconMdPlugin);
+		},
+	},
+	vite: {
+		plugins: [tailwindcss(), groupIconVitePlugin()],
+	},
 	description: "Delightful data fetching for every Front-End",
+	head: [["link", { rel: "icon", href: "/favicon.ico" }]],
 	themeConfig: {
+		siteTitle: false,
+		logo: {
+			alt: "Alette Signal logo",
+			dark: "/alette-signal-white.svg",
+			light: "/alette-signal-black.svg",
+		},
+		lastUpdated: {
+			text: "Last Updated",
+		},
+
 		// https://vitepress.dev/reference/default-theme-config
 		search: {
 			provider: "local",
 		},
 		nav: [
-			{ text: "Home", link: "/" },
-			{ text: "Examples", link: "/markdown-examples" },
+			{ text: "Partnership options", link: "/docs/partnership" },
+			{ text: "Discord", link: "https://discord.gg/dWWwtbDG" },
 		],
 
 		sidebar: [
@@ -21,7 +45,7 @@ export default defineConfig({
 				items: [
 					{
 						text: "Why Alette Signal",
-						link: "/docs/overview/why-signal",
+						link: "/docs/overview/why-alette-signal",
 					},
 					{
 						text: "Comparison",

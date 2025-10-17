@@ -3,6 +3,7 @@
 	"compilerOptions": {
 		"outDir": "dist",
 		"types": ["node"],
+		"module": "ES2022",
 		"rootDir": "src",
 		"tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo"
 	},
@@ -30,5 +31,19 @@
 		"src/**/*.spec.js",
 		"src/**/*.test.jsx",
 		"src/**/*.spec.jsx"
-	],
+  ],
+  "references": [
+    {
+      "path": "../../packages/signal-test-utils/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/signal-react/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/signal/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/pulse/tsconfig.lib.json"
+    }
+  ],
 }

@@ -46,7 +46,7 @@ await getPostsForSelect.execute({ args: 'draft', skipRetry: true });
 ## UI agnostic core
 Alette Signal core is UI agnostic and written in [Effect](https://effect.website/), 
 **ensuring full type safety** and [strict error handling](../error-system/error-types.md), while 
-making [UI framework integration](../getting-started/installation.md#usage-with-ui-frameworks) **take 35 lines or fewer**:
+making [UI framework integrations](../getting-started/installation.md#usage-with-ui-frameworks) **take 35 lines or fewer**:
 ```tsx :line-numbers
 // Full React integration from the "@alette/signal-react" package. 
 export const useApi = <Context extends IRequestContext>(
