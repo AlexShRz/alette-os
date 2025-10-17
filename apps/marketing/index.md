@@ -2,10 +2,24 @@
 layout: home
 title: Welcome
 
+features:
+  - icon: 🛠️
+    title: UI Agnostic core
+  - icon: 🔗
+    title: Request behaviour inheritance
+  - icon: 🪝
+    title: Lifecycle hooks
+  - icon: 🔐
+    title: Built-in Authorization utilities
+
 hero:
   name: Alette Signal
   text: Delightful data fetching for every Front-End
-  tagline: Fetch data for projects of any complexity, without hating yourself in the process.
+  tagline: Fetch data for projects of any complexity while staying in the flow 🌊.
+  image:
+    light: /hero-image.png
+    dark: /hero-image.png
+    alt: Alette Signal code example.
   actions:
     - theme: brand
       text: Get Started

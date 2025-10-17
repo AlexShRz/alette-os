@@ -20,6 +20,9 @@ export default defineConfig({
 	head: [["link", { rel: "icon", href: "/favicon.ico" }]],
 	themeConfig: {
 		siteTitle: false,
+		footer: {
+			message: 'Released under the Apache 2.0 License.',
+		},
 		logo: {
 			alt: "Alette Signal logo",
 			dark: "/alette-signal-white.svg",
