@@ -17,6 +17,9 @@
     },
     {
       "path": "../event-sourcing/tsconfig.lib.json"
+    },
+    {
+      "path": "../signal-test-utils/tsconfig.lib.json"
     }
   ],
 	"exclude": [

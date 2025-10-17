@@ -1,6 +1,6 @@
 import { ClientRequest } from "http";
-import { formDataToBuffer } from "./utils/formDataToBuffer.js";
-import { XMLHttpRequestEventTarget } from "./xml-http-request-event-target.js";
+import { formDataToBuffer } from "./utils/formDataToBuffer";
+import { XMLHttpRequestEventTarget } from "./xml-http-request-event-target";
 
 export class XMLHttpRequestUpload extends XMLHttpRequestEventTarget {
 	private _contentType: string | null = null;

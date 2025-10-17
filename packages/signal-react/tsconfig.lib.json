@@ -10,7 +10,17 @@
 		"types": ["node", "vite/client"]
 	},
 	"include": ["src/**/*.ts", "./vitest.setup.ts"],
-	"references": [],
+	"references": [
+    {
+      "path": "../pulse/tsconfig.lib.json"
+    },
+    {
+      "path": "../signal/tsconfig.lib.json"
+    },
+    {
+      "path": "../signal-test-utils/tsconfig.lib.json"
+    }
+  ],
 	"exclude": [
 		"vite.config.ts",
 		"vite.config.mts",

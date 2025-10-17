@@ -56,6 +56,16 @@
         "{workspaceRoot}/biome.json"
       ],
       "cache": true
+    },
+    "@nx/js:tsc": {
+      "cache": true,
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "production",
+        "^production"
+      ]
     }
   },
   "release": {
@@ -70,5 +80,6 @@
       "unitTestRunner": "vitest",
       "e2eTestRunner": "none"
     }
-  }
+  },
+  "nxCloudId": "68f1476db6581e6749297188"
 }

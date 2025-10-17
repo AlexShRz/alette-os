@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { ProgressEvent } from "./progress-event.js";
+import { ProgressEvent } from "./progress-event";
 
 export type ProgressEventListener = (event: ProgressEvent) => void;
 export type ProgressEventListenerObject = {

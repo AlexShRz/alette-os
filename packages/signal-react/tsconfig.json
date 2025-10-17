@@ -3,11 +3,20 @@
 	"files": [],
 	"include": [],
 	"references": [
-		{
-			"path": "./tsconfig.lib.json"
-		},
-		{
-			"path": "./tsconfig.spec.json"
-		}
-	]
+    {
+      "path": "../pulse"
+    },
+    {
+      "path": "../signal"
+    },
+    {
+      "path": "../signal-test-utils"
+    },
+    {
+      "path": "./tsconfig.lib.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
+  ]
 }

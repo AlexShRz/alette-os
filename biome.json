@@ -33,7 +33,7 @@
 			"include": ["*.ts", "*.tsx", "*.js", "*.jsx"]
 		},
 		{
-			"include": ["*.ts", "*.tsx"]
+			"include": ["*.ts", "*.tsx", "*.vue"]
 		},
 		{
 			"include": ["*.js", "*.jsx"]
@@ -65,7 +65,7 @@
 			}
 		},
 		{
-			"include": ["*.ts", "*.tsx"]
+			"include": ["*.ts", "*.tsx", "*.vue"]
 		},
 		{
 			"include": ["*.js", "*.jsx"]
@@ -74,7 +74,7 @@
 			"include": ["*.ts", "*.tsx", "*.js", "*.jsx"]
 		},
 		{
-			"include": ["*.ts", "*.tsx"]
+			"include": ["*.ts", "*.tsx", "*.vue"]
 		},
 		{
 			"include": ["*.js", "*.jsx"]
@@ -106,7 +106,7 @@
 			}
 		},
 		{
-			"include": ["*.ts", "*.tsx"]
+			"include": ["*.ts", "*.tsx", "*.vue"]
 		},
 		{
 			"include": ["*.js", "*.jsx"]

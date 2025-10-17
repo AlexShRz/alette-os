@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { XMLHttpRequestEventTarget } from "./xml-http-request-event-target.js";
+import { XMLHttpRequestEventTarget } from "./xml-http-request-event-target";
 
 export class ProgressEvent {
 	bubbles = false;
