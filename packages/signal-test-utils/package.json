@@ -1,9 +1,20 @@
 {
 	"name": "@alette/signal-test-utils",
 	"version": "1.0.0",
-	"private": true,
+	"private": false,
+	"type": "module",
 	"main": "./dist/index.js",
 	"module": "./dist/index.js",
+	"description": "Alette Signal test utilities.",
+	"author": "Oleksandr Shaposhnykov-Rozanov",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/AlexShRz/alette-os"
+	},
+	"license": "Apache-2.0",
+	"publishConfig": {
+		"access": "public"
+	},
 	"types": "./dist/index.d.ts",
 	"exports": {
 		"./package.json": "./package.json",

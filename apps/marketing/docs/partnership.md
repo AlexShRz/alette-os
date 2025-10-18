@@ -24,7 +24,7 @@ their needs and challenges, making sure our feature design aligns with your comp
 
 :::info
 To learn more about **Alette Signal Partner plan pricing**,
-please contact alexshrozanov@gmail.com
+please contact [alexshrozanov@gmail.com](mailto:alexshrozanov@gmail.com)
 :::
 :::details What happens when I become a Partner?
 **If you become a Partner, we will contact you to ask for:**
@@ -41,7 +41,7 @@ please contact alexshrozanov@gmail.com
 
 :::info
 To learn more about **Alette Signal Advertiser plan pricing**,
-please contact alexshrozanov@gmail.com
+please contact [alexshrozanov@gmail.com](mailto:alexshrozanov@gmail.com)
 :::
 :::details What happens when I become an Advertiser?
 **If you become an Advertiser, we will contact you to ask for:**
@@ -56,7 +56,7 @@ can try out new features before they are officially released.
 
 :::info
 To learn more about **Alette Signal Supporter plan pricing**,
-please contact alexshrozanov@gmail.com.
+please contact [alexshrozanov@gmail.com](mailto:alexshrozanov@gmail.com).
 :::
 :::details What happens when I become a Supporter?
 **If you become a Supporter, we will add you to the insiders discord channel automatically.**
@@ -74,7 +74,7 @@ after the end of your current billing period.
 :::
 
 :::details How do I cancel my sponsorship?
-To cancel your sponsorship please contact alexshrozanov@gmail.com.
+To cancel your sponsorship please contact [alexshrozanov@gmail.com](mailto:alexshrozanov@gmail.com).
 :::
 
 :::details Are sponsorships refundable?

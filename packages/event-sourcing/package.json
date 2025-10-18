@@ -4,6 +4,12 @@
 	"private": true,
 	"type": "module",
 	"main": "./dist/index.js",
+	"author": "Oleksandr Shaposhnykov-Rozanov",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/AlexShRz/alette-os"
+	},
+	"license": "Apache-2.0",
 	"module": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"sideEffects": false,

@@ -1,15 +1,21 @@
 {
 	"name": "@alette/signal",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"type": "module",
-	"browser": "./dist/index.js",
-	"module": "./dist/index.js",
-	"types": "./dist/index.d.ts",
-	"sideEffects": false,
-	"private": false,
+	"description": "Delightful data fetching for every Front-End.",
+	"author": "Oleksandr Shaposhnykov-Rozanov",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/AlexShRz/alette-os"
+	},
+	"license": "Apache-2.0",
 	"publishConfig": {
 		"access": "public"
 	},
+	"browser": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"sideEffects": false,
+	"private": false,
 	"exports": {
 		"./package.json": "./package.json",
 		".": {
