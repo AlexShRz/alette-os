@@ -20,6 +20,9 @@ export default defineConfig({
 	head: [["link", { rel: "icon", href: "/favicon.ico" }]],
 	themeConfig: {
 		siteTitle: false,
+		sitemap: {
+			hostname: 'https://alette-os.com/'
+		},
 		footer: {
 			message: 'Released under the Apache 2.0 License.',
 		},

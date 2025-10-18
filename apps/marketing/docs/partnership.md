@@ -23,7 +23,8 @@ to developers using Alette Signal.
 their needs and challenges, making sure our feature design aligns with your company goals.
 
 :::info
-See [Alette Signal Partner plan pricing](https://buy.polar.sh/polar_cl_PnJiyywuxYM5H0jr5vxicNWJvCM0hl6CHVA8o3Tazl3).
+To learn more about **Alette Signal Partner plan pricing**,
+please contact alexshrozanov@gmail.com
 :::
 :::details What happens when I become a Partner?
 **If you become a Partner, we will contact you to ask for:**
@@ -39,7 +40,8 @@ See [Alette Signal Partner plan pricing](https://buy.polar.sh/polar_cl_PnJiyywux
 2. **A site-wide banner ad**, letting you promote your products, conferences, and more.
 
 :::info
-See [Alette Signal Advertiser plan pricing](https://buy.polar.sh/polar_cl_RlCwxEYrfArBAJuJqXCZhFSk3NtcyaP2CLteO3hbffE).
+To learn more about **Alette Signal Advertiser plan pricing**,
+please contact alexshrozanov@gmail.com
 :::
 :::details What happens when I become an Advertiser?
 **If you become an Advertiser, we will contact you to ask for:**
@@ -53,7 +55,8 @@ See [Alette Signal Advertiser plan pricing](https://buy.polar.sh/polar_cl_RlCwxE
 can try out new features before they are officially released.
 
 :::info
-See [Alette Signal Supporter plan pricing](https://buy.polar.sh/polar_cl_9p4intYqqmjoHa0asykCUGuQ54YaF6Ex1oAYZ15FKAp).
+To learn more about **Alette Signal Supporter plan pricing**,
+please contact alexshrozanov@gmail.com.
 :::
 :::details What happens when I become a Supporter?
 **If you become a Supporter, we will add you to the insiders discord channel automatically.**
@@ -62,7 +65,7 @@ See [Alette Signal Supporter plan pricing](https://buy.polar.sh/polar_cl_9p4intY
 ## Frequently asked questions
 
 :::details Who can I contact about the sponsorship?
-If you have any questions, please contact alexshrozanov@gmail.com
+If you have any questions, please contact alexshrozanov@gmail.com.
 :::
 
 :::details What happens if I cancel my sponsorship?
@@ -71,8 +74,7 @@ after the end of your current billing period.
 :::
 
 :::details How do I cancel my sponsorship?
-To cancel your sponsorship visit the Polar customer portal. 
-Your benefits will remain active after cancellation, until the end of your current billing period.
+To cancel your sponsorship please contact alexshrozanov@gmail.com.
 :::
 
 :::details Are sponsorships refundable?
