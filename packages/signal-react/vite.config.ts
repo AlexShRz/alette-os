@@ -12,6 +12,7 @@ export default defineConfig({
 		react(),
 		dts({
 			entryRoot: "src",
+			copyDtsFiles: true,
 			tsconfigPath: path.join(__dirname, "tsconfig.lib.json"),
 		}),
 	],

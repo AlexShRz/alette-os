@@ -1,8 +1,9 @@
 {
 	"name": "@alette/signal",
-	"version": "1.0.21",
+	"version": "1.0.22",
 	"type": "module",
 	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
 	"description": "Delightful data fetching for every Front-End.",
 	"author": "Oleksandr Shaposhnykov-Rozanov",
 	"repository": {
@@ -13,7 +14,6 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"types": "./dist/index.d.ts",
 	"sideEffects": false,
 	"private": false,
 	"exports": {

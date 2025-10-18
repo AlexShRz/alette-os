@@ -9,6 +9,7 @@ export default defineConfig(() => ({
 	plugins: [
 		dts({
 			entryRoot: "src",
+			copyDtsFiles: true,
 			tsconfigPath: path.join(__dirname, "tsconfig.lib.json"),
 		}),
 	],
