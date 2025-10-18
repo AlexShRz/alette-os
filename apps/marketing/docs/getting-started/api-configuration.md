@@ -1,6 +1,6 @@
 # Api client
 **An api client** in Alette Signal is a router that takes
-[request blueprint](configuring-requests/#configuring-requests) 
+[request blueprint](configuring-requests#configuring-requests) 
 configuration and routes it to the core system for execution.
 
 ## Configuring api client

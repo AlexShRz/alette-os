@@ -180,6 +180,6 @@ To learn how to control request reloading, see
 :::danger
 1. The `reload()` function expects arguments to be ready the moment it is called. If they are not available
 and the `input()` middleware is present, the whole system will fail with a fatal `ArgumentValidationError`.
-2. To avoid this, [bind request settings](configuring-requests/#request-setting-binding) 
+2. To avoid this, [bind request settings](configuring-requests#request-setting-binding) 
 using the `.using()` method. 
 :::

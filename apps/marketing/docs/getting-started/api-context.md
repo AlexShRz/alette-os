@@ -35,7 +35,7 @@ the `context` property inside middleware stays `undefined` at runtime.
 
 ## Setting api context
 To set api context, use `setContext()`
-[api client instruction](api-configuration/#api-client-instruction):
+[api client instruction](api-configuration#api-client-instruction):
 ```ts
 import { client } from '@alette/signal'
 
@@ -50,7 +50,7 @@ api.tell(setContext({ hey: 'Not Alette Signal?' }))
 ```
 :::danger
 Api context set via `.tell()` will be wiped after 
-[api client reset](api-configuration/#resetting-api-client).
+[api client reset](api-configuration#resetting-api-client).
 :::
 
 The api context can also be set by passing a function to `setContext()`:
@@ -67,7 +67,7 @@ to finish before running requests.
 
 ## Accessing api context
 To access api context, use `forContext()`
-[api client question](api-configuration/#api-client-question):
+[api client question](api-configuration#api-client-question):
 ```ts
 import { setContext } from '@alette/signal'
 

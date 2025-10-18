@@ -2,10 +2,14 @@
 	"name": "@alette/signal",
 	"version": "1.0.0",
 	"type": "module",
-	"main": "./dist/index.js",
+	"browser": "./dist/index.js",
 	"module": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"sideEffects": false,
+	"private": false,
+	"publishConfig": {
+		"access": "public"
+	},
 	"exports": {
 		"./package.json": "./package.json",
 		".": {
