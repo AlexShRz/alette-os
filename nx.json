@@ -1,5 +1,8 @@
 {
 	"$schema": "./node_modules/nx/schemas/nx-schema.json",
+	"generatorOptions": {
+		"preserveLocalDependencyProtocols": true
+	},
 	"namedInputs": {
 		"default": ["{projectRoot}/**/*", "sharedGlobals"],
 		"production": [
@@ -66,6 +69,21 @@
 			"linter": "none",
 			"unitTestRunner": "vitest",
 			"e2eTestRunner": "none"
+		},
+		"@nx/react": {
+			"application": {
+				"babel": true,
+				"style": "tailwind",
+				"linter": "none",
+				"bundler": "vite"
+			},
+			"component": {
+				"style": "tailwind"
+			},
+			"library": {
+				"style": "tailwind",
+				"linter": "none"
+			}
 		}
 	},
 	"nxCloudId": "68f1476db6581e6749297188"

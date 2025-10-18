@@ -4,13 +4,13 @@
 	"include": [],
 	"references": [
     {
-      "path": "../pulse"
-    },
-    {
       "path": "../signal"
     },
     {
       "path": "../signal-test-utils"
+    },
+    {
+      "path": "../pulse"
     },
     {
       "path": "./tsconfig.lib.json"

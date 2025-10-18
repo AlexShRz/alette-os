@@ -1,25 +1,25 @@
 {
-	"extends": "./tsconfig.base.json",
-	"compileOnSave": false,
-	"files": [],
-	"references": [
-		{
-			"path": "./packages/event-sourcing"
-		},
-		{
-			"path": "./packages/pulse"
-		},
-		{
-			"path": "./packages/signal"
-		},
-		{
-			"path": "./packages/signal-react"
-		},
-		{
-			"path": "./apps/marketing"
-		},
-		{
-			"path": "./packages/signal-test-utils"
-		}
-	]
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/event-sourcing"
+    },
+    {
+      "path": "./packages/pulse"
+    },
+    {
+      "path": "./packages/signal"
+    },
+    {
+      "path": "./packages/signal-react"
+    },
+    {
+      "path": "./apps/marketing"
+    },
+    {
+      "path": "./packages/signal-test-utils"
+    }
+  ]
 }
