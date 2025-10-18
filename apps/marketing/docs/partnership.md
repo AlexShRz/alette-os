@@ -1,11 +1,11 @@
 # Partnership options
 **There are 3 partnership options available:**
-1. [Partner](#what-do-i-get-as-a-partner) - for companies interested in:
+1. [Partner](#what-do-i-get-as-a-partner) (6000$/month) - for companies interested in:
    1. Faster, NDA-friendly developer support.
    2. Promoting their products on the Alette Signal website.
    3. Influencing Alette Signal roadmap.
-2. [Advertiser](#what-do-i-get-as-an-advertiser) - for companies interested only in promoting their products.
-3. [Supporter](#what-do-i-get-a-supporter) - for individuals interested in getting access to 
+2. [Advertiser](#what-do-i-get-as-an-advertiser) (3000$/month) - for companies interested only in promoting their products.
+3. [Supporter](#what-do-i-get-a-supporter) (120$/year) - for individuals interested in getting access to 
 unreleased features first.
 
 ## What do I get as a Partner?
@@ -23,7 +23,7 @@ to developers using Alette Signal.
 their needs and challenges, making sure our feature design aligns with your company goals.
 
 :::info
-To learn more about **Alette Signal Partner plan pricing**,
+To learn more about **Alette Signal Partner plan**,
 please contact [alexshrozanov@gmail.com](mailto:alexshrozanov@gmail.com)
 :::
 :::details What happens when I become a Partner?
@@ -40,7 +40,7 @@ please contact [alexshrozanov@gmail.com](mailto:alexshrozanov@gmail.com)
 2. **A site-wide banner ad**, letting you promote your products, conferences, and more.
 
 :::info
-To learn more about **Alette Signal Advertiser plan pricing**,
+To learn more about **Alette Signal Advertiser plan**,
 please contact [alexshrozanov@gmail.com](mailto:alexshrozanov@gmail.com)
 :::
 :::details What happens when I become an Advertiser?
@@ -55,7 +55,7 @@ please contact [alexshrozanov@gmail.com](mailto:alexshrozanov@gmail.com)
 can try out new features before they are officially released.
 
 :::info
-To learn more about **Alette Signal Supporter plan pricing**,
+To learn more about **Alette Signal Supporter plan**,
 please contact [alexshrozanov@gmail.com](mailto:alexshrozanov@gmail.com).
 :::
 :::details What happens when I become a Supporter?
