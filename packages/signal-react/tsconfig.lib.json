@@ -11,21 +11,22 @@
 	},
 	"include": ["src/**/*.ts", "./vitest.setup.ts"],
 	"references": [
-    {
-      "path": "../pulse/tsconfig.lib.json"
-    },
-    {
-      "path": "../signal/tsconfig.lib.json"
-    },
-    {
-      "path": "../signal-test-utils/tsconfig.lib.json"
-    }
-  ],
+		{
+			"path": "../pulse/tsconfig.lib.json"
+		},
+		{
+			"path": "../signal/tsconfig.lib.json"
+		},
+		{
+			"path": "../signal-test-utils/tsconfig.lib.json"
+		}
+	],
 	"exclude": [
 		"vite.config.ts",
 		"vite.config.mts",
 		"vitest.config.ts",
 		"vitest.config.mts",
+		"src/__tests__/*",
 		"src/**/*.test.ts",
 		"src/**/*.spec.ts",
 		"src/**/*.test.tsx",

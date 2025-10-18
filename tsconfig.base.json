@@ -1,31 +1,25 @@
 {
-  "compilerOptions": {
-    "rootDir": ".",
-    "baseUrl": ".",
-    "composite": true,
-    "declarationMap": true,
-    "jsx": "react",
-    "emitDeclarationOnly": true,
-    "importHelpers": true,
-    "isolatedModules": true,
-    "lib": [
-      "es2022",
-      "dom",
-      "dom.iterable"
-    ],
-    "module": "nodenext",
-    "noUncheckedIndexedAccess": true,
-    "moduleResolution": "Bundler",
-    "noEmitOnError": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true,
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "es2022",
-    "customConditions": [
-      "development"
-    ]
-  }
+	"compilerOptions": {
+		"rootDir": ".",
+		"baseUrl": ".",
+		"composite": true,
+		"declarationMap": true,
+		"jsx": "react",
+		"emitDeclarationOnly": true,
+		"importHelpers": true,
+		"isolatedModules": true,
+		"lib": ["es2022", "dom", "dom.iterable"],
+		"target": "es2022",
+		"module": "es2022",
+		"moduleResolution": "Bundler",
+		"noUncheckedIndexedAccess": true,
+		"noEmitOnError": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
+		"noImplicitReturns": true,
+		"noUnusedLocals": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"customConditions": ["development"]
+	}
 }
