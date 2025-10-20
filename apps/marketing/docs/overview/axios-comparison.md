@@ -41,6 +41,8 @@ export const api = client(
 	// Timeouts are work in progress at the moment
 );
 
+export const commonHeaders = {'X-Custom-Header': 'foobar'};
+
 export const {
     query: baseQuery,
     mutation: baseMutation,
@@ -51,10 +53,13 @@ export const {
 ```
 ```ts
 // src/api/base.ts
-import { baseQuery, baseMutation, baseCustom } from 'api/client.ts';
+import { 
+    baseQuery,
+	baseMutation,
+	baseCustom,
+	commonHeaders
+} from 'api/client.ts';
 import { headers } from '@alette/signal';
-
-const commonHeaders = {'X-Custom-Header': 'foobar'}
 
 export const query = baseQuery(headers(commonHeaders)).toFactory();
 export const mutation = baseMutation(headers(commonHeaders)).toFactory();
@@ -135,12 +140,14 @@ instance.interceptors.response.use(undefined, async (error) => {
 Alette Signal (extending base [request blueprints](#api-instance)):
 ```ts
 // src/api/auth.ts
-import { baseMutation, token } from './api/client.ts';
+import { baseMutation, token, commonHeaders } from './api/client.ts';
+import { path, headers } from '@alette/signal';
 
 // We are going to use baseMutation() here
 // to avoid circular references with "src/api/base.ts"
 const refreshToken = baseMutation(
-    path('/token')
+    path('/token'),
+    headers(commonHeaders)
 );
 
 export const jwt = token()
@@ -241,7 +248,7 @@ formData.append("file", yourFile);
 
 await mutation(
     path('/upload'),
-	body(form),
+	body(formData),
     tapUploadProgress(({ progress }) => {
         console.log(`Upload progress: ${progress}%`);
 	})
@@ -344,7 +351,8 @@ export const custom = baseCustom(
 ```
 ```ts
 // src/api/foo.ts
-import { query } from './api/base.ts'
+import { query } from './api/base.ts';
+import { path } from '@alette/signal';
 
 export const getFoo = query(
     path('/foo')
@@ -453,6 +461,9 @@ const PostSelect = () => {
 Alette Signal:
 ```ts
 // src/api/foo.ts
+import { path } from '@alette/signal';
+import { query } from './api/base.ts';
+
 export const getFoo = query(
     path('/foo')
 );
@@ -461,7 +472,6 @@ export const getFoo = query(
 // React component
 import React, { useEffect, useState } from 'react';
 import { useApi } from '@alette/signal-react';
-import { instance } from '../api/base.ts';
 import { getFoo } from '../api/foo.ts'
 
 const PostSelect = () => {
