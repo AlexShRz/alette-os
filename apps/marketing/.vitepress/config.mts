@@ -46,6 +46,7 @@ export default defineConfig({
 		nav: [
 			{ text: "Partnership options", link: "/docs/partnership" },
 			{ text: "Discord", link: "https://discord.gg/dWWwtbDG" },
+			{ text: "GitHub", link: "https://github.com/AlexShRz/alette-os" },
 		],
 
 		sidebar: [
@@ -230,10 +231,6 @@ export default defineConfig({
 					},
 				],
 			},
-		],
-
-		socialLinks: [
-			{ icon: "github", link: "https://github.com/AlexShRz/alette-os" },
 		],
 	},
 });
