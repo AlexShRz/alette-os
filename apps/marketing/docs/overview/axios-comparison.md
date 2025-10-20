@@ -7,7 +7,7 @@ used in any environment except Node.js:
 2. Alette Signal can be used in browsers and browser-based environments (WebWorkers or Service Workers).
 
 ## Server interaction
-Alette Signal is using [XMLHttpRequest](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) for server 
+Alette Signal uses [XMLHttpRequest](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) for server 
 interaction, just like Axios.
 
 ## Api instance
@@ -220,6 +220,84 @@ await mutation(path('/upload'), body(form)).execute();
 To learn more about body upload, see [Alette Signal body uploading guide](../request-behaviour/mutation.md#sending-body).
 :::
 
+## Retrying requests
+**Axios does not have a built-in way of retrying requests** - you 
+need to install [axios-retry](https://www.npmjs.com/package/axios-retry) or implement the retrying logic yourself.
+```ts
+import axiosRetry from 'axios-retry';
+import axios from 'axios';
+import { instance } from './api/base.ts';
+
+axiosRetry(instance, { retries: 3 });
+
+// The first request fails and the second returns 'ok'
+instance.get('/test')
+  .then(result => {
+    result.data; // 'ok'
+  });
+
+// Exponential back-off retry delay between requests
+axiosRetry(instance, { retryDelay: axiosRetry.exponentialDelay });
+
+// Liner retry delay between requests
+axiosRetry(instance, { retryDelay: axiosRetry.linearDelay() });
+
+// Custom retry delay
+axiosRetry(instance, { retryDelay: (retryCount) => {
+  return retryCount * 1000;
+}});
+
+// Works with custom axios instances
+const client = axios.create({ baseURL: 'http://example.com' });
+axiosRetry(client, { retries: 3 });
+
+client.get('/test') // The first request fails and the second returns 'ok'
+  .then(result => {
+    result.data; // 'ok'
+  });
+
+// Allows request-specific configuration
+client
+  .get('/test', {
+    'axios-retry': {
+      retries: 0
+    }
+  })
+  .catch(error => { // The first request fails
+    error !== undefined
+  });
+```
+
+Alette Signal:
+```ts
+import { query } from './api/base.ts';
+import { path, retry } from '@alette/signal';
+
+await query(
+    path('/test'),
+    retry({ 
+		times: 4,
+		backoff: [1000, 5000, 10000, 15000]
+	})
+).execute();
+```
+```ts
+import { query } from './api/base.ts';
+import { path, retryWhen, wait } from '@alette/signal';
+
+await query(
+    path('/test'),
+    retryWhen(async ({ attempt }) => {
+        await wait(attempt * 1000);
+        return true;
+	})
+).execute();
+```
+:::info
+To learn more about request retrying, see 
+[Alette Signal request retrying guide](../behaviour-control/request-retrying.md).
+:::
+
 ## Progress tracking
 Axios:
 ```ts
@@ -269,7 +347,7 @@ instance.interceptors.request.use(function (config) {
     // Do something with request error
     return Promise.reject(error);
   },
-  { synchronous: true, runWhen: () => /* This function returns true */}
+  { synchronous: true, runWhen: () => { /* This function returns true */ }}
 );
 
 instance.interceptors.response.use(function onFulfilled(response) {

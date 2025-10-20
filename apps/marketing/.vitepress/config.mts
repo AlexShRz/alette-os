@@ -8,6 +8,7 @@ import {
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
 	title: 'Alette Signal',
+	cleanUrls: true,
 	markdown: {
 		config(md) {
 			md.use(groupIconMdPlugin);
