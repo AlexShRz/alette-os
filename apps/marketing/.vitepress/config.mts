@@ -13,6 +13,9 @@ export default defineConfig({
 			md.use(groupIconMdPlugin);
 		},
 	},
+	sitemap: {
+		hostname: 'https://alette-os.com'
+	},
 	vite: {
 		plugins: [tailwindcss(), groupIconVitePlugin()],
 	},
@@ -54,8 +57,8 @@ export default defineConfig({
 						link: "/docs/overview/why-alette-signal",
 					},
 					{
-						text: "Comparison",
-						link: "/docs/overview/comparison",
+						text: "Axios vs Alette Signal",
+						link: "/docs/overview/axios-comparison",
 					},
 				],
 			},
