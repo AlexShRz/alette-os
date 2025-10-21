@@ -21,7 +21,21 @@ export default defineConfig({
 		plugins: [tailwindcss(), groupIconVitePlugin()],
 	},
 	description: "Delightful data fetching for every Front-End",
-	head: [["link", { rel: "icon", href: "/favicon.ico" }]],
+	head: [
+		["link", { rel: "icon", href: "/favicon.ico" }],
+		[
+			'script',
+			{ async: '', src: 'https://www.googletagmanager.com/gtag/js?id=G-2BM3DTBV4J' }
+		],
+		[
+			'script',
+			{},
+			`window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-2BM3DTBV4J');`
+		]
+	],
 	themeConfig: {
 		siteTitle: false,
 		sitemap: {
