@@ -1,6 +1,9 @@
 import { v4 as uuid } from "uuid";
 import { IRequestContext } from "../../domain/context/IRequestContext";
-import { TRequestSettings } from "../../domain/context/typeUtils/RequestIOTypes";
+import {
+	TRequestResponse,
+	TRequestSettings,
+} from "../../domain/context/typeUtils/RequestIOTypes";
 import { IRequestSettingSupplier } from "../../domain/execution/services/RequestSessionContext";
 import {
 	IMiddlewareSupplierFn,
@@ -9,6 +12,7 @@ import {
 import { RequestMiddleware } from "../../domain/middleware/RequestMiddleware";
 import { IAnyRequestSpecification } from "../../domain/specification";
 import { RequestWatcher } from "../../domain/watchers/RequestWatcher";
+import { Callable } from "../../shared/Callable";
 import { ApiPlugin } from "../plugins/ApiPlugin";
 
 export type TAnyMiddlewareInjector = RequestMiddleware | RequestWatcher;
@@ -17,12 +21,19 @@ export abstract class ApiRequest<
 	PrevContext extends IRequestContext = IRequestContext,
 	Context extends IRequestContext = IRequestContext,
 	RequestSpec extends IAnyRequestSpecification = IAnyRequestSpecification,
+> extends Callable<
+	[TRequestSettings<Context>] | [],
+	Promise<TRequestResponse<Context>>
 > {
 	/**
 	 * IMPORTANT:
 	 * See blueprint key tests.
 	 * */
 	protected blueprintKey = uuid();
+
+	protected abstract plugin: ApiPlugin;
+	protected abstract defaultMiddleware: RequestMiddleware[];
+
 	/**
 	 * 1. Helps us figure out where to route the request
 	 * 2. Each request is routed to a specified request thread
@@ -40,11 +51,6 @@ export abstract class ApiRequest<
 	 * them inside an event bus.
 	 * */
 	protected middlewareInjectors: TAnyMiddlewareInjector[] = [];
-
-	constructor(
-		protected plugin: ApiPlugin,
-		protected defaultMiddleware: RequestMiddleware[],
-	) {}
 
 	getKey() {
 		return this.blueprintKey;

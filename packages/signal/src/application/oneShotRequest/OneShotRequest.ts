@@ -5,8 +5,10 @@ import {
 } from "../../domain/context/typeUtils/RequestIOTypes";
 import { TRequestMode } from "../../domain/execution/services/RequestMode";
 import { IMiddlewareSupplierFn } from "../../domain/middleware/IMiddlewareSupplierFn";
+import { RequestMiddleware } from "../../domain/middleware/RequestMiddleware";
 import { RequestSpecification } from "../../domain/specification";
 import { ApiRequest } from "../blueprint/ApiRequest";
+import { ApiPlugin } from "../plugins/ApiPlugin";
 import { IOneShotRequestWithMiddleware } from "./IOneShotRequestWithMiddleware";
 import { OneShotRequestController } from "./controller/OneShotRequestController";
 
@@ -18,6 +20,39 @@ export class OneShotRequest<
 	extends ApiRequest<PrevContext, Context, RequestSpec>
 	implements IOneShotRequestWithMiddleware<Context, RequestSpec>
 {
+	constructor(
+		protected plugin: ApiPlugin,
+		protected defaultMiddleware: RequestMiddleware[],
+	) {
+		super((settings = {}) => {
+			const controller = this.getController("oneShot");
+			const { execute } = controller.getHandlers();
+			execute(settings);
+
+			return new Promise<TRequestResponse<Context>>((resolve, reject) => {
+				const unsubscribe = controller.subscribe(
+					({ isSuccess, isError, error, data }) => {
+						if (isSuccess || isError) {
+							unsubscribe();
+						}
+
+						if (isSuccess) {
+							resolve(data);
+							return;
+						}
+
+						if (isError) {
+							reject(error);
+							return;
+						}
+					},
+				);
+			}).finally(() => {
+				controller.dispose();
+			});
+		});
+	}
+
 	protected getController(mode: TRequestMode) {
 		return new OneShotRequestController<Context>(this.plugin, {
 			threadId: this.requestThreadId,
@@ -41,32 +76,13 @@ export class OneShotRequest<
 		return new OneShotRequest(this.plugin, [...this.defaultMiddleware]) as this;
 	}
 
+	/**
+	 * @deprecated
+	 * Will be removed in V1
+	 * Call request blueprints directly - getPosts(), not getPosts.execute()
+	 * */
 	async execute(settings: TRequestSettings<Context> = {}) {
-		const controller = this.getController("oneShot");
-		const { execute } = controller.getHandlers();
-		execute(settings);
-
-		return new Promise<TRequestResponse<Context>>((resolve, reject) => {
-			const unsubscribe = controller.subscribe(
-				({ isSuccess, isError, error, data }) => {
-					if (isSuccess || isError) {
-						unsubscribe();
-					}
-
-					if (isSuccess) {
-						resolve(data);
-						return;
-					}
-
-					if (isError) {
-						reject(error);
-						return;
-					}
-				},
-			);
-		}).finally(() => {
-			controller.dispose();
-		});
+		return this(settings);
 	}
 
 	/**
@@ -74,7 +90,7 @@ export class OneShotRequest<
 	 * returning nothing back to the callee.
 	 * */
 	spawn(args: TRequestSettings<Context> = {}) {
-		this.execute(args).catch((e) => e);
+		this(args).catch((e) => e);
 	}
 
 	mount() {
