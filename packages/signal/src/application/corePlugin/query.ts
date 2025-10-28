@@ -41,6 +41,30 @@ const querySpec = requestSpecification()
 	)
 	.build();
 
+// const tasdsa = blueprint()
+// 	.specification(
+// 		requestSpecification()
+// 			.accepts(...allRequestMiddleware, factoryMiddlewareName)
+// 			.prohibits(methodMiddlewareName)
+// 			.build(),
+// 	)
+// 	.use(method)
+// 	.build();
+
+// const heyyy = method("POST");
+//
+// heyyy.getArgs();
+//
+// const asdasd = blueprint()
+// 	.specification(
+// 		requestSpecification()
+// 			.accepts(...allRequestMiddleware, factoryMiddlewareName)
+// 			// .prohibits(methodMiddlewareName)
+// 			.build(),
+// 	)
+// 	.use(heyyy)
+// 	.build();
+
 export const queryFactory = blueprint()
 	.specification(
 		requestSpecification()

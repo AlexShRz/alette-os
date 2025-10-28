@@ -4,7 +4,7 @@ import {
 	TRequestSettings,
 } from "../../domain/context/typeUtils/RequestIOTypes";
 import { TRequestMode } from "../../domain/execution/services/RequestMode";
-import { IMiddlewareSupplierFn } from "../../domain/middleware/IMiddlewareSupplierFn";
+import { IMiddlewareSupplier } from "../../domain/middleware/IMiddlewareSupplier";
 import { RequestMiddleware } from "../../domain/middleware/RequestMiddleware";
 import { RequestSpecification } from "../../domain/specification";
 import { ApiRequest } from "../blueprint/ApiRequest";
@@ -67,7 +67,7 @@ export class OneShotRequest<
 	}
 
 	with: IOneShotRequestWithMiddleware<Context, RequestSpec>["with"] = (
-		...middlewareInjectors: IMiddlewareSupplierFn<any, any, any, any>[]
+		...middlewareInjectors: IMiddlewareSupplier<any, any, any, any>[]
 	) => {
 		return this.mergeInjectorsAndCloneSelf(middlewareInjectors) as any;
 	};

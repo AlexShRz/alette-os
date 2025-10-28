@@ -7,7 +7,7 @@ import { RequestSessionContext } from "../../../execution/services/RequestSessio
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
 import { MethodContext } from "../../context/method/MethodContext";
-import { TMethodSupplier } from "./MethodMiddlewareFactory";
+import { TMethodSupplier } from "./method";
 
 export class MethodMiddleware extends Middleware("MethodMiddleware", {
 	priority: MiddlewarePriority.Creation,

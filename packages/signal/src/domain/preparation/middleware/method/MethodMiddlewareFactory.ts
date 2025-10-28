@@ -1,24 +1,15 @@
-import { THttpMethod } from "@alette/pulse";
 import * as E from "effect/Effect";
-import { IRequestContext } from "../../../context/IRequestContext";
-import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
+import { IRequestContext } from "../../../context";
 import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
-import { IRequestMethod } from "../../context/method/RequestMethod";
 import { MethodMiddleware } from "./MethodMiddleware";
+import { TMethodSupplier } from "./method";
 import { methodMiddlewareSpecification } from "./methodMiddlewareSpecification";
 
-export type TMethodSupplier<
-	Method extends THttpMethod = THttpMethod,
-	C extends IRequestContext = IRequestContext,
-> =
-	| ((requestContext: TGetAllRequestContext<C>) => Method | Promise<Method>)
-	| Method;
-
 export class MethodMiddlewareFactory extends Middleware(
-	"HeadersMiddlewareFactory",
+	"MethodMiddlewareFactory",
 )(
 	(getMiddleware: () => MethodMiddleware) =>
 		({ parent, context }) =>
@@ -47,8 +38,7 @@ export class MethodMiddlewareFactory extends Middleware(
 					Context["types"],
 					TMergeRecords<Context["value"], IRequestMethod<Method>>,
 					Context["settings"],
-					Context["accepts"],
-					Context["acceptsMounted"]
+					Context["accepts"]
 				>,
 				typeof methodMiddlewareSpecification
 			>(

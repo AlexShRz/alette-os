@@ -6,9 +6,9 @@ import {
 } from "../../domain/context/typeUtils/RequestIOTypes";
 import { IRequestSettingSupplier } from "../../domain/execution/services/RequestSessionContext";
 import {
-	IMiddlewareSupplierFn,
+	IMiddlewareSupplier,
 	IRuntimeMiddlewareSupplierFn,
-} from "../../domain/middleware/IMiddlewareSupplierFn";
+} from "../../domain/middleware/IMiddlewareSupplier";
 import { RequestMiddleware } from "../../domain/middleware/RequestMiddleware";
 import { IAnyRequestSpecification } from "../../domain/specification";
 import { RequestWatcher } from "../../domain/watchers/RequestWatcher";
@@ -65,7 +65,7 @@ export abstract class ApiRequest<
 	}
 
 	protected mergeInjectorsAndCloneSelf(
-		lazyMiddlewareSuppliers: IMiddlewareSupplierFn<any, any, any, any>[],
+		lazyMiddlewareSuppliers: IMiddlewareSupplier<any, any, any, any>[],
 	) {
 		/**
 		 * 1. Here we need to CLONE the request WHILE

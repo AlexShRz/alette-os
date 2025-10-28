@@ -6,7 +6,7 @@ import { IRequestContext } from "../context/IRequestContext";
 import { IAnyMiddlewareSpecification } from "../specification";
 
 export class RequestMiddleware<
-	Context extends IRequestContext = IRequestContext,
+	out Context extends IRequestContext = IRequestContext,
 	Specifications extends
 		IAnyMiddlewareSpecification = IAnyMiddlewareSpecification,
 	Tag extends string = string,

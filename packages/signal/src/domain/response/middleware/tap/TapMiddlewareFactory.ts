@@ -1,7 +1,7 @@
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
 import {
-	TGetAllRequestContext,
+	TFullRequestContext,
 	TRequestResponse,
 } from "../../../context/typeUtils/RequestIOTypes";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
@@ -12,7 +12,7 @@ import { tapMiddlewareSpecification } from "./tapMiddlewareSpecification";
 
 export type TTapArgs<C extends IRequestContext = IRequestContext> = (
 	response: TRequestResponse<C>,
-	requestContext: TGetAllRequestContext<C>,
+	requestContext: TFullRequestContext<C>,
 ) => void | Promise<void>;
 
 export class TapMiddlewareFactory extends Middleware("TapMiddlewareFactory")(

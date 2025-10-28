@@ -1,7 +1,7 @@
 import { THttpBody } from "@alette/pulse";
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
-import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
+import { TFullRequestContext } from "../../../context/typeUtils/RequestIOTypes";
 import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
@@ -15,7 +15,7 @@ export type TBodySupplier<
 	NextBody extends THttpBody = THttpBody,
 	C extends IRequestContext = IRequestContext,
 > =
-	| ((requestContext: TGetAllRequestContext<C>) => NextBody | Promise<NextBody>)
+	| ((requestContext: TFullRequestContext<C>) => NextBody | Promise<NextBody>)
 	| NextBody;
 
 export class BodyMiddlewareFactory extends Middleware("BodyMiddlewareFactory")(

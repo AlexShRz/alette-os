@@ -1,7 +1,7 @@
 import { IHeaders } from "@alette/pulse";
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
-import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
+import { TFullRequestContext } from "../../../context/typeUtils/RequestIOTypes";
 import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
@@ -18,7 +18,7 @@ export type THeaderSupplier<
 	C extends IRequestContext = IRequestContext,
 > =
 	| ((
-			requestContext: TGetAllRequestContext<C>,
+			requestContext: TFullRequestContext<C>,
 			prevHeaders: TGetRequestHeaders<C>,
 	  ) => Headers | Promise<Headers>)
 	| Headers;

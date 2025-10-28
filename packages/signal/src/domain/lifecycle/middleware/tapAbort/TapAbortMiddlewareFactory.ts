@@ -1,6 +1,6 @@
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
-import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
+import { TFullRequestContext } from "../../../context/typeUtils/RequestIOTypes";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
@@ -8,7 +8,7 @@ import { TapAbortMiddleware } from "./TapAbortMiddleware";
 import { tapAbortMiddlewareSpecification } from "./tapAbortMiddlewareSpecification";
 
 export type TTapAbortArgs<C extends IRequestContext = IRequestContext> = (
-	requestContext: TGetAllRequestContext<C>,
+	requestContext: TFullRequestContext<C>,
 ) => void | Promise<void>;
 
 export class TapAbortMiddlewareFactory extends Middleware(

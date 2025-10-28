@@ -1,7 +1,7 @@
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
 import {
-	TGetAllRequestContext,
+	TFullRequestContext,
 	TRequestError,
 } from "../../../context/typeUtils/RequestIOTypes";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
@@ -12,7 +12,7 @@ import { tapErrorMiddlewareSpecification } from "./tapErrorMiddlewareSpecificati
 
 export type TTapErrorArgs<C extends IRequestContext = IRequestContext> = (
 	error: TRequestError<C>,
-	requestContext: TGetAllRequestContext<C>,
+	requestContext: TFullRequestContext<C>,
 ) => void | Promise<void>;
 
 export class TapErrorMiddlewareFactory extends Middleware(

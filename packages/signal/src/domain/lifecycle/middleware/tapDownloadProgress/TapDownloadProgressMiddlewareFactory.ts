@@ -1,7 +1,7 @@
 import { IDownloadProgressData } from "@alette/pulse";
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
-import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
+import { TFullRequestContext } from "../../../context/typeUtils/RequestIOTypes";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
@@ -12,7 +12,7 @@ export type TTapDownloadProgressArgs<
 	C extends IRequestContext = IRequestContext,
 > = (
 	downloadProgressData: IDownloadProgressData,
-	requestContext: TGetAllRequestContext<C>,
+	requestContext: TFullRequestContext<C>,
 ) => void | Promise<void>;
 
 export class TapDownloadProgressMiddlewareFactory extends Middleware(

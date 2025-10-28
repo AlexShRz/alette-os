@@ -1,6 +1,6 @@
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
-import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
+import { TFullRequestContext } from "../../../context/typeUtils/RequestIOTypes";
 import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
@@ -16,7 +16,7 @@ export type TPathMiddlewareArgs<
 	C extends IRequestContext = IRequestContext,
 > =
 	| ((
-			context: TGetAllRequestContext<C>,
+			context: TFullRequestContext<C>,
 			prevPath: TGetRequestPath<C>,
 	  ) => NextPath | Promise<NextPath>)
 	| NextPath;

@@ -1,7 +1,7 @@
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
 import {
-	TGetAllRequestContext,
+	TFullRequestContext,
 	TOriginalRequestError,
 } from "../../../context/typeUtils/RequestIOTypes";
 import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
@@ -20,7 +20,7 @@ export interface IRetryWhenMiddlewareArgs<
 			error: TOriginalRequestError<C>;
 			attempt: number;
 		},
-		requestContext: TGetAllRequestContext<C>,
+		requestContext: TFullRequestContext<C>,
 	): boolean | Promise<boolean>;
 }
 

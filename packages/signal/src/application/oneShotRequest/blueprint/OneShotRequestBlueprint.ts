@@ -1,7 +1,7 @@
 import { IRequestContext } from "../../../domain/context/IRequestContext";
 import { ReloadableMiddlewareFactory } from "../../../domain/execution/middleware/reloadable/ReloadableMiddlewareFactory";
 import { RunOnMountMiddlewareFactory } from "../../../domain/execution/middleware/runOnMount/RunOnMountMiddlewareFactory";
-import { IMiddlewareSupplierFn } from "../../../domain/middleware/IMiddlewareSupplierFn";
+import { IMiddlewareSupplier } from "../../../domain/middleware/IMiddlewareSupplier";
 import { RequestMiddleware } from "../../../domain/middleware/RequestMiddleware";
 import { IAnyRequestSpecification } from "../../../domain/specification";
 import { AbstractBlueprintBuilder } from "../../blueprint/AbstractBlueprintBuilder";
@@ -50,7 +50,7 @@ export class OneShotRequestBlueprint<
 	}
 
 	use: IOneShotRequestBlueprintWithMiddleware<Context, RequestSpec>["use"] = (
-		...middlewareFns: IMiddlewareSupplierFn<any, any, any, any>[]
+		...middlewareFns: IMiddlewareSupplier<any, any, any, any>[]
 	) => {
 		this._use(...middlewareFns);
 		return this as any;

@@ -1,6 +1,6 @@
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
-import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
+import { TFullRequestContext } from "../../../context/typeUtils/RequestIOTypes";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
 import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
@@ -21,7 +21,7 @@ export interface IUrlMiddlewareCollectedUrlProps<
 export type TUrlMiddlewareArgs<C extends IRequestContext = IRequestContext> =
 	| ((
 			collectedUrlProps: IUrlMiddlewareCollectedUrlProps<C>,
-			context: TGetAllRequestContext<C>,
+			context: TFullRequestContext<C>,
 	  ) => string)
 	| string;
 

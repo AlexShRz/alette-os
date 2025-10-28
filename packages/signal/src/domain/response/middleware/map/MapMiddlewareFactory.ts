@@ -1,7 +1,7 @@
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
 import {
-	TGetAllRequestContext,
+	TFullRequestContext,
 	TRequestResponse,
 } from "../../../context/typeUtils/RequestIOTypes";
 import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
@@ -18,7 +18,7 @@ export type TMapArgs<
 	C extends IRequestContext = IRequestContext,
 > = (
 	response: TRequestResponse<C>,
-	requestContext: TGetAllRequestContext<C>,
+	requestContext: TFullRequestContext<C>,
 ) =>
 	| Mapped
 	| Promise<Mapped>

@@ -1,3 +1,4 @@
+import { IMiddlewareSupplier } from "../middleware/IMiddlewareSupplier";
 import {
 	IAnyMiddlewareSpecification,
 	MiddlewareSpecification,
@@ -35,7 +36,26 @@ type HasIntersection<
 		: false
 	: false;
 
-export type VerifyMiddlewareCompatibility<
+export type TVerifyMiddlewareSupplier<
+	RequestConstraints extends IAnyRequestSpecification,
+	MiddlewareSupplier extends IMiddlewareSupplier<any, any, any, any>,
+> = MiddlewareSupplier extends IMiddlewareSupplier<
+	any,
+	any,
+	infer MiddlewareSpec,
+	any
+>
+	? TVerifyMiddlewareCompatibility<
+			RequestConstraints,
+			MiddlewareSpec,
+			MiddlewareSupplier
+		>
+	: {
+			error: NotCompatibleMiddlewareError;
+			reason: "Invalid request constraints";
+		};
+
+export type TVerifyMiddlewareCompatibility<
 	RequestConstraints extends IAnyRequestSpecification,
 	MiddlewareRequestConstraints extends IAnyMiddlewareSpecification,
 	ReturnedValue,

@@ -2,7 +2,7 @@ import { ApiError } from "@alette/pulse";
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
 import {
-	TGetAllRequestContext,
+	TFullRequestContext,
 	TRequestError,
 } from "../../../context/typeUtils/RequestIOTypes";
 import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
@@ -18,7 +18,7 @@ export type TMapErrorArgs<
 	C extends IRequestContext = IRequestContext,
 > = (
 	requestError: TRequestError<C>,
-	requestContext: TGetAllRequestContext<C>,
+	requestContext: TFullRequestContext<C>,
 ) => MappedError | Promise<MappedError>;
 
 export class MapErrorMiddlewareFactory extends Middleware(
