@@ -4,7 +4,14 @@
 export type TIsAny<T> = 0 extends 1 & T ? true : false;
 
 /**
- * TIsObject - Check if type is a plain object (not array, function, or primitive)
+ * TIsObject - Check if type is a "plain" object intended for merging.
+ *
+ * This check identifies "plain" objects (like { a: 1 } or Record<string, any>)
+ * while correctly excluding:
+ * - Arrays
+ * - Functions
+ * - 'any'
+ * - Class instances (e.g., Date, RegExp, AbortController, new MyClass())
  */
 export type TIsObject<T> = T extends object
 	? T extends any[]

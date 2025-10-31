@@ -37,6 +37,9 @@ export default defineConfig(() => ({
 	test: {
 		watch: false,
 		globals: true,
+		typecheck: {
+			enabled: true,
+		},
 		environment: "node",
 		include: ["{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
 		reporters: ["default"],

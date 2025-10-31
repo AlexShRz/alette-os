@@ -1,4 +1,5 @@
 import type { ApiError } from "@alette/pulse";
+import { TDeepMergeAsOpaqueValue } from "@alette/type-utils";
 import type { Ctor } from "effect/Types";
 import { IRequestContext } from "../../../context";
 import { IRequestContextPatch } from "../../../context/RequestContextPatches";
@@ -6,7 +7,7 @@ import { IRequestContextPatch } from "../../../context/RequestContextPatches";
 export interface IRecognizedRequestError<Error extends ApiError = ApiError>
 	extends Ctor<Error> {}
 
-type TExtractErrorInstances<
+export type TExtractErrorInstances<
 	ErrorsConstructors extends IRecognizedRequestError[],
 > = ErrorsConstructors extends IRecognizedRequestError<infer E>[] ? E : never;
 
@@ -17,8 +18,8 @@ export type TAddDefaultRequestErrors<
 > = IRequestContextPatch<
 	{
 		types: {
-			originalErrorType: Errors;
-			errorType: Errors;
+			originalErrorType: TDeepMergeAsOpaqueValue<Errors>;
+			errorType: TDeepMergeAsOpaqueValue<Errors>;
 		};
 	},
 	"merge"

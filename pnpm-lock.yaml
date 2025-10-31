@@ -306,7 +306,11 @@ importers:
         specifier: ^2.1.5
         version: 2.1.5
 
-  packages/type-utils: {}
+  packages/type-utils:
+    devDependencies:
+      ts-toolbelt:
+        specifier: 6.13.11
+        version: 6.13.11
 
 packages:
 

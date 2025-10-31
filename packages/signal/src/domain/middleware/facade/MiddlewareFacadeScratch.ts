@@ -9,6 +9,7 @@ import { slot } from "../slot/Slot";
 import { TAnyMiddlewareFacade } from "./TAnyMiddlewareFacade";
 import {abortedBy} from "../../execution";
 import {mapError, throws} from "../../errors";
+import {map, output} from "../../response";
 
 /**
  * Variations
@@ -44,9 +45,23 @@ type TOutContext<T> = T extends TAnyMiddlewareFacade<any, any, any, infer C>
 
 type TTest<T extends TAnyMiddlewareFacade<any, any, any, any>> = true;
 
+class MyError1 extends ApiError {
+	cloneSelf() {
+		return new MyError1();
+	}
+}
+
+class MyError2 extends ApiError {
+	cloneSelf() {
+		return new MyError2();
+	}
+}
+
 const def = method;
 const withGet = method("GET");
 const withDelete = method("DELETE");
+
+const boundErrors = throws(MyError1);
 
 const boundInput = input(as<{ hey: string }>());
 const boundAbort = abortedBy(new AbortController()),
@@ -65,6 +80,7 @@ type out = TOutContext<typeof withDelete>;
 type out2 = TOutContext<typeof def>;
 type out3 = TOutContext<typeof boundInput>;
 type out4 = TOutContext<typeof boundAbort>;
+type out5 = TOutContext<typeof boundErrors>[0];
 
 // type Final1 = TApplyRequestContextPatches<
 // 	{ value: { test: string } },
@@ -112,6 +128,22 @@ type out4 = TOutContext<typeof boundAbort>;
 // 		>,
 // 	]
 // >;
+type Final6 = TApplyRequestContextPatches<
+	{
+		types: { errors: unknown; originalErrorType: unknown };
+	},
+	[
+		IRequestContextPatch<
+			{
+				types: {
+					errors: MyError1 | MyError2;
+					originalErrorType: MyError1 | MyError2
+				};
+			},
+			"merge"
+		>,
+	]
+>;
 
 /**
  * Caveats
@@ -179,26 +211,19 @@ const pipeline = new PipeTest<
 
 const boundBody1 = body({ heyll: "stasd" });
 
-class MyError1 extends ApiError {
-	cloneSelf() {
-		return new MyError1();
-	}
-}
-
-class MyError2 extends ApiError {
-	cloneSelf() {
-		return new MyError2();
-	}
-}
+const boundOutput = output(as<{ test: string }>())
 
 const withCommonMiddleware = slot(
-	throws(MyError1, MyError2),
+	// boundOutput,
+	boundErrors,
+	throws(MyError2),
 	// throws(MyError2),
 	// input(as<{ hey: string }>()),
 	// headers({ hi: "ads" }),
 	// credentials,
 	// boundBody1,
-	mapError((er) => er),
+	// map((v) => {}),
+	mapError((er) => new MyError2()),
 	// method(({ context, credentials, method, body, headers }) => "POST" as const),
 );
 
