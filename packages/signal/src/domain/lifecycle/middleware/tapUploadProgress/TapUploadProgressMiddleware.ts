@@ -1,7 +1,7 @@
 import * as E from "effect/Effect";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { UploadProgressReceived } from "../../events/UploadProgressReceived";
 import { TTapUploadProgressArgs } from "./TapUploadProgressMiddlewareFactory";
 

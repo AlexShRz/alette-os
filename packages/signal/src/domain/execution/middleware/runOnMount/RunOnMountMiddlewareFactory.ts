@@ -1,8 +1,8 @@
 import * as E from "effect/Effect";
-import { IRequestContext } from "../../../context/IRequestContext";
+import { IRequestContext } from "../../../context";
 import { TRequestGlobalContext } from "../../../context/typeUtils/RequestIOTypes";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import { AggregateRequestMiddleware } from "../../events/preparation/AggregateRequestMiddleware";
 import { RunOnMountMiddleware } from "./RunOnMountMiddleware";
 import { runOnMountMiddlewareSpecification } from "./runOnMountMiddlewareSpecification";
@@ -35,17 +35,20 @@ export class RunOnMountMiddlewareFactory extends Middleware(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext>(
+		return <InContext extends IRequestContext>(
 			args?: TRunOnMountMiddlewareArgs,
 		) => {
-			return toMiddlewareFactory<
-				Context,
-				Context,
-				typeof runOnMountMiddlewareSpecification
-			>(
-				() =>
+			return new MiddlewareFacade<
+				InContext,
+				typeof runOnMountMiddlewareSpecification,
+				TRunOnMountMiddlewareArgs | undefined
+			>({
+				name: "runOnMount",
+				lastArgs: args,
+				middlewareSpec: runOnMountMiddlewareSpecification,
+				middlewareFactory: (args) =>
 					new RunOnMountMiddlewareFactory(() => new RunOnMountMiddleware(args)),
-			);
+			});
 		};
 	}
 }

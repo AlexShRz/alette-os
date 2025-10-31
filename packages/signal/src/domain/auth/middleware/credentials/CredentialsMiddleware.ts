@@ -3,7 +3,7 @@ import * as SynchronizedRef from "effect/SynchronizedRef";
 import { orPanic } from "../../../errors/utils/orPanic";
 import { RunRequest } from "../../../execution/events/request/RunRequest";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { getOrCreateMiscellaneousContext } from "../../../preparation/context/getOrCreateMiscellaneousContext";
 import { TCredentialArgs } from "./CredentialsMiddlewareFactory";
 

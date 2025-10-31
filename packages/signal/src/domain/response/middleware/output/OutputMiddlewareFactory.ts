@@ -1,10 +1,10 @@
 import { ISchema } from "@alette/pulse";
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
-import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
+import { IRequestContextPatch } from "../../../context/RequestContextPatches";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import { ResponseAdapter } from "../../adapter/ResponseAdapter";
 import { IOriginalRequestResponseValue } from "./OriginalResponseValue";
 import { OutputMiddleware } from "./OutputMiddleware";
@@ -35,29 +35,27 @@ export class OutputMiddlewareFactory extends Middleware(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext, ResponseValue>(
+		return <InContext extends IRequestContext, ResponseValue>(
 			schemaOrAdapter: TOutputMiddlewareArgs<ResponseValue>,
 		) => {
-			return toMiddlewareFactory<
-				Context,
-				IRequestContext<
-					TMergeRecords<
-						Context["types"],
-						IOriginalRequestResponseValue<ResponseValue>
-					>,
-					Context["value"],
-					Context["settings"],
-					Context["accepts"],
-					Context["acceptsMounted"]
-				>,
-				typeof outputMiddlewareSpecification
-			>(
-				() =>
+			return new MiddlewareFacade<
+				InContext,
+				typeof outputMiddlewareSpecification,
+				TOutputMiddlewareArgs<ResponseValue>,
+				[
+					IRequestContextPatch<{
+						types: IOriginalRequestResponseValue<ResponseValue>;
+					}>,
+				]
+			>({
+				name: "output",
+				lastArgs: schemaOrAdapter,
+				middlewareSpec: outputMiddlewareSpecification,
+				middlewareFactory: (args) =>
 					new OutputMiddlewareFactory(
-						() =>
-							new OutputMiddleware(schemaOrAdapter as TOutputMiddlewareArgs),
+						() => new OutputMiddleware(args as TOutputMiddlewareArgs),
 					),
-			);
+			});
 		};
 	}
 }

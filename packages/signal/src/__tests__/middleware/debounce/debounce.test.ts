@@ -10,7 +10,7 @@ import {
 } from "../../../domain";
 import { IRequestContext } from "../../../domain/context/IRequestContext";
 import { WithCurrentRequestOverride } from "../../../domain/execution/events/envelope/WithCurrentRequestOverride";
-import { MiddlewarePriority } from "../../../domain/middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../domain/middleware/constants/MiddlewarePriority";
 import { activityLens, createTestApi } from "../../utils";
 
 beforeEach(() => {

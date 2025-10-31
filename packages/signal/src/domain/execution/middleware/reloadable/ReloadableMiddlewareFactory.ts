@@ -1,12 +1,11 @@
 import * as E from "effect/Effect";
-import { IGlobalContext } from "../../../context";
-import { IRequestContext } from "../../../context/IRequestContext";
+import { IGlobalContext, IRequestContext } from "../../../context";
 import {
 	TGetRequestContextWithoutGlobalContext,
 	TRequestSettings,
 } from "../../../context/typeUtils/RequestIOTypes";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import { AggregateRequestMiddleware } from "../../events/preparation/AggregateRequestMiddleware";
 import { ReloadableMiddleware } from "./ReloadableMiddleware";
 import { reloadableMiddlewareSpecification } from "./reloadableMiddlewareSpecification";
@@ -47,22 +46,25 @@ export class ReloadableMiddlewareFactory extends Middleware(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext>(
-			predicate?: IReloadableMiddlewareCheck<Context>,
+		return <InContext extends IRequestContext>(
+			predicate?: IReloadableMiddlewareCheck<InContext>,
 		) => {
-			return toMiddlewareFactory<
-				Context,
-				Context,
-				typeof reloadableMiddlewareSpecification
-			>(
-				() =>
+			return new MiddlewareFacade<
+				InContext,
+				typeof reloadableMiddlewareSpecification,
+				IReloadableMiddlewareCheck<InContext> | undefined
+			>({
+				name: "reloadable",
+				lastArgs: predicate,
+				middlewareSpec: reloadableMiddlewareSpecification,
+				middlewareFactory: (predicate) =>
 					new ReloadableMiddlewareFactory(
 						() =>
 							new ReloadableMiddleware(
 								predicate as IReloadableMiddlewareCheck | undefined,
 							),
 					),
-			);
+			});
 		};
 	}
 }

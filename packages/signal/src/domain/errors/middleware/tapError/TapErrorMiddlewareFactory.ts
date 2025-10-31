@@ -1,12 +1,12 @@
 import * as E from "effect/Effect";
-import { IRequestContext } from "../../../context/IRequestContext";
+import { IRequestContext } from "../../../context";
 import {
 	TFullRequestContext,
 	TRequestError,
 } from "../../../context/typeUtils/RequestIOTypes";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import { TapErrorMiddleware } from "./TapErrorMiddleware";
 import { tapErrorMiddlewareSpecification } from "./tapErrorMiddlewareSpecification";
 
@@ -36,17 +36,22 @@ export class TapErrorMiddlewareFactory extends Middleware(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext>(args: TTapErrorArgs<Context>) => {
-			return toMiddlewareFactory<
-				Context,
-				Context,
-				typeof tapErrorMiddlewareSpecification
-			>(
-				() =>
+		return <InContext extends IRequestContext>(
+			args: TTapErrorArgs<InContext>,
+		) => {
+			return new MiddlewareFacade<
+				InContext,
+				typeof tapErrorMiddlewareSpecification,
+				TTapErrorArgs<InContext>
+			>({
+				name: "tapError",
+				lastArgs: args,
+				middlewareSpec: tapErrorMiddlewareSpecification,
+				middlewareFactory: (args) =>
 					new TapErrorMiddlewareFactory(
 						() => new TapErrorMiddleware(args as TTapErrorArgs),
 					),
-			);
+			});
 		};
 	}
 }

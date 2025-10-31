@@ -4,7 +4,7 @@ import * as P from "effect/Predicate";
 import * as SynchronizedRef from "effect/SynchronizedRef";
 import { GlobalContext } from "../../../context/services/GlobalContext";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { WithReloadableCheck } from "../../events/envelope/WithReloadableCheck";
 import { RunRequest } from "../../events/request/RunRequest";
 import { RequestMeta } from "../../services/RequestMeta";

@@ -1,10 +1,10 @@
 import * as E from "effect/Effect";
-import { IRequestContext } from "../../../context/IRequestContext";
+import { IRequestContext } from "../../../context";
+import { IRequestContextPatch } from "../../../context/RequestContextPatches";
 import { TFullRequestContext } from "../../../context/typeUtils/RequestIOTypes";
-import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import { PathMiddleware } from "./PathMiddleware";
 import { IRequestPath, TGetRequestPath } from "./RequestPath";
 import { pathMiddlewareSpecification } from "./pathMiddlewareSpecification";
@@ -40,25 +40,27 @@ export class PathMiddlewareFactory extends Middleware("PathMiddlewareFactory")(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext, Path extends TStrictPath>(
-			args: TPathMiddlewareArgs<Path, Context>,
+		return <InContext extends IRequestContext, Path extends TStrictPath>(
+			args: TPathMiddlewareArgs<Path, InContext>,
 		) => {
-			return toMiddlewareFactory<
-				Context,
-				IRequestContext<
-					Context["types"],
-					TMergeRecords<Context["value"], IRequestPath<Path>>,
-					Context["settings"],
-					Context["accepts"],
-					Context["acceptsMounted"]
-				>,
-				typeof pathMiddlewareSpecification
-			>(
-				() =>
+			return new MiddlewareFacade<
+				InContext,
+				typeof pathMiddlewareSpecification,
+				TPathMiddlewareArgs<Path, InContext>,
+				[
+					IRequestContextPatch<{
+						value: IRequestPath<Path>;
+					}>,
+				]
+			>({
+				name: "path",
+				lastArgs: args,
+				middlewareSpec: pathMiddlewareSpecification,
+				middlewareFactory: (args) =>
 					new PathMiddlewareFactory(
 						() => new PathMiddleware(args as TPathMiddlewareArgs),
 					),
-			);
+			});
 		};
 	}
 }

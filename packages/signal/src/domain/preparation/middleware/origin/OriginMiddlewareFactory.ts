@@ -1,10 +1,10 @@
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
+import { IRequestContextPatch } from "../../../context/RequestContextPatches";
 import { TFullRequestContext } from "../../../context/typeUtils/RequestIOTypes";
-import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import { OriginMiddleware } from "./OriginMiddleware";
 import { IRequestOrigin, TGetRequestOrigin } from "./RequestOrigin";
 import { originMiddlewareSpecification } from "./originMiddlewareSpecification";
@@ -40,25 +40,27 @@ export class OriginMiddlewareFactory extends Middleware(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext, Origin extends string>(
-			args?: TOriginMiddlewareArgs<Origin, Context>,
+		return <InContext extends IRequestContext, Origin extends string>(
+			args?: TOriginMiddlewareArgs<Origin, InContext>,
 		) => {
-			return toMiddlewareFactory<
-				Context,
-				IRequestContext<
-					Context["types"],
-					TMergeRecords<Context["value"], IRequestOrigin<Origin>>,
-					Context["settings"],
-					Context["accepts"],
-					Context["acceptsMounted"]
-				>,
-				typeof originMiddlewareSpecification
-			>(
-				() =>
+			return new MiddlewareFacade<
+				InContext,
+				typeof originMiddlewareSpecification,
+				TOriginMiddlewareArgs<Origin, InContext> | undefined,
+				[
+					IRequestContextPatch<{
+						value: IRequestOrigin<Origin>;
+					}>,
+				]
+			>({
+				name: "origin",
+				lastArgs: args,
+				middlewareSpec: originMiddlewareSpecification,
+				middlewareFactory: (args) =>
 					new OriginMiddlewareFactory(
 						() => new OriginMiddleware(args as TOriginMiddlewareArgs),
 					),
-			);
+			});
 		};
 	}
 }

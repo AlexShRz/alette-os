@@ -1,13 +1,13 @@
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
+import { IRequestContextPatch } from "../../../context/RequestContextPatches";
 import {
 	TFullRequestContext,
 	TOriginalRequestError,
 } from "../../../context/typeUtils/RequestIOTypes";
-import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import { IRetrySettings } from "../RetrySettings";
 import { RetryWhenMiddleware } from "./RetryWhenMiddleware";
 import { retryWhenMiddlewareSpecification } from "./retryWhenMiddlewareSpecification";
@@ -48,25 +48,28 @@ export class RetryWhenMiddlewareFactory extends Middleware(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext>(
-			args: IRetryWhenMiddlewareArgs<Context>,
+		return <InContext extends IRequestContext>(
+			args: IRetryWhenMiddlewareArgs<InContext>,
 		) => {
-			return toMiddlewareFactory<
-				Context,
-				IRequestContext<
-					Context["types"],
-					Context["value"],
-					Context["settings"],
-					TMergeRecords<Context["accepts"], IRetrySettings>,
-					TMergeRecords<Context["acceptsMounted"], IRetrySettings>
-				>,
-				typeof retryWhenMiddlewareSpecification
-			>(
-				() =>
+			return new MiddlewareFacade<
+				InContext,
+				typeof retryWhenMiddlewareSpecification,
+				IRetryWhenMiddlewareArgs<InContext>,
+				[
+					IRequestContextPatch<{
+						accepts: IRetrySettings;
+						acceptsMounted: IRetrySettings;
+					}>,
+				]
+			>({
+				name: "retryWhen",
+				lastArgs: args,
+				middlewareSpec: retryWhenMiddlewareSpecification,
+				middlewareFactory: (args) =>
 					new RetryWhenMiddlewareFactory(
 						() => new RetryWhenMiddleware(args as IRetryWhenMiddlewareArgs),
 					),
-			);
+			});
 		};
 	}
 }

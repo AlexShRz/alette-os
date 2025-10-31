@@ -1,11 +1,11 @@
 import { UrlBuilder } from "@alette/pulse";
 import * as E from "effect/Effect";
-import { IRequestContext } from "../../../context/IRequestContext";
+import { IRequestContext } from "../../../context";
 import { TFullRequestContext } from "../../../context/typeUtils/RequestIOTypes";
 import { ThrowsMiddleware } from "../../../errors/middleware/throws/ThrowsMiddleware";
 import { OneShotRequestNotification } from "../../../lifecycle/notifications/OneShotRequestNotification";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import { TGetRequestQueryParams } from "../../../preparation/middleware/queryParams/RequestQueryParams";
 import { TGetOriginalRequestResponseValue } from "../../../response/middleware/output/OriginalResponseValue";
 import { AggregateRequestMiddleware } from "../../events/preparation/AggregateRequestMiddleware";
@@ -59,16 +59,20 @@ export class FactoryMiddlewareFactory extends Middleware(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext>(
-			runner: IRequestRunner<Context>,
+		return <InContext extends IRequestContext>(
+			runner: IRequestRunner<InContext>,
 		) => {
-			return toMiddlewareFactory<
-				Context,
-				Context,
-				typeof factoryMiddlewareSpecification
-			>(
-				() => new FactoryMiddlewareFactory(() => new FactoryMiddleware(runner)),
-			);
+			return new MiddlewareFacade<
+				InContext,
+				typeof factoryMiddlewareSpecification,
+				IRequestRunner<InContext>
+			>({
+				name: "factory",
+				lastArgs: runner,
+				middlewareSpec: factoryMiddlewareSpecification,
+				middlewareFactory: (runner) =>
+					new FactoryMiddlewareFactory(() => new FactoryMiddleware(runner)),
+			});
 		};
 	}
 }

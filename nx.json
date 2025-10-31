@@ -1,90 +1,103 @@
 {
-	"$schema": "./node_modules/nx/schemas/nx-schema.json",
-	"generatorOptions": {
-		"preserveLocalDependencyProtocols": true
-	},
-	"namedInputs": {
-		"default": ["{projectRoot}/**/*", "sharedGlobals"],
-		"production": [
-			"default",
-			"!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
-			"!{projectRoot}/tsconfig.spec.json",
-			"!{projectRoot}/src/test-setup.[jt]s",
-			"!{projectRoot}/biome.json"
-		],
-		"sharedGlobals": []
-	},
-	"plugins": [
-		{
-			"plugin": "@nx/js/typescript",
-			"options": {
-				"typecheck": {
-					"targetName": "typecheck"
-				},
-				"build": {
-					"targetName": "build",
-					"configName": "tsconfig.lib.json",
-					"buildDepsName": "build-deps",
-					"watchDepsName": "watch-deps"
-				}
-			}
-		},
-		{
-			"plugin": "@nx/vite/plugin",
-			"options": {
-				"buildTargetName": "build",
-				"testTargetName": "test",
-				"serveTargetName": "serve",
-				"devTargetName": "dev",
-				"previewTargetName": "preview",
-				"serveStaticTargetName": "serve-static",
-				"typecheckTargetName": "typecheck",
-				"buildDepsTargetName": "build-deps",
-				"watchDepsTargetName": "watch-deps"
-			}
-		}
-	],
-	"targetDefaults": {
-		"test": {
-			"dependsOn": ["^build"]
-		},
-		"lint-biome": {
-			"inputs": ["default", "{workspaceRoot}/biome.json"],
-			"cache": true
-		},
-		"@nx/js:tsc": {
-			"cache": true,
-			"dependsOn": ["^build"],
-			"inputs": ["production", "^production"]
-		}
-	},
-	"release": {
-		"version": {
-			"preVersionCommand": "pnpm dlx nx run-many -t build"
-		}
-	},
-	"generators": {
-		"@nx/web:application": {
-			"style": "css",
-			"linter": "none",
-			"unitTestRunner": "vitest",
-			"e2eTestRunner": "none"
-		},
-		"@nx/react": {
-			"application": {
-				"babel": true,
-				"style": "tailwind",
-				"linter": "none",
-				"bundler": "vite"
-			},
-			"component": {
-				"style": "tailwind"
-			},
-			"library": {
-				"style": "tailwind",
-				"linter": "none"
-			}
-		}
-	},
-	"nxCloudId": "68f1476db6581e6749297188"
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "generatorOptions": {
+    "preserveLocalDependencyProtocols": true
+  },
+  "namedInputs": {
+    "default": [
+      "{projectRoot}/**/*",
+      "sharedGlobals"
+    ],
+    "production": [
+      "default",
+      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/tsconfig.spec.json",
+      "!{projectRoot}/src/test-setup.[jt]s",
+      "!{projectRoot}/biome.json"
+    ],
+    "sharedGlobals": []
+  },
+  "plugins": [
+    {
+      "plugin": "@nx/js/typescript",
+      "options": {
+        "typecheck": {
+          "targetName": "typecheck"
+        },
+        "build": {
+          "targetName": "build",
+          "configName": "tsconfig.lib.json",
+          "buildDepsName": "build-deps",
+          "watchDepsName": "watch-deps"
+        }
+      }
+    },
+    {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "testTargetName": "test",
+        "serveTargetName": "serve",
+        "devTargetName": "dev",
+        "previewTargetName": "preview",
+        "serveStaticTargetName": "serve-static",
+        "typecheckTargetName": "typecheck",
+        "buildDepsTargetName": "build-deps",
+        "watchDepsTargetName": "watch-deps"
+      }
+    }
+  ],
+  "targetDefaults": {
+    "test": {
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "lint-biome": {
+      "inputs": [
+        "default",
+        "{workspaceRoot}/biome.json"
+      ],
+      "cache": true
+    },
+    "@nx/js:tsc": {
+      "cache": true,
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "production",
+        "^production"
+      ]
+    }
+  },
+  "release": {
+    "version": {
+      "preVersionCommand": "pnpm dlx nx run-many -t build"
+    }
+  },
+  "generators": {
+    "@nx/web:application": {
+      "style": "css",
+      "linter": "none",
+      "unitTestRunner": "vitest",
+      "e2eTestRunner": "none"
+    },
+    "@nx/react": {
+      "application": {
+        "babel": true,
+        "style": "tailwind",
+        "linter": "none",
+        "bundler": "vite"
+      },
+      "component": {
+        "style": "tailwind"
+      },
+      "library": {
+        "style": "tailwind",
+        "linter": "none"
+      }
+    }
+  },
+  "nxCloudId": "68f1476db6581e6749297188"
 }

@@ -1,11 +1,11 @@
 import { IHeaders } from "@alette/pulse";
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
+import { IRequestContextPatch } from "../../../context/RequestContextPatches";
 import { TFullRequestContext } from "../../../context/typeUtils/RequestIOTypes";
-import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import {
 	IRequestHeaders,
 	TGetRequestHeaders,
@@ -44,25 +44,26 @@ export class HeadersMiddlewareFactory extends Middleware(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext, Headers extends IHeaders>(
-			headerSupplier: THeaderSupplier<Headers, Context>,
-		) => {
-			return toMiddlewareFactory<
-				Context,
-				IRequestContext<
-					Context["types"],
-					TMergeRecords<Context["value"], IRequestHeaders<Headers>>,
-					Context["settings"],
-					Context["accepts"],
-					Context["acceptsMounted"]
-				>,
-				typeof headersMiddlewareSpecification
-			>(
-				() =>
+		return <InContext extends IRequestContext, Headers extends IHeaders>(
+			headerSupplier: THeaderSupplier<Headers, InContext>,
+		) =>
+			new MiddlewareFacade<
+				InContext,
+				typeof headersMiddlewareSpecification,
+				THeaderSupplier<Headers, InContext>,
+				[
+					IRequestContextPatch<{
+						value: IRequestHeaders<Headers>;
+					}>,
+				]
+			>({
+				name: "headers",
+				lastArgs: headerSupplier,
+				middlewareSpec: headersMiddlewareSpecification,
+				middlewareFactory: (args) =>
 					new HeadersMiddlewareFactory(
-						() => new HeadersMiddleware(headerSupplier as THeaderSupplier),
+						() => new HeadersMiddleware(args as THeaderSupplier),
 					),
-			);
-		};
+			});
 	}
 }

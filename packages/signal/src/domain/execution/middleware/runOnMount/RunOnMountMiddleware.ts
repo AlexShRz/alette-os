@@ -4,7 +4,7 @@ import { GlobalContext } from "../../../context/services/GlobalContext";
 import { orPanic } from "../../../errors/utils/orPanic";
 import { RequestWasMounted } from "../../../lifecycle/events/RequestWasMounted";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { WithRunOnMountCheck } from "../../events/envelope/WithRunOnMountCheck";
 import { RequestMeta } from "../../services/RequestMeta";
 import { RequestMode } from "../../services/RequestMode";

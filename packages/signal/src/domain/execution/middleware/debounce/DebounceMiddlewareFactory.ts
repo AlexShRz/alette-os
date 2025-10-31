@@ -1,10 +1,10 @@
 import * as E from "effect/Effect";
 import { TRecognizedApiDuration } from "../../../../shared";
 import { IRequestContext } from "../../../context/IRequestContext";
+import { IRequestContextPatch } from "../../../context/RequestContextPatches";
 import { TRequestGlobalContext } from "../../../context/typeUtils/RequestIOTypes";
-import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import { AggregateRequestMiddleware } from "../../events/preparation/AggregateRequestMiddleware";
 import { ThrottleMiddleware } from "../throttle/ThrottleMiddleware";
 import { DebounceMiddleware } from "./DebounceMiddleware";
@@ -41,25 +41,25 @@ export class DebounceMiddlewareFactory extends Middleware(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext>(
-			durationSupplier: TDebounceMiddlewareDurationSupplier,
+		return <InContext extends IRequestContext>(
+			args: TDebounceMiddlewareDurationSupplier = 300,
 		) => {
-			return toMiddlewareFactory<
-				Context,
-				IRequestContext<
-					Context["types"],
-					Context["value"],
-					Context["settings"],
-					Context["accepts"],
-					TMergeRecords<Context["acceptsMounted"], IDebounceSettings>
-				>,
-				typeof debounceMiddlewareSpecification
-			>(
-				() =>
-					new DebounceMiddlewareFactory(
-						() => new DebounceMiddleware(durationSupplier),
-					),
-			);
+			return new MiddlewareFacade<
+				InContext,
+				typeof debounceMiddlewareSpecification,
+				TDebounceMiddlewareDurationSupplier,
+				[
+					IRequestContextPatch<{
+						acceptsMounted: IDebounceSettings;
+					}>,
+				]
+			>({
+				name: "debounce",
+				lastArgs: args,
+				middlewareSpec: debounceMiddlewareSpecification,
+				middlewareFactory: (args) =>
+					new DebounceMiddlewareFactory(() => new DebounceMiddleware(args)),
+			});
 		};
 	}
 }

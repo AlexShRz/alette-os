@@ -6,7 +6,7 @@ import {
 } from "../../../context/typeUtils/RequestIOTypes";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import { TapMiddleware } from "./TapMiddleware";
 import { tapMiddlewareSpecification } from "./tapMiddlewareSpecification";
 
@@ -34,15 +34,20 @@ export class TapMiddlewareFactory extends Middleware("TapMiddlewareFactory")(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext>(args: TTapArgs<Context>) => {
-			return toMiddlewareFactory<
-				Context,
-				Context,
-				typeof tapMiddlewareSpecification
-			>(
-				() =>
+		return <InContext extends IRequestContext, ResponseValue>(
+			args: TTapArgs<InContext>,
+		) => {
+			return new MiddlewareFacade<
+				InContext,
+				typeof tapMiddlewareSpecification,
+				TTapArgs<InContext>
+			>({
+				name: "tap",
+				lastArgs: args,
+				middlewareSpec: tapMiddlewareSpecification,
+				middlewareFactory: (args) =>
 					new TapMiddlewareFactory(() => new TapMiddleware(args as TTapArgs)),
-			);
+			});
 		};
 	}
 }

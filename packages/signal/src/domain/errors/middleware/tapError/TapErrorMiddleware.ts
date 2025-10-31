@@ -4,7 +4,7 @@ import { ApplyRequestState } from "../../../execution/events/request/ApplyReques
 import { RequestState } from "../../../execution/events/request/RequestState";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { TTapErrorArgs } from "./TapErrorMiddlewareFactory";
 
 export class TapErrorMiddleware extends Middleware("TapErrorMiddleware", {

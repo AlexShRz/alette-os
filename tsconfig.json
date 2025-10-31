@@ -20,6 +20,9 @@
     },
     {
       "path": "./packages/signal-test-utils"
+    },
+    {
+      "path": "./packages/type-utils"
     }
   ]
 }

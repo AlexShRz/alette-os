@@ -1,6 +1,9 @@
-import { RequestAbortedError, RequestFailedError } from "@alette/pulse";
+import {
+	RequestAbortedError,
+	RequestFailedError,
+	THttpStatusCode,
+} from "@alette/pulse";
 import * as Duration from "effect/Duration";
-import { IRequestContext } from "../../../context/IRequestContext";
 import { retryWhen } from "../retryWhen";
 import {
 	IRetryUnlessStatusConfig,
@@ -8,8 +11,15 @@ import {
 } from "./RetryMiddlewareTypes";
 import { getRetryConfig } from "./utils";
 
-export function retry<C extends IRequestContext>(
-	args: IRetryUnlessStatusConfig | IRetryWhenStatusConfig = {},
+export const DEFAULT_HTTP_RETRY_STATUSES: THttpStatusCode[] = [
+	401, 408, 409, 419, 425, 429, 500, 502, 503, 504,
+];
+
+export function retry(
+	args: IRetryUnlessStatusConfig | IRetryWhenStatusConfig = {
+		times: 1,
+		whenStatus: DEFAULT_HTTP_RETRY_STATUSES,
+	},
 ) {
 	const { times, backoff, whenStatus, unlessStatus } = getRetryConfig(args);
 
@@ -36,7 +46,7 @@ export function retry<C extends IRequestContext>(
 		return true;
 	};
 
-	return retryWhen<C>(({ attempt, error }) => {
+	return retryWhen(({ attempt, error }) => {
 		if (error instanceof RequestAbortedError) {
 			return false;
 		}

@@ -2,7 +2,7 @@ import * as E from "effect/Effect";
 import { AbortRequest } from "../../../execution/events/request/AbortRequest";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { TTapAbortArgs } from "./TapAbortMiddlewareFactory";
 
 export class TapAbortMiddleware extends Middleware("TapAbortMiddleware", {

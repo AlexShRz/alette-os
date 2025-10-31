@@ -6,7 +6,7 @@ import { orPanic } from "../../../errors/utils/orPanic";
 import { panic } from "../../../errors/utils/panic";
 import { OneShotRequestNotification } from "../../../lifecycle/notifications/OneShotRequestNotification";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { UrlContext } from "../../../preparation/context/url/UrlContext";
 import { WithCurrentRequestOverride } from "../../events/envelope/WithCurrentRequestOverride";
 import { AbortRequest } from "../../events/request/AbortRequest";

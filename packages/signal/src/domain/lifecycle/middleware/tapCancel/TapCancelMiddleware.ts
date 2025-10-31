@@ -2,7 +2,7 @@ import * as E from "effect/Effect";
 import { CancelRequest } from "../../../execution/events/request/CancelRequest";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { TTapCancelArgs } from "./TapCancelMiddlewareFactory";
 
 export class TapCancelMiddleware extends Middleware("TapCancelMiddleware", {

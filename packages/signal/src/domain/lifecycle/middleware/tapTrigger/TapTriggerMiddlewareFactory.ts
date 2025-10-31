@@ -3,7 +3,7 @@ import { IRequestContext } from "../../../context/IRequestContext";
 import { TRequestGlobalContext } from "../../../context/typeUtils/RequestIOTypes";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import { TapTriggerMiddleware } from "./TapTriggerMiddleware";
 import { tapTriggerMiddlewareSpecification } from "./tapTriggerMiddlewareSpecification";
 
@@ -32,17 +32,18 @@ export class TapTriggerMiddlewareFactory extends Middleware(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext>(args: TTapTriggerArgs) => {
-			return toMiddlewareFactory<
-				Context,
-				Context,
-				typeof tapTriggerMiddlewareSpecification
-			>(
-				() =>
-					new TapTriggerMiddlewareFactory(
-						() => new TapTriggerMiddleware(args as TTapTriggerArgs),
-					),
-			);
+		return <InContext extends IRequestContext>(args: TTapTriggerArgs) => {
+			return new MiddlewareFacade<
+				InContext,
+				typeof tapTriggerMiddlewareSpecification,
+				TTapTriggerArgs
+			>({
+				name: "tapTrigger",
+				lastArgs: args,
+				middlewareSpec: tapTriggerMiddlewareSpecification,
+				middlewareFactory: (args) =>
+					new TapTriggerMiddlewareFactory(() => new TapTriggerMiddleware(args)),
+			});
 		};
 	}
 }

@@ -1,7 +1,7 @@
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import { AggregateRequestMiddleware } from "../../events/preparation/AggregateRequestMiddleware";
 import { ChooseRequestWorker } from "../../events/preparation/ChooseRequestWorker";
 import { SynchronizedMiddleware } from "./SynchronizedMiddleware";
@@ -57,15 +57,18 @@ export class SynchronizedMiddlewareFactory extends Middleware(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext>() => {
-			return toMiddlewareFactory<
-				Context,
-				Context,
-				typeof synchronizedMiddlewareSpecification
-			>(
-				() =>
+		return <InContext extends IRequestContext>() => {
+			return new MiddlewareFacade<
+				InContext,
+				typeof synchronizedMiddlewareSpecification,
+				undefined
+			>({
+				name: "synchronized",
+				lastArgs: undefined,
+				middlewareSpec: synchronizedMiddlewareSpecification,
+				middlewareFactory: () =>
 					new SynchronizedMiddlewareFactory(() => new SynchronizedMiddleware()),
-			);
+			});
 		};
 	}
 }

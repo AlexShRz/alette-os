@@ -1,14 +1,14 @@
 import { ApiError } from "@alette/pulse";
 import * as E from "effect/Effect";
-import { IRequestContext } from "../../../context/IRequestContext";
+import { IRequestContext } from "../../../context";
+import { IRequestContextPatch } from "../../../context/RequestContextPatches";
 import {
 	TFullRequestContext,
 	TRequestError,
 } from "../../../context/typeUtils/RequestIOTypes";
-import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import { MapErrorMiddleware } from "./MapErrorMiddleware";
 import { IMappedErrorType } from "./MappedErrorType";
 import { mapErrorMiddlewareSpecification } from "./mapErrorMiddlewareSpecification";
@@ -42,25 +42,27 @@ export class MapErrorMiddlewareFactory extends Middleware(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext, MappedError extends ApiError>(
-			args: TMapErrorArgs<MappedError, Context>,
+		return <InContext extends IRequestContext, MappedError extends ApiError>(
+			args: TMapErrorArgs<MappedError, InContext>,
 		) => {
-			return toMiddlewareFactory<
-				Context,
-				IRequestContext<
-					TMergeRecords<Context["types"], IMappedErrorType<MappedError>>,
-					Context["value"],
-					Context["settings"],
-					Context["accepts"],
-					Context["acceptsMounted"]
-				>,
-				typeof mapErrorMiddlewareSpecification
-			>(
-				() =>
+			return new MiddlewareFacade<
+				InContext,
+				typeof mapErrorMiddlewareSpecification,
+				TMapErrorArgs<MappedError, InContext>,
+				[
+					IRequestContextPatch<{
+						types: IMappedErrorType<MappedError>;
+					}>,
+				]
+			>({
+				name: "mapError",
+				lastArgs: args,
+				middlewareSpec: mapErrorMiddlewareSpecification,
+				middlewareFactory: (args) =>
 					new MapErrorMiddlewareFactory(
 						() => new MapErrorMiddleware(args as TMapErrorArgs),
 					),
-			);
+			});
 		};
 	}
 }

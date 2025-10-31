@@ -1,8 +1,8 @@
 import * as E from "effect/Effect";
-import { IRequestContext } from "../../../context/IRequestContext";
+import { IRequestContext } from "../../../context";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import {
 	IRecognizedRequestError,
 	TAddDefaultRequestErrors,
@@ -32,22 +32,23 @@ export class ThrowsMiddlewareFactory extends Middleware(
 ) {
 	static toFactory() {
 		return <
-			Context extends IRequestContext,
+			InContext extends IRequestContext,
 			RecoverableErrors extends IRecognizedRequestError[],
 		>(
 			...errors: [...RecoverableErrors]
 		) => {
-			return toMiddlewareFactory<
-				Context,
-				IRequestContext<
-					TAddDefaultRequestErrors<Context, RecoverableErrors>,
-					Context["value"],
-					Context["settings"],
-					Context["accepts"],
-					Context["acceptsMounted"]
-				>,
-				typeof throwsMiddlewareSpecification
-			>(() => new ThrowsMiddlewareFactory(() => new ThrowsMiddleware(errors)));
+			return new MiddlewareFacade<
+				InContext,
+				typeof throwsMiddlewareSpecification,
+				[...RecoverableErrors],
+				[TAddDefaultRequestErrors<InContext, RecoverableErrors>]
+			>({
+				name: "throws",
+				lastArgs: errors,
+				middlewareSpec: throwsMiddlewareSpecification,
+				middlewareFactory: (args) =>
+					new ThrowsMiddlewareFactory(() => new ThrowsMiddleware(args)),
+			});
 		};
 	}
 }

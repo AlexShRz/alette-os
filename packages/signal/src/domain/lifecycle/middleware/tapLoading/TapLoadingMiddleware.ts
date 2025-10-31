@@ -3,7 +3,7 @@ import { ApplyRequestState } from "../../../execution/events/request/ApplyReques
 import { RequestState } from "../../../execution/events/request/RequestState";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { TTapLoadingArgs } from "./TapLoadingMiddlewareFactory";
 
 export class TapLoadingMiddleware extends Middleware("TapLoadingMiddleware", {

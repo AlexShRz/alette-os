@@ -2,7 +2,7 @@ import { RequestAbortedError } from "@alette/pulse";
 import * as E from "effect/Effect";
 import * as Runtime from "effect/Runtime";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { AbortRequest } from "../../events/request/AbortRequest";
 import { RequestMeta } from "../../services/RequestMeta";
 import { attachRequestId } from "../../utils/attachRequestId";

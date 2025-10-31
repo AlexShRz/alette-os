@@ -1,11 +1,11 @@
 import { IQueryParams } from "@alette/pulse";
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
+import { IRequestContextPatch } from "../../../context/RequestContextPatches";
 import { TFullRequestContext } from "../../../context/typeUtils/RequestIOTypes";
-import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import { QueryParamsMiddleware } from "./QueryParamsMiddleware";
 import {
 	IRequestQueryParams,
@@ -44,25 +44,30 @@ export class QueryParamsMiddlewareFactory extends Middleware(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext, QueryParams extends IQueryParams>(
-			args: TQueryParamsMiddlewareArgs<QueryParams, Context>,
+		return <
+			InContext extends IRequestContext,
+			QueryParams extends IQueryParams,
+		>(
+			args: TQueryParamsMiddlewareArgs<QueryParams, InContext>,
 		) => {
-			return toMiddlewareFactory<
-				Context,
-				IRequestContext<
-					Context["types"],
-					TMergeRecords<Context["value"], IRequestQueryParams<QueryParams>>,
-					Context["settings"],
-					Context["accepts"],
-					Context["acceptsMounted"]
-				>,
-				typeof queryParamsMiddlewareSpecification
-			>(
-				() =>
+			return new MiddlewareFacade<
+				InContext,
+				typeof queryParamsMiddlewareSpecification,
+				TQueryParamsMiddlewareArgs<QueryParams, InContext>,
+				[
+					IRequestContextPatch<{
+						value: IRequestQueryParams<QueryParams>;
+					}>,
+				]
+			>({
+				name: "queryParams",
+				lastArgs: args,
+				middlewareSpec: queryParamsMiddlewareSpecification,
+				middlewareFactory: (args) =>
 					new QueryParamsMiddlewareFactory(
 						() => new QueryParamsMiddleware(args as TQueryParamsMiddlewareArgs),
 					),
-			);
+			});
 		};
 	}
 }

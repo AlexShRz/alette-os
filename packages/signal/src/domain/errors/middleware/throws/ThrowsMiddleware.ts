@@ -2,7 +2,7 @@ import * as E from "effect/Effect";
 import { ApplyRequestState } from "../../../execution/events/request/ApplyRequestState";
 import { RequestMeta } from "../../../execution/services/RequestMeta";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { UnknownErrorCaught } from "../../errors/UnknownErrorCaught";
 import { panic } from "../../utils/panic";
 import { IRecognizedRequestError } from "./RequestRecoverableErrors";

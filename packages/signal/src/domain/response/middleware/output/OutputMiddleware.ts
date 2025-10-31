@@ -4,7 +4,7 @@ import { ApplyRequestState } from "../../../execution/events/request/ApplyReques
 import { RequestState } from "../../../execution/events/request/RequestState";
 import { RequestMeta } from "../../../execution/services/RequestMeta";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { responseAdapter } from "../../adapter";
 import { ResponseAdapter } from "../../adapter/ResponseAdapter";
 import { TOutputMiddlewareArgs } from "./OutputMiddlewareFactory";

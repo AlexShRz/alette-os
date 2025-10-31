@@ -6,7 +6,7 @@ import { RequestState } from "../../../execution/events/request/RequestState";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { IOneShotRequestState } from "../../../execution/state/IOneShotRequestState";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { orPanic } from "../../utils/orPanic";
 import { InvalidErrorMappingError } from "./InvalidErrorMappingError";
 import { TMapErrorArgs } from "./MapErrorMiddlewareFactory";

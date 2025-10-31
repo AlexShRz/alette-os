@@ -4,7 +4,7 @@ import * as P from "effect/Predicate";
 import * as Runtime from "effect/Runtime";
 import { GlobalContext } from "../../../context/services/GlobalContext";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { WithCurrentRequestOverride } from "../../events/envelope/WithCurrentRequestOverride";
 import { WithReloadableCheck } from "../../events/envelope/WithReloadableCheck";
 import { RequestMode } from "../../services/RequestMode";
@@ -13,7 +13,7 @@ import { TThrottleMiddlewareDurationSupplier } from "./ThrottleMiddlewareFactory
 type TThrottledEvent = WithCurrentRequestOverride | WithReloadableCheck;
 
 // TODO: All leading/trailing throttle later
-export class ThrottleMiddleware extends Middleware("DebounceMiddleware", {
+export class ThrottleMiddleware extends Middleware("ThrottleMiddleware", {
 	priority: MiddlewarePriority.RateLimit,
 })(
 	(durationProvider: TThrottleMiddlewareDurationSupplier) =>

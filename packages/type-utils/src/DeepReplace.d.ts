@@ -1,12 +1,12 @@
-import { IsObject } from "./IsMatchers";
+import { TIsObject } from "./IsMatchers";
 import { TFlattenIntersections } from "./Prettifiers";
 
 /**
- * DeepReplaceValue - Helper to compute the replacement value
+ * TDeepReplaceValue - Helper to compute the replacement value
  */
-type DeepReplaceValue<T, R, K extends keyof T> = K extends keyof R
-	? IsObject<R[K]> extends true
-		? IsObject<T[K]> extends true
+type TDeepReplaceValue<T, R, K extends keyof T> = K extends keyof R
+	? TIsObject<R[K]> extends true
+		? TIsObject<T[K]> extends true
 			? TFlattenIntersections<{
 					[P in keyof T[K] | keyof R[K]]: P extends keyof R[K]
 						? R[K][P]
@@ -24,8 +24,8 @@ type DeepReplaceValue<T, R, K extends keyof T> = K extends keyof R
  * @template T - The original object type
  * @template R - The replacement object type with properties to override
  */
-export type DeepReplace<T, R> = TFlattenIntersections<
+export type TDeepReplace<T, R> = TFlattenIntersections<
 	{
-		[K in keyof T]: DeepReplaceValue<T, R, K>;
+		[K in keyof T]: TDeepReplaceValue<T, R, K>;
 	} & Omit<R, keyof T>
 >;

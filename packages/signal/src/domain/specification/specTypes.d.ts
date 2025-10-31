@@ -1,4 +1,5 @@
 import { IMiddlewareSupplier } from "../middleware/IMiddlewareSupplier";
+import { TAnyMiddlewareFacade } from "../middleware/facade/TAnyMiddlewareFacade";
 import {
 	IAnyMiddlewareSpecification,
 	MiddlewareSpecification,
@@ -38,11 +39,11 @@ type HasIntersection<
 
 export type TVerifyMiddlewareSupplier<
 	RequestConstraints extends IAnyRequestSpecification,
-	MiddlewareSupplier extends IMiddlewareSupplier<any, any, any, any>,
+	MiddlewareSupplier extends TAnyMiddlewareFacade<any, any, any, any>,
 > = MiddlewareSupplier extends IMiddlewareSupplier<
 	any,
-	any,
 	infer MiddlewareSpec,
+	any,
 	any
 >
 	? TVerifyMiddlewareCompatibility<

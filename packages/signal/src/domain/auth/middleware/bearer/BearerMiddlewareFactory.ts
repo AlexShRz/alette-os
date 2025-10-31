@@ -1,11 +1,11 @@
 import * as E from "effect/Effect";
 import { Cookie, Token } from "../../../../application";
 import { IRequestContext } from "../../../context/IRequestContext";
+import { IRequestContextPatch } from "../../../context/RequestContextPatches";
 import { TRequestGlobalContext } from "../../../context/typeUtils/RequestIOTypes";
-import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import { BearerMiddleware } from "./BearerMiddleware";
 import { TBearerTokenHeaders } from "./BearerTypes";
 import { bearerMiddlewareSpecification } from "./bearerMiddlewareSpecification";
@@ -36,34 +36,33 @@ export class BearerMiddlewareFactory extends Middleware(
 ) {
 	static toFactory() {
 		return <
-			Context extends IRequestContext,
+			InContext extends IRequestContext,
 			AuthEntityType extends Token | Cookie,
 		>(
 			args: TBearerMiddlewareArgs<AuthEntityType>,
 		) => {
-			return toMiddlewareFactory<
-				Context,
-				IRequestContext<
-					Context["types"],
-					TMergeRecords<
-						Context["value"],
-						AuthEntityType extends false
+			return new MiddlewareFacade<
+				InContext,
+				typeof bearerMiddlewareSpecification,
+				TBearerMiddlewareArgs<AuthEntityType>,
+				[
+					IRequestContextPatch<{
+						value: AuthEntityType extends false
 							? { credentials: false }
 							: AuthEntityType extends Token
-								? TBearerTokenHeaders<Context, AuthEntityType>
-								: { credentials: "include" }
-					>,
-					Context["settings"],
-					Context["accepts"],
-					Context["acceptsMounted"]
-				>,
-				typeof bearerMiddlewareSpecification
-			>(
-				() =>
+								? TBearerTokenHeaders<InContext, AuthEntityType>
+								: { credentials: "include" };
+					}>,
+				]
+			>({
+				name: "bearer",
+				lastArgs: args,
+				middlewareSpec: bearerMiddlewareSpecification,
+				middlewareFactory: (args) =>
 					new BearerMiddlewareFactory(
 						() => new BearerMiddleware(args as TBearerMiddlewareArgs),
 					),
-			);
+			});
 		};
 	}
 }

@@ -3,7 +3,7 @@ import { IRequestContext } from "../../../context/IRequestContext";
 import { TFullRequestContext } from "../../../context/typeUtils/RequestIOTypes";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import { TGetRequestOrigin } from "../origin/RequestOrigin";
 import { TGetRequestPath } from "../path/RequestPath";
 import { TGetRequestQueryParams } from "../queryParams/RequestQueryParams";
@@ -44,19 +44,22 @@ export class UrlMiddlewareFactory extends Middleware("UrlMiddlewareFactory")(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext>(
-			args: TUrlMiddlewareArgs<Context>,
+		return <InContext extends IRequestContext>(
+			args: TUrlMiddlewareArgs<InContext>,
 		) => {
-			return toMiddlewareFactory<
-				Context,
-				Context,
-				typeof urlMiddlewareSpecification
-			>(
-				() =>
+			return new MiddlewareFacade<
+				InContext,
+				typeof urlMiddlewareSpecification,
+				TUrlMiddlewareArgs<InContext>
+			>({
+				name: "url",
+				lastArgs: args,
+				middlewareSpec: urlMiddlewareSpecification,
+				middlewareFactory: (args) =>
 					new UrlMiddlewareFactory(
 						() => new UrlMiddleware(args as TUrlMiddlewareArgs),
 					),
-			);
+			});
 		};
 	}
 }

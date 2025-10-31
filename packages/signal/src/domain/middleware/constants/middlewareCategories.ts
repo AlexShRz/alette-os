@@ -1,4 +1,4 @@
-import { middlewareCategory } from "../specification";
+import { middlewareCategory } from "../../specification";
 
 export const creationalMiddleware = middlewareCategory("creationalMiddleware");
 

@@ -4,7 +4,7 @@ import { IRequestContext } from "../../../context/IRequestContext";
 import { TFullRequestContext } from "../../../context/typeUtils/RequestIOTypes";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import { TapUploadProgressMiddleware } from "./TapUploadProgressMiddleware";
 import { tapUploadProgressMiddlewareSpecification } from "./tapUploadProgressMiddlewareSpecification";
 
@@ -36,20 +36,23 @@ export class TapUploadProgressMiddlewareFactory extends Middleware(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext>(
-			args: TTapUploadProgressArgs<Context>,
+		return <InContext extends IRequestContext>(
+			args: TTapUploadProgressArgs<InContext>,
 		) => {
-			return toMiddlewareFactory<
-				Context,
-				Context,
-				typeof tapUploadProgressMiddlewareSpecification
-			>(
-				() =>
+			return new MiddlewareFacade<
+				InContext,
+				typeof tapUploadProgressMiddlewareSpecification,
+				TTapUploadProgressArgs<InContext>
+			>({
+				name: "tapUploadProgress",
+				lastArgs: args,
+				middlewareSpec: tapUploadProgressMiddlewareSpecification,
+				middlewareFactory: (args) =>
 					new TapUploadProgressMiddlewareFactory(
 						() =>
 							new TapUploadProgressMiddleware(args as TTapUploadProgressArgs),
 					),
-			);
+			});
 		};
 	}
 }

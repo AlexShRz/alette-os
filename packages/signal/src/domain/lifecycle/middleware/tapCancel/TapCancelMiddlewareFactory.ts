@@ -3,7 +3,7 @@ import { IRequestContext } from "../../../context/IRequestContext";
 import { TFullRequestContext } from "../../../context/typeUtils/RequestIOTypes";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import { TapCancelMiddleware } from "./TapCancelMiddleware";
 import { tapCancelMiddlewareSpecification } from "./tapCancelMiddlewareSpecification";
 
@@ -32,17 +32,22 @@ export class TapCancelMiddlewareFactory extends Middleware(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext>(args: TTapCancelArgs<Context>) => {
-			return toMiddlewareFactory<
-				Context,
-				Context,
-				typeof tapCancelMiddlewareSpecification
-			>(
-				() =>
+		return <InContext extends IRequestContext>(
+			args: TTapCancelArgs<InContext>,
+		) => {
+			return new MiddlewareFacade<
+				InContext,
+				typeof tapCancelMiddlewareSpecification,
+				TTapCancelArgs<InContext>
+			>({
+				name: "tapCancel",
+				lastArgs: args,
+				middlewareSpec: tapCancelMiddlewareSpecification,
+				middlewareFactory: (args) =>
 					new TapCancelMiddlewareFactory(
 						() => new TapCancelMiddleware(args as TTapCancelArgs),
 					),
-			);
+			});
 		};
 	}
 }

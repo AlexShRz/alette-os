@@ -1,13 +1,13 @@
 import * as E from "effect/Effect";
 import { IRequestContext } from "../../../context/IRequestContext";
+import { IRequestContextPatch } from "../../../context/RequestContextPatches";
 import {
 	TFullRequestContext,
 	TRequestResponse,
 } from "../../../context/typeUtils/RequestIOTypes";
-import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
+import { MiddlewareFacade } from "../../../middleware/facade/MiddlewareFacade";
 import { ResponseRef } from "../../adapter/ResponseRef";
 import { MapMiddleware } from "./MapMiddleware";
 import { IMappedResponseValue } from "./MappedResponseValue";
@@ -44,23 +44,25 @@ export class MapMiddlewareFactory extends Middleware("MapMiddlewareFactory")(
 			}),
 ) {
 	static toFactory() {
-		return <Context extends IRequestContext, Mapped>(
-			args: TMapArgs<Mapped, Context>,
+		return <InContext extends IRequestContext, Mapped>(
+			args: TMapArgs<Mapped, InContext>,
 		) => {
-			return toMiddlewareFactory<
-				Context,
-				IRequestContext<
-					TMergeRecords<Context["types"], IMappedResponseValue<Mapped>>,
-					Context["value"],
-					Context["settings"],
-					Context["accepts"],
-					Context["acceptsMounted"]
-				>,
-				typeof mapMiddlewareSpecification
-			>(
-				() =>
+			return new MiddlewareFacade<
+				InContext,
+				typeof mapMiddlewareSpecification,
+				TMapArgs<Mapped, InContext>,
+				[
+					IRequestContextPatch<{
+						types: IMappedResponseValue<Mapped>;
+					}>,
+				]
+			>({
+				name: "map",
+				lastArgs: args,
+				middlewareSpec: mapMiddlewareSpecification,
+				middlewareFactory: (args) =>
 					new MapMiddlewareFactory(() => new MapMiddleware(args as TMapArgs)),
-			);
+			});
 		};
 	}
 }
