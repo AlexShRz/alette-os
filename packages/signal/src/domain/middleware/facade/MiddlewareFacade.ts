@@ -1,20 +1,18 @@
 import type { O } from "ts-toolbelt";
 import { Callable } from "../../../shared/Callable";
 import { IRequestContext } from "../../context";
-import {
-	IRequestContextPatch,
-	TApplyRequestContextPatches,
-} from "../../context/RequestContextPatches";
-import type { IAnyMiddlewareSpecification } from "../../specification";
+import { IRequestContextPatch } from "../../context/RequestContextPatches";
+import { IAnyMiddlewareSpecification } from "../../specification";
 import { RequestMiddleware } from "../RequestMiddleware";
 import { MiddlewareWasNotInitializedError } from "../error";
 
 interface IMiddlewareFacadeConfig<
+	Name extends string,
 	MiddlewareSpec extends IAnyMiddlewareSpecification,
 	Arguments,
 	OutContext extends IRequestContext,
 > {
-	name: string;
+	name: Name;
 	lastArgs: Arguments;
 	middlewareSpec: MiddlewareSpec;
 	areArgsValid: (args: Arguments | undefined) => boolean;
@@ -24,6 +22,7 @@ interface IMiddlewareFacadeConfig<
 }
 
 export class MiddlewareFacade<
+	const Name extends string,
 	InContext extends IRequestContext,
 	MiddlewareSpec extends IAnyMiddlewareSpecification,
 	Arguments,
@@ -33,15 +32,16 @@ export class MiddlewareFacade<
 	<_Arguments, _OutContextPatches extends IRequestContextPatch<any, any>[]>(
 		args: _Arguments[],
 	) => MiddlewareFacade<
-		TApplyRequestContextPatches<InContext, OutContextPatches>,
+		Name,
+		InContext,
 		MiddlewareSpec,
 		_Arguments,
-		_OutContextPatches
+		OutContextPatches
 	>
 > {
 	constructor(
 		protected config: O.Optional<
-			IMiddlewareFacadeConfig<MiddlewareSpec, Arguments, any>,
+			IMiddlewareFacadeConfig<Name, MiddlewareSpec, Arguments, any>,
 			"areArgsValid"
 		>,
 	) {

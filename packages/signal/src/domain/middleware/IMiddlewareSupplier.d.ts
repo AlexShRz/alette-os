@@ -1,5 +1,6 @@
 import { ApiRequest } from "../../application/blueprint";
 import { IRequestContext } from "../context/IRequestContext";
+import { IRequestContextPatch } from "../context/RequestContextPatches";
 import {
 	IAnyMiddlewareSpecification,
 	IAnyRequestSpecification,
@@ -26,16 +27,12 @@ import { MiddlewareFacade } from "./facade/MiddlewareFacade";
 
 export interface IMiddlewareSupplier<
 	Context extends IRequestContext,
-	NextContext extends IRequestContext,
 	MiddlewareSpec extends IAnyMiddlewareSpecification,
 	RequestSpec extends IAnyRequestSpecification,
-> extends MiddlewareFacade<
-		any[],
-		Context,
-		NextContext,
-		MiddlewareSpec,
-		RequestSpec
-	> {}
+	OutContext extends IRequestContextPatch<any, any>[],
+> {
+	(...args: any[]): MiddlewareFacade<Context, MiddlewareSpec, any, OutContext>;
+}
 
 /**
  * 1. Represents actual middleware provider fns

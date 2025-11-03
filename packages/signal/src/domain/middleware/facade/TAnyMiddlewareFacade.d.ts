@@ -1,5 +1,5 @@
 import { IRequestContextPatch } from "../../context/RequestContextPatches";
-import type { IAnyMiddlewareSpecification } from "../../specification";
+import { IAnyMiddlewareSpecification } from "../../specification";
 import { MiddlewareFacade } from "./MiddlewareFacade";
 
 /**
@@ -11,23 +11,28 @@ import { MiddlewareFacade } from "./MiddlewareFacade";
  * a hack, but at the moment I do not see a better solution.
  * */
 export type TAnyMiddlewareFacade<
+	Name extends string,
 	InContext extends object,
 	MiddlewareSpec extends IAnyMiddlewareSpecification,
 	Arguments,
 	OutContextPatches extends IRequestContextPatch<any, any>[],
-> = /**
- * Matches point-free middleware. This
- * is important, DO NOT REMOVE OR CHANGE it.
- * */
-| ((...args: any[]) => MiddlewareFacade<
-		// @ts-expect-error
-		InContext,
-		MiddlewareSpec,
-		Arguments,
-		OutContextPatches
-  >)
-/**
- * Matches preconfigured + normal middleware.
- * */
-// @ts-expect-error
-| MiddlewareFacade<InContext, MiddlewareSpec, Arguments, OutContextPatches>;
+> =
+	| ((...args: any[]) => MiddlewareFacade<
+			Name,
+			// @ts-expect-error
+			InContext,
+			MiddlewareSpec,
+			Arguments,
+			OutContextPatches
+	  >)
+	/**
+	 * Matches preconfigured + normal middleware.
+	 * */
+	// @ts-expect-error
+	| MiddlewareFacade<
+			Name,
+			InContext,
+			MiddlewareSpec,
+			Arguments,
+			OutContextPatches
+	  >;

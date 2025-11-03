@@ -1,8 +1,8 @@
 import { IRequestContext } from "../../../domain/context/IRequestContext";
 import { ReloadableMiddlewareFactory } from "../../../domain/execution/middleware/reloadable/ReloadableMiddlewareFactory";
 import { RunOnMountMiddlewareFactory } from "../../../domain/execution/middleware/runOnMount/RunOnMountMiddlewareFactory";
-import { IMiddlewareSupplier } from "../../../domain/middleware/IMiddlewareSupplier";
 import { RequestMiddleware } from "../../../domain/middleware/RequestMiddleware";
+import { TAnyMiddlewareFacade } from "../../../domain/middleware/facade/TAnyMiddlewareFacade";
 import { IAnyRequestSpecification } from "../../../domain/specification";
 import { AbstractBlueprintBuilder } from "../../blueprint/AbstractBlueprintBuilder";
 import { ApiPlugin } from "../../plugins/ApiPlugin";
@@ -10,7 +10,6 @@ import { OneShotRequest } from "../OneShotRequest";
 import { IOneShotRequestBlueprintWithMiddleware } from "./IOneShotRequestBlueprintWithMiddleware";
 
 export class OneShotRequestBlueprint<
-		PContext extends IRequestContext,
 		Context extends IRequestContext,
 		RequestSpec extends IAnyRequestSpecification,
 	>
@@ -21,7 +20,7 @@ export class OneShotRequestBlueprint<
 
 	specification<T extends IAnyRequestSpecification>(
 		specs: T,
-	): OneShotRequestBlueprint<PContext, Context, T> {
+	): OneShotRequestBlueprint<Context, T> {
 		this.savedSpecs = specs as any;
 		return this as any;
 	}
@@ -50,7 +49,7 @@ export class OneShotRequestBlueprint<
 	}
 
 	use: IOneShotRequestBlueprintWithMiddleware<Context, RequestSpec>["use"] = (
-		...middlewareFns: IMiddlewareSupplier<any, any, any, any>[]
+		...middlewareFns: TAnyMiddlewareFacade<any, any, any, any, any>[]
 	) => {
 		this._use(...middlewareFns);
 		return this as any;
@@ -62,7 +61,7 @@ export class OneShotRequestBlueprint<
 		const initializedMiddleware = this.buildMiddleware();
 		this.assertDefaultMiddlewareProvided(initializedMiddleware);
 
-		return new OneShotRequest<PContext, Context, RequestSpec>(
+		return new OneShotRequest<Context, RequestSpec>(
 			this.plugin,
 			initializedMiddleware,
 		);

@@ -42,6 +42,7 @@ export class MethodMiddlewareFactory extends Middleware(
 			supplier?: TMethodSupplier<Method, InContext>,
 		) =>
 			new MiddlewareFacade<
+				"method",
 				InContext,
 				typeof methodMiddlewareSpecification,
 				TMethodSupplier<Method, InContext> | undefined,

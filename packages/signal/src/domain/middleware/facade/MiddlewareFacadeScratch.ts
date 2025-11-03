@@ -164,15 +164,18 @@ class PipeTest<Context extends IRequestContext> {
 		return {} as any;
 	}
 
-	pipe<NC1 extends IRequestContextPatch<any, any>[]>(
-		m1: TAnyMiddlewareFacade<Context, any, any, NC1>,
+	pipe<N1 extends string, NC1 extends IRequestContextPatch<any, any>[]>(
+		m1: TAnyMiddlewareFacade<N1, Context, any, any, NC1>,
 	): PipeTest<TApplyRequestContextPatches<Context, NC1>>;
 	pipe<
+		N1 extends string,
 		NC1 extends IRequestContextPatch<any, any>[],
+		N2 extends string,
 		NC2 extends IRequestContextPatch<any, any>[],
 	>(
-		m1: TAnyMiddlewareFacade<Context, any, any, NC1>,
+		m1: TAnyMiddlewareFacade<N1, Context, any, any, NC1>,
 		m2: TAnyMiddlewareFacade<
+			N2,
 			TApplyRequestContextPatches<Context, NC1>,
 			any,
 			any,
@@ -215,7 +218,8 @@ const boundOutput = output(as<{ test: string }>())
 
 const withCommonMiddleware = slot(
 	// boundOutput,
-	boundErrors,
+	// boundErrors,
+	boundBody1,
 	throws(MyError2),
 	// throws(MyError2),
 	// input(as<{ hey: string }>()),

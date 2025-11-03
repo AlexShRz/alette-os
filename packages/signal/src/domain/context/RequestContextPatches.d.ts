@@ -1,4 +1,5 @@
 import { TDeepMerge, TDeepReplace } from "@alette/type-utils";
+import { IRequestContext } from "./IRequestContext";
 
 type TRequestContextPatchStrategy = "replace" | "merge";
 

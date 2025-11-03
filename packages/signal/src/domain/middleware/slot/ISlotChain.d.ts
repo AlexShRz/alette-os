@@ -8,14 +8,15 @@ import { Slot } from "./Slot";
 
 export interface ISlotChain<Context extends IRequestContext> {
 	with<NC1 extends IRequestContextPatch<any, any>[]>(
-		m1: TAnyMiddlewareFacade<Context, any, any, NC1>,
+		m1: TAnyMiddlewareFacade<any, Context, any, any, NC1>,
 	): Slot<TApplyRequestContextPatches<Context, NC1>, [typeof m1]>;
 	with<
 		NC1 extends IRequestContextPatch<any, any>[],
 		NC2 extends IRequestContextPatch<any, any>[],
 	>(
-		m1: TAnyMiddlewareFacade<Context, any, any, NC1>,
+		m1: TAnyMiddlewareFacade<any, Context, any, any, NC1>,
 		m2: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, NC1>,
 			any,
 			any,
@@ -30,14 +31,16 @@ export interface ISlotChain<Context extends IRequestContext> {
 		NC2 extends IRequestContextPatch<any, any>[],
 		NC3 extends IRequestContextPatch<any, any>[],
 	>(
-		m1: TAnyMiddlewareFacade<Context, any, any, NC1>,
+		m1: TAnyMiddlewareFacade<any, Context, any, any, NC1>,
 		m2: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, NC1>,
 			any,
 			any,
 			NC2
 		>,
 		m3: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2]>,
 			any,
 			any,
@@ -53,20 +56,23 @@ export interface ISlotChain<Context extends IRequestContext> {
 		NC3 extends IRequestContextPatch<any, any>[],
 		NC4 extends IRequestContextPatch<any, any>[],
 	>(
-		m1: TAnyMiddlewareFacade<Context, any, any, NC1>,
+		m1: TAnyMiddlewareFacade<any, Context, any, any, NC1>,
 		m2: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, NC1>,
 			any,
 			any,
 			NC2
 		>,
 		m3: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2]>,
 			any,
 			any,
 			NC3
 		>,
 		m4: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3]>,
 			any,
 			any,
@@ -83,26 +89,30 @@ export interface ISlotChain<Context extends IRequestContext> {
 		NC4 extends IRequestContextPatch<any, any>[],
 		NC5 extends IRequestContextPatch<any, any>[],
 	>(
-		m1: TAnyMiddlewareFacade<Context, any, any, NC1>,
+		m1: TAnyMiddlewareFacade<any, Context, any, any, NC1>,
 		m2: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, NC1>,
 			any,
 			any,
 			NC2
 		>,
 		m3: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2]>,
 			any,
 			any,
 			NC3
 		>,
 		m4: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3]>,
 			any,
 			any,
 			NC4
 		>,
 		m5: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3, ...NC4]>,
 			any,
 			any,
@@ -123,32 +133,37 @@ export interface ISlotChain<Context extends IRequestContext> {
 		NC5 extends IRequestContextPatch<any, any>[],
 		NC6 extends IRequestContextPatch<any, any>[],
 	>(
-		m1: TAnyMiddlewareFacade<Context, any, any, NC1>,
+		m1: TAnyMiddlewareFacade<any, Context, any, any, NC1>,
 		m2: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, NC1>,
 			any,
 			any,
 			NC2
 		>,
 		m3: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2]>,
 			any,
 			any,
 			NC3
 		>,
 		m4: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3]>,
 			any,
 			any,
 			NC4
 		>,
 		m5: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3, ...NC4]>,
 			any,
 			any,
 			NC5
 		>,
 		m6: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<
 				Context,
 				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5]
@@ -173,32 +188,37 @@ export interface ISlotChain<Context extends IRequestContext> {
 		NC6 extends IRequestContextPatch<any, any>[],
 		NC7 extends IRequestContextPatch<any, any>[],
 	>(
-		m1: TAnyMiddlewareFacade<Context, any, any, NC1>,
+		m1: TAnyMiddlewareFacade<any, Context, any, any, NC1>,
 		m2: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, NC1>,
 			any,
 			any,
 			NC2
 		>,
 		m3: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2]>,
 			any,
 			any,
 			NC3
 		>,
 		m4: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3]>,
 			any,
 			any,
 			NC4
 		>,
 		m5: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3, ...NC4]>,
 			any,
 			any,
 			NC5
 		>,
 		m6: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<
 				Context,
 				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5]
@@ -208,6 +228,7 @@ export interface ISlotChain<Context extends IRequestContext> {
 			NC6
 		>,
 		m7: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<
 				Context,
 				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5, ...NC6]
@@ -241,32 +262,37 @@ export interface ISlotChain<Context extends IRequestContext> {
 		NC7 extends IRequestContextPatch<any, any>[],
 		NC8 extends IRequestContextPatch<any, any>[],
 	>(
-		m1: TAnyMiddlewareFacade<Context, any, any, NC1>,
+		m1: TAnyMiddlewareFacade<any, Context, any, any, NC1>,
 		m2: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, NC1>,
 			any,
 			any,
 			NC2
 		>,
 		m3: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2]>,
 			any,
 			any,
 			NC3
 		>,
 		m4: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3]>,
 			any,
 			any,
 			NC4
 		>,
 		m5: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3, ...NC4]>,
 			any,
 			any,
 			NC5
 		>,
 		m6: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<
 				Context,
 				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5]
@@ -276,6 +302,7 @@ export interface ISlotChain<Context extends IRequestContext> {
 			NC6
 		>,
 		m7: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<
 				Context,
 				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5, ...NC6]
@@ -285,6 +312,7 @@ export interface ISlotChain<Context extends IRequestContext> {
 			NC7
 		>,
 		m8: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<
 				Context,
 				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5, ...NC6, ...NC7]
@@ -320,32 +348,37 @@ export interface ISlotChain<Context extends IRequestContext> {
 		NC8 extends IRequestContextPatch<any, any>[],
 		NC9 extends IRequestContextPatch<any, any>[],
 	>(
-		m1: TAnyMiddlewareFacade<Context, any, any, NC1>,
+		m1: TAnyMiddlewareFacade<any, Context, any, any, NC1>,
 		m2: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, NC1>,
 			any,
 			any,
 			NC2
 		>,
 		m3: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2]>,
 			any,
 			any,
 			NC3
 		>,
 		m4: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3]>,
 			any,
 			any,
 			NC4
 		>,
 		m5: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3, ...NC4]>,
 			any,
 			any,
 			NC5
 		>,
 		m6: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<
 				Context,
 				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5]
@@ -355,6 +388,7 @@ export interface ISlotChain<Context extends IRequestContext> {
 			NC6
 		>,
 		m7: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<
 				Context,
 				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5, ...NC6]
@@ -364,6 +398,7 @@ export interface ISlotChain<Context extends IRequestContext> {
 			NC7
 		>,
 		m8: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<
 				Context,
 				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5, ...NC6, ...NC7]
@@ -373,6 +408,7 @@ export interface ISlotChain<Context extends IRequestContext> {
 			NC8
 		>,
 		m9: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<
 				Context,
 				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5, ...NC6, ...NC7, ...NC8]
@@ -410,32 +446,37 @@ export interface ISlotChain<Context extends IRequestContext> {
 		NC9 extends IRequestContextPatch<any, any>[],
 		NC10 extends IRequestContextPatch<any, any>[],
 	>(
-		m1: TAnyMiddlewareFacade<Context, any, any, NC1>,
+		m1: TAnyMiddlewareFacade<any, Context, any, any, NC1>,
 		m2: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, NC1>,
 			any,
 			any,
 			NC2
 		>,
 		m3: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2]>,
 			any,
 			any,
 			NC3
 		>,
 		m4: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3]>,
 			any,
 			any,
 			NC4
 		>,
 		m5: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3, ...NC4]>,
 			any,
 			any,
 			NC5
 		>,
 		m6: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<
 				Context,
 				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5]
@@ -445,6 +486,7 @@ export interface ISlotChain<Context extends IRequestContext> {
 			NC6
 		>,
 		m7: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<
 				Context,
 				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5, ...NC6]
@@ -454,6 +496,7 @@ export interface ISlotChain<Context extends IRequestContext> {
 			NC7
 		>,
 		m8: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<
 				Context,
 				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5, ...NC6, ...NC7]
@@ -463,6 +506,7 @@ export interface ISlotChain<Context extends IRequestContext> {
 			NC8
 		>,
 		m9: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<
 				Context,
 				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5, ...NC6, ...NC7, ...NC8]
@@ -472,6 +516,7 @@ export interface ISlotChain<Context extends IRequestContext> {
 			NC9
 		>,
 		m10: TAnyMiddlewareFacade<
+			any,
 			TApplyRequestContextPatches<
 				Context,
 				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5, ...NC6, ...NC7, ...NC8, ...NC9]
@@ -511,6 +556,6 @@ export interface ISlotChain<Context extends IRequestContext> {
 	>;
 
 	with(
-		...middleware: TAnyMiddlewareFacade<any, any, any, any>[]
+		...middleware: TAnyMiddlewareFacade<any, any, any, any, any>[]
 	): Slot<any, any>;
 }

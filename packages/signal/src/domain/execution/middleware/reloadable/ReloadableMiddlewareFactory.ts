@@ -50,6 +50,7 @@ export class ReloadableMiddlewareFactory extends Middleware(
 			predicate?: IReloadableMiddlewareCheck<InContext>,
 		) => {
 			return new MiddlewareFacade<
+				"reloadable",
 				InContext,
 				typeof reloadableMiddlewareSpecification,
 				IReloadableMiddlewareCheck<InContext> | undefined

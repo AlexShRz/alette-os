@@ -18,7 +18,6 @@ import { ApiPlugin } from "../plugins/ApiPlugin";
 export type TAnyMiddlewareInjector = RequestMiddleware | RequestWatcher;
 
 export abstract class ApiRequest<
-	PrevContext extends IRequestContext = IRequestContext,
 	Context extends IRequestContext = IRequestContext,
 	RequestSpec extends IAnyRequestSpecification = IAnyRequestSpecification,
 > extends Callable<

@@ -5,14 +5,14 @@ import { ISlotChain } from "./ISlotChain";
 
 export class Slot<
 	Context extends IRequestContext,
-	Middleware extends TAnyMiddlewareFacade<any, any, any, any>[],
+	Middleware extends TAnyMiddlewareFacade<any, any, any, any, any>[],
 > extends Callable<[], Middleware> {
 	constructor(protected middleware = [] as unknown as Middleware) {
 		super(() => this.middleware);
 	}
 
 	with: ISlotChain<Context>["with"] = (
-		...middleware: TAnyMiddlewareFacade<any, any, any, any>[]
+		...middleware: TAnyMiddlewareFacade<any, any, any, any, any>[]
 	) => {
 		return new Slot([...middleware]) as any;
 	};

@@ -13,11 +13,10 @@ import { IOneShotRequestWithMiddleware } from "./IOneShotRequestWithMiddleware";
 import { OneShotRequestController } from "./controller/OneShotRequestController";
 
 export class OneShotRequest<
-		PrevContext extends IRequestContext = IRequestContext,
 		Context extends IRequestContext = IRequestContext,
 		RequestSpec extends RequestSpecification = RequestSpecification,
 	>
-	extends ApiRequest<PrevContext, Context, RequestSpec>
+	extends ApiRequest<Context, RequestSpec>
 	implements IOneShotRequestWithMiddleware<Context, RequestSpec>
 {
 	constructor(
