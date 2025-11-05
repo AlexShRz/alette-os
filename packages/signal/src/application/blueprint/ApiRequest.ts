@@ -21,8 +21,7 @@ export abstract class ApiRequest<
 	Context extends IRequestContext = IRequestContext,
 	RequestSpec extends IAnyRequestSpecification = IAnyRequestSpecification,
 > extends Callable<
-	[TRequestSettings<Context>] | [],
-	Promise<TRequestResponse<Context>>
+	(args?: TRequestSettings<Context>) => Promise<TRequestResponse<Context>>
 > {
 	/**
 	 * IMPORTANT:

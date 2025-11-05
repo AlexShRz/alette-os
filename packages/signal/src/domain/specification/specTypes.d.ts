@@ -1,5 +1,8 @@
+import { IRequestContext } from "../context";
+import { IRequestContextPatch } from "../context/RequestContextPatches";
 import { MiddlewareFacade } from "../middleware/facade/MiddlewareFacade";
 import { TAnyMiddlewareFacade } from "../middleware/facade/TAnyMiddlewareFacade";
+import { InitializedFacade, UninitializedFacade } from "../preparation";
 import {
 	IAnyMiddlewareSpecification,
 	MiddlewareSpecification,
@@ -38,17 +41,25 @@ type HasIntersection<
 	: false;
 
 export type TVerifyMiddlewareSupplier<
-	RequestConstraints extends IAnyRequestSpecification,
-	MiddlewareSupplier extends MiddlewareFacade<any, any, any, any, any, any>,
-> = MiddlewareSupplier extends TAnyMiddlewareFacade<
-	infer Name,
-	any,
-	infer MiddlewareSpec,
-	any,
-	any
->
+	Context extends IRequestContext,
+	MiddlewareSupplier,
+> = MiddlewareSupplier extends
+	| UninitializedFacade<
+			any,
+			Context,
+			any,
+			infer MiddlewareSpec,
+			infer RequestConstraints
+	  >
+	| InitializedFacade<
+			any,
+			Context,
+			any,
+			infer MiddlewareSpec,
+			infer RequestConstraints
+	  >
 	? TVerifyMiddlewareCompatibility<
-			Name,
+			string,
 			RequestConstraints,
 			MiddlewareSpec,
 			MiddlewareSupplier
@@ -59,7 +70,6 @@ export type TVerifyMiddlewareSupplier<
 		};
 
 export type TVerifyMiddlewareCompatibility<
-	MiddlewareName extends string,
 	RequestConstraints extends IAnyRequestSpecification,
 	MiddlewareRequestConstraints extends IAnyMiddlewareSpecification,
 	ReturnedValue,
@@ -68,32 +78,41 @@ export type TVerifyMiddlewareCompatibility<
 	infer AllowedMiddlewareTags,
 	infer ProhibitedMiddlewareTags
 >
-	? MiddlewareRequestConstraints extends MiddlewareSpecification<
-			infer MiddlewareTags,
-			infer MiddlewareProhibitedRequestTags
+	? RequestConstraints extends RequestSpecification<
+			infer RequestTags,
+			infer AllowedMiddlewareTags,
+			infer ProhibitedMiddlewareTags
 		>
-		? HasIntersection<MiddlewareTags, ProhibitedMiddlewareTags> extends true
-			? {
-					error: NotCompatibleMiddlewareError;
-					reason: `The request prohibits the '${MiddlewareName}()' middleware from being applied.`;
-				}
-			: HasIntersection<
-						MiddlewareProhibitedRequestTags,
-						RequestTags
-					> extends true
+		? MiddlewareRequestConstraints extends MiddlewareSpecification<
+				infer MiddlewareTags,
+				infer MiddlewareProhibitedRequestTags
+			>
+			? HasIntersection<MiddlewareTags, ProhibitedMiddlewareTags> extends true
 				? {
 						error: NotCompatibleMiddlewareError;
-						reason: `The '${MiddlewareName}()' middleware marks this request type as non-compatible with itself.`;
+						reason: "The request prohibits this middleware from being applied.";
 					}
-				: HasIntersection<MiddlewareTags, AllowedMiddlewareTags> extends true
-					? ReturnedValue
-					: {
+				: HasIntersection<
+							MiddlewareProhibitedRequestTags,
+							RequestTags
+						> extends true
+					? {
 							error: NotCompatibleMiddlewareError;
-							reason: `The request hasn't marked the '${MiddlewareName}()' middleware as applicable to itself.`;
+							reason: "The middleware marks this request type as non-compatible with itself.";
 						}
+					: HasIntersection<MiddlewareTags, AllowedMiddlewareTags> extends true
+						? ReturnedValue
+						: {
+								error: NotCompatibleMiddlewareError;
+								reason: "The request hasn't marked this middleware as applicable to itself.";
+							}
+			: {
+					error: NotCompatibleMiddlewareError;
+					reason: "Invalid middleware constraints";
+				}
 		: {
 				error: NotCompatibleMiddlewareError;
-				reason: "Invalid middleware constraints";
+				reason: "Invalid request constraints";
 			}
 	: {
 			error: NotCompatibleMiddlewareError;

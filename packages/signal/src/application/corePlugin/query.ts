@@ -76,6 +76,8 @@ type asdasd = TVerifyMiddlewareCompatibility<
 
 type asdasdas = TSpec<typeof heyyy>;
 
+const test = method("OPTIONS");
+
 //
 // heyyy.getArgs();
 //
@@ -83,18 +85,25 @@ const asdasd = blueprint()
 	.specification(
 		requestSpecification()
 			.accepts(...allRequestMiddleware, factoryMiddlewareName)
-			.prohibits(methodMiddlewareName)
+			// .prohibits(methodMiddlewareName)
 			.build(),
 	)
 	.use(
 		heyyy,
-		// method(({ method }) => "GET" as const),
+		method(({ method }) => "GET" as const),
+		// test
 		// // {},
-		// method(({ method }) => "PATCH" as const),
+		// method(({ method }) => "DELETE" as const),
 		// method(({ method }) => "GET" as const),
+		// method(({ method }) => "GET" as const),
+		// method(({ method }) => "GET" as const),
+		// // test,
+		// method(({ method }) => "GET" as const),
+		// method(({ method }) => "GET" as const),
+		// method(({ method }) => "OPTIONS" as const),
 		// method("DELETE"),
-	);
-// .use(heyyy);
+	)
+	.use(test);
 // .build();
 
 // export const queryFactory = blueprint()

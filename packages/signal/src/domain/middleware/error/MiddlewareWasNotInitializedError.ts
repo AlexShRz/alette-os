@@ -1,11 +1,11 @@
 import { FatalApiError } from "@alette/pulse";
 
 export class MiddlewareWasNotInitializedError extends FatalApiError {
-	constructor(middlewareName: string, message: string = "") {
+	constructor(middlewareName: string, lastArgs: unknown = "") {
 		super(
 			"\nMiddlewareWasNotInitializedError\n" +
 				`Could not middleware "${middlewareName}()".\n` +
-				`${message}`,
+				`Last passed arguments - "${lastArgs}".`,
 		);
 	}
 }

@@ -11,8 +11,8 @@ import { MethodMiddleware } from "./MethodMiddleware";
 import { methodMiddlewareSpecification } from "./methodMiddlewareSpecification";
 
 export type TMethodSupplier<
-	Method extends THttpMethod = THttpMethod,
 	C extends IRequestContext = IRequestContext,
+	Method extends THttpMethod = THttpMethod,
 > =
 	| ((requestContext: TFullRequestContext<C>) => Method | Promise<Method>)
 	| Method;
@@ -38,14 +38,12 @@ export class MethodMiddlewareFactory extends Middleware(
 			}),
 ) {
 	static toFactory() {
-		return <InContext extends IRequestContext, Method extends THttpMethod>(
-			supplier?: TMethodSupplier<Method, InContext>,
+		return <Context extends IRequestContext, Method extends THttpMethod>(
+			supplier?: TMethodSupplier<Method, Context>,
 		) =>
 			new MiddlewareFacade<
-				"method",
-				InContext,
 				typeof methodMiddlewareSpecification,
-				TMethodSupplier<Method, InContext> | undefined,
+				TMethodSupplier<Method, Context> | undefined,
 				[
 					IRequestContextPatch<{
 						value: IRequestMethod<Method>;

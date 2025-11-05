@@ -7,12 +7,11 @@ import { RequestMiddleware } from "../RequestMiddleware";
 import { MiddlewareWasNotInitializedError } from "../error";
 
 interface IMiddlewareFacadeConfig<
-	Name extends string,
 	MiddlewareSpec extends IAnyMiddlewareSpecification,
 	Arguments,
 	OutContext extends IRequestContext,
 > {
-	name: Name;
+	name: string;
 	lastArgs: Arguments;
 	middlewareSpec: MiddlewareSpec;
 	areArgsValid: (args: Arguments | undefined) => boolean;
@@ -22,30 +21,32 @@ interface IMiddlewareFacadeConfig<
 }
 
 export class MiddlewareFacade<
-	const Name extends string,
 	InContext extends IRequestContext,
-	MiddlewareSpec extends IAnyMiddlewareSpecification,
 	Arguments,
+	MiddlewareSpec extends IAnyMiddlewareSpecification,
 	OutContextPatches extends IRequestContextPatch<any, any>[] = [],
 > extends Callable<
-	[Arguments],
-	<_Arguments, _OutContextPatches extends IRequestContextPatch<any, any>[]>(
-		args: _Arguments[],
+	<_InContext extends IRequestContext = InContext>(
+		...args: Arguments extends undefined ? [] : [Arguments]
 	) => MiddlewareFacade<
-		Name,
-		InContext,
+		_InContext,
+		Arguments,
 		MiddlewareSpec,
-		_Arguments,
 		OutContextPatches
 	>
 > {
 	constructor(
 		protected config: O.Optional<
-			IMiddlewareFacadeConfig<Name, MiddlewareSpec, Arguments, any>,
+			IMiddlewareFacadeConfig<MiddlewareSpec, Arguments, InContext>,
 			"areArgsValid"
 		>,
 	) {
-		super((args) => new MiddlewareFacade(config)(args));
+		super((args) => {
+			return new MiddlewareFacade({
+				...config,
+				lastArgs: args as any,
+			})(args);
+		});
 	}
 
 	getMiddleware() {
@@ -55,10 +56,7 @@ export class MiddlewareFacade<
 			areArgsValid || ((args) => args !== undefined);
 
 		if (!canInitializeMiddleware(lastArgs)) {
-			throw new MiddlewareWasNotInitializedError(
-				name,
-				`Last passed arguments - "${lastArgs}".`,
-			);
+			throw new MiddlewareWasNotInitializedError(name, lastArgs);
 		}
 
 		return middlewareFactory(lastArgs);
