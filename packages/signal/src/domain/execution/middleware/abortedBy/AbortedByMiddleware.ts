@@ -6,7 +6,7 @@ import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePrio
 import { AbortRequest } from "../../events/request/AbortRequest";
 import { RequestMeta } from "../../services/RequestMeta";
 import { attachRequestId } from "../../utils/attachRequestId";
-import { TAbortedByArgs } from "./AbortedByMiddlewareFactory";
+import { TAbortedByArgs } from "./AbortedBy";
 
 export class AbortedByMiddleware extends Middleware("AbortedByMiddleware", {
 	priority: MiddlewarePriority.Interception,

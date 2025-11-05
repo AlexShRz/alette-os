@@ -1,7 +1,7 @@
 import { BusEvent } from "@alette/event-sourcing";
 import * as E from "effect/Effect";
 import { Middleware } from "../../../domain/middleware/Middleware";
-import { TActivityLensMiddlewareArgs } from "./ActivityLensMiddlewareFactory";
+import { TActivityLensMiddlewareArgs } from "./ActivityLens";
 
 export const getLensActivityMiddleware = (
 	interceptor: TActivityLensMiddlewareArgs,

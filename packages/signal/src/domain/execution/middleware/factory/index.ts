@@ -1,2 +1,2 @@
-export * from "./factory";
+export * from "./Factory";
 export { factoryMiddlewareName } from "./factoryMiddlewareSpecification";

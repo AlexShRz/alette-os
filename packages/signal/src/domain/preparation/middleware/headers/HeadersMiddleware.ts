@@ -7,7 +7,7 @@ import { RequestSessionContext } from "../../../execution/services/RequestSessio
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { getOrCreateHeaderContext } from "../../context/headers/getOrCreateHeaderContext";
-import { THeaderSupplier } from "./HeadersMiddlewareFactory";
+import { THeaderSupplier } from "./Headers";
 
 export class HeadersMiddleware extends Middleware("HeadersMiddleware", {
 	priority: MiddlewarePriority.Creation,

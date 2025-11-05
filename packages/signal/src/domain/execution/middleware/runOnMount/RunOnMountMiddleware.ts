@@ -9,7 +9,7 @@ import { WithRunOnMountCheck } from "../../events/envelope/WithRunOnMountCheck";
 import { RequestMeta } from "../../services/RequestMeta";
 import { RequestMode } from "../../services/RequestMode";
 import { attachRequestId } from "../../utils/attachRequestId";
-import { TRunOnMountMiddlewareArgs } from "./RunOnMountMiddlewareFactory";
+import { TRunOnMountMiddlewareArgs } from "./RunOnMount";
 
 export class RunOnMountMiddleware extends Middleware("RunOnMountMiddleware", {
 	priority: MiddlewarePriority.BeforeCreation,

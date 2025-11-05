@@ -36,10 +36,10 @@ export const mutationFactory = blueprint()
 			.build(),
 	)
 	.use(
-		origin(),
+		origin,
+		reloadable,
+		posts,
 		runOnMount(false),
-		reloadable(),
-		posts(),
 		factory((config, { signal, notify }) => {
 			const { url, method } = config;
 

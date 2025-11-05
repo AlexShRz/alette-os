@@ -17,7 +17,7 @@ import { RunRequest } from "../../events/request/RunRequest";
 import { RequestRunner } from "../../services/RequestRunner";
 import { RequestSessionContext } from "../../services/RequestSessionContext";
 import { attachRequestId } from "../../utils/attachRequestId";
-import { IRequestRunner } from "./FactoryMiddlewareFactory";
+import { IRequestRunner } from "./Factory";
 
 export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 	priority: MiddlewarePriority.Execution,

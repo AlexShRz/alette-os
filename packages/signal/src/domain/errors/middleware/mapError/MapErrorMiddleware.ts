@@ -9,7 +9,7 @@ import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { orPanic } from "../../utils/orPanic";
 import { InvalidErrorMappingError } from "./InvalidErrorMappingError";
-import { TMapErrorArgs } from "./MapErrorMiddlewareFactory";
+import { TMapErrorArgs } from "./MapError";
 
 export class MapErrorMiddleware extends Middleware("MapErrorMiddleware", {
 	priority: MiddlewarePriority.Mapping,

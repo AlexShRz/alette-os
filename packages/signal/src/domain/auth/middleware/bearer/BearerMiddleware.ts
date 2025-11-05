@@ -11,7 +11,7 @@ import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { getOrCreateMiscellaneousContext } from "../../../preparation/context/getOrCreateMiscellaneousContext";
 import { getOrCreateHeaderContext } from "../../../preparation/context/headers/getOrCreateHeaderContext";
-import { TBearerMiddlewareArgs } from "./BearerMiddlewareFactory";
+import { TBearerMiddlewareArgs } from "./Bearer";
 
 export class BearerMiddleware extends Middleware("BearerMiddleware", {
 	priority: MiddlewarePriority.BeforeCreation,

@@ -4,8 +4,8 @@ import {
 	TRequestSettings,
 } from "../../domain/context/typeUtils/RequestIOTypes";
 import { TRequestMode } from "../../domain/execution/services/RequestMode";
-import { IMiddlewareSupplier } from "../../domain/middleware/IMiddlewareSupplier";
 import { RequestMiddleware } from "../../domain/middleware/RequestMiddleware";
+import { TAnyMiddlewareFacade } from "../../domain/middleware/TAnyMiddlewareFacade";
 import { RequestSpecification } from "../../domain/specification";
 import { ApiRequest } from "../blueprint/ApiRequest";
 import { ApiPlugin } from "../plugins/ApiPlugin";
@@ -66,7 +66,7 @@ export class OneShotRequest<
 	}
 
 	with: IOneShotRequestWithMiddleware<Context, RequestSpec>["with"] = (
-		...middlewareInjectors: IMiddlewareSupplier<any, any, any, any>[]
+		...middlewareInjectors: TAnyMiddlewareFacade<any, any, any, any>[]
 	) => {
 		return this.mergeInjectorsAndCloneSelf(middlewareInjectors) as any;
 	};
@@ -77,8 +77,9 @@ export class OneShotRequest<
 
 	/**
 	 * @deprecated
-	 * Will be removed in V1
-	 * Call request blueprints directly - getPosts(), not getPosts.execute()
+	 * Will be removed in V1 - call request blueprints directly instead
+	 * Example:
+	 * getPosts(...), not getPosts.execute(...)
 	 * */
 	async execute(settings: TRequestSettings<Context> = {}) {
 		return this(settings);

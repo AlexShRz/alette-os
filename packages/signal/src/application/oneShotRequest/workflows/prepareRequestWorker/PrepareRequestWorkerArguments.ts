@@ -2,7 +2,7 @@ import * as Context from "effect/Context";
 import * as E from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { TRequestMode } from "../../../../domain/execution/services/RequestMode";
-import { TAnyMiddlewareInjector } from "../../../blueprint";
+import { RequestMiddleware } from "../../../../domain/middleware/RequestMiddleware";
 import { RequestController } from "../../../blueprint/controller/RequestController";
 import { ApiPlugin } from "../../../plugins/ApiPlugin";
 
@@ -28,7 +28,7 @@ export class PrepareRequestWorkerArguments extends Context.Tag(
 		workerId: string;
 		requestMode: TRequestMode;
 		/**
-		 * 1. Middleware/Watcher factories that will be lazily
+		 * 1. Middleware factories that will be lazily
 		 * initialized to aggregate actual middleware for
 		 * request worker.
 		 * 2. The aggregation is done via event dispatching. We
@@ -36,7 +36,7 @@ export class PrepareRequestWorkerArguments extends Context.Tag(
 		 * middleware injectors (they are also event bus listeners),
 		 * and injectors provide actual middleware.
 		 * */
-		middlewareInjectors: TAnyMiddlewareInjector[];
+		middlewareInjectors: RequestMiddleware<any, any>[];
 		getController: () => RequestController;
 	}
 >() {

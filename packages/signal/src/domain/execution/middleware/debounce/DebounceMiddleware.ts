@@ -8,7 +8,7 @@ import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePrio
 import { WithCurrentRequestOverride } from "../../events/envelope/WithCurrentRequestOverride";
 import { WithReloadableCheck } from "../../events/envelope/WithReloadableCheck";
 import { RequestMode } from "../../services/RequestMode";
-import { TDebounceMiddlewareDurationSupplier } from "./DebounceMiddlewareFactory";
+import { TDebounceMiddlewareDurationSupplier } from "./Debounce";
 
 type TDebouncedEvent = WithCurrentRequestOverride | WithReloadableCheck;
 

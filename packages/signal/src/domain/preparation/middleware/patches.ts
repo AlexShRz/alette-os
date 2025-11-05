@@ -1,3 +1,3 @@
 import { method } from "./method";
 
-export const patches = () => method("PATCH");
+export const patches = method("PATCH");

@@ -5,17 +5,11 @@ import {
 	TRequestSettings,
 } from "../../domain/context/typeUtils/RequestIOTypes";
 import { IRequestSettingSupplier } from "../../domain/execution/services/RequestSessionContext";
-import {
-	IMiddlewareSupplier,
-	IRuntimeMiddlewareSupplierFn,
-} from "../../domain/middleware/IMiddlewareSupplier";
 import { RequestMiddleware } from "../../domain/middleware/RequestMiddleware";
+import { TAnyMiddlewareFacade } from "../../domain/middleware/TAnyMiddlewareFacade";
 import { IAnyRequestSpecification } from "../../domain/specification";
-import { RequestWatcher } from "../../domain/watchers/RequestWatcher";
 import { Callable } from "../../shared/Callable";
 import { ApiPlugin } from "../plugins/ApiPlugin";
-
-export type TAnyMiddlewareInjector = RequestMiddleware | RequestWatcher;
 
 export abstract class ApiRequest<
 	Context extends IRequestContext = IRequestContext,
@@ -43,12 +37,12 @@ export abstract class ApiRequest<
 	 * */
 	protected settingSupplier: IRequestSettingSupplier<Context> = () => ({});
 	/**
-	 * 1. Holds middleware and watchers.
-	 * 2. Because we hold ONLY layers here, our middleware/watchers
+	 * 1. Holds middleware facades.
+	 * 2. Because we hold ONLY layers here, our middleware
 	 * are lazy by default. They will be created only when we put
 	 * them inside an event bus.
 	 * */
-	protected middlewareInjectors: TAnyMiddlewareInjector[] = [];
+	protected middlewareFacades: TAnyMiddlewareFacade<any, any, any, any>[] = [];
 
 	getKey() {
 		return this.blueprintKey;
@@ -58,12 +52,15 @@ export abstract class ApiRequest<
 		return this.settingSupplier;
 	}
 
-	protected getAllMiddlewareInjectors() {
-		return [...this.defaultMiddleware, ...this.middlewareInjectors];
+	protected getAllMiddlewareInjectors(): RequestMiddleware<any, any>[] {
+		return [
+			...this.defaultMiddleware,
+			...this.middlewareFacades.map((m) => m.getMiddleware()),
+		];
 	}
 
 	protected mergeInjectorsAndCloneSelf(
-		lazyMiddlewareSuppliers: IMiddlewareSupplier<any, any, any, any>[],
+		middlewareFacades: TAnyMiddlewareFacade<any, any, any, any>[],
 	) {
 		/**
 		 * 1. Here we need to CLONE the request WHILE
@@ -75,12 +72,7 @@ export abstract class ApiRequest<
 		/**
 		 * Make sure to copy middleware AFTER cloning
 		 * */
-		self.middlewareInjectors = [
-			...this.middlewareInjectors,
-			...(lazyMiddlewareSuppliers as IRuntimeMiddlewareSupplierFn[]).map((fn) =>
-				fn()(),
-			),
-		];
+		self.middlewareFacades = [...this.middlewareFacades, ...middlewareFacades];
 		return self;
 	}
 
@@ -106,7 +98,7 @@ export abstract class ApiRequest<
 
 	clone(): this {
 		const self = this._clone();
-		self.middlewareInjectors = [...this.middlewareInjectors];
+		self.middlewareFacades = [...this.middlewareFacades];
 		self.settingSupplier = this.settingSupplier;
 		/**
 		 * IMPORTANT - copy blueprint key without

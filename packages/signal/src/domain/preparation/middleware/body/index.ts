@@ -1,2 +1,2 @@
-export * from "./body";
+export * from "./Body";
 export { bodyMiddlewareName } from "./bodyMiddlewareSpecification";

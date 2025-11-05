@@ -1,2 +1,2 @@
-export * from "./path";
+export * from "./Path";
 export { pathMiddlewareName } from "./pathMiddlewareSpecification";

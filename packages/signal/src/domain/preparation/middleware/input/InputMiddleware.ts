@@ -9,7 +9,7 @@ import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePrio
 import { argumentAdapter } from "../../context";
 import { ArgumentContext } from "../../context/arguments/ArgumentContext";
 import { ArgumentAdapter } from "../../context/arguments/adapter/ArgumentAdapter";
-import { TInputMiddlewareArgValue } from "./InputMiddlewareFactory";
+import { TInputMiddlewareArgValue } from "./Input";
 
 export class InputMiddleware extends Middleware("InputMiddleware", {
 	priority: MiddlewarePriority.Creation,

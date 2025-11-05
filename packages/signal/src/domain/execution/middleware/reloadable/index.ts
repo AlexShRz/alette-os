@@ -1,2 +1,2 @@
-export * from "./reloadable";
+export * from "./Reloadable";
 export { reloadableMiddlewareName } from "./reloadableMiddlewareSpecification";

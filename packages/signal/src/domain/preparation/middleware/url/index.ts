@@ -1,2 +1,2 @@
-export * from "./url";
+export * from "./Url";
 export { urlMiddlewareSpecification } from "./urlMiddlewareSpecification";

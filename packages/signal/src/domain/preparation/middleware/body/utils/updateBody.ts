@@ -5,7 +5,7 @@ import { orPanic } from "../../../../errors/utils/orPanic";
 import { RequestSessionContext } from "../../../../execution/services/RequestSessionContext";
 import { BodyContext } from "../../../context/body/BodyContext";
 import { getOrCreateHeaderContext } from "../../../context/headers/getOrCreateHeaderContext";
-import { TBodySupplier } from "../BodyMiddlewareFactory";
+import { TBodySupplier } from "../Body";
 import { BodyUpdateOperationArgs } from "./BodyUpdateOperationArgs";
 import {
 	setByteBody,

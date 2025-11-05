@@ -11,7 +11,7 @@ import { RequestSessionContext } from "../../../execution/services/RequestSessio
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { IRetrySettings } from "../RetrySettings";
-import { IRetryWhenMiddlewareArgs } from "./RetryWhenMiddlewareFactory";
+import { IRetryWhenMiddlewareArgs } from "./RetryWhen";
 
 export class RetryWhenMiddleware extends Middleware("RetryWhenMiddleware", {
 	priority: MiddlewarePriority.Interception,

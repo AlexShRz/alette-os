@@ -1,2 +1,2 @@
-export * from "./abortedBy";
+export * from "./AbortedBy";
 export { abortedByMiddlewareName } from "./abortedByMiddlewareSpecification";

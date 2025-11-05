@@ -1,2 +1,2 @@
-export * from "./map";
+export * from "./Map";
 export { mapMiddlewareName } from "./mapMiddlewareSpecification";

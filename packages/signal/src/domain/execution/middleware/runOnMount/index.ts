@@ -1,2 +1,2 @@
-export * from "./runOnMount";
+export * from "./RunOnMount";
 export { runOnMountMiddlewareName } from "./runOnMountMiddlewareSpecification";

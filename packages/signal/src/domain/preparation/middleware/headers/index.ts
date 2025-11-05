@@ -1,2 +1,2 @@
-export * from "./headers";
+export * from "./Headers";
 export { headersMiddlewareName } from "./headersMiddlewareSpecification";

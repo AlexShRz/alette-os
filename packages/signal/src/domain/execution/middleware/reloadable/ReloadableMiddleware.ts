@@ -10,7 +10,7 @@ import { RunRequest } from "../../events/request/RunRequest";
 import { RequestMeta } from "../../services/RequestMeta";
 import { RequestMode } from "../../services/RequestMode";
 import { RequestSessionContext } from "../../services/RequestSessionContext";
-import { IReloadableMiddlewareCheck } from "./ReloadableMiddlewareFactory";
+import { IReloadableMiddlewareCheck } from "./Reloadable";
 
 export class ReloadableMiddleware extends Middleware("ReloadableMiddleware", {
 	priority: MiddlewarePriority.Interception,

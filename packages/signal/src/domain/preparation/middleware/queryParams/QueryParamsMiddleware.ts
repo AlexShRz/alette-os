@@ -7,7 +7,7 @@ import { RequestSessionContext } from "../../../execution/services/RequestSessio
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { getOrCreateUrlContext } from "../../context/url/getOrCreateUrlContext";
-import { TQueryParamsMiddlewareArgs } from "./QueryParamsMiddlewareFactory";
+import { TQueryParamsMiddlewareArgs } from "./QueryParams";
 
 export class QueryParamsMiddleware extends Middleware("QueryParamsMiddleware", {
 	priority: MiddlewarePriority.Creation,

@@ -1,2 +1,2 @@
-export * from "./tapTrigger";
+export * from "./TapTrigger";
 export { tapTriggerMiddlewareName } from "./tapTriggerMiddlewareSpecification";

@@ -1,2 +1,2 @@
-export * from "./tapMount";
+export * from "./TapMount";
 export { tapMountMiddlewareName } from "./tapMountMiddlewareSpecification";

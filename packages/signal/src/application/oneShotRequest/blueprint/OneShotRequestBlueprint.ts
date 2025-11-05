@@ -2,7 +2,7 @@ import { IRequestContext } from "../../../domain/context/IRequestContext";
 import { ReloadableMiddlewareFactory } from "../../../domain/execution/middleware/reloadable/ReloadableMiddlewareFactory";
 import { RunOnMountMiddlewareFactory } from "../../../domain/execution/middleware/runOnMount/RunOnMountMiddlewareFactory";
 import { RequestMiddleware } from "../../../domain/middleware/RequestMiddleware";
-import { TAnyMiddlewareFacade } from "../../../domain/middleware/facade/TAnyMiddlewareFacade";
+import { TAnyMiddlewareFacade } from "../../../domain/middleware/TAnyMiddlewareFacade";
 import { IAnyRequestSpecification } from "../../../domain/specification";
 import { AbstractBlueprintBuilder } from "../../blueprint/AbstractBlueprintBuilder";
 import { ApiPlugin } from "../../plugins/ApiPlugin";
@@ -49,7 +49,7 @@ export class OneShotRequestBlueprint<
 	}
 
 	use: IOneShotRequestBlueprintWithMiddleware<Context, RequestSpec>["use"] = (
-		...middlewareFns: TAnyMiddlewareFacade<any, any, any, any, any>[]
+		...middlewareFns: TAnyMiddlewareFacade<Context, any, any, any>[]
 	) => {
 		this._use(...middlewareFns);
 		return this as any;

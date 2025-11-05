@@ -1,6 +1,6 @@
 import { IRequestContext } from "../context";
 import { IRequestContextPatch } from "../context/RequestContextPatches";
-import { MiddlewareFacade } from "../middleware/facade/MiddlewareFacade";
+import { MiddlewareFacade } from "../middleware/MiddlewareFacade";
 import { TAnyMiddlewareFacade } from "../middleware/facade/TAnyMiddlewareFacade";
 import { InitializedFacade, UninitializedFacade } from "../preparation";
 import {

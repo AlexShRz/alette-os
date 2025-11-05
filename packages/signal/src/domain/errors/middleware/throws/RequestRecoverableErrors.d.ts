@@ -12,7 +12,6 @@ export type TExtractErrorInstances<
 > = ErrorsConstructors extends IRecognizedRequestError<infer E>[] ? E : never;
 
 export type TAddDefaultRequestErrors<
-	C extends IRequestContext,
 	ErrorsConstructors extends IRecognizedRequestError[],
 	Errors = TExtractErrorInstances<ErrorsConstructors>,
 > = IRequestContextPatch<

@@ -8,7 +8,7 @@ import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePrio
 import { WithCurrentRequestOverride } from "../../events/envelope/WithCurrentRequestOverride";
 import { WithReloadableCheck } from "../../events/envelope/WithReloadableCheck";
 import { RequestMode } from "../../services/RequestMode";
-import { TThrottleMiddlewareDurationSupplier } from "./ThrottleMiddlewareFactory";
+import { TThrottleMiddlewareDurationSupplier } from "./Throttle";
 
 type TThrottledEvent = WithCurrentRequestOverride | WithReloadableCheck;
 

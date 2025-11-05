@@ -7,7 +7,7 @@ import { RequestSessionContext } from "../../../execution/services/RequestSessio
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { getOrCreateUrlContext } from "../../context/url/getOrCreateUrlContext";
-import { TPathMiddlewareArgs } from "./PathMiddlewareFactory";
+import { TPathMiddlewareArgs } from "./Path";
 
 export class PathMiddleware extends Middleware("PathMiddleware", {
 	priority: MiddlewarePriority.Creation,

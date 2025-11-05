@@ -1,15 +1,15 @@
 import * as E from "effect/Effect";
-import { TTapErrorArgs } from "../../../errors/middleware/tapError/TapErrorMiddlewareFactory";
 import { ApplyRequestState } from "../../../execution/events/request/ApplyRequestState";
 import { RequestState } from "../../../execution/events/request/RequestState";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
+import { TTapArgs } from "./Tap";
 
 export class TapMiddleware extends Middleware("TapMiddleware", {
 	priority: MiddlewarePriority.Mapping,
 })(
-	(tapSuccessFn: TTapErrorArgs) =>
+	(tapSuccessFn: TTapArgs) =>
 		({ parent, context }) =>
 			E.gen(function* () {
 				const scope = yield* E.scope;

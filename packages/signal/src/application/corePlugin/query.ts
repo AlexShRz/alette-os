@@ -1,8 +1,5 @@
 import { THttpStatusCode, r, request } from "@alette/pulse";
 import {
-	IAnyRequestSpecification,
-	TVerifyMiddlewareCompatibility,
-	TVerifyMiddlewareSupplier,
 	aboutDownloadProgress,
 	aboutUploadProgress,
 	allRequestMiddleware,
@@ -13,7 +10,6 @@ import {
 	gets,
 	hasCredentials,
 	hasHeaders,
-	method,
 	methodMiddlewareName,
 	origin,
 	reloadable,
@@ -22,11 +18,10 @@ import {
 	retry,
 	runOnMount,
 	tapUploadProgressMiddlewareName,
+	throws,
 	throwsMiddlewareName,
 } from "../../domain";
-import { TAnyMiddlewareFacade } from "../../domain/middleware/facade/TAnyMiddlewareFacade";
 import { blueprint } from "../oneShotRequest";
-import { withRecognizedErrors } from "./sharedMiddleware";
 
 export const queryCategory = requestCategory("baseQuery");
 
@@ -46,103 +41,43 @@ const querySpec = requestSpecification()
 	)
 	.build();
 
-// const tasdsa = blueprint()
-// 	.specification(
-// 		requestSpecification()
-// 			.accepts(...allRequestMiddleware, factoryMiddlewareName)
-// 			.prohibits(methodMiddlewareName)
-// 			.build(),
-// 	)
-// 	.use(method)
-// 	.build();
-
-const heyyy = method("POST");
-
-const spec = requestSpecification()
-	.accepts(...allRequestMiddleware, factoryMiddlewareName)
-	// .prohibits(methodMiddlewareName)
-	.build();
-
-type TSpec<T> = T extends TAnyMiddlewareFacade<any, infer Spec, any, any>
-	? Spec
-	: false;
-
-// type asdasd = TVerifyMiddlewareSupplier<typeof spec, typeof heyyy>;
-type asdasd = TVerifyMiddlewareCompatibility<
-	typeof spec,
-	TSpec<typeof heyyy>,
-	typeof heyyy
->;
-
-type asdasdas = TSpec<typeof heyyy>;
-
-const test = method("OPTIONS");
-
-//
-// heyyy.getArgs();
-//
-const asdasd = blueprint()
+export const queryFactory = blueprint()
 	.specification(
 		requestSpecification()
 			.accepts(...allRequestMiddleware, factoryMiddlewareName)
-			// .prohibits(methodMiddlewareName)
 			.build(),
 	)
 	.use(
-		heyyy,
-		method(({ method }) => "GET" as const),
-		// test
-		// // {},
-		// method(({ method }) => "DELETE" as const),
-		// method(({ method }) => "GET" as const),
-		// method(({ method }) => "GET" as const),
-		// method(({ method }) => "GET" as const),
-		// // test,
-		// method(({ method }) => "GET" as const),
-		// method(({ method }) => "GET" as const),
-		// method(({ method }) => "OPTIONS" as const),
-		// method("DELETE"),
-	)
-	.use(test);
-// .build();
+		origin,
+		runOnMount,
+		reloadable,
+		gets,
+		throws,
+		factory((config, { signal, notify }) => {
+			const { url, method } = config;
 
-// export const queryFactory = blueprint()
-// 	.specification(
-// 		requestSpecification()
-// 			.accepts(...allRequestMiddleware, factoryMiddlewareName)
-// 			.build(),
-// 	)
-// 	.use(
-// 		origin(),
-// 		runOnMount(),
-// 		reloadable(),
-// 		gets(),
-// 		factory((config, { signal, notify }) => {
-// 			const { url, method } = config;
-//
-// 			let base = request(
-// 				r.route(url),
-// 				r.method(method),
-// 				r.signal(signal),
-// 				r.withCookies(),
-// 				r.onUploadProgress((data) => notify(aboutUploadProgress(data))),
-// 				r.onDownloadProgress((data) => notify(aboutDownloadProgress(data))),
-// 			);
-//
-// 			if (hasHeaders(config)) {
-// 				base = base.with(r.headers(config.headers));
-// 			}
-//
-// 			if (hasCredentials(config)) {
-// 				base = base.with(r.withCookies());
-// 			}
-//
-// 			return base.execute();
-// 		}),
-// 		withRecognizedErrors(),
-// 		retry({
-// 			times: 1,
-// 			whenStatus: QUERY_RETRY_STATUSES,
-// 		}),
-// 	)
-// 	.specification(querySpec);
+			let base = request(
+				r.route(url),
+				r.method(method),
+				r.signal(signal),
+				r.withCookies(),
+				r.onUploadProgress((data) => notify(aboutUploadProgress(data))),
+				r.onDownloadProgress((data) => notify(aboutDownloadProgress(data))),
+			);
+
+			if (hasHeaders(config)) {
+				base = base.with(r.headers(config.headers));
+			}
+
+			if (hasCredentials(config)) {
+				base = base.with(r.withCookies());
+			}
+
+			return base.execute();
+		}),
+		retry({
+			times: 1,
+			whenStatus: QUERY_RETRY_STATUSES,
+		}),
+	)
+	.specification(querySpec);

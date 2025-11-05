@@ -1,2 +1,2 @@
-export * from "./bearer";
+export * from "./Bearer";
 export { bearerMiddlewareName } from "./bearerMiddlewareSpecification";

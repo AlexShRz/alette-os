@@ -4,7 +4,7 @@ import { RequestMode } from "../../../execution/services/RequestMode";
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { RequestWasMounted } from "../../events/RequestWasMounted";
-import { TTapMountArgs } from "./TapMountMiddlewareFactory";
+import { TTapMountArgs } from "./TapMount";
 
 export class TapMountMiddleware extends Middleware("TapMountMiddleware", {
 	priority: MiddlewarePriority.BeforeCreation,

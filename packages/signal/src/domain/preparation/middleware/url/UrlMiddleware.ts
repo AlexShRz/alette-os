@@ -7,10 +7,7 @@ import { RequestSessionContext } from "../../../execution/services/RequestSessio
 import { Middleware } from "../../../middleware/Middleware";
 import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { getOrCreateUrlContext } from "../../context/url/getOrCreateUrlContext";
-import {
-	IUrlMiddlewareCollectedUrlProps,
-	TUrlMiddlewareArgs,
-} from "./UrlMiddlewareFactory";
+import { IUrlMiddlewareCollectedUrlProps, TUrlMiddlewareArgs } from "./Url";
 
 export class UrlMiddleware extends Middleware("UrlMiddleware", {
 	priority: MiddlewarePriority.Creation,
