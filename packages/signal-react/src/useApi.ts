@@ -1,5 +1,5 @@
 import { IRequestContext, TAnyApiRequest } from "@alette/signal";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useSyncExternalStore } from "react";
 
 export const useApi = <Context extends IRequestContext>(
 	/**
@@ -7,7 +7,6 @@ export const useApi = <Context extends IRequestContext>(
 	 * be able to infer types.
 	 * */
 	request: TAnyApiRequest<Context>,
-	deps: unknown[] = [],
 ) => {
 	const { controller, handlers } = useMemo(() => {
 		const controller = request.control();
@@ -24,24 +23,27 @@ export const useApi = <Context extends IRequestContext>(
 	 * */
 	controller.setSettingSupplier(request.getSettingSupplier());
 
-	/**
-	 * Do not use "useSyncExternalStore" - it skips state updates.
-	 * */
-	const [requestState, updateRequestState] = useState(controller.getState());
-	useEffect(() => {
-		const unsubscribe = controller.subscribe((data) => {
-			updateRequestState(data);
-		});
+	const requestState = useSyncExternalStore(
+		controller.subscribe.bind(controller),
+		() => controller.getState(),
+	);
 
-		return () => {
-			unsubscribe();
+	useEffect(
+		() => () => {
 			controller.dispose();
-		};
-	}, []);
+		},
+		[],
+	);
 
 	useEffect(() => {
+		/**
+		 * 1. The reloading logic itself is controlled/changed
+		 * only by the "reloadable()" middleware.
+		 * 2. Reloading MUST happen on each re-render - this
+		 * is totally ok.
+		 * */
 		controller.reload();
-	}, deps);
+	});
 
 	return { ...requestState, ...handlers };
 };

@@ -4,20 +4,23 @@
 	"include": [],
 	"exclude": [],
 	"references": [
-		{
-			"path": "../pulse"
-		},
-		{
-			"path": "../event-sourcing"
-		},
-		{
-			"path": "../signal-test-utils"
-		},
-		{
-			"path": "./tsconfig.lib.json"
-		},
-		{
-			"path": "./tsconfig.spec.json"
-		}
-	]
+    {
+      "path": "../pulse"
+    },
+    {
+      "path": "../event-sourcing"
+    },
+    {
+      "path": "../shared"
+    },
+    {
+      "path": "../signal-test-utils"
+    },
+    {
+      "path": "./tsconfig.lib.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
+  ]
 }

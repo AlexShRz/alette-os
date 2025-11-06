@@ -37,7 +37,12 @@ export default defineConfig(() => ({
 		},
 		rollupOptions: {
 			// External packages that should not be bundled into your library.
-			external: [/^effect($|\/)/, "uuid"],
+			external: [
+				/^effect($|\/)/,
+				"uuid",
+				"query-string",
+				"@standard-schema/spec",
+			],
 		},
 	},
 	test: {
