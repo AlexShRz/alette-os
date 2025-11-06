@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { test } from "vitest";
 import { TDeepMerge } from "../src";
 

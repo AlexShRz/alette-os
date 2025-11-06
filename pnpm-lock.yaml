@@ -190,6 +190,9 @@ importers:
 
   packages/pulse:
     dependencies:
+      '@alette/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@standard-schema/spec':
         specifier: ^1.0.0
         version: 1.0.0
@@ -203,9 +206,6 @@ importers:
         specifier: ^11.1.0
         version: 11.1.0
     devDependencies:
-      '@alette/shared':
-        specifier: workspace:*
-        version: link:../shared
       nock:
         specifier: ^14.0.6
         version: 14.0.6
@@ -221,6 +221,9 @@ importers:
       '@alette/pulse':
         specifier: workspace:*
         version: link:../pulse
+      '@alette/shared':
+        specifier: workspace:*
+        version: link:../shared
       effect:
         specifier: ^3.17.8
         version: 3.17.8
@@ -234,9 +237,6 @@ importers:
       '@alette/event-sourcing':
         specifier: workspace:*
         version: link:../event-sourcing
-      '@alette/shared':
-        specifier: workspace:*
-        version: link:../shared
       '@alette/signal-test-utils':
         specifier: workspace:*
         version: link:../signal-test-utils
