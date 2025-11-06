@@ -1,18 +1,21 @@
 import { Callable } from "@alette/shared";
 import { IRequestContext } from "../../context";
-import { TAnyMiddlewareFacadeWithoutValidation } from "../TAnyMiddlewareFacade";
+import {
+	TAnyMiddlewareFacade,
+	TAnyMiddlewareFacadeWithoutValidation,
+} from "../TAnyMiddlewareFacade";
 import { ISlotChain } from "./ISlotChain";
 
 export class Slot<
 	Context extends IRequestContext,
-	Middleware extends TAnyMiddlewareFacadeWithoutValidation<any, any>[],
-> extends Callable<() => Middleware> {
+	const Middleware extends TAnyMiddlewareFacade<any, any, any, any>[],
+> extends Callable<() => readonly [...Middleware]> {
 	constructor(protected middleware = [] as unknown as Middleware) {
 		super(() => this.middleware);
 	}
 
 	with: ISlotChain<Context>["with"] = (
-		...middleware: TAnyMiddlewareFacadeWithoutValidation<any, any>[]
+		...middleware: TAnyMiddlewareFacadeWithoutValidation<any, any, any>[]
 	) => {
 		return new Slot([...middleware]) as any;
 	};
@@ -23,4 +26,4 @@ export class Slot<
 	}
 }
 
-export const slot = Slot.toFactory();
+export const slot = /* @__PURE__ */ Slot.toFactory();

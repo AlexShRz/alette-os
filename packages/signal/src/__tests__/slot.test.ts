@@ -1,5 +1,20 @@
+import { Schema as S } from "effect";
 import { http, HttpResponse } from "msw";
-import { as, factory, input, output, r, request, slot } from "../domain";
+import { blueprint } from "../application";
+import {
+	allRequestMiddleware,
+	baseRequest,
+	factory,
+	input,
+	method,
+	methodMiddlewareName,
+	origin,
+	output,
+	reloadable,
+	requestSpecification,
+	runOnMount,
+	slot,
+} from "../domain";
 import { createTestApi, server } from "./utils";
 
 test("it injects multiple middleware at once", async () => {
@@ -12,14 +27,44 @@ test("it injects multiple middleware at once", async () => {
 		}),
 	);
 
+	const Args = S.standardSchemaV1(
+		S.Struct({
+			res: S.String,
+		}),
+	);
+
 	const withCommonMiddleware = slot(
-		input(as<string>()),
-		// output(as<string>()),
-		// factory(({ args }) => request(r.route(testUrl.clone()))()),
+		input(Args),
+		output(Args),
+		factory(({ args }) => args),
 	);
 
 	const getData = custom(...withCommonMiddleware());
 
-	const response = await getData({ args: "asdas" });
+	const response = await getData({ args: value });
 	expect(response).toEqual(value);
 });
+
+test.todo(
+	"it shows ts errors for incompatible middleware wrapped in slot",
+	async () => {
+		const { core } = createTestApi();
+
+		const spec = requestSpecification()
+			.categorizedAs(baseRequest)
+			.accepts(...allRequestMiddleware)
+			.prohibits(methodMiddlewareName)
+			.build();
+		const myCustomRequest = blueprint()
+			.specification(spec)
+			.use(origin(), runOnMount(false), reloadable())
+			.belongsTo(core.plugin)
+			.build()
+			.toFactory();
+
+		const withCommonMiddleware = slot(method("GET"));
+
+		// @ts-expect-error
+		myCustomRequest(...withCommonMiddleware());
+	},
+);

@@ -34,4 +34,5 @@ export type TAnyMiddlewareFacade<
 export type TAnyMiddlewareFacadeWithoutValidation<
 	Context extends IRequestContext,
 	OutContext extends IRequestContextPatch<any, any>[],
-> = MiddlewareFacade<any, Context, OutContext, any>;
+	MiddlewareSpec extends IAnyMiddlewareSpecification,
+> = MiddlewareFacade<any, Context, OutContext, MiddlewareSpec>;
