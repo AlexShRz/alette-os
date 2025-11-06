@@ -1,5 +1,5 @@
 import { IQueryParams } from "@alette/pulse";
-import { TIsExactlyLeft } from "@alette/type-utils";
+import { TIsExactlyLeft } from "@alette/shared";
 import { IRequestContext } from "../../../context";
 import { IRequestContextPatch } from "../../../context/RequestContextPatches";
 import { TFullRequestContext } from "../../../context/typeUtils/RequestIOTypes";
@@ -56,4 +56,4 @@ export class QueryParams<
 	}
 }
 
-export const queryParams = new QueryParams();
+export const queryParams = /* @__PURE__ */ new QueryParams();

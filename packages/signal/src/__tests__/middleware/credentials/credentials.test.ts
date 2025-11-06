@@ -1,5 +1,5 @@
-import { credentials, factory } from "../../domain";
-import { createTestApi } from "../utils";
+import { credentials, factory } from "../../../domain";
+import { createTestApi } from "../../utils";
 
 test("it includes credentials by default if nothing was passed", async () => {
 	const { custom } = createTestApi();
@@ -11,7 +11,7 @@ test("it includes credentials by default if nothing was passed", async () => {
 		}),
 	);
 
-	expect(await getData.execute()).toEqual("include");
+	expect(await getData()).toEqual("include");
 });
 
 test.each([["include" as const], ["omit" as const], ["same-origin" as const]])(
@@ -26,7 +26,7 @@ test.each([["include" as const], ["omit" as const], ["same-origin" as const]])(
 			}),
 		);
 
-		expect(await getData.execute()).toEqual(credentialType);
+		expect(await getData()).toEqual(credentialType);
 	},
 );
 
@@ -42,5 +42,5 @@ test("it overrides middleware of the same type", async () => {
 		}),
 	);
 
-	expect(await getData.execute()).toEqual("same-origin");
+	expect(await getData()).toEqual("same-origin");
 });

@@ -31,7 +31,7 @@ export abstract class RequestContextPart<
 
 	/**
 	 * Used for inferring state from raw params
-	 * passed to us from "request.execute(...)", etc.
+	 * passed to us from "request(...)", etc.
 	 * */
 	fromRecord(record: Record<string, unknown>) {}
 }

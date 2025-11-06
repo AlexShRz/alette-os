@@ -27,7 +27,10 @@ export class ActivityLens<
 			0,
 		],
 	) {
-		super((args) => new ActivityLens(args as any));
+		super(
+			(...args) =>
+				new ActivityLens(args as [TActivityLensMiddlewareArgs, number]),
+		);
 	}
 
 	getMiddleware() {

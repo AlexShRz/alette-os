@@ -1,4 +1,4 @@
-import { IRequestContext } from "../context/IRequestContext";
+import { IRequestContext } from "../context";
 import { IRequestContextPatch } from "../context/RequestContextPatches";
 import {
 	IAnyMiddlewareSpecification,
@@ -34,5 +34,4 @@ export type TAnyMiddlewareFacade<
 export type TAnyMiddlewareFacadeWithoutValidation<
 	Context extends IRequestContext,
 	OutContext extends IRequestContextPatch<any, any>[],
-	MiddlewareSpec extends IAnyMiddlewareSpecification,
-> = MiddlewareFacade<any, Context, OutContext, MiddlewareSpec>;
+> = MiddlewareFacade<any, Context, OutContext, any>;

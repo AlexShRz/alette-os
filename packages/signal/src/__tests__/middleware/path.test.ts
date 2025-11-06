@@ -24,17 +24,12 @@ test(
 			}),
 		);
 
-		const result = await getData.execute();
-		const result2 = await getData
-			.with(
-				factory(({ url }) =>
-					request(
-						r.route(url.setOrigin(testUrl.getOrigin())),
-						r.outText(),
-					).execute(),
-				),
-			)
-			.execute();
+		const result = await getData();
+		const result2 = await getData.with(
+			factory(({ url }) =>
+				request(r.route(url.setOrigin(testUrl.getOrigin())), r.outText())(),
+			),
+		)();
 
 		await vi.waitFor(() => {
 			expect(result).toEqual([path1, path1]);
@@ -63,7 +58,7 @@ test("it can compose paths", async () => {
 		}),
 	);
 
-	const result = await getData.execute();
+	const result = await getData();
 
 	await vi.waitFor(() => {
 		expect(result).toEqual([composedPath, composedPath]);
@@ -90,7 +85,7 @@ test("it can override path set by upstream middleware", async () => {
 		}),
 	);
 
-	const result = await getData.execute();
+	const result = await getData();
 
 	await vi.waitFor(() => {
 		expect(result).toEqual([path3, path3]);
@@ -118,7 +113,7 @@ test("it throws a fatal error if the path is incorrect", async () => {
 		}),
 	);
 
-	getData.execute().catch((e) => e);
+	getData().catch((e) => e);
 
 	await vi.waitFor(() => {
 		expect(failed).toBeTruthy();

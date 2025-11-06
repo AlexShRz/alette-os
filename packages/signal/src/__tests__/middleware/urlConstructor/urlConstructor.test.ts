@@ -1,6 +1,6 @@
 import { makeQueryParams } from "@alette/pulse";
-import { path, url, factory, origin, queryParams } from "../../domain";
-import { createTestApi } from "../utils/createTestApi";
+import { path, url, factory, origin, queryParams } from "../../../domain";
+import { createTestApi } from "../../utils/createTestApi";
 
 test("it overrides default url constructor", async () => {
 	const { custom } = createTestApi();
@@ -26,7 +26,7 @@ test("it overrides default url constructor", async () => {
 		}),
 	);
 
-	const result = await getData.execute();
+	const result = await getData();
 
 	await vi.waitFor(() => {
 		expect(result).toEqual(expectedUrl);
@@ -57,7 +57,7 @@ test("it has access to url props when placed before their providers in the chain
 		}),
 	);
 
-	const result = await getData.execute();
+	const result = await getData();
 
 	await vi.waitFor(() => {
 		expect(result).toEqual(expectedUrl);
@@ -75,7 +75,7 @@ test("it can accept full url", async () => {
 		}),
 	);
 
-	const result = await getData.execute();
+	const result = await getData();
 
 	await vi.waitFor(() => {
 		expect(result).toEqual(value);
@@ -95,7 +95,7 @@ test("it overrides middleware of the same type", async () => {
 		}),
 	);
 
-	const result = await getData.execute();
+	const result = await getData();
 
 	await vi.waitFor(() => {
 		expect(result).toEqual(value2);

@@ -48,4 +48,4 @@ export class Reloadable<
 	}
 }
 
-export const reloadable = new Reloadable();
+export const reloadable = /* @__PURE__ */ new Reloadable();

@@ -36,4 +36,4 @@ export class TapError<
 	}
 }
 
-export const tapError = new TapError();
+export const tapError = /* @__PURE__ */ new TapError();

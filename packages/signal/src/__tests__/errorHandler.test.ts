@@ -35,7 +35,7 @@ test("it shuts down the system after receiving first fatal exception", async () 
 		}),
 	);
 
-	getData.execute().catch((e) => {
+	getData().catch((e) => {
 		/**
 		 * All in progress requests must be shutdown
 		 * */

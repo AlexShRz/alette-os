@@ -22,7 +22,7 @@ test(
 		const getData = custom(
 			input(as<string>()),
 			output(as<string>()),
-			factory(() => request(r.route(testUrl.clone())).execute()),
+			factory(() => request(r.route(testUrl.clone()))()),
 		);
 
 		const response = await getData({ args: "asdas" });

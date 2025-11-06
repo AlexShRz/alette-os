@@ -103,12 +103,12 @@ test("it does not throttle requests in one shot mode", async () => {
 	);
 
 	const responses = await Promise.all([
-		getData.execute(),
-		getData.execute(),
-		getData.execute(),
-		getData.execute(),
-		getData.execute(),
-		getData.execute(),
+		getData(),
+		getData(),
+		getData(),
+		getData(),
+		getData(),
+		getData(),
 	]);
 	expect(responses.every((res) => res === response)).toBeTruthy();
 });

@@ -3,7 +3,7 @@ import {
 	setContext,
 	setErrorHandler,
 	setLoggerConfig,
-} from "../../application";
+} from "../../../application";
 import {
 	path,
 	deletes,
@@ -13,8 +13,8 @@ import {
 	patches,
 	posts,
 	puts,
-} from "../../domain";
-import { createTestApi } from "../utils/createTestApi";
+} from "../../../domain";
+import { createTestApi } from "../../utils/createTestApi";
 
 test.each([
 	["GET" as THttpMethod],
@@ -34,7 +34,7 @@ test.each([
 		}),
 	);
 
-	const result = await getData.execute();
+	const result = await getData();
 
 	await vi.waitFor(() => {
 		expect(result).toEqual(passedMethod);
@@ -63,7 +63,7 @@ test("it can access request props and context", async () => {
 		}),
 	);
 
-	await getData.execute();
+	await getData();
 	await vi.waitFor(() => {
 		expect(caughtContext).toBe(context);
 		expect(caughtPath).toBe(pathValue);
@@ -83,7 +83,7 @@ test("it overrides prev middleware of the same type", async () => {
 		}),
 	);
 
-	const res = await getData.execute();
+	const res = await getData();
 	await vi.waitFor(() => {
 		expect(res).toBe(expected);
 	});
@@ -114,7 +114,7 @@ test("it throws a fatal error if the path is incorrect", async () => {
 		}),
 	);
 
-	getData.execute().catch((e) => e);
+	getData().catch((e) => e);
 
 	await vi.waitFor(() => {
 		expect(failed).toBeTruthy();
@@ -141,13 +141,14 @@ test.each([
 		const { custom } = createTestApi();
 
 		const getData = custom(
-			middleware(),
+			// @ts-ignore
+			middleware,
 			factory(({ method }) => {
 				return method;
 			}),
 		);
 
-		const result = await getData.execute();
+		const result = await getData();
 
 		await vi.waitFor(() => {
 			expect(result).toEqual(passedMethod);

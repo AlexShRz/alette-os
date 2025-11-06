@@ -32,4 +32,4 @@ export class TapLoading<
 	}
 }
 
-export const tapLoading = new TapLoading();
+export const tapLoading = /* @__PURE__ */ new TapLoading();

@@ -50,4 +50,4 @@ export class MapError<
 	}
 }
 
-export const mapError = new MapError();
+export const mapError = /* @__PURE__ */ new MapError();

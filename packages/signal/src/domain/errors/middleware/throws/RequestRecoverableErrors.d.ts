@@ -1,5 +1,5 @@
 import type { ApiError } from "@alette/pulse";
-import { TDeepMergeAsOpaqueValue } from "@alette/type-utils";
+import { TDeepMergeAsOpaqueValue } from "@alette/shared";
 import type { Ctor } from "effect/Types";
 import { IRequestContext } from "../../../context";
 import { IRequestContextPatch } from "../../../context/RequestContextPatches";

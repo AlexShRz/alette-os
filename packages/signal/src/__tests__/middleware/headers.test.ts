@@ -26,17 +26,15 @@ test(
 			}),
 		);
 
-		const result = await getData.execute();
-		const result2 = await getData
-			.with(
-				factory(({ url, headers }) =>
-					request(
-						r.headers(headers),
-						r.route(url.setOrigin(testUrl.getOrigin())),
-					).execute(),
-				),
-			)
-			.execute();
+		const result = await getData();
+		const result2 = await getData.with(
+			factory(({ url, headers }) =>
+				request(
+					r.headers(headers),
+					r.route(url.setOrigin(testUrl.getOrigin())),
+				)(),
+			),
+		)();
 
 		await vi.waitFor(() => {
 			expect(result).toStrictEqual(myHeaders);
@@ -66,7 +64,7 @@ test("it can be combined", async () => {
 		}),
 	);
 
-	const result = await getData.execute();
+	const result = await getData();
 
 	await vi.waitFor(() => {
 		expect(result).toStrictEqual({
@@ -109,7 +107,7 @@ test.each([
 			}),
 		);
 
-		getData.execute().catch((e) => e);
+		getData().catch((e) => e);
 
 		await vi.waitFor(() => {
 			expect(failed).toBeTruthy();

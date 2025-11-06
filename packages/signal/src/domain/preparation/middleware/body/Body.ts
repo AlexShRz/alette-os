@@ -56,4 +56,4 @@ export class Body<
 	}
 }
 
-export const body = new Body();
+export const body = /* @__PURE__ */ new Body();

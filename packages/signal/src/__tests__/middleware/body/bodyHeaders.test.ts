@@ -25,7 +25,7 @@ test("it merges body headers with user headers", async () => {
 		}),
 	);
 
-	await getData.execute();
+	await getData();
 	await vi.waitFor(() => {
 		expect(returned[0]).toStrictEqual(myBody);
 		expect(returned[1]).toStrictEqual({
@@ -57,7 +57,7 @@ test("it does not override body headers if there is no collision with user heade
 		}),
 	);
 
-	await getData.execute();
+	await getData();
 	await vi.waitFor(() => {
 		expect(returned[0]).toStrictEqual(myBody);
 		expect(returned[1]).toStrictEqual(expectedHeaders);
@@ -81,7 +81,7 @@ test("it allows user headers to override set body headers", async () => {
 		}),
 	);
 
-	await getData.execute();
+	await getData();
 	await vi.waitFor(() => {
 		expect(returned[0]).toStrictEqual(myBody);
 		expect(returned[1]).toStrictEqual(userHeaders1);

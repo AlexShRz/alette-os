@@ -29,7 +29,7 @@ test("it is triggered on request execution attempt", async () => {
 		expect(logger).toStrictEqual([1]);
 	});
 
-	await getData.execute();
+	await getData();
 	await vi.waitFor(() => {
 		expect(logger).toStrictEqual([1, 1]);
 	});
@@ -113,7 +113,7 @@ test("it can access global context", async () => {
 		caughtContext = null;
 	});
 
-	await getData.execute();
+	await getData();
 	await vi.waitFor(() => {
 		expect(caughtContext).toStrictEqual(context);
 		caughtContext = null;
@@ -148,7 +148,7 @@ test("it can be combined", async () => {
 		expect(logger).toStrictEqual([1, 2, 3]);
 	});
 
-	await getData.execute();
+	await getData();
 	await vi.waitFor(() => {
 		expect(logger).toStrictEqual([1, 2, 3, 1, 2, 3]);
 	});

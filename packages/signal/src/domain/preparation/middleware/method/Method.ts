@@ -1,5 +1,5 @@
 import { THttpMethod } from "@alette/pulse";
-import { TIsExactlyLeft } from "@alette/type-utils";
+import { TIsExactlyLeft } from "@alette/shared";
 import { IRequestContext } from "../../../context";
 import { IRequestContextPatch } from "../../../context/RequestContextPatches";
 import { TFullRequestContext } from "../../../context/typeUtils/RequestIOTypes";
@@ -46,6 +46,13 @@ export class Method<
 			() => new MethodMiddleware(this.lastArgs),
 		);
 	}
+
+	static toFactory<
+		_InContext extends IRequestContext,
+		HttpMethod extends THttpMethod,
+	>(args: TMethodSupplier<_InContext, HttpMethod>) {
+		return new Method()(args || "GET");
+	}
 }
 
-export const method = new Method();
+export const method = /* @__PURE__ */ new Method();

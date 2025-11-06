@@ -39,4 +39,4 @@ export class AbortedBy<
 	}
 }
 
-export const abortedBy = new AbortedBy();
+export const abortedBy = /* @__PURE__ */ new AbortedBy();

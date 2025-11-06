@@ -1,5 +1,4 @@
-import { TIsExactlyLeft } from "@alette/type-utils";
-import { Callable } from "../../shared/Callable";
+import { Callable, TIsExactlyLeft } from "@alette/shared";
 import { IRequestContext } from "../context";
 import { IRequestContextPatch } from "../context/RequestContextPatches";
 import { IAnyMiddlewareSpecification } from "../specification";

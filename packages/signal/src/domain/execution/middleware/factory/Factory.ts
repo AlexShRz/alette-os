@@ -57,4 +57,4 @@ export class Factory<
 	}
 }
 
-export const factory = new Factory();
+export const factory = /* @__PURE__ */ new Factory();

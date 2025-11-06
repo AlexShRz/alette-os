@@ -21,10 +21,7 @@ test(
 			}),
 		);
 
-		const res = await mutation(
-			output(as<boolean>()),
-			bearer(authCookie),
-		).execute();
+		const res = await mutation(output(as<boolean>()), bearer(authCookie))();
 
 		await vi.waitFor(() => {
 			expect(res).toBeTruthy();

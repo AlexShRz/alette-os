@@ -5,8 +5,8 @@ import {
 	reloadable,
 	runOnMount,
 	throws,
-} from "../../domain";
-import { createTestApi } from "../utils";
+} from "../../../domain";
+import { createTestApi } from "../../utils";
 
 test("it throws an error when a request is aborted manually", async () => {
 	const { custom } = createTestApi();
@@ -24,7 +24,7 @@ test("it throws an error when a request is aborted manually", async () => {
 		}),
 	);
 
-	getData1.execute().catch((error) => {
+	getData1().catch((error) => {
 		logged.push(error);
 	});
 
@@ -84,7 +84,7 @@ test("it cannot abort a finished request", async () => {
 		}),
 	);
 
-	getData1.execute().catch((error) => {
+	getData1().catch((error) => {
 		logged.push(error);
 	});
 
@@ -138,7 +138,7 @@ test("it makes sure the abort error is recognizable by the api", async () => {
 		}),
 	);
 
-	getData1.execute().catch((error) => {
+	getData1().catch((error) => {
 		logged.push(error);
 	});
 
@@ -170,7 +170,7 @@ test.fails("it overrides previous middleware of the same type", async () => {
 		}),
 	);
 
-	getData1.execute().catch((error) => {
+	getData1().catch((error) => {
 		logged.push(error);
 	});
 

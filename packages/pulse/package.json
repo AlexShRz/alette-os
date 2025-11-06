@@ -19,6 +19,7 @@
 	"exports": {
 		"./package.json": "./package.json",
 		".": {
+			"development": "./src/index.ts",
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.js",
 			"default": "./dist/index.js"
@@ -31,6 +32,7 @@
 		"@standard-schema/spec": "^1.0.0"
 	},
 	"devDependencies": {
-		"nock": "^14.0.6"
+		"nock": "^14.0.6",
+		"@alette/shared": "workspace:*"
 	}
 }

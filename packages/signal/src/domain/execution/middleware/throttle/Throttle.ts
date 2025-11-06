@@ -43,4 +43,4 @@ export class Throttle<
 	}
 }
 
-export const throttle = new Throttle();
+export const throttle = /* @__PURE__ */ new Throttle();

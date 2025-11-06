@@ -23,7 +23,7 @@ export const DEFAULT_HTTP_RETRY_STATUSES: THttpStatusCode[] = [
 
 export class Retry<InContext extends IRequestContext> extends MiddlewareFacade<
 	<_InContext extends IRequestContext>(
-		args: IRetryUnlessStatusConfig | IRetryWhenStatusConfig,
+		args?: IRetryUnlessStatusConfig | IRetryWhenStatusConfig,
 	) => Retry<_InContext>,
 	InContext,
 	[
@@ -107,4 +107,4 @@ export class Retry<InContext extends IRequestContext> extends MiddlewareFacade<
 	}
 }
 
-export const retry = new Retry();
+export const retry = /* @__PURE__ */ new Retry();

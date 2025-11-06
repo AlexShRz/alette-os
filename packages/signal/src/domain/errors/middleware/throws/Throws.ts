@@ -33,8 +33,7 @@ export class Throws<
 			RequestFailedError,
 		],
 	) {
-		// @ts-ignore
-		super((args) => new Throws(args));
+		super((...args) => new Throws(args));
 	}
 
 	getMiddleware() {
@@ -44,4 +43,4 @@ export class Throws<
 	}
 }
 
-export const throws = new Throws();
+export const throws = /* @__PURE__ */ new Throws();

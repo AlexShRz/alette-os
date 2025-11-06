@@ -1,6 +1,6 @@
-import { setContext } from "../../application";
-import { as, factory, input, runOnMount } from "../../domain";
-import { createTestApi } from "../utils/createTestApi";
+import { setContext } from "../../../application";
+import { as, factory, input, runOnMount } from "../../../domain";
+import { createTestApi } from "../../utils/createTestApi";
 
 test("it automatically starts requests in mount mode if run on mount is activated", async () => {
 	const { custom } = createTestApi();
@@ -55,7 +55,7 @@ test("it disables run on mount check during one shot requests", async () => {
 		}),
 	);
 
-	const result = await getData.execute();
+	const result = await getData();
 	expect(result).toEqual(value);
 });
 

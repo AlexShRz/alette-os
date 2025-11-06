@@ -3,9 +3,9 @@ import {
 	FatalApiError,
 	RequestInterruptedError,
 } from "@alette/pulse";
-import { setErrorHandler, setLoggerConfig } from "../../application";
-import { UnknownErrorCaught, factory } from "../../domain";
-import { createTestApi } from "../utils";
+import { setErrorHandler, setLoggerConfig } from "../../../application";
+import { UnknownErrorCaught, factory } from "../../../domain";
+import { createTestApi } from "../../utils";
 
 class MyFatalError extends FatalApiError {}
 
@@ -44,7 +44,7 @@ test("it treats unknown errors as fatal", async () => {
 		}),
 	);
 
-	expect(await getData.execute()).toEqual(response);
+	expect(await getData()).toEqual(response);
 
 	getData.spawn();
 
@@ -82,7 +82,7 @@ test("it shuts down the api if a fatal error is thrown", async () => {
 		}),
 	);
 
-	request2.execute().catch((e) => {
+	request2().catch((e) => {
 		if (e instanceof RequestInterruptedError) {
 			interruptedOthers = true;
 		}

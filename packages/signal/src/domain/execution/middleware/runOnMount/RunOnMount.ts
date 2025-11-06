@@ -32,4 +32,4 @@ export class RunOnMount<
 	}
 }
 
-export const runOnMount = new RunOnMount();
+export const runOnMount = /* @__PURE__ */ new RunOnMount();

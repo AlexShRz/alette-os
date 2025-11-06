@@ -38,7 +38,7 @@ test("it throws a fatal error if response does not match schema", async () => {
 		}),
 	);
 
-	getData.execute().catch((e) => e);
+	getData().catch((e) => e);
 
 	await vi.waitFor(() => {
 		expect(failed).toBeTruthy();
@@ -79,7 +79,7 @@ test("it throws a fatal error if response does not match schema (with adapter)",
 		}),
 	);
 
-	getData.execute().catch((e) => e);
+	getData().catch((e) => e);
 
 	await vi.waitFor(() => {
 		expect(failed).toBeTruthy();
@@ -105,7 +105,7 @@ test("it overrides middleware of the same type", async () => {
 		}),
 	);
 
-	const res = await getData.execute();
+	const res = await getData();
 
 	await vi.waitFor(() => {
 		expect(res).toEqual(response);

@@ -43,7 +43,7 @@ test("it is not triggered for one shot requests", async () => {
 		}),
 	);
 
-	await getData.execute();
+	await getData();
 	await vi.waitFor(() => {
 		expect(logger).toStrictEqual([]);
 	});

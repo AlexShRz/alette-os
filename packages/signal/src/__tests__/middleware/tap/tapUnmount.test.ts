@@ -45,7 +45,7 @@ test("it is not triggered for one shot request", async () => {
 		}),
 	);
 
-	const result = await getData.execute();
+	const result = await getData();
 	expect(result).toEqual(true);
 
 	await vi.waitFor(() => {

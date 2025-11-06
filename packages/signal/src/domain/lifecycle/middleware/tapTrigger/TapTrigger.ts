@@ -32,4 +32,4 @@ export class TapTrigger<
 	}
 }
 
-export const tapTrigger = new TapTrigger();
+export const tapTrigger = /* @__PURE__ */ new TapTrigger();

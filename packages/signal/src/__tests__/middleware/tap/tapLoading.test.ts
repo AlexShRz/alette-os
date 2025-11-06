@@ -94,7 +94,7 @@ test("it can be combined", async () => {
 		expect(logged).toStrictEqual([1, 2, 3, 1, 2, 3]);
 	});
 
-	getData.execute().catch(() => {});
+	getData().catch(() => {});
 	await vi.waitFor(() => {
 		expect(logged).toStrictEqual([1, 2, 3, 1, 2, 3, 1, 2, 3]);
 	});

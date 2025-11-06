@@ -32,4 +32,4 @@ export class TapCancel<
 	}
 }
 
-export const tapCancel = new TapCancel();
+export const tapCancel = /* @__PURE__ */ new TapCancel();

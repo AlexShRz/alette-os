@@ -15,11 +15,11 @@ import {
 	requestCategory,
 	retry,
 	runOnMount,
+	throws,
 	throwsMiddlewareName,
 } from "../../domain";
 import { requestSpecification } from "../../domain/specification";
 import { blueprint } from "../oneShotRequest";
-import { withRecognizedErrors } from "./sharedMiddleware";
 
 export const mutationCategory = requestCategory("baseMutation");
 
@@ -68,9 +68,9 @@ export const mutationFactory = blueprint()
 				base = base.with(r.body(config.body));
 			}
 
-			return base.execute();
+			return base();
 		}),
-		withRecognizedErrors(),
+		throws,
 		retry({
 			times: 1,
 			whenStatus: [401, 419],

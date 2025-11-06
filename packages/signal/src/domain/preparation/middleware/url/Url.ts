@@ -53,4 +53,4 @@ export class Url<InContext extends IRequestContext> extends MiddlewareFacade<
 	}
 }
 
-export const url = new Url();
+export const url = /* @__PURE__ */ new Url();

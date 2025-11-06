@@ -73,7 +73,7 @@ export const queryFactory = blueprint()
 				base = base.with(r.withCookies());
 			}
 
-			return base.execute();
+			return base();
 		}),
 		retry({
 			times: 1,

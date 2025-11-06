@@ -42,4 +42,4 @@ export class Output<
 	}
 }
 
-export const output = new Output();
+export const output = /* @__PURE__ */ new Output();

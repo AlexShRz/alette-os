@@ -203,9 +203,18 @@ importers:
         specifier: ^11.1.0
         version: 11.1.0
     devDependencies:
+      '@alette/shared':
+        specifier: workspace:*
+        version: link:../shared
       nock:
         specifier: ^14.0.6
         version: 14.0.6
+
+  packages/shared:
+    devDependencies:
+      ts-toolbelt:
+        specifier: 6.13.11
+        version: 6.13.11
 
   packages/signal:
     dependencies:
@@ -225,12 +234,12 @@ importers:
       '@alette/event-sourcing':
         specifier: workspace:*
         version: link:../event-sourcing
+      '@alette/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@alette/signal-test-utils':
         specifier: workspace:*
         version: link:../signal-test-utils
-      '@alette/type-utils':
-        specifier: workspace:*
-        version: link:../type-utils
       '@effect/vitest':
         specifier: ^0.24.1
         version: 0.24.1(effect@3.17.8)(vitest@3.2.4(@types/node@20.19.9)(@vitest/ui@3.2.4)(happy-dom@13.7.6)(jiti@2.6.1)(jsdom@22.1.0)(lightningcss@1.30.1)(msw@2.11.3(@types/node@20.19.9)(typescript@5.9.3))(sass@1.93.2)(terser@5.44.0)(yaml@2.8.0))
@@ -305,12 +314,6 @@ importers:
       '@types/cookiejar':
         specifier: ^2.1.5
         version: 2.1.5
-
-  packages/type-utils:
-    devDependencies:
-      ts-toolbelt:
-        specifier: 6.13.11
-        version: 6.13.11
 
 packages:
 

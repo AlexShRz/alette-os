@@ -1,7 +1,7 @@
 import { ApiError } from "@alette/pulse";
-import { setErrorHandler, setLoggerConfig } from "../../application";
-import { UnknownErrorCaught, factory, throws } from "../../domain";
-import { createTestApi } from "../utils/createTestApi";
+import { setErrorHandler, setLoggerConfig } from "../../../application";
+import { UnknownErrorCaught, factory, throws } from "../../../domain";
+import { createTestApi } from "../../utils/createTestApi";
 
 test("it throws a fatal error if the error in unrecognized", async () => {
 	const { api, custom } = createTestApi();
@@ -28,7 +28,7 @@ test("it throws a fatal error if the error in unrecognized", async () => {
 		}),
 	);
 
-	getData.execute().catch((e) => e);
+	getData().catch((e) => e);
 
 	await vi.waitFor(() => {
 		expect(failed).toBeTruthy();
@@ -79,9 +79,9 @@ test("it can be combined", async () => {
 		caughtErrors.push(e as any);
 	};
 
-	await getData.execute().catch((e) => catchError(e));
-	await getData.execute().catch((e) => catchError(e));
-	await getData.execute().catch((e) => catchError(e));
+	await getData().catch((e) => catchError(e));
+	await getData().catch((e) => catchError(e));
+	await getData().catch((e) => catchError(e));
 
 	await vi.waitFor(() => {
 		caughtErrors[0] instanceof MyError1;

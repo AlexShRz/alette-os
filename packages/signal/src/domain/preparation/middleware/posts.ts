@@ -1,3 +1,3 @@
 import { method } from "./method";
 
-export const posts = method("POST");
+export const posts = /* @__PURE__ */ method("POST");

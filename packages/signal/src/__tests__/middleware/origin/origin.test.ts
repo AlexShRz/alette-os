@@ -1,9 +1,13 @@
 import { CannotSetOriginError, r, request } from "@alette/pulse";
 import { http, HttpResponse } from "msw";
-import { setErrorHandler, setLoggerConfig, setOrigin } from "../../application";
-import { factory, origin } from "../../domain";
-import { createTestApi } from "../utils/createTestApi";
-import { server } from "../utils/server";
+import {
+	setErrorHandler,
+	setLoggerConfig,
+	setOrigin,
+} from "../../../application";
+import { factory, origin } from "../../../domain";
+import { createTestApi } from "../../utils/createTestApi";
+import { server } from "../../utils/server";
 
 test(
 	"it uses globally set origin if nothing was provided",
@@ -25,10 +29,10 @@ test(
 			}),
 		);
 
-		const result = await getData.execute();
-		const result2 = await getData
-			.with(factory(({ url }) => request(r.route(url), r.outText()).execute()))
-			.execute();
+		const result = await getData();
+		const result2 = await getData.with(
+			factory(({ url }) => request(r.route(url), r.outText())()),
+		)();
 
 		await vi.waitFor(() => {
 			expect(result).toEqual([value, value]);
@@ -56,7 +60,7 @@ test("it can compose origins", async () => {
 		}),
 	);
 
-	const result = await getData.execute();
+	const result = await getData();
 
 	await vi.waitFor(() => {
 		expect(result).toEqual([value3, value3]);
@@ -81,7 +85,7 @@ test("it can override origin set by upstream middleware", async () => {
 		}),
 	);
 
-	const result = await getData.execute();
+	const result = await getData();
 
 	await vi.waitFor(() => {
 		expect(result).toEqual([myOrigin2, myOrigin2]);
@@ -108,7 +112,7 @@ test("it throws a fatal error if the path is incorrect", async () => {
 		}),
 	);
 
-	getData.execute().catch((e) => e);
+	getData().catch((e) => e);
 
 	await vi.waitFor(() => {
 		expect(failed).toBeTruthy();

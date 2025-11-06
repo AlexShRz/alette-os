@@ -32,4 +32,4 @@ export class TapUnmount<
 	}
 }
 
-export const tapUnmount = new TapUnmount();
+export const tapUnmount = /* @__PURE__ */ new TapUnmount();

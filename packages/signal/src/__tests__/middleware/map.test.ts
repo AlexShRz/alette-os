@@ -27,7 +27,7 @@ test("it can map response", async () => {
 		map((response) => `${response}${suffix}`),
 	);
 
-	const res = await getData.execute();
+	const res = await getData();
 	await vi.waitFor(() => {
 		expect(res).toEqual(expected);
 	});
@@ -60,7 +60,7 @@ test("it can be composed", async () => {
 		map(async (response) => `${response}${suffix3}`),
 	);
 
-	const res = await getData.execute();
+	const res = await getData();
 	await vi.waitFor(() => {
 		expect(res).toEqual(expected);
 	});
@@ -88,7 +88,7 @@ test("it can map response to different format", async () => {
 		map(() => ({ res: myResponse })),
 	);
 
-	const res = await getData.execute();
+	const res = await getData();
 	await vi.waitFor(() => {
 		expect(res).toEqual(expected);
 	});
@@ -126,7 +126,7 @@ test("it has access to request props and context", async () => {
 		}),
 	);
 
-	await getData.execute();
+	await getData();
 	await vi.waitFor(() => {
 		expect(caughtContext).toBe(context);
 		expect(caughtPath).toBe(pathValue);
@@ -153,7 +153,7 @@ test("it allows users to map response into response adapters", async () => {
 		map((response) => response),
 	);
 
-	const res = await getData.execute();
+	const res = await getData();
 	await vi.waitFor(() => {
 		expect(res).toStrictEqual(expected);
 	});

@@ -32,4 +32,4 @@ export class TapAbort<
 	}
 }
 
-export const tapAbort = new TapAbort();
+export const tapAbort = /* @__PURE__ */ new TapAbort();

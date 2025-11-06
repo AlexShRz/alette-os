@@ -23,7 +23,7 @@ export class OneShotRequest<
 		protected plugin: ApiPlugin,
 		protected defaultMiddleware: RequestMiddleware[],
 	) {
-		super((settings = {}) => {
+		super(async (settings = {}) => {
 			const controller = this.getController("oneShot");
 			const { execute } = controller.getHandlers();
 			execute(settings);
@@ -77,9 +77,9 @@ export class OneShotRequest<
 
 	/**
 	 * @deprecated
-	 * Will be removed in V1 - call request blueprints directly instead
+	 * Will be removed in V1 - call request blueprints directly instead.
 	 * Example:
-	 * getPosts(...), not getPosts.execute(...)
+	 * getPosts(...), not getPosts(...)
 	 * */
 	async execute(settings: TRequestSettings<Context> = {}) {
 		return this(settings);

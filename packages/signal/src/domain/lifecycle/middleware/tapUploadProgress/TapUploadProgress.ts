@@ -38,4 +38,4 @@ export class TapUploadProgress<
 	}
 }
 
-export const tapUploadProgress = new TapUploadProgress();
+export const tapUploadProgress = /* @__PURE__ */ new TapUploadProgress();

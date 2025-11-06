@@ -23,7 +23,7 @@ test(
 
 		const getData = query(output(as<IHeaders>()), headers(expectedHeaders));
 
-		const res = await getData.execute();
+		const res = await getData();
 
 		await vi.waitFor(() => {
 			expect(res).toEqual(expect.objectContaining(expectedHeaders));
@@ -48,10 +48,7 @@ test(
 			}),
 		);
 
-		const res = await query(
-			output(as<boolean>()),
-			bearer(authCookie),
-		).execute();
+		const res = await query(output(as<boolean>()), bearer(authCookie))();
 
 		await vi.waitFor(() => {
 			expect(res).toBeTruthy();

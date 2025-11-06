@@ -53,4 +53,4 @@ export class Bearer<
 	}
 }
 
-export const bearer = new Bearer();
+export const bearer = /* @__PURE__ */ new Bearer();

@@ -38,4 +38,4 @@ export class TapDownloadProgress<
 	}
 }
 
-export const tapDownloadProgress = new TapDownloadProgress();
+export const tapDownloadProgress = /* @__PURE__ */ new TapDownloadProgress();

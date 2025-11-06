@@ -53,4 +53,4 @@ export class Map<
 	}
 }
 
-export const map = new Map();
+export const map = /* @__PURE__ */ new Map();

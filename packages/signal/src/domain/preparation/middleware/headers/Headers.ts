@@ -26,7 +26,7 @@ export class Headers<
 	PassedHeaders extends IHeaders,
 > extends MiddlewareFacade<
 	<_InContext extends IRequestContext, PassedHeaders extends IHeaders>(
-		args: THeaderSupplier<PassedHeaders, InContext>,
+		args: THeaderSupplier<PassedHeaders, _InContext>,
 	) => Headers<_InContext, PassedHeaders>,
 	InContext,
 	[
@@ -49,4 +49,4 @@ export class Headers<
 	}
 }
 
-export const headers = new Headers();
+export const headers = /* @__PURE__ */ new Headers();

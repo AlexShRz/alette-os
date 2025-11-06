@@ -52,4 +52,4 @@ export class RetryWhen<
 	}
 }
 
-export const retryWhen = new RetryWhen();
+export const retryWhen = /* @__PURE__ */ new RetryWhen();

@@ -34,4 +34,4 @@ export class Tap<InContext extends IRequestContext> extends MiddlewareFacade<
 	}
 }
 
-export const tap = new Tap();
+export const tap = /* @__PURE__ */ new Tap();

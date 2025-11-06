@@ -23,8 +23,8 @@ const setUp = async (...commands: CommandTaskBuilder[]) => {
 	 * */
 	const getData2 = getData1.with(path("/hey"));
 
-	const response1 = await getData1.execute();
-	const response2 = await getData2.execute();
+	const response1 = await getData1();
+	const response2 = await getData2();
 	expect(response1).toEqual(value);
 	expect(response2).toEqual(value);
 

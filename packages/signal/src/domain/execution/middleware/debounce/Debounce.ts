@@ -43,4 +43,4 @@ export class Debounce<
 	}
 }
 
-export const debounce = new Debounce();
+export const debounce = /* @__PURE__ */ new Debounce();

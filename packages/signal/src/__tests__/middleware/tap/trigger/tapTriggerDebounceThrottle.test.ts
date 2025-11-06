@@ -31,7 +31,7 @@ test("it is not affected by debounce", async () => {
 		expect(logger).toStrictEqual([1]);
 	});
 
-	await getData.execute();
+	await getData();
 	await vi.waitFor(() => {
 		expect(logger).toStrictEqual([1, 1]);
 	});
@@ -60,7 +60,7 @@ test("it is not affected by throttle", async () => {
 		expect(logger).toStrictEqual([1]);
 	});
 
-	await getData.execute();
+	await getData();
 	await vi.waitFor(() => {
 		expect(logger).toStrictEqual([1, 1]);
 	});

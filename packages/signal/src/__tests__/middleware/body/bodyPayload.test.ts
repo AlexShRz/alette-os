@@ -29,20 +29,18 @@ test(
 				return true;
 			}),
 		);
-		await getData.execute();
-		const returned2 = await getData
-			.with(
-				posts(),
-				factory(({ body, method, headers }) =>
-					request(
-						r.route(testUrl),
-						r.body(body),
-						r.method(method),
-						r.headers(headers),
-					).execute(),
-				),
-			)
-			.execute();
+		await getData();
+		const returned2 = await getData.with(
+			posts,
+			factory(({ body, method, headers }) =>
+				request(
+					r.route(testUrl),
+					r.body(body),
+					r.method(method),
+					r.headers(headers),
+				)(),
+			),
+		)();
 
 		await vi.waitFor(() => {
 			expect(returned[0]).toStrictEqual(myBody);
@@ -84,20 +82,18 @@ test(
 			}),
 		);
 
-		await getData.execute();
-		const returned2 = await getData
-			.with(
-				posts(),
-				factory(({ body, method, headers }) =>
-					request(
-						r.route(testUrl),
-						r.body(body),
-						r.method(method),
-						r.headers(headers),
-					).execute(),
-				),
-			)
-			.execute();
+		await getData();
+		const returned2 = await getData.with(
+			posts,
+			factory(({ body, method, headers }) =>
+				request(
+					r.route(testUrl),
+					r.body(body),
+					r.method(method),
+					r.headers(headers),
+				)(),
+			),
+		)();
 
 		await vi.waitFor(() => {
 			expect(returned[0]).toStrictEqual(myBody);
@@ -140,20 +136,18 @@ test(
 			}),
 		);
 
-		await getData.execute();
-		const returned2 = await getData
-			.with(
-				posts(),
-				factory(({ body, method, headers }) =>
-					request(
-						r.route(testUrl),
-						r.body(body),
-						r.method(method),
-						r.headers(headers),
-					).execute(),
-				),
-			)
-			.execute();
+		await getData();
+		const returned2 = await getData.with(
+			posts,
+			factory(({ body, method, headers }) =>
+				request(
+					r.route(testUrl),
+					r.body(body),
+					r.method(method),
+					r.headers(headers),
+				)(),
+			),
+		)();
 
 		await vi.waitFor(() => {
 			expect(returned[0]).toStrictEqual(myBody);
@@ -195,20 +189,18 @@ test(
 			}),
 		);
 
-		await getData.execute();
-		const returned2 = await getData
-			.with(
-				posts(),
-				factory(({ body, method, headers }) =>
-					request(
-						r.route(testUrl),
-						r.body(body),
-						r.method(method),
-						r.headers(headers),
-					).execute(),
-				),
-			)
-			.execute();
+		await getData();
+		const returned2 = await getData.with(
+			posts,
+			factory(({ body, method, headers }) =>
+				request(
+					r.route(testUrl),
+					r.body(body),
+					r.method(method),
+					r.headers(headers),
+				)(),
+			),
+		)();
 
 		await vi.waitFor(() => {
 			expect(returned[0]).toStrictEqual(myBody);
@@ -263,22 +255,20 @@ test.each([
 			}),
 		);
 
-		await getData.execute();
-		const returned2 = await getData
-			.with(
-				posts(),
-				factory(({ body, method, headers }) =>
-					request(
-						r.route(testUrl),
-						r.body(body),
-						r.method(method),
-						r.headers(headers),
-					).execute(),
-				),
-			)
-			.execute();
+		await getData();
+		const returned2 = await getData.with(
+			posts,
+			factory(({ body, method, headers }) =>
+				request(
+					r.route(testUrl),
+					r.body(body),
+					r.method(method),
+					r.headers(headers),
+				)(),
+			),
+		)();
 
-		await getData.execute();
+		await getData();
 		await vi.waitFor(() => {
 			expect(returned[0]).toStrictEqual(myBody);
 			expect(returned[1]).toStrictEqual(expectedHeaders);

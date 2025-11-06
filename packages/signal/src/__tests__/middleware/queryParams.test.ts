@@ -25,15 +25,13 @@ test(
 				return [queryParams, url.getParams().get()];
 			}),
 		);
-		const returned2 = await getData
-			.with(
-				factory(({ url }) =>
-					request(r.route(url.setOrigin(testUrl.getOrigin()))).execute(),
-				),
-			)
-			.execute();
+		const returned2 = await getData.with(
+			factory(({ url }) =>
+				request(r.route(url.setOrigin(testUrl.getOrigin())))(),
+			),
+		)();
 
-		const result = await getData.execute();
+		const result = await getData();
 
 		await vi.waitFor(() => {
 			expect(result).toStrictEqual([params, params]);
@@ -66,7 +64,7 @@ test("it composes query params", async () => {
 		}),
 	);
 
-	const result = await getData.execute();
+	const result = await getData();
 
 	await vi.waitFor(() => {
 		expect(result).toStrictEqual([expected, expected]);
@@ -95,7 +93,7 @@ test("it can override query params set by upstream middleware", async () => {
 		}),
 	);
 
-	const result = await getData.execute();
+	const result = await getData();
 
 	await vi.waitFor(() => {
 		expect(result).toStrictEqual([expected, expected]);
@@ -114,7 +112,7 @@ test("it does not add empty query params to the url", async () => {
 		}),
 	);
 
-	const result = await getData.execute();
+	const result = await getData();
 
 	await vi.waitFor(() => {
 		expect(result).toStrictEqual(myOrigin);

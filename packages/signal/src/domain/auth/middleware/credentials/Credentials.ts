@@ -40,4 +40,4 @@ export class Credentials<
 	}
 }
 
-export const credentials = new Credentials();
+export const credentials = /* @__PURE__ */ new Credentials();

@@ -22,7 +22,7 @@ test("it loads cookie during request", async () => {
 		}),
 	);
 
-	await getData.execute();
+	await getData();
 	expect(await myCookie.isValid()).toBeTruthy();
 	expect(triedLoadingCookie).toBe(1);
 });
@@ -49,7 +49,7 @@ test("it marks cookie as invalid if the request fails with unauthenticated statu
 	);
 
 	try {
-		await getData.execute();
+		await getData();
 	} catch {}
 
 	expect(await myCookie.isValid()).toBeFalsy();
@@ -79,22 +79,20 @@ test(
 			}),
 		);
 
-		const res = await getData.execute();
+		const res = await getData();
 		expect(await myCookie.isValid()).toBeTruthy();
 		expect(res).toEqual({
 			credentials: "include",
 		});
 
-		const res2 = await getData
-			.with(
-				factory(({ credentials, url }) =>
-					request(
-						r.route(url.setOrigin(testUrl.getOrigin())),
-						r.withCookies(credentials === "include"),
-					).execute(),
-				),
-			)
-			.execute();
+		const res2 = await getData.with(
+			factory(({ credentials, url }) =>
+				request(
+					r.route(url.setOrigin(testUrl.getOrigin())),
+					r.withCookies(credentials === "include"),
+				)(),
+			),
+		)();
 
 		/**
 		 * XHR sets "credentials" to "same-origin" automatically,

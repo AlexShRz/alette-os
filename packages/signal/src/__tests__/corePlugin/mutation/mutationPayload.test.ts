@@ -23,7 +23,7 @@ test(
 
 		const getData = mutation(output(as<IHeaders>()), headers(expectedHeaders));
 
-		const res = await getData.execute();
+		const res = await getData();
 
 		await vi.waitFor(() => {
 			expect(res).toEqual(expect.objectContaining(expectedHeaders));
@@ -49,7 +49,7 @@ test(
 		);
 
 		const getData = mutation(output(as<IHeaders>()), body(myBody));
-		const res = await getData.execute();
+		const res = await getData();
 
 		await vi.waitFor(() => {
 			expect(res).toEqual(myBody);

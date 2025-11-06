@@ -63,7 +63,7 @@ test("it interrupts plugin requests if the plugin is deactivated", async () => {
 	const { execute, getState } = getData1.mount();
 	execute();
 
-	getData2.execute().catch((e) => {
+	getData2().catch((e) => {
 		/**
 		 * All in progress requests must be shutdown
 		 * */

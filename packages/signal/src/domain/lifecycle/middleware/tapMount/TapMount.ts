@@ -32,4 +32,4 @@ export class TapMount<
 	}
 }
 
-export const tapMount = new TapMount();
+export const tapMount = /* @__PURE__ */ new TapMount();

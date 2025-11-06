@@ -45,4 +45,4 @@ export class Path<
 	}
 }
 
-export const path = new Path();
+export const path = /* @__PURE__ */ new Path();

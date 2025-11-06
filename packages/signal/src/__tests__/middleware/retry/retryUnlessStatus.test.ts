@@ -30,7 +30,7 @@ test("it skips status related logic if the error does not contain statuses", asy
 	);
 
 	try {
-		await getData.execute();
+		await getData();
 	} catch {}
 
 	expect(enteredTimes).toEqual(3);
@@ -62,7 +62,7 @@ test.each([
 			throws(RequestFailedError),
 			factory(({ url }) => {
 				enteredTimes++;
-				return request(r.route(url.setOrigin(testUrl.getOrigin()))).execute();
+				return request(r.route(url.setOrigin(testUrl.getOrigin())))();
 			}),
 			retry({
 				times: 5,
@@ -71,7 +71,7 @@ test.each([
 		);
 
 		try {
-			await getData.execute();
+			await getData();
 		} catch {}
 
 		if (shouldBeRetried) {

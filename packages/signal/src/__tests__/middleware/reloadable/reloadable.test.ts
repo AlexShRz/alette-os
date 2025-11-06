@@ -23,7 +23,7 @@ test("it disables the check during one shot requests", async () => {
 		}),
 	);
 
-	const res = await getData.execute({ args: value });
+	const res = await getData({ args: value });
 
 	await vi.waitFor(() => {
 		expect(res).toEqual(value);

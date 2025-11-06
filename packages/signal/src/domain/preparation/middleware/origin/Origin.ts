@@ -49,4 +49,4 @@ export class Origin<
 	}
 }
 
-export const origin = new Origin();
+export const origin = /* @__PURE__ */ new Origin();

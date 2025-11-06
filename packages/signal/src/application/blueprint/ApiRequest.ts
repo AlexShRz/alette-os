@@ -1,3 +1,4 @@
+import { Callable } from "@alette/shared";
 import { v4 as uuid } from "uuid";
 import { IRequestContext } from "../../domain/context/IRequestContext";
 import {
@@ -8,7 +9,6 @@ import { IRequestSettingSupplier } from "../../domain/execution/services/Request
 import { RequestMiddleware } from "../../domain/middleware/RequestMiddleware";
 import { TAnyMiddlewareFacade } from "../../domain/middleware/TAnyMiddlewareFacade";
 import { IAnyRequestSpecification } from "../../domain/specification";
-import { Callable } from "../../shared/Callable";
 import { ApiPlugin } from "../plugins/ApiPlugin";
 
 export abstract class ApiRequest<
