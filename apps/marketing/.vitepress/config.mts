@@ -20,8 +20,22 @@ export default defineConfig({
 	vite: {
 		plugins: [tailwindcss(), groupIconVitePlugin()],
 	},
-	description: "Delightful data fetching for every Front-End",
-	head: [["link", { rel: "icon", href: "/favicon.ico" }]],
+	description: "Type-safe, modular, and complete API layer for Front-End monorepos - minus the mess.",
+	head: [
+		["link", { rel: "icon", href: "/favicon.ico" }],
+		[
+			'script',
+			{ async: '', src: 'https://www.googletagmanager.com/gtag/js?id=G-2BM3DTBV4J' }
+		],
+		[
+			'script',
+			{},
+			`window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-2BM3DTBV4J');`
+		]
+	],
 	themeConfig: {
 		siteTitle: false,
 		sitemap: {

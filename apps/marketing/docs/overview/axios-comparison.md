@@ -1,3 +1,17 @@
+:::danger
+⚠️ **Outdated Content:** This page contains incorrect information and can be confusing.  
+It will be rewritten soon to focus on front-end monorepos.
+
+👋 **Note from the author:**
+Alette Signal and Axios are two
+different things - they shouldn't _really_ be compared, at least not in the context you see below. Some 
+chapters like "interceptors" are completely incorrect and will confuse you. This comparison was written hastily
+in an hour or so - it misses a lot of detail, context and will be rewritten.
+
+I recommend skipping this page completely and starting from [configuring requests](../getting-started/configuring-requests.md)
+for now.
+:::
+
 # Axios vs Alette Signal
 **[Axios](https://axios-http.com/docs/intro) is a promise-based _HTTP client_** for Node.js and the browser.
 
