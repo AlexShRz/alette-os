@@ -20,7 +20,7 @@ export default defineConfig({
 	vite: {
 		plugins: [tailwindcss(), groupIconVitePlugin()],
 	},
-	description: "Delightful data fetching for every Front-End",
+	description: "Type-safe, modular, and complete API layer for Front-End monorepos - minus the mess.",
 	head: [
 		["link", { rel: "icon", href: "/favicon.ico" }],
 		[

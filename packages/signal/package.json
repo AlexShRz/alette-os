@@ -4,7 +4,7 @@
 	"type": "module",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
-	"description": "Delightful data fetching for every Front-End.",
+	"description": "Type-safe, modular, and complete API layer for Front-End monorepos - minus the mess.",
 	"author": "Oleksandr Shaposhnykov-Rozanov",
 	"repository": {
 		"type": "git",
