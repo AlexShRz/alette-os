@@ -69,9 +69,9 @@ export const getPostsForSelect = searchPosts.with(
 );
 
 // Later...
-await getPostsForSelect.execute({ search: 'Alette Signal' })
+await getPostsForSelect({ search: 'Alette Signal' })
 // or
-await searchPosts.execute({ search: 'Alette Signal' })
+await searchPosts({ search: 'Alette Signal' })
 ```
 
 ## Using query with UI frameworks
@@ -114,8 +114,7 @@ passed to the `abortedBy()` middleware:
 const abortController = new AbortController();
 
 getPostsForSelect
-	.with(abortedBy(abortController))
-	.execute();
+	.with(abortedBy(abortController))();
 
 // Later...
 abortController.abort()

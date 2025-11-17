@@ -43,6 +43,11 @@ export default defineConfig(() => ({
 	test: {
 		watch: false,
 		globals: true,
+		unstubGlobals: true, // auto-unstub vi.stubGlobal after each test file
+		unstubEnvs: true, // same for vi.stubEnv
+		restoreMocks: true, // restore vi.spyOn/vi.fn mocks
+		clearMocks: true, // clear call history
+		mockReset: true, // reset jest-style mocks
 		environment: "node",
 		include: ["{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
 		reporters: ["default"],

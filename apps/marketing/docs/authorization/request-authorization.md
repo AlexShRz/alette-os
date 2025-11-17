@@ -12,7 +12,7 @@ const appQuery = query(
     bearer(jwtToken),
 );
 
-await appQuery.execute();
+await appQuery();
 ```
 
 The `bearer()` middleware sends [token headers](token-holder.md#converting-tokens-to-headers)
@@ -46,7 +46,7 @@ const appQuery = query(
     bearer(authCookie),
 );
 
-await appQuery.execute();
+await appQuery();
 ```
 
 The `bearer()` middleware instructs the [request blueprint](../getting-started/configuring-requests.md#request-blueprint)

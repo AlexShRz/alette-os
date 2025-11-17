@@ -4,10 +4,13 @@ Alette Signal has 2 request modes - **"One shot"** and **"Mounted"**.
 ## "One shot" request mode
 **The "one shot" request mode** is a mode where a request is executed once, and every
 used middleware is shutdown.
-This mode is activated when the `.execute()`
-method on [request blueprints](configuring-requests.md#request-blueprint) is called:
+This mode is activated when a [request blueprint](configuring-requests.md#request-blueprint) is called:
 ```ts
-const response = await myQuery.execute({ 
+import { query } from './api/client.ts'; 
+
+const myQuery = query(/*...*/); 
+
+const response = await myQuery({ 
     args: { hey: 'Alette Signal' } 
 })
 ```

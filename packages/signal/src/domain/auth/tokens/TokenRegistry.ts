@@ -18,14 +18,16 @@ export class TokenRegistry extends E.Service<TokenRegistry>()("TokenRegistry", {
 		const tokens = yield* SynchronizedRef.make(
 			yield* LayerMap.make(
 				(tokenConfig: TokenConfig) =>
-					StoredToken.Default(tokenConfig).pipe(
-						Layer.provide(
-							Layer.mergeAll(
-								AuthEntityCredentials.Default(
-									"token",
-									tokenConfig.getCredentials(),
+					Layer.fresh(
+						StoredToken.Default(tokenConfig).pipe(
+							Layer.provide(
+								Layer.mergeAll(
+									AuthEntityCredentials.Default(
+										"token",
+										tokenConfig.getCredentials(),
+									),
+									Layer.succeedContext(context),
 								),
-								Layer.succeedContext(context),
 							),
 						),
 					),

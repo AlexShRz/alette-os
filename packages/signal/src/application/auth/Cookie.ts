@@ -54,11 +54,8 @@ export class Cookie<Credentials = unknown> {
 		).sendTo(this.scheduler);
 	}
 
-	async isValid() {
-		const status = await forCookieValidity(this.config.id).toPromise(
-			this.scheduler,
-		);
-		return status === "valid";
+	isValid() {
+		return forCookieValidity(this.config.id).toPromise(this.scheduler);
 	}
 
 	getId() {

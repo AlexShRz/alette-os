@@ -28,7 +28,7 @@ export class OneShotRequest<
 			const { execute } = controller.getHandlers();
 			execute(settings);
 
-			return new Promise<TRequestResponse<Context>>((resolve, reject) => {
+			return await new Promise<TRequestResponse<Context>>((resolve, reject) => {
 				const unsubscribe = controller.subscribe(
 					({ isSuccess, isError, error, data }) => {
 						if (isSuccess || isError) {

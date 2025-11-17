@@ -6,4 +6,4 @@ export type TAuthEntityCredentialSupplier<Credentials = unknown> = (
 	options: TRequestGlobalContext & { previous: NoInfer<Credentials> | null },
 ) => Promise<Credentials>;
 
-export type TAuthEntityStatus = "invalid" | "valid";
+export type TAuthEntityStatus = "invalid" | "valid" | "uninitialized";

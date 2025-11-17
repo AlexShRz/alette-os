@@ -1,10 +1,10 @@
 {
 	"name": "@alette/signal",
-	"version": "1.1.26",
+	"version": "1.1.27",
 	"type": "module",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
-	"description": "Type-safe, modular, and complete API layer for Front-End monorepos - minus the mess.",
+	"description": "Complete front-end API infrastructure for monorepos, workers, and multi-app front-ends - type-safe, reactive, and framework-agnostic.",
 	"author": "Oleksandr Shaposhnykov-Rozanov",
 	"repository": {
 		"type": "git",

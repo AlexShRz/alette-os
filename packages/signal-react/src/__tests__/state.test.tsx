@@ -46,8 +46,6 @@ test(
 		 * */
 		await page.findByTestId("uninitialized");
 
-		trigger.next();
-
 		/**
 		 * Check loading
 		 * */
@@ -134,7 +132,7 @@ test(
 		expect(await page.findByTestId("data")).toHaveTextContent(uiData3);
 
 		await waitFor(() => {
-			expect(triggeredTimes).toEqual(4);
+			expect(triggeredTimes).toEqual(3);
 		});
 	}),
 );

@@ -12,12 +12,12 @@ import { client } from "../../infrastructure/ApiClient.js";
 test("it runs activation hooks on mount", async () => {
 	const api = client();
 	const { plugin, pluginName: corePluginName } = defineApiPlugin("hello");
-	// const { plugin: plugin2 } = defineApiPlugin("otherPlugin");
+	const { plugin: plugin2, pluginName: otherPluginName } =
+		defineApiPlugin("otherPlugin");
 	const logged: number[] = [];
+	const logged2: number[] = [];
 
-	// const anotherPlugin = plugin2.build();
-
-	const core = plugin
+	const anotherPlugin = plugin2
 		.onActivation(async ({ ask, tell }) => {
 			tell(
 				task(
@@ -32,7 +32,7 @@ test("it runs activation hooks on mount", async () => {
 			/**
 			 * Our plugin should already be in the "activePlugins" array.
 			 * */
-			if (activePlugins.some((pluginName) => pluginName === corePluginName)) {
+			if (activePlugins.some((pluginName) => pluginName === otherPluginName)) {
 				logged.push(2);
 			}
 		})
@@ -41,22 +41,46 @@ test("it runs activation hooks on mount", async () => {
 		})
 		.build();
 
-	/**
-	 * TODO: must work with multiple activated plugins at once
-	 * */
-	api.tell(activatePlugins(core));
+	const core = plugin
+		.onActivation(async ({ ask, tell }) => {
+			tell(
+				task(
+					E.gen(function* () {
+						logged2.push(1);
+					}),
+				),
+			);
+
+			const activePlugins = await ask(forActivePlugins());
+
+			/**
+			 * Our plugin should already be in the "activePlugins" array.
+			 * */
+			if (activePlugins.some((pluginName) => pluginName === corePluginName)) {
+				logged2.push(2);
+			}
+		})
+		.onActivation(async () => {
+			logged2.push(3);
+		})
+		.build();
+
+	api.tell(activatePlugins(core, anotherPlugin));
 
 	await vi.waitFor(() => {
 		expect(logged).toEqual([1, 2, 3]);
+		expect(logged2).toEqual([1, 2, 3]);
 	});
 });
 
 test("it runs deactivation hooks on mount", async () => {
 	const api = client();
 	const { plugin } = defineApiPlugin("hello");
+	const { plugin: plugin2 } = defineApiPlugin("otherPlugin");
 	const logged: number[] = [];
+	const logged2: number[] = [];
 
-	const core = plugin
+	const anotherPlugin = plugin2
 		.onDeactivation(async ({ ask, tell }) => {
 			tell(
 				task(
@@ -77,13 +101,32 @@ test("it runs deactivation hooks on mount", async () => {
 		})
 		.build();
 
-	/**
-	 * TODO: must work with multiple deactivated plugins at once
-	 * */
-	api.tell(activatePlugins(core));
-	api.tell(deactivatePlugins(core));
+	const core = plugin
+		.onDeactivation(async ({ ask, tell }) => {
+			tell(
+				task(
+					E.gen(function* () {
+						logged2.push(1);
+					}),
+				),
+			);
+
+			const activePlugins = await ask(forActivePlugins());
+
+			if (!activePlugins.length) {
+				logged2.push(2);
+			}
+		})
+		.onDeactivation(() => {
+			logged2.push(3);
+		})
+		.build();
+
+	api.tell(activatePlugins(core, anotherPlugin));
+	api.tell(deactivatePlugins());
 
 	await vi.waitFor(() => {
 		expect(logged).toEqual([1, 2, 3]);
+		expect(logged2).toEqual([1, 2, 3]);
 	});
 });

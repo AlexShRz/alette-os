@@ -1,6 +1,6 @@
 # Request middleware
 **A request middleware** in Alette Signal is a function that instructs
-the core system on how to react to request lifecycle stages.
+the core system on how to react to [request lifecycle stages](../request-behaviour/request-lifecycle.md).
 
 ## Middleware categories
 Alette Signal has 5 middleware categories:
@@ -31,7 +31,7 @@ const query1 = myQuery.with(
 
 // The "args" prop will expect a string here,
 // not "{ willBeOverridden: true }"
-await query1.execute({ args: 'overridden' })
+await query1({ args: 'overridden' })
 ```
 
 :::info
@@ -40,6 +40,23 @@ middleware from the chain. This is also true for other middleware like `output()
 `runOnMount()`, `debounce()`, etc.
 2. This behaviour is reflected in blueprint TypeScript types.
 :::
+
+## Implicit middleware
+**Implicit middleware** refers to middleware with omitted parentheses. 
+If a middleware takes no parameters, the parentheses may be omitted:
+```ts [api/posts.ts]
+import { runOnMount, retry, debounce, path } from '@alette/signal';
+import { mutation } from './client.ts'
+
+const refreshPosts = mutation(
+    runOnMount, // runOnMount(true) by default
+    retry, // retry from "query()" by default
+    debounce, // 300 ms by default
+    path('/posts/refresh')
+);
+
+await refreshPosts();
+```
 
 ## Middleware priority
 **Middleware priority** refers to middleware order in 
@@ -106,7 +123,7 @@ const query1 = myQuery.with(
 )
 
 // The "response" type will be "${string}/map1/map2/map3"
-const response = await query1.execute({ args: 'hey' })
+const response = await query1({ args: 'hey' })
 ```
 
 Middleware composition also works across blueprints:
@@ -126,11 +143,11 @@ const query3 = query2.with(
 )
 
 // The "response1" type will be "${string}/map1"
-const response1 = await query1.execute({ args: 'hey' })
+const response1 = await query1({ args: 'hey' })
 // The "response2" type will be "${string}/map1/map2"
-const response2 = await query2.execute({ args: 'hey' })
+const response2 = await query2({ args: 'hey' })
 // The "response3" type will be "${string}/map1/map2/map3"
-const response3 = await query3.execute({ args: 'hey' })
+const response3 = await query3({ args: 'hey' })
 ```
 :::tip
 Notice how `query1`, `query2` and `query3` are executed independently
@@ -153,7 +170,7 @@ const query1 = myQuery.with(
 
 // The request will be executed with
 // { 'header2': 'hello' } object as headers.
-await query1.execute({ args: 'hey' })
+await query1({ args: 'hey' })
 ```
 
 To preserve the data provided by previous cascading middleware, pass
@@ -167,7 +184,7 @@ const query1 = myQuery.with(
 
 // Now the request will be executed with
 // { 'header1': 'hi', 'header2': 'hello' } object as headers.
-await query1.execute({ args: 'hey' })
+await query1({ args: 'hey' })
 ```
 
 Manual request data merging also works across blueprints: 
@@ -183,8 +200,8 @@ const query2 = query1.with(
 
 // The request will be executed with
 // { 'header1': 'hi' } object as headers.
-await query1.execute({ args: 'hey' })
+await query1({ args: 'hey' })
 // The request will be executed with
 // { 'header1': 'hi', 'header2': 'hello' } object as headers.
-await query2.execute({ args: 'hey' })
+await query2({ args: 'hey' })
 ```

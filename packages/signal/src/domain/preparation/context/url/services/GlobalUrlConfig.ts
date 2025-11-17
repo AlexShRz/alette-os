@@ -4,7 +4,8 @@ export class GlobalUrlConfig extends E.Service<GlobalUrlConfig>()(
 	"GlobalUrlConfig",
 	{
 		effect: E.gen(function* () {
-			let origin = "";
+			let origin =
+				(globalThis && globalThis.location && globalThis.location.origin) || "";
 
 			return {
 				getOrigin() {

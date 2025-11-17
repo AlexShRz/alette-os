@@ -4,6 +4,7 @@ import { TRequestGlobalContext } from "../../context/typeUtils/RequestIOTypes";
 export interface ITokenSupplierOptions<Credentials = unknown>
 	extends TRequestGlobalContext {
 	id: string;
+	isInvalid: boolean;
 	prevToken: string;
 	refreshToken: string | null;
 	getCredentialsOrThrow: () => Promise<Credentials>;

@@ -5,36 +5,14 @@ to request blueprints.
 ## Request blueprint
 **A request blueprint** is a set of predefined request instructions, 
 executed by the Alette Signal "core" system. When a request is finished, the
-promise returned from the `.execute()` method is resolved or rejected:
+promise returned after calling the request blueprint is resolved or rejected:
 ```ts
-await getPosts.execute();
+const getPosts = query(
+    path('/posts')
+);
+
+await getPosts();
 ```
-
-## Plugins in Alette Signal
-**Plugins** in Alette Signal are modules defining and configuring request blueprints 
-before exposing them for usage. 
-On its own `blueprint()` contains no middleware, and needs to be defined and
-configured by plugin authors using built-in middleware.
-
-**Alette Signal core plugin exposes 3 request blueprints out of the box:**
-1. [Query](../request-behaviour/query.md) - preconfigured for `GET` HTTP requests.
-2. [Mutation](../request-behaviour/mutation.md) - preconfigured for `POST`, `PATCH`, `DELETE` and `PUT` HTTP requests.
-3. [Custom](../request-behaviour/custom.md) - used for executing [dependent requests](../request-behaviour/custom.md#dependent-requests),
-or creating custom request behaviours by composing middleware.
-```ts
-import { coreApiPlugin } from '@alette/signal';
-
-const core = coreApiPlugin();
-const { query, mutation, custom } = core.use();
-```
-
-::: info
-Alette Signal treats `query()`, `mutation()` and `custom()`  as middleware "black boxes", nothing more. 
-The same is true for any blueprints plugin authors may define.
-:::
-::: danger
-A plugin must [be activated](./api-plugins.md#api-plugin-activation) for its request blueprints to work. 
-:::
 
 ## Request arguments
 To define request arguments, provide the `input()` middleware to a request blueprint:
@@ -70,7 +48,7 @@ The `as()` type placeholder does not validate provided types at runtime.
 
 To pass arguments to request blueprints, use the `args` property:
 ```ts
-const response = await myQuery.execute({ 
+const response = await myQuery({ 
 	args: { hey: 'Alette Signal' } 
 });
 ```
@@ -89,7 +67,7 @@ const myQuery = query(
 * The "response" variable is now 
 * of the "{ hello: string }" type.
 * */
-const response = await myQuery.execute({
+const response = await myQuery({
     args: { hey: 'Alette Signal' }
 });
 ```
@@ -107,10 +85,10 @@ const myQuery = query(
 
 ## Request settings
 **Request settings** are typed values required by middleware 
-and accepted by the `.execute()` method, or the `execute()` function
+and accepted by the `()` method, or the `execute()` function
 exposed by [mounted requests](request-modes.md#mounted-request-mode):
 ```ts
-await myQuery.execute(
+await myQuery(
     // Request settings
     { 
         args: { hey: 'Alette Signal' }
@@ -143,12 +121,12 @@ const boundQuery = myQuery.using(() => ({
 }));
 
 // Will use "Alette Signal 1"
-await boundQuery.execute();
+await boundQuery();
 
 name = "Alette Signal 2";
 
 // Will use "Alette Signal 2"
-await boundQuery.execute();
+await boundQuery();
 ```
 
 :::tip
@@ -159,14 +137,14 @@ Now `boundQuery` can be executed as is:
 ```ts
 // Each invocation is using the same request settings
 // { args: { hey: 'Alette Signal' } }
-await boundQuery.execute();
-await boundQuery.execute();
-await boundQuery.execute();
+await boundQuery();
+await boundQuery();
+await boundQuery();
 ```
 
-To override bound settings, provide new request settings to `.execute()`:
+To override bound settings, provide new request settings to `()`:
 ```ts
-await boundQuery.execute({
+await boundQuery({
     args: { hey: 'Not Alette Signal?' }
 });
 ```
@@ -206,7 +184,7 @@ const myQuery2 = myQuery.with(
 
 // Now TypeScript type of "response" is 
 // "{ welcome: string }", not "unknown".
-const response = await myQuery2.execute({ 
+const response = await myQuery2({ 
 	args: { hey: 'Alette Signal' } 
 });
 ```
@@ -249,7 +227,7 @@ const queryFromBaseQuery = baseQuery(
 
 // Now TypeScript type of "response" is 
 // "{ overriddenOutput: true }", not "{ welcome: string }".
-const response = await queryFromBaseQuery.execute({ 
+const response = await queryFromBaseQuery({ 
     args: { hey: 'Alette Signal' }
 })
 ```

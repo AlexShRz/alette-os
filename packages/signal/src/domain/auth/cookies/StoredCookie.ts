@@ -56,11 +56,12 @@ export class StoredCookie extends E.Service<StoredCookie>()("StoredCookie", {
 
 		const forceRefreshCookie = (cookieState: TStoredCookieState) =>
 			E.gen(function* () {
-				const { id, supplier } = cookieState;
+				const { id, status, supplier } = cookieState;
 
 				const loadNewCookie = async () =>
 					await supplier({
 						id,
+						isInvalid: status === "invalid",
 						context: await globalContext.getAsPromise(),
 						getCredentials: () => runPromise(credentials.get()),
 						getCredentialsOrThrow: () => runPromise(credentials.getOrThrow()),

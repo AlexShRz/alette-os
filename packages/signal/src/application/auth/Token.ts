@@ -66,11 +66,8 @@ export class Token<
 		).sendTo(this.scheduler);
 	}
 
-	async isValid() {
-		const status = await forTokenValidity(this.config.id).toPromise(
-			this.scheduler,
-		);
-		return status === "valid";
+	isValid() {
+		return forTokenValidity(this.config.id).toPromise(this.scheduler);
 	}
 
 	getId() {

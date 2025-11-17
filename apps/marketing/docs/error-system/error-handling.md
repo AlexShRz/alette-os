@@ -32,7 +32,7 @@ To handle errors locally for [one shot requests](../getting-started/request-mode
 wrap the request in `try/catch`:
 ```ts
 try {
-    await deletePost.execute()
+    await deletePost()
 } catch (error) {
     if (error instanceof RequestFailedError) {
         console.log('Failed with an error:', { error })
@@ -80,7 +80,7 @@ api.tell(
     setErrorHandler(async (error, {context}) => {
         if (error instanceof FatalApiError) {
             // Will never finish
-            await reportError.execute({ args: error.toString() })
+            await reportError({ args: error.toString() })
         }
     })
 )
@@ -92,7 +92,7 @@ const myRequest = query(
     path('invalid path')
 );
 
-await myRequest.execute()
+await myRequest()
 ```
 :::
 

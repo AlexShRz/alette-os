@@ -8,14 +8,15 @@ while managing their lifecycle.
 acting as a JWT or OAuth token and a value acting as a refresh token to the token holder:
 ```ts
 async ({
-    id,
+    id, 
+    isInvalid,
 	prevToken,
 	refreshToken,
 	context,
 	getCredentials,
 	getCredentialsOrThrow,
 }) => {
-	const { accessToken, refreshToken } = await getToken.execute();
+	const { accessToken, refreshToken } = await getToken();
 	return {
         token: accessToken,
         refreshToken
@@ -26,7 +27,7 @@ async ({
 Token providers can omit refresh tokens:
 ```ts
 async () => {
-    const { accessToken, refreshToken } = await getToken.execute();
+    const { accessToken, refreshToken } = await getToken();
 	return accessToken;
 }
 ```
@@ -43,7 +44,7 @@ async ({
 	getCredentialsOrThrow,
 }) => {
     const { email, password } = await getCredentialsOrThrow();
-	const { accessToken, refreshToken } = await getToken.execute({ 
+	const { accessToken, refreshToken } = await getToken({ 
 		args: { email, password } 
     });
 
@@ -57,20 +58,33 @@ async ({
 ## Configuring token holders
 To configure a token holder, call the `token()`
 function obtained from the
-[Alette Signal core plugin](../getting-started/configuring-requests.md#plugins-in-alette-signal), and 
+[Alette Signal access control plugin](./access-control.md#access-control-plugin), and 
 pass a [token provider](#token-provider) to the `.from()` token holder **builder** method:
-```ts
-// ./src/api/base.ts
-const core = coreApiPlugin();
-export const { token } = core.use();
+```ts [api/baseAuth.ts]
+import { coreAuthPlugin } from "@alette/signal";
 
-// ./src/api/auth.ts
-// ...
-const getToken = mutation(/* ... */)
+export const auth = coreAuthPlugin();
+export const { token, cookie } = auth.use();
+```
 
-export const jwtToken = token()
+```ts [api/auth.ts]
+import { coreAuthPlugin, path, as } from "@alette/signal";
+import { mutation } from './base.ts'
+
+// as() can be replaced with Zod. 
+const Credentials = as<{ email: string, password: string; }>();
+const TokenOutput = as<{ accessToken: string, refreshToken: string; }>();
+
+const getTokens = baseMutation.with(
+     input(Credentials),
+     output(TokenOutput),
+     path('/token'),
+     body(({ args }) => args)
+);
+
+export const jwt = token()
 	.from(async () => {
-        const token = await getToken.execute();
+        const token = await getToken();
         return token;
 	})
 	.build();
@@ -79,9 +93,9 @@ export const jwtToken = token()
 Return a record from the token provider to save both the token and the refresh token inside the
 token holder:
 ```ts
-export const jwtToken = token()
+export const jwt = token()
 	.from(async () => {
-        const { accessToken, refreshToken } = await getToken.execute();
+        const { accessToken, refreshToken } = await getToken();
         return {
             token: accessToken,
             refreshToken
@@ -108,15 +122,15 @@ export const thirdPartyToken = token()
 	.build();
 
 // Overrides the initial token provider
-thirdPartyToken.from(() => getToken.execute())
+thirdPartyToken.from(() => getToken())
 ```
 :::
 
 :::tip
 Alette Signal allows for multiple token holders in the same application:
 ```ts
-export const jwtToken = token()
-	.from(() => getToken.execute())
+export const jwt = token()
+	.from(() => getToken())
 	.build();
 
 export const aiKey = token()
@@ -130,19 +144,19 @@ To configure the credential storage of a token holder, pass a runtime schema
 implementing the [Standard Schema](https://standardschema.dev/) 
 interface to the `.credentials()` token holder **builder** method:
 ```ts
-const jwtToken = token()
+const jwt = token()
 	.credentials(z.object({
 		email: z.string(),
 		name: z.string()
 	}))
-	.from(() => getToken.execute())
+	.from(() => getToken())
 	.build();
 ```
 
 To access token credentials, [destructure](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring)
 the first token provider argument:
 ```ts
-const jwtToken = token()
+const jwt = token()
 	.credentials(z.object({
 		email: z.string(),
 		password: z.string()
@@ -152,7 +166,7 @@ const jwtToken = token()
 		getCredentialsOrThrow, 
     }) => {
         const { email, password } = await getCredentialsOrThrow();
-        return getToken.execute({ args: { email, password } })
+        return getToken({ args: { email, password } })
 	})
 	.build();
 ```
@@ -160,7 +174,7 @@ const jwtToken = token()
 ## Setting token credentials
 To set token credentials, call the `.using()` token holder method:
 ```ts
-jwtToken.using({ 
+jwt.using({ 
 	email: 'alette-signal@mail.com',
 	password: '12345',
 })
@@ -169,7 +183,7 @@ jwtToken.using({
 To set token credentials while accessing previous credentials,
 pass a function to the `.using()` token holder method:
 ```ts
-jwtToken.using(({ previous, context }) => {
+jwt.using(({ previous, context }) => {
     const previousPassword = previous?.password;
     
     return {
@@ -188,7 +202,7 @@ const Form = () => {
 
     useEffect(
         () => subscribe(({ values: { email, password } }) => {
-            jwtToken.using({ email, password });
+            jwt.using({ email, password });
 		}),
 		[]
 	);
@@ -202,7 +216,7 @@ const Form = () => {
 To obtain a token from the server, invoke the [token provider](#token-provider) 
 by calling the `.get()` method on the token holder:
 ```ts
-const myJwtToken = await jwtToken.get();
+const myJwtToken = await jwt.get();
 ```
 
 :::tip
@@ -221,11 +235,11 @@ const [
 	// and every pending `get()` invocation 
 	// receive the same token without 
 	// calling the server again.
-    jwtToken.get(),
-	jwtToken.get(),
-	jwtToken.get(),
-	jwtToken.get(),
-	jwtToken.get(),
+    jwt.get(),
+	jwt.get(),
+	jwt.get(),
+	jwt.get(),
+	jwt.get(),
 ])
 ```
 :::
@@ -233,12 +247,12 @@ const [
 ## Invalidating tokens
 To refresh a token, call the `.refresh()` method on the token holder:
 ```ts
-jwtToken.invalidate();
+jwt.invalidate();
 ```
 
 Next time the `.get()` method is called, [the token is re-obtained](#obtaining-tokens):
 ```ts
-const newToken = await jwtToken.get();
+const newToken = await jwt.get();
 ```
 :::warning
 The `.invalidate()` token holder method does not call the [token provider](#token-provider) automatically.
@@ -247,18 +261,18 @@ The `.invalidate()` token holder method does not call the [token provider](#toke
 ## Refreshing tokens
 To refresh a token in the background, call the `.refresh()` method on the token holder:
 ```ts
-jwtToken.refresh();
+jwt.refresh();
 ```
 
 To refresh and get the token simultaneously, call the `.refreshAndGet()` method on the token holder:
 ```ts
-const newToken = await jwtToken.refreshAndGet();
+const newToken = await jwt.refreshAndGet();
 ```
 
 ## Subscribing to token changes
 To subscribe to token changes, call the `.onStatus()` token holder method:
 ```ts
-const unsubscribe = jwtToken.onStatus({
+const unsubscribe = jwt.onStatus({
     loading: async ({ context }) => {
         // ...
     },
@@ -273,7 +287,7 @@ const unsubscribe = jwtToken.onStatus({
 :::tip
 Token holders allow subscribing to a subset of the token status events:
 ```ts
-jwtToken.onStatus({
+jwt.onStatus({
     valid: () => {
         // ...
     },
@@ -288,7 +302,7 @@ const AuthScreen = () => {
     const [isTokenValid, setIsValid] = useState(false);
 
     useEffect(() => {
-        return jwtToken.onStatus({
+        return jwt.onStatus({
             loading: async ({ context }) => {},
             valid: async ({ context }) => {},
             invalid: async ({ context }) => {},
@@ -308,7 +322,7 @@ const AuthScreen = () => {
 To set up periodic token refresh in the background,
 pass an interval value to the `.refreshEvery()` token holder **builder** method:
 ```ts
-const jwtToken = token()
+const jwt = token()
 	/* ... */
     .refreshEvery("20 seconds")
 	// or
@@ -326,14 +340,14 @@ To convert a token to HTTP headers, use the `.toHeaders()` token holder method:
 ```ts
 const tokenValue = 'hey';
 
-const jwtToken = token()
+const jwt = token()
 	.from(() => tokenValue)
 	.build();
 
 /**
 * authHeaders - { Authorization: `Bearer ${tokenValue}` },
 * */
-const authHeaders = await jwtToken.toHeaders()
+const authHeaders = await jwt.toHeaders()
 ```
 
 To change how a token is converted to HTTP headers, pass a function to the 
@@ -341,7 +355,7 @@ To change how a token is converted to HTTP headers, pass a function to the
 ```ts
 const tokenValue = 'hey';
 
-const jwtToken = token()
+const jwt = token()
 	.from(() => tokenValue)
 	.whenConvertedToHeaders(({ token, context }) => ({
         'X-XSRF-TOKEN': token
@@ -354,7 +368,7 @@ const jwtToken = token()
 * 	'X-XSRF-TOKEN': 'hey' 
 * },
 * */
-const authHeaders = await jwtToken.toHeaders()
+const authHeaders = await jwt.toHeaders()
 ```
 :::info
 Alette Signal automatically [obtains tokens](#obtaining-tokens) 

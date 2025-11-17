@@ -13,6 +13,7 @@ import {
 	runOnMount,
 	throws,
 } from "../../../domain";
+import { wait } from "../../../shared";
 import { createTestApi } from "../../utils/createTestApi";
 
 class MyError extends ApiError {
@@ -160,6 +161,29 @@ test("it can access request props and context", async () => {
 		expect(caughtContext).toBe(context);
 		expect(caughtPath).toBe(pathValue);
 	});
+});
+
+test('it works with built-in "wait" utility', async () => {
+	const { custom } = createTestApi();
+	const myResponse = "asda";
+	let triedTimes = 0;
+
+	const getData = custom(
+		output(as<string>()),
+		throws(MyError),
+		factory(() => {
+			if (triedTimes < 2) {
+				triedTimes++;
+				throw new MyError();
+			}
+
+			return myResponse;
+		}),
+		retryWhen(() => wait(0)),
+	);
+
+	await getData();
+	expect(triedTimes).toEqual(2);
 });
 
 test("it is not affected by error mapping", async () => {

@@ -13,10 +13,11 @@ export const forCookieValidity = (cookieId: string) =>
 				const cookie = yield* cookies.get(cookieId);
 
 				if (!cookie) {
-					return "invalid";
+					return false;
 				}
 
-				return yield* cookie.getStatus();
+				const status = yield* cookie.getStatus();
+				return status === "valid";
 			}),
 		).pipe(E.orDie),
 	);

@@ -44,6 +44,7 @@ export const TestComponent: React.FC<IComponentProps> = ({
 				}),
 			)
 			.using(() => ({ args: provided })),
+		[provided],
 	);
 
 	if (isUninitialized) {

@@ -8,11 +8,12 @@ cookie setting operation without returning anything back to the cookie handler.
 ```ts
 async ({
     id,
+    isInvalid,
 	context,
 	getCredentials,
 	getCredentialsOrThrow,
 }) => {
-	await refreshAuthCookie.execute();
+	await refreshAuthCookie();
 }
 ```
 :::danger
@@ -40,7 +41,7 @@ async ({
 	getCredentialsOrThrow,
 }) => {
     const { email, password } = await getCredentialsOrThrow();
-	await refreshAuthCookie.execute({ 
+	await refreshAuthCookie({ 
 		args: { email, password } 
     });
 }
@@ -49,7 +50,7 @@ async ({
 ## Configuring cookie handlers
 To configure a cookie handler, call the `cookie()`
 function obtained from the
-[Alette Signal core plugin](../getting-started/configuring-requests.md#plugins-in-alette-signal), and
+[Alette Signal access control plugin](./access-control.md#access-control-plugin), and
 pass a [cookie setter](#cookie-setter) to the `.from()` cookie handler **builder** method:
 ```ts
 // ./src/api/base.ts
@@ -62,7 +63,7 @@ const refreshAuthCookie = mutation(/* ... */)
 
 export const authCookie = cookie()
 	.from(async () => {
-        await refreshAuthCookie.execute();
+        await refreshAuthCookie();
 	})
 	.build();
 ```
@@ -78,7 +79,7 @@ export const thirdPartyAuthCookie = cookie()
 	.build();
 
 // Overrides the initial cookie setter
-thirdPartyAuthCookie.from(() => refreshAuthCookie.execute())
+thirdPartyAuthCookie.from(() => refreshAuthCookie())
 ```
 :::
 
@@ -86,11 +87,11 @@ thirdPartyAuthCookie.from(() => refreshAuthCookie.execute())
 Alette Signal allows for multiple cookie handlers in the same application:
 ```ts
 export const appAuthCookie = cookie()
-	.from(() => refreshAuthCookie.execute())
+	.from(() => refreshAuthCookie())
 	.build();
 
 export const serviceAuthCookie = cookie()
-    .from(() => refreshServiceAuthCookie.execute())
+    .from(() => refreshServiceAuthCookie())
     .build();
 ```
 :::
@@ -105,7 +106,7 @@ const authCookie = cookie()
 		email: z.string(),
 		name: z.string()
 	}))
-	.from(() => refreshAuthCookie.execute())
+	.from(() => refreshAuthCookie())
 	.build();
 ```
 
@@ -122,7 +123,7 @@ const authCookie = cookie()
 		getCredentialsOrThrow, 
     }) => {
         const { email, password } = await getCredentialsOrThrow();
-        await refreshAuthCookie.execute({ args: { email, password } })
+        await refreshAuthCookie({ args: { email, password } })
 	})
 	.build();
 ```

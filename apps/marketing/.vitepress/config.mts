@@ -8,6 +8,7 @@ import {
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
 	title: 'Alette Signal',
+	description: "Complete front-end API infrastructure for monorepos, workers, and multi-app front-ends - type-safe, reactive, and framework-agnostic.",
 	cleanUrls: true,
 	markdown: {
 		config(md) {
@@ -20,7 +21,6 @@ export default defineConfig({
 	vite: {
 		plugins: [tailwindcss(), groupIconVitePlugin()],
 	},
-	description: "Type-safe, modular, and complete API layer for Front-End monorepos - minus the mess.",
 	head: [
 		["link", { rel: "icon", href: "/favicon.ico" }],
 		[
@@ -84,6 +84,12 @@ export default defineConfig({
 				items: [
 					{ text: "Installation", link: "/docs/getting-started/installation" },
 					{
+						text: "Api client",
+						link: "/docs/getting-started/api-configuration",
+					},
+					{ text: "Api plugins", link: "/docs/getting-started/api-plugins" },
+					{ text: "Api context", link: "/docs/getting-started/api-context" },
+					{
 						text: "Configuring requests",
 						link: "/docs/getting-started/configuring-requests",
 					},
@@ -96,11 +102,9 @@ export default defineConfig({
 						link: "/docs/getting-started/request-middleware",
 					},
 					{
-						text: "Api client",
-						link: "/docs/getting-started/api-configuration",
+						text: "Middleware reuse",
+						link: "/docs/getting-started/middleware-reuse",
 					},
-					{ text: "Api plugins", link: "/docs/getting-started/api-plugins" },
-					{ text: "Api context", link: "/docs/getting-started/api-context" },
 				],
 			},
 			{

@@ -1,4 +1,5 @@
 # Alette Signal
-Type-safe, modular, and complete API layer for Front-End monorepos - minus the mess.
+"description": "Complete front-end API infrastructure for monorepos, workers, 
+and multi-app front-ends - type-safe, reactive, and framework-agnostic.",
 
 [Documentation](https://alette-os.com/).
