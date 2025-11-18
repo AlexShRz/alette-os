@@ -6,7 +6,7 @@ across the whole api system.
 To set api context type, you need to override Alette Signal `IGlobalContext`
 interface:
 ```ts [api/context.ts]
-import { coreApiPlugin, setContext } from "@alette/signal";
+import { setContext } from "@alette/signal";
 
 interface IApiContext {
     hey: string;
