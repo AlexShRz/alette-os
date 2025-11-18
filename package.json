@@ -3,8 +3,8 @@
 	"version": "0.0.0",
 	"license": "Apache-2.0",
 	"scripts": {
-		"publish:beta": "pnpm -r publish --publish-branch m-reuse --access public --tag beta",
-		"publish:real": "pnpm -r publish –-publish-branch m-reuse -–access public –-tag latest"
+		"publish:beta": "pnpm -r publish -access public -tag beta",
+		"publish:real": "pnpm -r publish -access public –tag latest"
 	},
 	"private": true,
 	"devDependencies": {
