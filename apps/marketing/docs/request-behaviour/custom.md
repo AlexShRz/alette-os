@@ -16,8 +16,7 @@ If you need a request with preconfigured behaviour, use [query](query.md) or [mu
 
 ## Using "custom"
 To use the custom request blueprint, extract it from the Alette Signal "core" plugin:
-```ts
-// ./src/api/base.ts
+```ts [api/client.ts]
 import { client, activatePlugins, coreApiPlugin } from "@alette/signal";
 
 const core = coreApiPlugin();
@@ -31,10 +30,9 @@ export const { custom } = core.use();
 ```
 
 Now you can add middleware and execute requests:
-```ts
-// ./src/api/sms.ts
+```ts [api/sms.ts]
 import { input, output, path, factory, body } from '@alette/signal';
-import { custom } from "./base";
+import { custom } from "./client";
 import { thirdPartySMSSdk } from './smsSdk';
 import * as z from 'zod';
 
@@ -49,7 +47,7 @@ export const sendSMS = custom(
 );
 
 // Later...
-await sendSMS.execute({ args: 'Hello Alette Signal' })
+await sendSMS({ args: 'Hello Alette Signal' })
 ```
 
 ## Using "custom" with UI frameworks
@@ -123,9 +121,9 @@ const getFullGreeting = custom(
      output(CombinedResponse),
      factory(async () => {
         // Returns { hey: string }  
-        const response1 = await getGreetingStart.execute();
+        const response1 = await getGreetingStart();
         // Returns { there: string }
-        const response2 = await getGreetingEnd.execute();
+        const response2 = await getGreetingEnd();
         
         return {
            ...response1,
@@ -135,7 +133,7 @@ const getFullGreeting = custom(
 );
 
 // Returns { hey: string, there: string }
-const greeting = await getFullGreeting.execute()
+const greeting = await getFullGreeting();
 ```
 :::danger
 The [Standard Schema](https://standardschema.dev/) passed to the `output()` middleware must represent the 
@@ -156,8 +154,8 @@ const createNewReaderUser = custom(
    })),
    output(z.boolean()),
    factory(async ({ args: { name, email } }) => {
-      const user = await createUser.execute({ args: { name, email } });
-      await assignUserRole.execute({ 
+      const user = await createUser({ args: { name, email } });
+      await assignUserRole({ 
          args: { id: user.id, role: 'reader' } 
       });
 
@@ -165,7 +163,7 @@ const createNewReaderUser = custom(
    })
 );
 
-await createNewReaderUser.execute({ 
+await createNewReaderUser({ 
    args: {
         name: 'Alette Signal', 
         email: 'alette-signal@mail.com' 
@@ -214,7 +212,7 @@ factory(async (_, { notify }) => {
                  notify(aboutDownloadProgress(progress))
              }),
          )
-         .execute() 
+         () 
     return response;        
 })
 ```
@@ -232,8 +230,8 @@ To enable request factory supervision, pass the provided [AbortSignal](https://d
 to child requests using the `abortedBy()` middleware:
 ```ts
 factory(async (_, { signal }) => {
-    const response1 = await getData1.with(abortedBy(signal)).execute(); 
-    const response2 = await getData2.with(abortedBy(signal)).execute(); 
+    const response1 = await getData1.with(abortedBy(signal))(); 
+    const response2 = await getData2.with(abortedBy(signal))(); 
 
     return {
         ...response1,
@@ -247,8 +245,8 @@ To cancel request factory execution, use `cancel()`:
 ```ts
 const getCombinedData = custom(
     factory(async (_, { signal }) => {
-        const response1 = await getData1.with(abortedBy(signal)).execute();
-        const response2 = await getData2.with(abortedBy(signal)).execute();
+        const response1 = await getData1.with(abortedBy(signal))();
+        const response2 = await getData2.with(abortedBy(signal))();
 
         return {
             ...response1,
@@ -280,8 +278,8 @@ const abortController = new AbortController();
 const getCombinedData = custom(
     abortedBy(abortController),
     factory(async (_, { signal }) => {
-        const response1 = await getData1.with(abortedBy(signal)).execute();
-        const response2 = await getData2.with(abortedBy(signal)).execute();
+        const response1 = await getData1.with(abortedBy(signal))();
+        const response2 = await getData2.with(abortedBy(signal))();
 
         return {
             ...response1,
@@ -290,7 +288,7 @@ const getCombinedData = custom(
     })
 )
 
-getCombinedData.execute()
+getCombinedData()
 	
 // Later...
 abortController.abort()

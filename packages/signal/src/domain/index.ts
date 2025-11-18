@@ -4,6 +4,7 @@ export * from "./context";
 export * from "./execution";
 export * from "./preparation";
 export * from "./lifecycle";
+export * from "./middleware";
 export * from "./errors";
 export * from "./categorization";
 /**
@@ -12,5 +13,10 @@ export * from "./categorization";
  * */
 export * from "./auth";
 export * from "./requestConfigPredicate";
-export * from "@alette/pulse";
 export * from "./response";
+/**
+ * Re-export things from used packages - without
+ * it, TS will error with the "type annotation is necessary" error.
+ * */
+export * from "@alette/pulse";
+export * from "@alette/shared";

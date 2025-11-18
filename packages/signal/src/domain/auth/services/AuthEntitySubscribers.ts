@@ -41,11 +41,24 @@ export class AuthEntitySubscribers extends E.Service<AuthEntitySubscribers>()(
 					yield* E.all(tasks);
 				});
 
+			const getListenerKey = (
+				status: TAuthEntityStatus | "loading",
+			): keyof IAuthEntityChangeSubscriber => {
+				if (status === "uninitialized") {
+					return "invalid";
+				}
+
+				return status;
+			};
+
 			return {
 				run(status: TAuthEntityStatus | "loading") {
 					return E.gen(function* () {
 						const currentSubscribers = yield* subscribers.get;
-						return yield* runListeners(currentSubscribers, status);
+						return yield* runListeners(
+							currentSubscribers,
+							getListenerKey(status),
+						);
 					});
 				},
 
@@ -66,7 +79,7 @@ export class AuthEntitySubscribers extends E.Service<AuthEntitySubscribers>()(
 									/**
 									 * Provide current state to the subscriber asap.
 									 * */
-									yield* runListeners([subscriber], status);
+									yield* runListeners([subscriber], getListenerKey(status));
 									return [...currentSubscribers, subscriber];
 								}),
 						),

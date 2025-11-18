@@ -2,7 +2,7 @@ import { ApiError, RequestAbortedError, as } from "@alette/pulse";
 import { factory, output, retry, retryWhen, throws } from "../../../domain";
 import { createTestApi } from "../../utils";
 
-class MyError extends ApiError {
+export class MyError extends ApiError {
 	cloneSelf() {
 		return new MyError();
 	}
@@ -25,7 +25,7 @@ test("it retries requests using the specified retry limit", async () => {
 	);
 
 	try {
-		await getData.execute();
+		await getData();
 	} catch {}
 
 	expect(enteredTimes).toEqual(4);
@@ -46,7 +46,7 @@ test("it retries request once if retry limit is not specified", async () => {
 	);
 
 	try {
-		await getData.execute();
+		await getData();
 	} catch {}
 
 	expect(enteredFactory).toEqual(2);
@@ -66,9 +66,9 @@ test("it allows users to disable retries", async () => {
 		retry(),
 	);
 
-	await expect(() =>
-		getData.execute({ skipRetry: true }),
-	).rejects.toBeInstanceOf(MyError);
+	await expect(() => getData({ skipRetry: true })).rejects.toBeInstanceOf(
+		MyError,
+	);
 	expect(enteredFactory).toEqual(1);
 });
 
@@ -91,7 +91,7 @@ test("it overrides middleware of the same type", async () => {
 		}),
 	);
 
-	await expect(() => getData.execute()).rejects.toBeTruthy();
+	await expect(() => getData()).rejects.toBeTruthy();
 	expect(enteredFactory).toEqual(2);
 });
 
@@ -116,7 +116,7 @@ test("it overrides 'retryWhen' middleware", async () => {
 		}),
 	);
 
-	await expect(() => getData.execute()).rejects.toBeTruthy();
+	await expect(() => getData()).rejects.toBeTruthy();
 	expect(enteredFactory).toEqual(2);
 	expect(enteredRetryWhen).toBeFalsy();
 });
@@ -137,6 +137,6 @@ test("it does not react to request abortion errors", async () => {
 		}),
 	);
 
-	await expect(() => getData.execute()).rejects.toBeTruthy();
+	await expect(() => getData()).rejects.toBeTruthy();
 	expect(enteredFactory).toEqual(1);
 });

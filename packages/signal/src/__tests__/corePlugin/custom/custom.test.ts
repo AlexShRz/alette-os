@@ -37,15 +37,15 @@ test(
 
 		const res = await custom(
 			factory(async () => {
-				const data1 = await myQuery.execute();
-				const data2 = await myMutation.execute();
+				const data1 = await myQuery();
+				const data2 = await myMutation();
 
 				return {
 					...data1,
 					...data2,
 				};
 			}),
-		).execute();
+		)();
 
 		await vi.waitFor(() => {
 			expect(res).toEqual(expectedCustomResponse);
@@ -71,7 +71,7 @@ test.each([[401 as THttpStatusCode], [419 as THttpStatusCode]])(
 
 		const getData = custom(
 			output(as<null>()),
-			factory(({ url }) => request(r.route(url), r.method("POST")).execute()),
+			factory(({ url }) => request(r.route(url), r.method("POST"))()),
 		);
 
 		getData.spawn();

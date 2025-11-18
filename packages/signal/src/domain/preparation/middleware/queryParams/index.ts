@@ -1,2 +1,2 @@
-export * from "./queryParams";
+export * from "./QueryParams";
 export { queryParamsMiddlewareName } from "./queryParamsMiddlewareSpecification";

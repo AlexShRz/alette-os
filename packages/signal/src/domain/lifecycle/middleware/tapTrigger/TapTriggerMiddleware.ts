@@ -2,8 +2,8 @@ import * as E from "effect/Effect";
 import { GlobalContext } from "../../../context/services/GlobalContext";
 import { WithCurrentRequestOverride } from "../../../execution/events/envelope/WithCurrentRequestOverride";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
-import { TTapTriggerArgs } from "./TapTriggerMiddlewareFactory";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
+import { TTapTriggerArgs } from "./TapTrigger";
 
 export class TapTriggerMiddleware extends Middleware("TapTriggerMiddleware", {
 	priority: MiddlewarePriority.OutOfBounds,

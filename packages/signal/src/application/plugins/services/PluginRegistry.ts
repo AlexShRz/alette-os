@@ -27,11 +27,18 @@ export class PluginRegistry extends E.Service<PluginRegistry>()(
 			const plugins = yield* SynchronizedRef.make(
 				yield* LayerMap.make(
 					(services: ApiPluginServices) =>
-						ActiveApiPlugin.Default.pipe(
-							Layer.provide(
-								Layer.mergeAll(
-									services.toLayer(),
-									Layer.succeedContext(context),
+						/**
+						 * Must be wrapped in Layer.fresh(),
+						 * otherwise we will not be able to activate/deactivate
+						 * multiple plugins at once properly.
+						 * */
+						Layer.fresh(
+							ActiveApiPlugin.Default.pipe(
+								Layer.provide(
+									Layer.mergeAll(
+										services.toLayer(),
+										Layer.succeedContext(context),
+									),
 								),
 							),
 						),

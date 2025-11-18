@@ -1,4 +1,3 @@
-import { IRequestContext } from "../../context/IRequestContext";
 import { method } from "./method";
 
-export const puts = <C extends IRequestContext>() => method<C, "PUT">("PUT");
+export const puts = /* @__PURE__ */ method("PUT");

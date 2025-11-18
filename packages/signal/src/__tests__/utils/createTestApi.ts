@@ -1,7 +1,12 @@
 import { makeUrl } from "@alette/pulse";
 import { Duration, Layer } from "effect";
 import { vi } from "vitest";
-import { activatePlugins, blueprint, coreApiPlugin } from "../../application";
+import {
+	activatePlugins,
+	blueprint,
+	coreApiPlugin,
+	coreAuthPlugin,
+} from "../../application";
 import { customRequestSpec } from "../../application/corePlugin/custom";
 import { CommandTaskBuilder } from "../../application/plugins/tasks/primitive/CommandTaskBuilder";
 import { origin, reloadable, runOnMount } from "../../domain";
@@ -33,17 +38,21 @@ class TestApiWithTestContext extends ApiClient {
 
 export const createTestApi = (...commands: CommandTaskBuilder[]) => {
 	const core = coreApiPlugin();
+	const auth = coreAuthPlugin();
 	const api = new TestApiWithTestContext(
-		activatePlugins(core.plugin),
+		activatePlugins(core.plugin, auth.plugin),
 		...commands,
 	);
 
 	return {
 		api,
 		core,
+		auth,
 		...core.use(),
+		...auth.use(),
 		testUrl: makeUrl("https://example.com"),
 		corePlugin: core.plugin,
+		authPlugin: auth.plugin,
 		/**
 		 * Make sure we use request types created for
 		 * tests specifically, not our default plugin requests

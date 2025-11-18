@@ -33,16 +33,21 @@ export default defineConfig(() => ({
 			fileName: "index",
 			// Change this to the formats you want to support.
 			// Don't forget to update your package.json as well.
-			formats: ["es" as const, "cjs" as const],
+			formats: ["es" as const],
 		},
 		rollupOptions: {
 			// External packages that should not be bundled into your library.
-			external: [],
+			external: [/^effect($|\/)/, "uuid", "fast-deep-equal"],
 		},
 	},
 	test: {
 		watch: false,
 		globals: true,
+		unstubGlobals: true, // auto-unstub vi.stubGlobal after each test file
+		unstubEnvs: true, // same for vi.stubEnv
+		restoreMocks: true, // restore vi.spyOn/vi.fn mocks
+		clearMocks: true, // clear call history
+		mockReset: true, // reset jest-style mocks
 		environment: "node",
 		include: ["{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
 		reporters: ["default"],

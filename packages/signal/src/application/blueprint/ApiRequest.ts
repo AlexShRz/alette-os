@@ -1,28 +1,31 @@
+import { Callable } from "@alette/shared";
 import { v4 as uuid } from "uuid";
 import { IRequestContext } from "../../domain/context/IRequestContext";
-import { TRequestSettings } from "../../domain/context/typeUtils/RequestIOTypes";
-import { IRequestSettingSupplier } from "../../domain/execution/services/RequestSessionContext";
 import {
-	IMiddlewareSupplierFn,
-	IRuntimeMiddlewareSupplierFn,
-} from "../../domain/middleware/IMiddlewareSupplierFn";
+	TRequestResponse,
+	TRequestSettings,
+} from "../../domain/context/typeUtils/RequestIOTypes";
+import { IRequestSettingSupplier } from "../../domain/execution/services/RequestSessionContext";
 import { RequestMiddleware } from "../../domain/middleware/RequestMiddleware";
+import { TAnyMiddlewareFacade } from "../../domain/middleware/TAnyMiddlewareFacade";
 import { IAnyRequestSpecification } from "../../domain/specification";
-import { RequestWatcher } from "../../domain/watchers/RequestWatcher";
 import { ApiPlugin } from "../plugins/ApiPlugin";
 
-export type TAnyMiddlewareInjector = RequestMiddleware | RequestWatcher;
-
 export abstract class ApiRequest<
-	PrevContext extends IRequestContext = IRequestContext,
 	Context extends IRequestContext = IRequestContext,
 	RequestSpec extends IAnyRequestSpecification = IAnyRequestSpecification,
+> extends Callable<
+	(args?: TRequestSettings<Context>) => Promise<TRequestResponse<Context>>
 > {
 	/**
 	 * IMPORTANT:
 	 * See blueprint key tests.
 	 * */
 	protected blueprintKey = uuid();
+
+	protected abstract plugin: ApiPlugin;
+	protected abstract defaultMiddleware: RequestMiddleware[];
+
 	/**
 	 * 1. Helps us figure out where to route the request
 	 * 2. Each request is routed to a specified request thread
@@ -34,17 +37,12 @@ export abstract class ApiRequest<
 	 * */
 	protected settingSupplier: IRequestSettingSupplier<Context> = () => ({});
 	/**
-	 * 1. Holds middleware and watchers.
-	 * 2. Because we hold ONLY layers here, our middleware/watchers
+	 * 1. Holds middleware facades.
+	 * 2. Because we hold ONLY layers here, our middleware
 	 * are lazy by default. They will be created only when we put
 	 * them inside an event bus.
 	 * */
-	protected middlewareInjectors: TAnyMiddlewareInjector[] = [];
-
-	constructor(
-		protected plugin: ApiPlugin,
-		protected defaultMiddleware: RequestMiddleware[],
-	) {}
+	protected middlewareFacades: TAnyMiddlewareFacade<any, any, any, any>[] = [];
 
 	getKey() {
 		return this.blueprintKey;
@@ -54,12 +52,15 @@ export abstract class ApiRequest<
 		return this.settingSupplier;
 	}
 
-	protected getAllMiddlewareInjectors() {
-		return [...this.defaultMiddleware, ...this.middlewareInjectors];
+	protected getAllMiddlewareInjectors(): RequestMiddleware<any, any>[] {
+		return [
+			...this.defaultMiddleware,
+			...this.middlewareFacades.map((m) => m.getMiddleware()),
+		];
 	}
 
 	protected mergeInjectorsAndCloneSelf(
-		lazyMiddlewareSuppliers: IMiddlewareSupplierFn<any, any, any, any>[],
+		middlewareFacades: TAnyMiddlewareFacade<any, any, any, any>[],
 	) {
 		/**
 		 * 1. Here we need to CLONE the request WHILE
@@ -71,12 +72,7 @@ export abstract class ApiRequest<
 		/**
 		 * Make sure to copy middleware AFTER cloning
 		 * */
-		self.middlewareInjectors = [
-			...this.middlewareInjectors,
-			...(lazyMiddlewareSuppliers as IRuntimeMiddlewareSupplierFn[]).map((fn) =>
-				fn()(),
-			),
-		];
+		self.middlewareFacades = [...this.middlewareFacades, ...middlewareFacades];
 		return self;
 	}
 
@@ -102,7 +98,7 @@ export abstract class ApiRequest<
 
 	clone(): this {
 		const self = this._clone();
-		self.middlewareInjectors = [...this.middlewareInjectors];
+		self.middlewareFacades = [...this.middlewareFacades];
 		self.settingSupplier = this.settingSupplier;
 		/**
 		 * IMPORTANT - copy blueprint key without

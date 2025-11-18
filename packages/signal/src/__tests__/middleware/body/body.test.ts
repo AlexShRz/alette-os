@@ -24,7 +24,7 @@ test("it overrides previous middleware of the same type", async () => {
 		}),
 	);
 
-	await getData.execute();
+	await getData();
 	await vi.waitFor(() => {
 		expect(returned[0]).toStrictEqual(myBody);
 		expect(returned[1]).toStrictEqual(expectedHeaders);
@@ -54,7 +54,7 @@ test("it can access request props and context", async () => {
 		}),
 	);
 
-	await getData.execute();
+	await getData();
 	await vi.waitFor(() => {
 		expect(caughtContext).toBe(context);
 		expect(caughtPath).toBe(pathValue);
@@ -86,7 +86,7 @@ test("it throws a fatal error if set body is incorrect", async () => {
 		}),
 	);
 
-	getData.execute().catch((e) => e);
+	getData().catch((e) => e);
 
 	await vi.waitFor(() => {
 		expect(failed).toBeTruthy();

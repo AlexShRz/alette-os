@@ -1,3 +1,8 @@
+import { IRequestContext } from "../context";
+import { IRequestContextPatch } from "../context/RequestContextPatches";
+import { MiddlewareFacade } from "../middleware/MiddlewareFacade";
+import { TAnyMiddlewareFacade } from "../middleware/facade/TAnyMiddlewareFacade";
+import { InitializedFacade, UninitializedFacade } from "../preparation";
 import {
 	IAnyMiddlewareSpecification,
 	MiddlewareSpecification,
@@ -35,7 +40,36 @@ type HasIntersection<
 		: false
 	: false;
 
-export type VerifyMiddlewareCompatibility<
+export type TVerifyMiddlewareSupplier<
+	Context extends IRequestContext,
+	MiddlewareSupplier,
+> = MiddlewareSupplier extends
+	| UninitializedFacade<
+			any,
+			Context,
+			any,
+			infer MiddlewareSpec,
+			infer RequestConstraints
+	  >
+	| InitializedFacade<
+			any,
+			Context,
+			any,
+			infer MiddlewareSpec,
+			infer RequestConstraints
+	  >
+	? TVerifyMiddlewareCompatibility<
+			string,
+			RequestConstraints,
+			MiddlewareSpec,
+			MiddlewareSupplier
+		>
+	: {
+			error: NotCompatibleMiddlewareError;
+			reason: "Invalid request constraints";
+		};
+
+export type TVerifyMiddlewareCompatibility<
 	RequestConstraints extends IAnyRequestSpecification,
 	MiddlewareRequestConstraints extends IAnyMiddlewareSpecification,
 	ReturnedValue,
@@ -44,32 +78,41 @@ export type VerifyMiddlewareCompatibility<
 	infer AllowedMiddlewareTags,
 	infer ProhibitedMiddlewareTags
 >
-	? MiddlewareRequestConstraints extends MiddlewareSpecification<
-			infer MiddlewareTags,
-			infer MiddlewareProhibitedRequestTags
+	? RequestConstraints extends RequestSpecification<
+			infer RequestTags,
+			infer AllowedMiddlewareTags,
+			infer ProhibitedMiddlewareTags
 		>
-		? HasIntersection<MiddlewareTags, ProhibitedMiddlewareTags> extends true
-			? {
-					error: NotCompatibleMiddlewareError;
-					reason: "The request prohibits this middleware from being applied.";
-				}
-			: HasIntersection<
-						MiddlewareProhibitedRequestTags,
-						RequestTags
-					> extends true
+		? MiddlewareRequestConstraints extends MiddlewareSpecification<
+				infer MiddlewareTags,
+				infer MiddlewareProhibitedRequestTags
+			>
+			? HasIntersection<MiddlewareTags, ProhibitedMiddlewareTags> extends true
 				? {
 						error: NotCompatibleMiddlewareError;
-						reason: "The middleware marks this request type as non-compatible with itself.";
+						reason: "The request prohibits this middleware from being applied.";
 					}
-				: HasIntersection<MiddlewareTags, AllowedMiddlewareTags> extends true
-					? ReturnedValue
-					: {
+				: HasIntersection<
+							MiddlewareProhibitedRequestTags,
+							RequestTags
+						> extends true
+					? {
 							error: NotCompatibleMiddlewareError;
-							reason: "The request hasn't marked this middleware as applicable to itself.";
+							reason: "The middleware marks this request type as non-compatible with itself.";
 						}
+					: HasIntersection<MiddlewareTags, AllowedMiddlewareTags> extends true
+						? ReturnedValue
+						: {
+								error: NotCompatibleMiddlewareError;
+								reason: "The request hasn't marked this middleware as applicable to itself.";
+							}
+			: {
+					error: NotCompatibleMiddlewareError;
+					reason: "Invalid middleware constraints";
+				}
 		: {
 				error: NotCompatibleMiddlewareError;
-				reason: "Invalid middleware constraints";
+				reason: "Invalid request constraints";
 			}
 	: {
 			error: NotCompatibleMiddlewareError;

@@ -3,8 +3,8 @@ import { GlobalContext } from "../../../context/services/GlobalContext";
 import { orPanic } from "../../../errors/utils/orPanic";
 import { RequestMode } from "../../../execution/services/RequestMode";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
-import { TTapUnmountArgs } from "./TapUnmountMiddlewareFactory";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
+import { TTapUnmountArgs } from "./TapUnmount";
 
 export class TapUnmountMiddleware extends Middleware("TapUnmountMiddleware", {
 	priority: MiddlewarePriority.BeforeExecution,

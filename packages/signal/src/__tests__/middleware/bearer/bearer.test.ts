@@ -29,7 +29,7 @@ test("it replaces middleware of the same type", async () => {
 		}),
 	);
 
-	await getData.execute();
+	await getData();
 	expect(reachedCookie).toBeFalsy();
 	expect(reachedToken).toBeTruthy();
 });
@@ -68,7 +68,7 @@ test.each([[401 as THttpStatusCode], [419 as THttpStatusCode]])(
 			}),
 		);
 
-		const res = await getData.execute();
+		const res = await getData();
 		expect(res).toEqual(responseValue);
 		expect(triedTimes).toEqual(2);
 		/**
@@ -106,6 +106,6 @@ test("it can access global context", async () => {
 		}),
 	);
 
-	await getData.execute();
+	await getData();
 	expect(caughtContext).toEqual(context);
 });

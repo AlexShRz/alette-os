@@ -6,7 +6,7 @@ import { orPanic } from "../../../errors/utils/orPanic";
 import { panic } from "../../../errors/utils/panic";
 import { OneShotRequestNotification } from "../../../lifecycle/notifications/OneShotRequestNotification";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { UrlContext } from "../../../preparation/context/url/UrlContext";
 import { WithCurrentRequestOverride } from "../../events/envelope/WithCurrentRequestOverride";
 import { AbortRequest } from "../../events/request/AbortRequest";
@@ -17,7 +17,7 @@ import { RunRequest } from "../../events/request/RunRequest";
 import { RequestRunner } from "../../services/RequestRunner";
 import { RequestSessionContext } from "../../services/RequestSessionContext";
 import { attachRequestId } from "../../utils/attachRequestId";
-import { IRequestRunner } from "./FactoryMiddlewareFactory";
+import { IRequestRunner } from "./Factory";
 
 export class FactoryMiddleware extends Middleware("FactoryMiddleware", {
 	priority: MiddlewarePriority.Execution,

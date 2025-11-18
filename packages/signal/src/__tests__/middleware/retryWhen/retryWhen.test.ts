@@ -13,6 +13,7 @@ import {
 	runOnMount,
 	throws,
 } from "../../../domain";
+import { wait } from "../../../shared";
 import { createTestApi } from "../../utils/createTestApi";
 
 class MyError extends ApiError {
@@ -48,7 +49,7 @@ test("it retries requests", async () => {
 		}),
 	);
 
-	const res = await getData.execute();
+	const res = await getData();
 	expect(res).toEqual(myResponse);
 });
 
@@ -75,7 +76,7 @@ test("it counts retry attempts", async () => {
 		}),
 	);
 
-	await getData.execute();
+	await getData();
 	expect(triedTimesFromMiddleware).toEqual(triedTimes);
 });
 
@@ -116,7 +117,7 @@ test("it can access context of a previously failed request", async () => {
 		}),
 	);
 
-	await getData.execute();
+	await getData();
 	expect(loggedPaths).toStrictEqual([path1, path2, path3]);
 });
 
@@ -155,11 +156,34 @@ test("it can access request props and context", async () => {
 		}),
 	);
 
-	await getData.execute();
+	await getData();
 	await vi.waitFor(() => {
 		expect(caughtContext).toBe(context);
 		expect(caughtPath).toBe(pathValue);
 	});
+});
+
+test('it works with built-in "wait" utility', async () => {
+	const { custom } = createTestApi();
+	const myResponse = "asda";
+	let triedTimes = 0;
+
+	const getData = custom(
+		output(as<string>()),
+		throws(MyError),
+		factory(() => {
+			if (triedTimes < 2) {
+				triedTimes++;
+				throw new MyError();
+			}
+
+			return myResponse;
+		}),
+		retryWhen(() => wait(0)),
+	);
+
+	await getData();
+	expect(triedTimes).toEqual(2);
 });
 
 test("it is not affected by error mapping", async () => {
@@ -186,7 +210,7 @@ test("it is not affected by error mapping", async () => {
 		}),
 	);
 
-	const res = await getData.execute();
+	const res = await getData();
 	expect(res).toEqual(myResponse);
 	expect(caughtError).toBeInstanceOf(MyError);
 });
@@ -207,7 +231,7 @@ test("it allows users to disable retries per request", async () => {
 		}),
 	);
 
-	await expect(() => getData.execute({ skipRetry: true })).rejects.toThrowError(
+	await expect(() => getData({ skipRetry: true })).rejects.toThrowError(
 		MyError,
 	);
 	expect(enteredRetry).toEqual(0);
@@ -272,7 +296,7 @@ test("it overrides middleware of the same type", async () => {
 		}),
 	);
 
-	const res = await getData.execute();
+	const res = await getData();
 	expect(res).toEqual(myResponse);
 	expect(reachedPrevious).toBeFalsy();
 });
@@ -297,7 +321,7 @@ test("it overrides 'retry()' middleware", async () => {
 	);
 
 	try {
-		await getData.execute();
+		await getData();
 	} catch {}
 
 	expect(enteredTimes).toEqual(1);

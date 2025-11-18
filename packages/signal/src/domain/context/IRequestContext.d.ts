@@ -31,7 +31,7 @@ export interface IRequestContext<
 	/**
 	 * Middleware can allow users to tweak their behaviour
 	 * during each request execution. These behavioural settings
-	 * are stored here and can be changed by users via request.execute(...), etc.
+	 * are stored here and can be changed by users via request(...), etc.
 	 * */
 	settings: S;
 	/**

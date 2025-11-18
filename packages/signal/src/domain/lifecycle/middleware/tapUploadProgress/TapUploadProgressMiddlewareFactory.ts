@@ -1,19 +1,7 @@
-import { IUploadProgressData } from "@alette/pulse";
 import * as E from "effect/Effect";
-import { IRequestContext } from "../../../context/IRequestContext";
-import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
 import { TapUploadProgressMiddleware } from "./TapUploadProgressMiddleware";
-import { tapUploadProgressMiddlewareSpecification } from "./tapUploadProgressMiddlewareSpecification";
-
-export type TTapUploadProgressArgs<
-	C extends IRequestContext = IRequestContext,
-> = (
-	uploadProgressData: IUploadProgressData,
-	requestContext: TGetAllRequestContext<C>,
-) => void | Promise<void>;
 
 export class TapUploadProgressMiddlewareFactory extends Middleware(
 	"TapUploadProgressMiddlewareFactory",
@@ -34,22 +22,4 @@ export class TapUploadProgressMiddlewareFactory extends Middleware(
 					},
 				};
 			}),
-) {
-	static toFactory() {
-		return <Context extends IRequestContext>(
-			args: TTapUploadProgressArgs<Context>,
-		) => {
-			return toMiddlewareFactory<
-				Context,
-				Context,
-				typeof tapUploadProgressMiddlewareSpecification
-			>(
-				() =>
-					new TapUploadProgressMiddlewareFactory(
-						() =>
-							new TapUploadProgressMiddleware(args as TTapUploadProgressArgs),
-					),
-			);
-		};
-	}
-}
+) {}

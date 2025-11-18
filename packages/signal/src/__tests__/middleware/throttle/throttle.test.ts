@@ -10,7 +10,7 @@ import {
 } from "../../../domain";
 import { IRequestContext } from "../../../domain/context/IRequestContext";
 import { WithCurrentRequestOverride } from "../../../domain/execution/events/envelope/WithCurrentRequestOverride";
-import { MiddlewarePriority } from "../../../domain/middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../domain/middleware/constants/MiddlewarePriority";
 import { activityLens, createTestApi } from "../../utils";
 
 beforeEach(() => {
@@ -103,12 +103,12 @@ test("it does not throttle requests in one shot mode", async () => {
 	);
 
 	const responses = await Promise.all([
-		getData.execute(),
-		getData.execute(),
-		getData.execute(),
-		getData.execute(),
-		getData.execute(),
-		getData.execute(),
+		getData(),
+		getData(),
+		getData(),
+		getData(),
+		getData(),
+		getData(),
 	]);
 	expect(responses.every((res) => res === response)).toBeTruthy();
 });

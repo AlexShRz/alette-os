@@ -13,10 +13,11 @@ export const forTokenValidity = (tokenId: string) =>
 				const token = yield* tokens.get(tokenId);
 
 				if (!token) {
-					return "invalid";
+					return false;
 				}
 
-				return yield* token.getStatus();
+				const status = yield* token.getStatus();
+				return status === "valid";
 			}),
 		).pipe(E.orDie),
 	);

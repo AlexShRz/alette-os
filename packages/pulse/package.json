@@ -1,6 +1,6 @@
 {
 	"name": "@alette/pulse",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"type": "module",
 	"main": "./dist/index.js",
 	"module": "./dist/index.js",
@@ -25,6 +25,7 @@
 		}
 	},
 	"peerDependencies": {
+		"@alette/shared": "workspace:*",
 		"effect": "^3.17.8",
 		"uuid": "^11.1.0",
 		"query-string": "^9.2.2",

@@ -10,7 +10,14 @@ export const deactivatePlugins = (...plugins: ApiPlugin[]) =>
 			E.gen(function* () {
 				const registry = yield* E.serviceOptional(PluginRegistry);
 
-				for (const plugin of plugins) {
+				/**
+				 * If no plugins were passed - deactivate everything.
+				 * */
+				const pluginsToBeDeactivates = !!plugins.length
+					? plugins
+					: yield* registry.getAll();
+
+				for (const plugin of pluginsToBeDeactivates) {
 					const pluginName = plugin.getName();
 					yield* registry.deactivate(pluginName);
 				}

@@ -3,212 +3,456 @@ import {
 	RequestSpecification,
 } from "../../domain";
 import { IRequestContext } from "../../domain/context/IRequestContext";
-import { IMiddlewareSupplierFn } from "../../domain/middleware/IMiddlewareSupplierFn";
+import {
+	IRequestContextPatch,
+	TApplyRequestContextPatches,
+} from "../../domain/context/RequestContextPatches";
+import { TAnyMiddlewareFacade } from "../../domain/middleware/TAnyMiddlewareFacade";
 import type { OneShotRequest } from "./OneShotRequest";
 
 export interface IOneShotRequestWithMiddleware<
 	Context extends IRequestContext,
 	RequestSpec extends RequestSpecification,
 > {
-	with<NC1 extends IRequestContext, MC1 extends IAnyMiddlewareSpecification>(
-		fn1: IMiddlewareSupplierFn<Context, NC1, MC1, RequestSpec>,
-	): OneShotRequest<Context, NC1, RequestSpec>;
+	with<
+		NC1 extends IRequestContextPatch<any, any>[],
+		MC1 extends IAnyMiddlewareSpecification,
+	>(
+		m1: TAnyMiddlewareFacade<Context, NC1, MC1, RequestSpec>,
+	): OneShotRequest<TApplyRequestContextPatches<Context, NC1>, RequestSpec>;
 
 	with<
-		NC1 extends IRequestContext,
+		NC1 extends IRequestContextPatch<any, any>[],
 		MC1 extends IAnyMiddlewareSpecification,
-		NC2 extends IRequestContext,
+		NC2 extends IRequestContextPatch<any, any>[],
 		MC2 extends IAnyMiddlewareSpecification,
 	>(
-		fn1: IMiddlewareSupplierFn<Context, NC1, MC1, RequestSpec>,
-		fn2: IMiddlewareSupplierFn<NC1, NC2, MC2, RequestSpec>,
-	): OneShotRequest<NC1, NC2, RequestSpec>;
+		m1: TAnyMiddlewareFacade<Context, NC1, MC1, RequestSpec>,
+		m2: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, NC1>,
+			NC2,
+			MC2,
+			RequestSpec
+		>,
+	): OneShotRequest<
+		TApplyRequestContextPatches<Context, [...NC1, ...NC2]>,
+		RequestSpec
+	>;
 
 	with<
-		NC1 extends IRequestContext,
+		NC1 extends IRequestContextPatch<any, any>[],
 		MC1 extends IAnyMiddlewareSpecification,
-		NC2 extends IRequestContext,
+		NC2 extends IRequestContextPatch<any, any>[],
 		MC2 extends IAnyMiddlewareSpecification,
-		NC3 extends IRequestContext,
+		NC3 extends IRequestContextPatch<any, any>[],
 		MC3 extends IAnyMiddlewareSpecification,
 	>(
-		fn1: IMiddlewareSupplierFn<Context, NC1, MC1, RequestSpec>,
-		fn2: IMiddlewareSupplierFn<NC1, NC2, MC2, RequestSpec>,
-		fn3: IMiddlewareSupplierFn<NC2, NC3, MC3, RequestSpec>,
-	): OneShotRequest<NC2, NC3, RequestSpec>;
+		m1: TAnyMiddlewareFacade<Context, NC1, MC1, RequestSpec>,
+		m2: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, NC1>,
+			NC2,
+			MC2,
+			RequestSpec
+		>,
+		m3: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, [...NC1, ...NC2]>,
+			NC3,
+			MC3,
+			RequestSpec
+		>,
+	): OneShotRequest<
+		TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3]>,
+		RequestSpec
+	>;
 
 	with<
-		NC1 extends IRequestContext,
+		NC1 extends IRequestContextPatch<any, any>[],
 		MC1 extends IAnyMiddlewareSpecification,
-		NC2 extends IRequestContext,
+		NC2 extends IRequestContextPatch<any, any>[],
 		MC2 extends IAnyMiddlewareSpecification,
-		NC3 extends IRequestContext,
+		NC3 extends IRequestContextPatch<any, any>[],
 		MC3 extends IAnyMiddlewareSpecification,
-		NC4 extends IRequestContext,
+		NC4 extends IRequestContextPatch<any, any>[],
 		MC4 extends IAnyMiddlewareSpecification,
 	>(
-		fn1: IMiddlewareSupplierFn<Context, NC1, MC1, RequestSpec>,
-		fn2: IMiddlewareSupplierFn<NC1, NC2, MC2, RequestSpec>,
-		fn3: IMiddlewareSupplierFn<NC2, NC3, MC3, RequestSpec>,
-		fn4: IMiddlewareSupplierFn<NC3, NC4, MC4, RequestSpec>,
-	): OneShotRequest<NC3, NC4, RequestSpec>;
+		m1: TAnyMiddlewareFacade<Context, NC1, MC1, RequestSpec>,
+		m2: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, NC1>,
+			NC2,
+			MC2,
+			RequestSpec
+		>,
+		m3: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, [...NC1, ...NC2]>,
+			NC3,
+			MC3,
+			RequestSpec
+		>,
+		m4: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3]>,
+			NC4,
+			MC4,
+			RequestSpec
+		>,
+	): OneShotRequest<
+		TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3, ...NC4]>,
+		RequestSpec
+	>;
 
 	with<
-		NC1 extends IRequestContext,
+		NC1 extends IRequestContextPatch<any, any>[],
 		MC1 extends IAnyMiddlewareSpecification,
-		NC2 extends IRequestContext,
+		NC2 extends IRequestContextPatch<any, any>[],
 		MC2 extends IAnyMiddlewareSpecification,
-		NC3 extends IRequestContext,
+		NC3 extends IRequestContextPatch<any, any>[],
 		MC3 extends IAnyMiddlewareSpecification,
-		NC4 extends IRequestContext,
+		NC4 extends IRequestContextPatch<any, any>[],
 		MC4 extends IAnyMiddlewareSpecification,
-		NC5 extends IRequestContext,
+		NC5 extends IRequestContextPatch<any, any>[],
 		MC5 extends IAnyMiddlewareSpecification,
 	>(
-		fn1: IMiddlewareSupplierFn<Context, NC1, MC1, RequestSpec>,
-		fn2: IMiddlewareSupplierFn<NC1, NC2, MC2, RequestSpec>,
-		fn3: IMiddlewareSupplierFn<NC2, NC3, MC3, RequestSpec>,
-		fn4: IMiddlewareSupplierFn<NC3, NC4, MC4, RequestSpec>,
-		fn5: IMiddlewareSupplierFn<NC4, NC5, MC5, RequestSpec>,
-	): OneShotRequest<NC4, NC5, RequestSpec>;
+		m1: TAnyMiddlewareFacade<Context, NC1, MC1, RequestSpec>,
+		m2: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, NC1>,
+			NC2,
+			MC2,
+			RequestSpec
+		>,
+		m3: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, [...NC1, ...NC2]>,
+			NC3,
+			MC3,
+			RequestSpec
+		>,
+		m4: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3]>,
+			NC4,
+			MC4,
+			RequestSpec
+		>,
+		m5: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3, ...NC4]>,
+			NC5,
+			MC5,
+			RequestSpec
+		>,
+	): OneShotRequest<
+		TApplyRequestContextPatches<
+			Context,
+			[...NC1, ...NC2, ...NC3, ...NC4, ...NC5]
+		>,
+		RequestSpec
+	>;
 
 	with<
-		NC1 extends IRequestContext,
+		NC1 extends IRequestContextPatch<any, any>[],
 		MC1 extends IAnyMiddlewareSpecification,
-		NC2 extends IRequestContext,
+		NC2 extends IRequestContextPatch<any, any>[],
 		MC2 extends IAnyMiddlewareSpecification,
-		NC3 extends IRequestContext,
+		NC3 extends IRequestContextPatch<any, any>[],
 		MC3 extends IAnyMiddlewareSpecification,
-		NC4 extends IRequestContext,
+		NC4 extends IRequestContextPatch<any, any>[],
 		MC4 extends IAnyMiddlewareSpecification,
-		NC5 extends IRequestContext,
+		NC5 extends IRequestContextPatch<any, any>[],
 		MC5 extends IAnyMiddlewareSpecification,
-		NC6 extends IRequestContext,
+		NC6 extends IRequestContextPatch<any, any>[],
 		MC6 extends IAnyMiddlewareSpecification,
 	>(
-		fn1: IMiddlewareSupplierFn<Context, NC1, MC1, RequestSpec>,
-		fn2: IMiddlewareSupplierFn<NC1, NC2, MC2, RequestSpec>,
-		fn3: IMiddlewareSupplierFn<NC2, NC3, MC3, RequestSpec>,
-		fn4: IMiddlewareSupplierFn<NC3, NC4, MC4, RequestSpec>,
-		fn5: IMiddlewareSupplierFn<NC4, NC5, MC5, RequestSpec>,
-		fn6: IMiddlewareSupplierFn<NC5, NC6, MC6, RequestSpec>,
-	): OneShotRequest<NC5, NC6, RequestSpec>;
+		m1: TAnyMiddlewareFacade<Context, NC1, MC1, RequestSpec>,
+		m2: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, NC1>,
+			NC2,
+			MC2,
+			RequestSpec
+		>,
+		m3: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, [...NC1, ...NC2]>,
+			NC3,
+			MC3,
+			RequestSpec
+		>,
+		m4: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3]>,
+			NC4,
+			MC4,
+			RequestSpec
+		>,
+		m5: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3, ...NC4]>,
+			NC5,
+			MC5,
+			RequestSpec
+		>,
+		m6: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<
+				Context,
+				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5]
+			>,
+			NC6,
+			MC6,
+			RequestSpec
+		>,
+	): OneShotRequest<
+		TApplyRequestContextPatches<
+			Context,
+			[...NC1, ...NC2, ...NC3, ...NC4, ...NC5, ...NC6]
+		>,
+		RequestSpec
+	>;
 
 	with<
-		NC1 extends IRequestContext,
+		NC1 extends IRequestContextPatch<any, any>[],
 		MC1 extends IAnyMiddlewareSpecification,
-		NC2 extends IRequestContext,
+		NC2 extends IRequestContextPatch<any, any>[],
 		MC2 extends IAnyMiddlewareSpecification,
-		NC3 extends IRequestContext,
+		NC3 extends IRequestContextPatch<any, any>[],
 		MC3 extends IAnyMiddlewareSpecification,
-		NC4 extends IRequestContext,
+		NC4 extends IRequestContextPatch<any, any>[],
 		MC4 extends IAnyMiddlewareSpecification,
-		NC5 extends IRequestContext,
+		NC5 extends IRequestContextPatch<any, any>[],
 		MC5 extends IAnyMiddlewareSpecification,
-		NC6 extends IRequestContext,
+		NC6 extends IRequestContextPatch<any, any>[],
 		MC6 extends IAnyMiddlewareSpecification,
-		NC7 extends IRequestContext,
+		NC7 extends IRequestContextPatch<any, any>[],
 		MC7 extends IAnyMiddlewareSpecification,
 	>(
-		fn1: IMiddlewareSupplierFn<Context, NC1, MC1, RequestSpec>,
-		fn2: IMiddlewareSupplierFn<NC1, NC2, MC2, RequestSpec>,
-		fn3: IMiddlewareSupplierFn<NC2, NC3, MC3, RequestSpec>,
-		fn4: IMiddlewareSupplierFn<NC3, NC4, MC4, RequestSpec>,
-		fn5: IMiddlewareSupplierFn<NC4, NC5, MC5, RequestSpec>,
-		fn6: IMiddlewareSupplierFn<NC5, NC6, MC6, RequestSpec>,
-		fn7: IMiddlewareSupplierFn<NC6, NC7, MC7, RequestSpec>,
-	): OneShotRequest<NC6, NC7, RequestSpec>;
+		m1: TAnyMiddlewareFacade<Context, NC1, MC1, RequestSpec>,
+		m2: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, NC1>,
+			NC2,
+			MC2,
+			RequestSpec
+		>,
+		m3: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, [...NC1, ...NC2]>,
+			NC3,
+			MC3,
+			RequestSpec
+		>,
+		m4: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3]>,
+			NC4,
+			MC4,
+			RequestSpec
+		>,
+		m5: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3, ...NC4]>,
+			NC5,
+			MC5,
+			RequestSpec
+		>,
+		m6: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<
+				Context,
+				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5]
+			>,
+			NC6,
+			MC6,
+			RequestSpec
+		>,
+		m7: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<
+				Context,
+				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5, ...NC6]
+			>,
+			NC7,
+			MC7,
+			RequestSpec
+		>,
+	): OneShotRequest<
+		TApplyRequestContextPatches<
+			Context,
+			[...NC1, ...NC2, ...NC3, ...NC4, ...NC5, ...NC6, ...NC7]
+		>,
+		RequestSpec
+	>;
 
 	with<
-		NC1 extends IRequestContext,
+		NC1 extends IRequestContextPatch<any, any>[],
 		MC1 extends IAnyMiddlewareSpecification,
-		NC2 extends IRequestContext,
+		NC2 extends IRequestContextPatch<any, any>[],
 		MC2 extends IAnyMiddlewareSpecification,
-		NC3 extends IRequestContext,
+		NC3 extends IRequestContextPatch<any, any>[],
 		MC3 extends IAnyMiddlewareSpecification,
-		NC4 extends IRequestContext,
+		NC4 extends IRequestContextPatch<any, any>[],
 		MC4 extends IAnyMiddlewareSpecification,
-		NC5 extends IRequestContext,
+		NC5 extends IRequestContextPatch<any, any>[],
 		MC5 extends IAnyMiddlewareSpecification,
-		NC6 extends IRequestContext,
+		NC6 extends IRequestContextPatch<any, any>[],
 		MC6 extends IAnyMiddlewareSpecification,
-		NC7 extends IRequestContext,
+		NC7 extends IRequestContextPatch<any, any>[],
 		MC7 extends IAnyMiddlewareSpecification,
-		NC8 extends IRequestContext,
+		NC8 extends IRequestContextPatch<any, any>[],
 		MC8 extends IAnyMiddlewareSpecification,
 	>(
-		fn1: IMiddlewareSupplierFn<Context, NC1, MC1, RequestSpec>,
-		fn2: IMiddlewareSupplierFn<NC1, NC2, MC2, RequestSpec>,
-		fn3: IMiddlewareSupplierFn<NC2, NC3, MC3, RequestSpec>,
-		fn4: IMiddlewareSupplierFn<NC3, NC4, MC4, RequestSpec>,
-		fn5: IMiddlewareSupplierFn<NC4, NC5, MC5, RequestSpec>,
-		fn6: IMiddlewareSupplierFn<NC5, NC6, MC6, RequestSpec>,
-		fn7: IMiddlewareSupplierFn<NC6, NC7, MC7, RequestSpec>,
-		fn8: IMiddlewareSupplierFn<NC7, NC8, MC8, RequestSpec>,
-	): OneShotRequest<NC7, NC8, RequestSpec>;
+		m1: TAnyMiddlewareFacade<Context, NC1, MC1, RequestSpec>,
+		m2: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, NC1>,
+			NC2,
+			MC2,
+			RequestSpec
+		>,
+		m3: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, [...NC1, ...NC2]>,
+			NC3,
+			MC3,
+			RequestSpec
+		>,
+		m4: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3]>,
+			NC4,
+			MC4,
+			RequestSpec
+		>,
+		m5: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3, ...NC4]>,
+			NC5,
+			MC5,
+			RequestSpec
+		>,
+		m6: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<
+				Context,
+				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5]
+			>,
+			NC6,
+			MC6,
+			RequestSpec
+		>,
+		m7: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<
+				Context,
+				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5, ...NC6]
+			>,
+			NC7,
+			MC7,
+			RequestSpec
+		>,
+		m8: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<
+				Context,
+				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5, ...NC6, ...NC7]
+			>,
+			NC8,
+			MC8,
+			RequestSpec
+		>,
+	): OneShotRequest<
+		TApplyRequestContextPatches<
+			Context,
+			[...NC1, ...NC2, ...NC3, ...NC4, ...NC5, ...NC6, ...NC7, ...NC8]
+		>,
+		RequestSpec
+	>;
 
 	with<
-		NC1 extends IRequestContext,
+		NC1 extends IRequestContextPatch<any, any>[],
 		MC1 extends IAnyMiddlewareSpecification,
-		NC2 extends IRequestContext,
+		NC2 extends IRequestContextPatch<any, any>[],
 		MC2 extends IAnyMiddlewareSpecification,
-		NC3 extends IRequestContext,
+		NC3 extends IRequestContextPatch<any, any>[],
 		MC3 extends IAnyMiddlewareSpecification,
-		NC4 extends IRequestContext,
+		NC4 extends IRequestContextPatch<any, any>[],
 		MC4 extends IAnyMiddlewareSpecification,
-		NC5 extends IRequestContext,
+		NC5 extends IRequestContextPatch<any, any>[],
 		MC5 extends IAnyMiddlewareSpecification,
-		NC6 extends IRequestContext,
+		NC6 extends IRequestContextPatch<any, any>[],
 		MC6 extends IAnyMiddlewareSpecification,
-		NC7 extends IRequestContext,
+		NC7 extends IRequestContextPatch<any, any>[],
 		MC7 extends IAnyMiddlewareSpecification,
-		NC8 extends IRequestContext,
+		NC8 extends IRequestContextPatch<any, any>[],
 		MC8 extends IAnyMiddlewareSpecification,
-		NC9 extends IRequestContext,
+		NC9 extends IRequestContextPatch<any, any>[],
 		MC9 extends IAnyMiddlewareSpecification,
-	>(
-		fn1: IMiddlewareSupplierFn<Context, NC1, MC1, RequestSpec>,
-		fn2: IMiddlewareSupplierFn<NC1, NC2, MC2, RequestSpec>,
-		fn3: IMiddlewareSupplierFn<NC2, NC3, MC3, RequestSpec>,
-		fn4: IMiddlewareSupplierFn<NC3, NC4, MC4, RequestSpec>,
-		fn5: IMiddlewareSupplierFn<NC4, NC5, MC5, RequestSpec>,
-		fn6: IMiddlewareSupplierFn<NC5, NC6, MC6, RequestSpec>,
-		fn7: IMiddlewareSupplierFn<NC6, NC7, MC7, RequestSpec>,
-		fn8: IMiddlewareSupplierFn<NC7, NC8, MC8, RequestSpec>,
-		fn9: IMiddlewareSupplierFn<NC8, NC9, MC9, RequestSpec>,
-	): OneShotRequest<NC8, NC9, RequestSpec>;
-
-	with<
-		NC1 extends IRequestContext,
-		MC1 extends IAnyMiddlewareSpecification,
-		NC2 extends IRequestContext,
-		MC2 extends IAnyMiddlewareSpecification,
-		NC3 extends IRequestContext,
-		MC3 extends IAnyMiddlewareSpecification,
-		NC4 extends IRequestContext,
-		MC4 extends IAnyMiddlewareSpecification,
-		NC5 extends IRequestContext,
-		MC5 extends IAnyMiddlewareSpecification,
-		NC6 extends IRequestContext,
-		MC6 extends IAnyMiddlewareSpecification,
-		NC7 extends IRequestContext,
-		MC7 extends IAnyMiddlewareSpecification,
-		NC8 extends IRequestContext,
-		MC8 extends IAnyMiddlewareSpecification,
-		NC9 extends IRequestContext,
-		MC9 extends IAnyMiddlewareSpecification,
-		NC10 extends IRequestContext,
+		NC10 extends IRequestContextPatch<any, any>[],
 		MC10 extends IAnyMiddlewareSpecification,
 	>(
-		fn1: IMiddlewareSupplierFn<Context, NC1, MC1, RequestSpec>,
-		fn2: IMiddlewareSupplierFn<NC1, NC2, MC2, RequestSpec>,
-		fn3: IMiddlewareSupplierFn<NC2, NC3, MC3, RequestSpec>,
-		fn4: IMiddlewareSupplierFn<NC3, NC4, MC4, RequestSpec>,
-		fn5: IMiddlewareSupplierFn<NC4, NC5, MC5, RequestSpec>,
-		fn6: IMiddlewareSupplierFn<NC5, NC6, MC6, RequestSpec>,
-		fn7: IMiddlewareSupplierFn<NC6, NC7, MC7, RequestSpec>,
-		fn8: IMiddlewareSupplierFn<NC7, NC8, MC8, RequestSpec>,
-		fn9: IMiddlewareSupplierFn<NC8, NC9, MC9, RequestSpec>,
-		fn10: IMiddlewareSupplierFn<NC9, NC10, MC10, RequestSpec>,
-	): OneShotRequest<NC9, NC10, RequestSpec>;
+		m1: TAnyMiddlewareFacade<Context, NC1, MC1, RequestSpec>,
+		m2: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, NC1>,
+			NC2,
+			MC2,
+			RequestSpec
+		>,
+		m3: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, [...NC1, ...NC2]>,
+			NC3,
+			MC3,
+			RequestSpec
+		>,
+		m4: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3]>,
+			NC4,
+			MC4,
+			RequestSpec
+		>,
+		m5: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<Context, [...NC1, ...NC2, ...NC3, ...NC4]>,
+			NC5,
+			MC5,
+			RequestSpec
+		>,
+		m6: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<
+				Context,
+				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5]
+			>,
+			NC6,
+			MC6,
+			RequestSpec
+		>,
+		m7: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<
+				Context,
+				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5, ...NC6]
+			>,
+			NC7,
+			MC7,
+			RequestSpec
+		>,
+		m8: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<
+				Context,
+				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5, ...NC6, ...NC7]
+			>,
+			NC8,
+			MC8,
+			RequestSpec
+		>,
+		m9: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<
+				Context,
+				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5, ...NC6, ...NC7, ...NC8]
+			>,
+			NC9,
+			MC9,
+			RequestSpec
+		>,
+		m10: TAnyMiddlewareFacade<
+			TApplyRequestContextPatches<
+				Context,
+				[...NC1, ...NC2, ...NC3, ...NC4, ...NC5, ...NC6, ...NC7, ...NC8, ...NC9]
+			>,
+			NC10,
+			MC10,
+			RequestSpec
+		>,
+	): OneShotRequest<
+		TApplyRequestContextPatches<
+			Context,
+			[
+				...NC1,
+				...NC2,
+				...NC3,
+				...NC4,
+				...NC5,
+				...NC6,
+				...NC7,
+				...NC8,
+				...NC9,
+				...NC10,
+			]
+		>,
+		RequestSpec
+	>;
 }

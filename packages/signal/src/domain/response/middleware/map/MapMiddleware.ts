@@ -5,8 +5,8 @@ import { RequestState } from "../../../execution/events/request/RequestState";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { IOneShotRequestState } from "../../../execution/state/IOneShotRequestState";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
-import { TMapArgs } from "./MapMiddlewareFactory";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
+import { TMapArgs } from "./Map";
 
 export class MapMiddleware extends Middleware("MapMiddleware", {
 	priority: MiddlewarePriority.Mapping,

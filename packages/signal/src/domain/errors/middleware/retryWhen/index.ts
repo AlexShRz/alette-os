@@ -1,2 +1,2 @@
-export * from "./retryWhen";
+export * from "./RetryWhen";
 export { retryWhenMiddlewareName } from "./retryWhenMiddlewareSpecification";

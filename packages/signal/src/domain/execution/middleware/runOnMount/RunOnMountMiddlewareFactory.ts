@@ -1,15 +1,7 @@
 import * as E from "effect/Effect";
-import { IRequestContext } from "../../../context/IRequestContext";
-import { TRequestGlobalContext } from "../../../context/typeUtils/RequestIOTypes";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
 import { AggregateRequestMiddleware } from "../../events/preparation/AggregateRequestMiddleware";
 import { RunOnMountMiddleware } from "./RunOnMountMiddleware";
-import { runOnMountMiddlewareSpecification } from "./runOnMountMiddlewareSpecification";
-
-export type TRunOnMountMiddlewareArgs =
-	| boolean
-	| ((requestContext: TRequestGlobalContext) => Promise<boolean> | boolean);
 
 export class RunOnMountMiddlewareFactory extends Middleware(
 	"RunOnMountMiddlewareFactory",
@@ -33,19 +25,4 @@ export class RunOnMountMiddlewareFactory extends Middleware(
 					},
 				};
 			}),
-) {
-	static toFactory() {
-		return <Context extends IRequestContext>(
-			args?: TRunOnMountMiddlewareArgs,
-		) => {
-			return toMiddlewareFactory<
-				Context,
-				Context,
-				typeof runOnMountMiddlewareSpecification
-			>(
-				() =>
-					new RunOnMountMiddlewareFactory(() => new RunOnMountMiddleware(args)),
-			);
-		};
-	}
-}
+) {}

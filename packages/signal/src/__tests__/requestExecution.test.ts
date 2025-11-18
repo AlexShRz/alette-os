@@ -1,6 +1,6 @@
 import { r, request } from "@alette/pulse";
 import { http, HttpResponse } from "msw";
-import { as, factory, output } from "../domain";
+import { as, factory, input, output } from "../domain";
 import { createTestApi } from "./utils/createTestApi";
 import { server } from "./utils/server";
 
@@ -20,11 +20,12 @@ test(
 		);
 
 		const getData = custom(
+			input(as<string>()),
 			output(as<string>()),
-			factory(() => request(r.route(testUrl.clone())).execute()),
+			factory(() => request(r.route(testUrl.clone()))()),
 		);
 
-		const response = await getData.execute();
+		const response = await getData({ args: "asdas" });
 		expect(response).toEqual(value);
 	}),
 );

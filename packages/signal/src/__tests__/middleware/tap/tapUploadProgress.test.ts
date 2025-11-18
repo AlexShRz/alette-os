@@ -48,7 +48,7 @@ test("it gets notifications about upload progress", async () => {
 		}),
 	);
 
-	getData.execute().catch((e) => e);
+	getData().catch((e) => e);
 	await vi.waitFor(() => {
 		expect(isLoading).toBeTruthy();
 	});
@@ -112,7 +112,7 @@ test("it can be combined", async () => {
 		}),
 	);
 
-	getData.execute().catch((e) => e);
+	getData().catch((e) => e);
 	await vi.waitFor(() => {
 		expect(isLoading).toBeTruthy();
 	});
@@ -175,7 +175,7 @@ test("it can access request props and context", async () => {
 		}),
 	);
 
-	getData.execute().catch((e) => e);
+	getData().catch((e) => e);
 	await vi.waitFor(() => {
 		expect(isLoading).toBeTruthy();
 	});

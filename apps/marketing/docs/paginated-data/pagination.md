@@ -64,7 +64,7 @@ execute({ args: { page: 5, perPage: 25, sortBy: 'desc' } })
 
 To get paginated data once, execute the request in the [one shot mode](../getting-started/request-modes.md#one-shot-request-mode):
 ```ts
-const paginatedData = await getPosts.execute({ 
+const paginatedData = await getPosts({ 
 	args: { page: 5, perPage: 25, sortBy: 'desc' } 
 })
 ```
@@ -82,7 +82,7 @@ Now your request will use bound pagination parameters by default:
 ```ts
 // Returns data using 
 // { page: 5, perPage: 25, sortBy: 'desc' } as arguments 
-const paginatedData = await getPosts.execute()
+const paginatedData = await getPosts()
 
 // or
 const { execute } = getPosts.mount()

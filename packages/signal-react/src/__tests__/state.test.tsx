@@ -94,6 +94,7 @@ test(
 		const uiData1 = "123";
 		const uiData2 = "333";
 		const uiData3 = "53252";
+		let triggeredTimes = 0;
 
 		server.use(
 			http.get(testUrl.build(), async ({ request }) => {
@@ -109,6 +110,9 @@ test(
 				<TestComponent
 					provided={data}
 					possibleData={[uiData2, uiData3]}
+					onRequestSuccess={() => {
+						triggeredTimes++;
+					}}
 					onNewDataSelect={(newData) => {
 						setNewData(newData);
 					}}
@@ -126,6 +130,10 @@ test(
 
 		await userEvent.click(await page.findByTestId(`to-${uiData3}`));
 		expect(await page.findByTestId("data")).toHaveTextContent(uiData3);
+
+		await waitFor(() => {
+			expect(triggeredTimes).toEqual(3);
+		});
 	}),
 );
 

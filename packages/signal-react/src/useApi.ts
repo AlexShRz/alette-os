@@ -7,7 +7,7 @@ export const useApi = <Context extends IRequestContext>(
 	 * be able to infer types.
 	 * */
 	request: TAnyApiRequest<Context>,
-	deps: unknown[] = [],
+	deps?: unknown[],
 ) => {
 	const { controller, handlers } = useMemo(() => {
 		const controller = request.control();
@@ -41,7 +41,7 @@ export const useApi = <Context extends IRequestContext>(
 
 	useEffect(() => {
 		controller.reload();
-	}, deps);
+	}, deps || []);
 
 	return { ...requestState, ...handlers };
 };

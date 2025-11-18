@@ -1,8 +1,8 @@
 import * as E from "effect/Effect";
 import { RunRequest } from "../../../execution/events/request/RunRequest";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
-import { TBodySupplier } from "./BodyMiddlewareFactory";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
+import { TBodySupplier } from "./Body";
 import { updateBody } from "./utils/updateBody";
 
 export class BodyMiddleware extends Middleware("BodyMiddleware", {

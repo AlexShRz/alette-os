@@ -12,7 +12,7 @@ test("it uses bound setting provider if no settings were provided manually (oneS
 		}),
 	).using(() => ({ args: bound }));
 
-	const res = await getData.execute();
+	const res = await getData();
 	expect(res).toEqual(bound);
 
 	const { getState, execute } = getData.mount();
@@ -35,7 +35,7 @@ test("it overrides default setting provider with settings provided manually (one
 		}),
 	).using(() => ({ args: bound }));
 
-	const res = await getData.execute({ args: manual });
+	const res = await getData({ args: manual });
 	expect(res).toEqual(manual);
 
 	const { getState, execute } = getData.mount();

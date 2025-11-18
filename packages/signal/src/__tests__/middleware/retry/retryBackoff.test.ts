@@ -136,7 +136,7 @@ test.each([[[]], [undefined]])(
 		);
 
 		try {
-			await getData.execute();
+			await getData();
 		} catch {}
 
 		await vi.waitFor(() => {

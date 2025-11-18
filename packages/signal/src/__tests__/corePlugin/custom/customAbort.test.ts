@@ -41,15 +41,15 @@ test("it aborts nested requests", async () => {
 			factoryReached = true;
 
 			await Promise.all([
-				getData1.with(abortedBy(signal)).execute(),
-				getData2.with(abortedBy(signal)).execute(),
+				getData1.with(abortedBy(signal))(),
+				getData2.with(abortedBy(signal))(),
 			]);
 
 			return true;
 		}),
 	);
 
-	const pendingRequest = getCombinedData.execute();
+	const pendingRequest = getCombinedData();
 	pendingRequest.catch((error) => {
 		logged.push(error);
 	});
@@ -96,8 +96,8 @@ test("it aborts nested requests during main request cancellation", async () => {
 			factoryReached = true;
 
 			await Promise.all([
-				getData1.with(abortedBy(signal)).execute(),
-				getData2.with(abortedBy(signal)).execute(),
+				getData1.with(abortedBy(signal))(),
+				getData2.with(abortedBy(signal))(),
 			]);
 
 			return true;

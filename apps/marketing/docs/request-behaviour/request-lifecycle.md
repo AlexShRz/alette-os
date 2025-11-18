@@ -4,7 +4,7 @@ can inspect and manipulate.
 
 ## Request execution stages
 There are 8 request execution stages:
-1. [Mounted](#mounted-request-execution-stage).
+1. [Mounted](#the-mounted-stage).
 2. [Unmounted](#the-unmounted-stage).
 3. [Triggered](#the-triggered-stage).
 4. [Cancelled](#the-cancelled-stage).
@@ -80,13 +80,13 @@ cannot access request data.
 
 ## The "Triggered" stage
 **The "triggered" request execution stage** is activated when the system
-_acknowledges_ a request execution instruction sent using the `.execute()` method or the `execute()` function
-for [mounted requests](../getting-started/request-modes#mounted-request-mode):
+_acknowledges_ a request execution instruction sent when a request blueprint or 
+the `execute()` function (for [mounted requests](../getting-started/request-modes#mounted-request-mode)) is invoked:
 ```ts
-await query.execute()
+await query();
 // or
-const { execute } = query.mount()
-execute()
+const { execute } = query.mount();
+execute();
 ```
 
 :::danger
@@ -165,8 +165,7 @@ const abortController = new AbortController();
 const pendingRequest = query
     .with(
        abortedBy(abortController)
-    )    
-    .execute();
+    )();    
 
 // After some time
 abortController.abort()

@@ -40,7 +40,7 @@ test("it overrides previous request when a new request command is received", asy
 });
 
 test("it interrupts plugin requests if the plugin is deactivated", async () => {
-	const { api, custom, corePlugin } = createTestApi();
+	const { api, custom } = createTestApi();
 	let requestWasInterrupted = false;
 	let isLoading = false;
 
@@ -63,7 +63,7 @@ test("it interrupts plugin requests if the plugin is deactivated", async () => {
 	const { execute, getState } = getData1.mount();
 	execute();
 
-	getData2.execute().catch((e) => {
+	getData2().catch((e) => {
 		/**
 		 * All in progress requests must be shutdown
 		 * */
@@ -77,7 +77,7 @@ test("it interrupts plugin requests if the plugin is deactivated", async () => {
 		expect(isLoading).toBeTruthy();
 	});
 
-	api.tell(deactivatePlugins(corePlugin));
+	api.tell(deactivatePlugins());
 	await vi.waitFor(() => {
 		const error = getState().error;
 		expect(error instanceof RequestInterruptedError).toBeTruthy();

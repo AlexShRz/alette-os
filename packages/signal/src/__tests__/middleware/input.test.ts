@@ -39,7 +39,7 @@ test("it throws a fatal error if arguments do not match schema", async () => {
 	);
 
 	// @ts-expect-error
-	getData.execute({ args: invalidArgs }).catch((e) => e);
+	getData({ args: invalidArgs }).catch((e) => e);
 
 	await vi.waitFor(() => {
 		expect(failed).toBeTruthy();
@@ -81,7 +81,7 @@ test("it throws a fatal error if arguments do not match schema (with argument ad
 	);
 
 	// @ts-expect-error
-	getData.execute({ args: invalidArgs }).catch((e) => e);
+	getData({ args: invalidArgs }).catch((e) => e);
 
 	await vi.waitFor(() => {
 		expect(failed).toBeTruthy();
@@ -108,7 +108,7 @@ test("it overrides middleware of the same type", async () => {
 		}),
 	);
 
-	const response = await getData.execute({ args: argValue });
+	const response = await getData({ args: argValue });
 
 	await vi.waitFor(() => {
 		expect(response).toEqual(argValue);

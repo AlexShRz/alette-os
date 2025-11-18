@@ -29,7 +29,7 @@ test(
 		);
 
 		const getData = mutation(output(as<IHeaders>()));
-		const res = await getData.execute();
+		const res = await getData();
 
 		await vi.waitFor(() => {
 			expect(res).toEqual(responseValue);
@@ -58,9 +58,7 @@ test("it does not allow to use GET method for mutations", async () => {
 
 	const getData = mutation(output(as<IHeaders>()), gets());
 
-	await expect(() => getData.execute()).rejects.toThrowError(
-		RequestInterruptedError,
-	);
+	await expect(() => getData()).rejects.toThrowError(RequestInterruptedError);
 
 	await vi.waitFor(() => {
 		expect(failed).toBeTruthy();
@@ -111,7 +109,7 @@ test.each([
 		}
 
 		const getData = mutation(output(as<IHeaders>()), method(passedMethod));
-		const res = await getData.execute();
+		const res = await getData();
 
 		await vi.waitFor(() => {
 			expect(res).toEqual(responseValue);

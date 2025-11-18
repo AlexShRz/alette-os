@@ -14,16 +14,19 @@
 	},
 	"include": ["./src/**/*.ts"],
 	"references": [
-		{
-			"path": "../pulse/tsconfig.lib.json"
-		},
-		{
-			"path": "../event-sourcing/tsconfig.lib.json"
-		},
-		{
-			"path": "../signal-test-utils/tsconfig.lib.json"
-		}
-	],
+    {
+      "path": "../pulse/tsconfig.lib.json"
+    },
+    {
+      "path": "../event-sourcing/tsconfig.lib.json"
+    },
+    {
+      "path": "../shared/tsconfig.lib.json"
+    },
+    {
+      "path": "../signal-test-utils/tsconfig.lib.json"
+    }
+  ],
 	"exclude": [
 		"vite.config.ts",
 		"vite.config.mts",

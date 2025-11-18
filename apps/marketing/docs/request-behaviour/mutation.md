@@ -62,9 +62,9 @@ export const cancelScheduledEmail = mutation(
 );
 
 // Later...
-const scheduledEmailId = await scheduleEmail.execute()
+const scheduledEmailId = await scheduleEmail()
 // or
-await cancelScheduledEmail.execute({ args: scheduledEmailId })
+await cancelScheduledEmail({ args: scheduledEmailId })
 ```
 
 ## Using mutation with UI frameworks
@@ -89,7 +89,7 @@ const greet = mutation(
     body(async ({ args: name }) => ({ hey: name }))
 )
 
-await greet.execute({ args: 'Alette Signal' })
+await greet({ args: 'Alette Signal' })
 ```
 
 ## Accepted body types
@@ -265,7 +265,7 @@ collectedFiles.append('file', myFile1);
 collectedFiles.append('file', myFile2);
 
 // Later...
-await uploadFiles.execute({ args: collectedFiles })
+await uploadFiles({ args: collectedFiles })
 ```
 
 ### Tracking file upload progress
@@ -309,7 +309,7 @@ send a request back to the server that reverts the mutation:
 scheduleEmail
     .with(
         tapCancel(async ({ args: { id: emailId } }) => {
-            await cancelScheduledEmail.execute({ args: emailId });
+            await cancelScheduledEmail({ args: emailId });
             console.log("Mutation was safely cancelled.")
         })
     )
@@ -353,7 +353,7 @@ scheduleEmail
     .with(
         abortedBy(abortController),
         tapAbort(async ({ args: { id: emailId } }) => {
-            await cancelScheduledEmail.execute({ args: emailId });
+            await cancelScheduledEmail({ args: emailId });
             console.log("Mutation was safely aborted.")
         })
     )

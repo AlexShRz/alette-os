@@ -1,15 +1,7 @@
 import * as E from "effect/Effect";
-import { IRequestContext } from "../../../context/IRequestContext";
-import { TRequestGlobalContext } from "../../../context/typeUtils/RequestIOTypes";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
 import { TapMountMiddleware } from "./TapMountMiddleware";
-import { tapMountMiddlewareSpecification } from "./tapMountMiddlewareSpecification";
-
-export type TTapMountArgs = (
-	context: TRequestGlobalContext,
-) => void | Promise<void>;
 
 export class TapMountMiddlewareFactory extends Middleware(
 	"TapMountMiddlewareFactory",
@@ -30,19 +22,4 @@ export class TapMountMiddlewareFactory extends Middleware(
 					},
 				};
 			}),
-) {
-	static toFactory() {
-		return <Context extends IRequestContext>(args: TTapMountArgs) => {
-			return toMiddlewareFactory<
-				Context,
-				Context,
-				typeof tapMountMiddlewareSpecification
-			>(
-				() =>
-					new TapMountMiddlewareFactory(
-						() => new TapMountMiddleware(args as TTapMountArgs),
-					),
-			);
-		};
-	}
-}
+) {}

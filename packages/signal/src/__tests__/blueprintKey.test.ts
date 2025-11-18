@@ -23,7 +23,7 @@ test(
 		const getData = custom(
 			input(as<string>()),
 			output(as<string>()),
-			factory(() => request(r.route(testUrl.clone())).execute()),
+			factory(() => request(r.route(testUrl.clone()))()),
 		);
 
 		const key1 = getData.clone().getKey();

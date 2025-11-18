@@ -97,7 +97,7 @@ const deletePost = mutation(
 // 4th retry
 // Wait 10 seconds...
 // 5th retry
-await deletePost.execute()
+await deletePost()
 ```
 
 ## Retry condition
@@ -133,7 +133,7 @@ const deletePost = mutation(
 	})
 )
 
-await deletePost.execute({ args: 3 })
+await deletePost({ args: 3 })
 ```
 
 To add a delay between retries inside a `retryWhen()` retry condition, use
@@ -193,9 +193,9 @@ const deletePost = mutation(
 );
 
 // Won't be retried
-await deletePost.execute({ skipRetry: true });
+await deletePost({ skipRetry: true });
 // Will be retried
-await deletePost.execute();
+await deletePost();
 ```
 :::tip
 The `skipRetry` request setting works with both 

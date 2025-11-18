@@ -5,9 +5,9 @@ import { orPanic } from "../../../errors/utils/orPanic";
 import { RunRequest } from "../../../execution/events/request/RunRequest";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { MethodContext } from "../../context/method/MethodContext";
-import { TMethodSupplier } from "./MethodMiddlewareFactory";
+import { TMethodSupplier } from "./Method";
 
 export class MethodMiddleware extends Middleware("MethodMiddleware", {
 	priority: MiddlewarePriority.Creation,

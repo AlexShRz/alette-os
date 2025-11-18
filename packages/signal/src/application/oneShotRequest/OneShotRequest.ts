@@ -4,20 +4,54 @@ import {
 	TRequestSettings,
 } from "../../domain/context/typeUtils/RequestIOTypes";
 import { TRequestMode } from "../../domain/execution/services/RequestMode";
-import { IMiddlewareSupplierFn } from "../../domain/middleware/IMiddlewareSupplierFn";
+import { RequestMiddleware } from "../../domain/middleware/RequestMiddleware";
+import { TAnyMiddlewareFacade } from "../../domain/middleware/TAnyMiddlewareFacade";
 import { RequestSpecification } from "../../domain/specification";
 import { ApiRequest } from "../blueprint/ApiRequest";
+import { ApiPlugin } from "../plugins/ApiPlugin";
 import { IOneShotRequestWithMiddleware } from "./IOneShotRequestWithMiddleware";
 import { OneShotRequestController } from "./controller/OneShotRequestController";
 
 export class OneShotRequest<
-		PrevContext extends IRequestContext = IRequestContext,
 		Context extends IRequestContext = IRequestContext,
 		RequestSpec extends RequestSpecification = RequestSpecification,
 	>
-	extends ApiRequest<PrevContext, Context, RequestSpec>
+	extends ApiRequest<Context, RequestSpec>
 	implements IOneShotRequestWithMiddleware<Context, RequestSpec>
 {
+	constructor(
+		protected plugin: ApiPlugin,
+		protected defaultMiddleware: RequestMiddleware[],
+	) {
+		super(async (settings = {}) => {
+			const controller = this.getController("oneShot");
+			const { execute } = controller.getHandlers();
+			execute(settings);
+
+			return await new Promise<TRequestResponse<Context>>((resolve, reject) => {
+				const unsubscribe = controller.subscribe(
+					({ isSuccess, isError, error, data }) => {
+						if (isSuccess || isError) {
+							unsubscribe();
+						}
+
+						if (isSuccess) {
+							resolve(data);
+							return;
+						}
+
+						if (isError) {
+							reject(error);
+							return;
+						}
+					},
+				);
+			}).finally(() => {
+				controller.dispose();
+			});
+		});
+	}
+
 	protected getController(mode: TRequestMode) {
 		return new OneShotRequestController<Context>(this.plugin, {
 			threadId: this.requestThreadId,
@@ -32,7 +66,7 @@ export class OneShotRequest<
 	}
 
 	with: IOneShotRequestWithMiddleware<Context, RequestSpec>["with"] = (
-		...middlewareInjectors: IMiddlewareSupplierFn<any, any, any, any>[]
+		...middlewareInjectors: TAnyMiddlewareFacade<any, any, any, any>[]
 	) => {
 		return this.mergeInjectorsAndCloneSelf(middlewareInjectors) as any;
 	};
@@ -41,32 +75,14 @@ export class OneShotRequest<
 		return new OneShotRequest(this.plugin, [...this.defaultMiddleware]) as this;
 	}
 
+	/**
+	 * @deprecated
+	 * Will be removed in V1 - call request blueprints directly instead.
+	 * Example:
+	 * getPosts(...), not getPosts(...)
+	 * */
 	async execute(settings: TRequestSettings<Context> = {}) {
-		const controller = this.getController("oneShot");
-		const { execute } = controller.getHandlers();
-		execute(settings);
-
-		return new Promise<TRequestResponse<Context>>((resolve, reject) => {
-			const unsubscribe = controller.subscribe(
-				({ isSuccess, isError, error, data }) => {
-					if (isSuccess || isError) {
-						unsubscribe();
-					}
-
-					if (isSuccess) {
-						resolve(data);
-						return;
-					}
-
-					if (isError) {
-						reject(error);
-						return;
-					}
-				},
-			);
-		}).finally(() => {
-			controller.dispose();
-		});
+		return this(settings);
 	}
 
 	/**
@@ -74,7 +90,7 @@ export class OneShotRequest<
 	 * returning nothing back to the callee.
 	 * */
 	spawn(args: TRequestSettings<Context> = {}) {
-		this.execute(args).catch((e) => e);
+		this(args).catch((e) => e);
 	}
 
 	mount() {

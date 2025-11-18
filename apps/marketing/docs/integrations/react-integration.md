@@ -70,7 +70,7 @@ The `useApi()` hook accepts [query](../request-behaviour/query.md),
 [mutation](../request-behaviour/mutation.md) and 
 [custom](../request-behaviour/custom.md) request blueprints, as 
 well as other request blueprints created by 
-[plugin authors](../getting-started/configuring-requests.md#plugins-in-alette-signal).
+[plugin authors](../getting-started/api-plugins.md).
 :::
 
 ## Reloading on changes

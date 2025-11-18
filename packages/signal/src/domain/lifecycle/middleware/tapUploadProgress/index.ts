@@ -1,2 +1,2 @@
-export * from "./tapUploadProgress";
+export * from "./TapUploadProgress";
 export { tapUploadProgressMiddlewareName } from "./tapUploadProgressMiddlewareSpecification";

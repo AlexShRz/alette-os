@@ -62,7 +62,7 @@ export class StoredToken extends E.Service<StoredToken>()("StoredToken", {
 			 * 2. This status will trigger automatic token refresh on "token.get()"
 			 * and fill our initial token values.
 			 * */
-			status: "invalid",
+			status: "uninitialized",
 			supplier: config.getSupplier(),
 			headerConverter: config.getHeaderConverter(),
 		});
@@ -107,11 +107,12 @@ export class StoredToken extends E.Service<StoredToken>()("StoredToken", {
 
 		const forceRefreshToken = (tokenState: TStoredTokenState) =>
 			E.gen(function* () {
-				const { id, supplier, refreshToken, value } = tokenState;
+				const { id, supplier, status, refreshToken, value } = tokenState;
 
 				const getNewToken = async () =>
 					await supplier({
 						id,
+						isInvalid: status === "invalid",
 						prevToken: value,
 						refreshToken,
 						context: await globalContext.getAsPromise(),
@@ -186,7 +187,7 @@ export class StoredToken extends E.Service<StoredToken>()("StoredToken", {
 				return E.gen(function* () {
 					const { value, status } = yield* state.get;
 
-					if (status === "invalid") {
+					if (status === "invalid" || status === "uninitialized") {
 						yield* refreshToken;
 						const newState = yield* state.get;
 						return newState.value;

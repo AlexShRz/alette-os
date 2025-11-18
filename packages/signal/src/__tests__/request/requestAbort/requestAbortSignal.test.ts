@@ -52,7 +52,7 @@ test(
 					await request(
 						r.route(url.setOrigin(testUrl.getOrigin())),
 						r.signal(signal),
-					).execute();
+					)();
 				} catch (e) {
 					if (e instanceof RequestAbortedError) {
 						wasAbortSignalTriggered = true;
@@ -106,11 +106,11 @@ test(
 				return request(
 					r.route(url.setOrigin(testUrl.getOrigin())),
 					r.signal(signal),
-				).execute();
+				)();
 			}),
 		);
 
-		getData1.execute().catch((error) => {
+		getData1().catch((error) => {
 			logged.push(error);
 		});
 

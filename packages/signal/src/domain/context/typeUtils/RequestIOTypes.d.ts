@@ -25,5 +25,5 @@ export type TGetRequestContextWithoutGlobalContext<
 
 export type TRequestGlobalContext = { context: IGlobalContext };
 
-export type TGetAllRequestContext<C extends IRequestContext = IRequestContext> =
+export type TFullRequestContext<C extends IRequestContext = IRequestContext> =
 	TGetRequestContextWithoutGlobalContext<C> & TRequestGlobalContext;

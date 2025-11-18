@@ -67,7 +67,7 @@ test("it can map errors", async () => {
 	);
 
 	try {
-		await getData.execute();
+		await getData();
 	} catch (error) {
 		expect((error as MyError).getCustomMessage()).toEqual(expected);
 	}
@@ -102,7 +102,7 @@ test("it can be composed", async () => {
 	);
 
 	try {
-		await getData.execute();
+		await getData();
 	} catch (error) {
 		expect((error as MyError2).getCustomMessage()).toEqual(expected);
 	}
@@ -142,7 +142,7 @@ test("it can access request props and context", async () => {
 		}),
 	);
 
-	await expect(() => getData.execute()).rejects.toBeInstanceOf(MyError);
+	await expect(() => getData()).rejects.toBeInstanceOf(MyError);
 	await vi.waitFor(() => {
 		expect(caughtContext).toBe(context);
 		expect(caughtPath).toBe(pathValue);
@@ -178,7 +178,7 @@ test("it throws a fatal error if an incorrect error type is returned", async () 
 		}),
 	);
 
-	getData.execute().catch((e) => e);
+	getData().catch((e) => e);
 
 	await vi.waitFor(() => {
 		expect(failed).toBeTruthy();

@@ -18,10 +18,10 @@ import {
 	retry,
 	runOnMount,
 	tapUploadProgressMiddlewareName,
+	throws,
 	throwsMiddlewareName,
 } from "../../domain";
 import { blueprint } from "../oneShotRequest";
-import { withRecognizedErrors } from "./sharedMiddleware";
 
 export const queryCategory = requestCategory("baseQuery");
 
@@ -48,10 +48,11 @@ export const queryFactory = blueprint()
 			.build(),
 	)
 	.use(
-		origin(),
-		runOnMount(),
-		reloadable(),
-		gets(),
+		origin,
+		runOnMount,
+		reloadable,
+		gets,
+		throws,
 		factory((config, { signal, notify }) => {
 			const { url, method } = config;
 
@@ -72,9 +73,8 @@ export const queryFactory = blueprint()
 				base = base.with(r.withCookies());
 			}
 
-			return base.execute();
+			return base();
 		}),
-		withRecognizedErrors(),
 		retry({
 			times: 1,
 			whenStatus: QUERY_RETRY_STATUSES,

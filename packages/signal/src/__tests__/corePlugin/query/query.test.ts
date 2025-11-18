@@ -23,7 +23,7 @@ test(
 
 		const getData = query(output(as<IHeaders>()), headers(expectedHeaders));
 
-		const res = await getData.execute();
+		const res = await getData();
 
 		await vi.waitFor(() => {
 			expect(res).toEqual(expect.objectContaining(expectedHeaders));
@@ -34,9 +34,10 @@ test(
 test(
 	"it includes credentials if needed",
 	server.boundary(async () => {
-		const { api, testUrl, core } = createTestApi();
+		const { api, testUrl, core, auth } = createTestApi();
 		api.tell(setOrigin(testUrl.getOrigin()));
-		const { query, cookie } = core.use();
+		const { query } = core.use();
+		const { cookie } = auth.use();
 
 		const authCookie = cookie()
 			.from(() => {})
@@ -48,10 +49,7 @@ test(
 			}),
 		);
 
-		const res = await query(
-			output(as<boolean>()),
-			bearer(authCookie),
-		).execute();
+		const res = await query(output(as<boolean>()), bearer(authCookie))();
 
 		await vi.waitFor(() => {
 			expect(res).toBeTruthy();

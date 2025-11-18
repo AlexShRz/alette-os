@@ -5,10 +5,10 @@ import { orPanic } from "../../../errors/utils/orPanic";
 import { RunRequest } from "../../../execution/events/request/RunRequest";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { getOrCreateUrlContext } from "../../context/url/getOrCreateUrlContext";
 import { GlobalUrlConfig } from "../../context/url/services/GlobalUrlConfig";
-import { TOriginMiddlewareArgs } from "./OriginMiddlewareFactory";
+import { TOriginMiddlewareArgs } from "./Origin";
 
 export class OriginMiddleware extends Middleware("OriginMiddleware", {
 	priority: MiddlewarePriority.Creation,

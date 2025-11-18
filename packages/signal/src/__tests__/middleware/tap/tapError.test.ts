@@ -43,7 +43,7 @@ test("it is triggered on request error", async () => {
 		expect(logger[1] instanceof MyError).toBeTruthy();
 	});
 
-	getData.execute().catch(() => {});
+	getData().catch(() => {});
 	await vi.waitFor(() => {
 		expect(logger[2] instanceof MyError).toBeTruthy();
 	});
@@ -73,7 +73,7 @@ test("it can access request props and context", async () => {
 		}),
 	);
 
-	getData.execute().catch(() => {});
+	getData().catch(() => {});
 	await vi.waitFor(() => {
 		expect(caughtContext).toBe(context);
 		expect(caughtPath).toBe(pathValue);
@@ -113,7 +113,7 @@ test("it can be combined", async () => {
 		expect(logged).toStrictEqual([1, 2, 3, 1, 2, 3]);
 	});
 
-	getData.execute().catch(() => {});
+	getData().catch(() => {});
 	await vi.waitFor(() => {
 		expect(logged).toStrictEqual([1, 2, 3, 1, 2, 3, 1, 2, 3]);
 	});

@@ -1,2 +1,2 @@
-export * from "./tapAbort";
+export * from "./TapAbort";
 export { tapAbortMiddlewareName } from "./tapAbortMiddlewareSpecification";

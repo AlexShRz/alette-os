@@ -130,6 +130,30 @@ test("it marks token as invalid if an error was thrown during refresh", async ()
 	});
 });
 
+test("it provides validity status to the token supplier", async () => {
+	const { token } = createTestApi();
+	const tokenValue1 = "asdasjkdh";
+	const tokenValue2 = "sssss";
+	const logged: boolean[] = [];
+
+	const myToken = token()
+		.from(async ({ isInvalid }) => {
+			logged.push(isInvalid);
+			if (!isInvalid) {
+				return tokenValue1;
+			}
+
+			return tokenValue2;
+		})
+		.build();
+
+	expect(await myToken.get()).toEqual(tokenValue1);
+	myToken.invalidate();
+	expect(await myToken.isValid()).toBeFalsy();
+	expect(await myToken.get()).toEqual(tokenValue2);
+	expect(logged).toEqual([false, true]);
+});
+
 test("it allows token supplier override", async () => {
 	const { token } = createTestApi();
 	const tokenValue = "343423";

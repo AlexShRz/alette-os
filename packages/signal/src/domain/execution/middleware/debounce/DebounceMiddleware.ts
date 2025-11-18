@@ -4,11 +4,11 @@ import * as P from "effect/Predicate";
 import * as Runtime from "effect/Runtime";
 import { GlobalContext } from "../../../context/services/GlobalContext";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { WithCurrentRequestOverride } from "../../events/envelope/WithCurrentRequestOverride";
 import { WithReloadableCheck } from "../../events/envelope/WithReloadableCheck";
 import { RequestMode } from "../../services/RequestMode";
-import { TDebounceMiddlewareDurationSupplier } from "./DebounceMiddlewareFactory";
+import { TDebounceMiddlewareDurationSupplier } from "./Debounce";
 
 type TDebouncedEvent = WithCurrentRequestOverride | WithReloadableCheck;
 

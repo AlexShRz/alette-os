@@ -190,6 +190,9 @@ importers:
 
   packages/pulse:
     dependencies:
+      '@alette/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@standard-schema/spec':
         specifier: ^1.0.0
         version: 1.0.0
@@ -207,11 +210,20 @@ importers:
         specifier: ^14.0.6
         version: 14.0.6
 
+  packages/shared:
+    devDependencies:
+      ts-toolbelt:
+        specifier: 6.13.11
+        version: 6.13.11
+
   packages/signal:
     dependencies:
       '@alette/pulse':
         specifier: workspace:*
         version: link:../pulse
+      '@alette/shared':
+        specifier: workspace:*
+        version: link:../shared
       effect:
         specifier: ^3.17.8
         version: 3.17.8

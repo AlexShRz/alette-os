@@ -1,27 +1,7 @@
-import { IHeaders } from "@alette/pulse";
 import * as E from "effect/Effect";
-import { IRequestContext } from "../../../context/IRequestContext";
-import { TGetAllRequestContext } from "../../../context/typeUtils/RequestIOTypes";
-import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
 import { AggregateRequestMiddleware } from "../../../execution/events/preparation/AggregateRequestMiddleware";
 import { Middleware } from "../../../middleware/Middleware";
-import { toMiddlewareFactory } from "../../../middleware/toMiddlewareFactory";
-import {
-	IRequestHeaders,
-	TGetRequestHeaders,
-} from "../../context/headers/RequestHeaders";
 import { HeadersMiddleware } from "./HeadersMiddleware";
-import { headersMiddlewareSpecification } from "./headersMiddlewareSpecification";
-
-export type THeaderSupplier<
-	Headers extends IHeaders = IHeaders,
-	C extends IRequestContext = IRequestContext,
-> =
-	| ((
-			requestContext: TGetAllRequestContext<C>,
-			prevHeaders: TGetRequestHeaders<C>,
-	  ) => Headers | Promise<Headers>)
-	| Headers;
 
 export class HeadersMiddlewareFactory extends Middleware(
 	"HeadersMiddlewareFactory",
@@ -42,27 +22,4 @@ export class HeadersMiddlewareFactory extends Middleware(
 					},
 				};
 			}),
-) {
-	static toFactory() {
-		return <Context extends IRequestContext, Headers extends IHeaders>(
-			headerSupplier: THeaderSupplier<Headers, Context>,
-		) => {
-			return toMiddlewareFactory<
-				Context,
-				IRequestContext<
-					Context["types"],
-					TMergeRecords<Context["value"], IRequestHeaders<Headers>>,
-					Context["settings"],
-					Context["accepts"],
-					Context["acceptsMounted"]
-				>,
-				typeof headersMiddlewareSpecification
-			>(
-				() =>
-					new HeadersMiddlewareFactory(
-						() => new HeadersMiddleware(headerSupplier as THeaderSupplier),
-					),
-			);
-		};
-	}
-}
+) {}

@@ -1,28 +1,25 @@
 import type { ApiError } from "@alette/pulse";
+import { TDeepMergeAsOpaqueValue } from "@alette/shared";
 import type { Ctor } from "effect/Types";
-import { IRequestContext } from "../../../context/IRequestContext";
-import { TMergeRecords } from "../../../context/typeUtils/TMergeRecords";
+import { IRequestContext } from "../../../context";
+import { IRequestContextPatch } from "../../../context/RequestContextPatches";
 
 export interface IRecognizedRequestError<Error extends ApiError = ApiError>
 	extends Ctor<Error> {}
 
-type TExtractErrorInstances<
+export type TExtractErrorInstances<
 	ErrorsConstructors extends IRecognizedRequestError[],
 > = ErrorsConstructors extends IRecognizedRequestError<infer E>[] ? E : never;
 
 export type TAddDefaultRequestErrors<
-	C extends IRequestContext,
 	ErrorsConstructors extends IRecognizedRequestError[],
 	Errors = TExtractErrorInstances<ErrorsConstructors>,
-> = C["types"]["originalErrorType"] extends ApiError
-	? TMergeRecords<
-			C["types"],
-			{
-				/**
-				 * Merge errors our prev errors are not of "unknown" type.
-				 * */
-				originalErrorType: Errors | C["types"]["originalErrorType"];
-				errorType: Errors | C["types"]["originalErrorType"];
-			}
-		>
-	: TMergeRecords<C["types"], { errorType: Errors; originalErrorType: Errors }>;
+> = IRequestContextPatch<
+	{
+		types: {
+			originalErrorType: TDeepMergeAsOpaqueValue<Errors>;
+			errorType: TDeepMergeAsOpaqueValue<Errors>;
+		};
+	},
+	"merge"
+>;

@@ -1,2 +1,2 @@
-export * from "./method";
+export * from "./Method";
 export { methodMiddlewareName } from "./methodMiddlewareSpecification";

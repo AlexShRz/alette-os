@@ -1,2 +1,2 @@
-export * from "./origin";
+export * from "./Origin";
 export { originMiddlewareName } from "./originMiddlewareSpecification";

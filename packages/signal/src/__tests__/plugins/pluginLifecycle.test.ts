@@ -46,6 +46,28 @@ test("it deactivates plugins", async () => {
 	});
 });
 
+test("it deactivates all plugins if nothing was passed to the deactivation command", async () => {
+	const api = client();
+	const { plugin: plugin1 } = defineApiPlugin("hello");
+	const { plugin: plugin2 } = defineApiPlugin("hello1");
+	const { plugin: plugin3 } = defineApiPlugin("hello2");
+
+	const core1 = plugin1.build();
+	const core2 = plugin2.build();
+	const core3 = plugin3.build();
+
+	api.tell(activatePlugins(core1, core2, core3));
+	const active = await api.ask(forActivePlugins());
+	expect(active).toStrictEqual(["hello", "hello1", "hello2"]);
+
+	api.tell(deactivatePlugins());
+
+	await vi.waitFor(async () => {
+		const active2 = await api.ask(forActivePlugins());
+		expect(active2).toEqual([]);
+	});
+});
+
 test("it creates a dedicated thread registry for each plugin", async () => {
 	const api = client();
 	const { plugin: plugin1 } = defineApiPlugin("hello");
@@ -127,7 +149,7 @@ test.todo(
 		);
 
 		api.tell(activatePlugins(core));
-		api.tell(deactivatePlugins(core));
+		api.tell(deactivatePlugins());
 
 		await vi.waitFor(() => {
 			expect(logged).toEqual([1, 2]);

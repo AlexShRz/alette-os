@@ -15,4 +15,4 @@ export const api = client(
 	activatePlugins(core.plugin),
 );
 
-export const { token, custom, cookie, query } = core.use();
+export const { custom, query } = core.use();

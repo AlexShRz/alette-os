@@ -9,9 +9,9 @@ import { RequestState } from "../../../execution/events/request/RequestState";
 import { RequestMetrics } from "../../../execution/services/RequestMetrics";
 import { RequestSessionContext } from "../../../execution/services/RequestSessionContext";
 import { Middleware } from "../../../middleware/Middleware";
-import { MiddlewarePriority } from "../../../middleware/MiddlewarePriority";
+import { MiddlewarePriority } from "../../../middleware/constants/MiddlewarePriority";
 import { IRetrySettings } from "../RetrySettings";
-import { IRetryWhenMiddlewareArgs } from "./RetryWhenMiddlewareFactory";
+import { IRetryWhenMiddlewareArgs } from "./RetryWhen";
 
 export class RetryWhenMiddleware extends Middleware("RetryWhenMiddleware", {
 	priority: MiddlewarePriority.Interception,

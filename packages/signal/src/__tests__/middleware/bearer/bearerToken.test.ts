@@ -26,7 +26,7 @@ test("it marks token as invalid if the request fails with unauthenticated status
 	);
 
 	try {
-		await getData.execute();
+		await getData();
 	} catch {}
 
 	expect(await myToken.isValid()).toBeFalsy();
@@ -58,23 +58,21 @@ test(
 			}),
 		);
 
-		const res = await getData.execute();
+		const res = await getData();
 		expect(await myToken.isValid()).toBeTruthy();
 		expect(res).toEqual(expectedHeaders);
 
 		const obtainedToken = await myToken.get();
 		expect(obtainedToken).toEqual(tokenValue);
 
-		const res2 = await getData
-			.with(
-				factory(({ headers, url }) => {
-					return request(
-						r.route(url.setOrigin(testUrl.getOrigin())),
-						r.headers(headers),
-					).execute();
-				}),
-			)
-			.execute();
+		const res2 = await getData.with(
+			factory(({ headers, url }) => {
+				return request(
+					r.route(url.setOrigin(testUrl.getOrigin())),
+					r.headers(headers),
+				)();
+			}),
+		)();
 		expect(res2).toEqual(
 			expect.objectContaining({
 				authorization: expectedHeaders["Authorization"],
@@ -100,7 +98,7 @@ test("it does not override prev headers when converted to headers", async () => 
 		}),
 	);
 
-	const res = await getData.execute();
+	const res = await getData();
 	expect(await myToken.isValid()).toBeTruthy();
 
 	const value = await myToken.get();
@@ -128,7 +126,7 @@ test("it does not allow user provided headers to override injected token headers
 		}),
 	);
 
-	const res = await getData.execute();
+	const res = await getData();
 	expect(await myToken.isValid()).toBeTruthy();
 
 	const value = await myToken.get();

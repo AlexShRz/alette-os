@@ -1,11 +1,8 @@
-import {
-	IMiddlewareSupplierFn,
-	IRuntimeMiddlewareSupplierFn,
-} from "../../domain/middleware/IMiddlewareSupplierFn";
+import { TAnyMiddlewareFacade } from "../../domain/middleware/TAnyMiddlewareFacade";
 import { ApiPlugin } from "../plugins/ApiPlugin";
 
 export abstract class AbstractBlueprintBuilder {
-	protected middlewareFactories: IMiddlewareSupplierFn<any, any, any, any>[] =
+	protected middlewareFactories: TAnyMiddlewareFacade<any, any, any, any>[] =
 		[];
 	protected plugin: ApiPlugin | null = null;
 
@@ -38,8 +35,8 @@ export abstract class AbstractBlueprintBuilder {
 	}
 
 	protected buildMiddleware() {
-		return (
-			[...this.middlewareFactories] as IRuntimeMiddlewareSupplierFn[]
-		).map((supplier) => supplier()());
+		return [...this.middlewareFactories].map((supplier) =>
+			supplier.getMiddleware(),
+		);
 	}
 }

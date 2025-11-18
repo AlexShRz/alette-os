@@ -7,9 +7,10 @@ import { createTestApi, server } from "../../utils";
 test(
 	"it includes credentials if needed",
 	server.boundary(async () => {
-		const { api, testUrl, core } = createTestApi();
+		const { api, testUrl, core, auth } = createTestApi();
 		api.tell(setOrigin(testUrl.getOrigin()));
-		const { mutation, cookie } = core.use();
+		const { mutation } = core.use();
+		const { cookie } = auth.use();
 
 		const authCookie = cookie()
 			.from(() => {})
@@ -21,10 +22,7 @@ test(
 			}),
 		);
 
-		const res = await mutation(
-			output(as<boolean>()),
-			bearer(authCookie),
-		).execute();
+		const res = await mutation(output(as<boolean>()), bearer(authCookie))();
 
 		await vi.waitFor(() => {
 			expect(res).toBeTruthy();

@@ -1,2 +1,2 @@
-export * from "./throttle";
+export * from "./Throttle";
 export { throttleMiddlewareName } from "./throttleMiddlewareSpecification";
